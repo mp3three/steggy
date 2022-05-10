@@ -1,7 +1,7 @@
 import { RoomDTO } from '@steggy/controller-shared';
 import { Button, Dropdown, Menu, Popconfirm } from 'antd';
 
-import { FD_ICONS, sendRequest } from '../../types';
+import { FD_ICONS, MenuItem, sendRequest } from '../../types';
 import { ItemPin } from '../misc';
 
 export function RoomExtraActions(props: {
@@ -30,33 +30,45 @@ export function RoomExtraActions(props: {
   return (
     <Dropdown
       overlay={
-        <Menu>
-          <Menu.Item key="delete">
-            <Popconfirm
-              icon={FD_ICONS.get('delete')}
-              title={`Are you sure you want to delete ${props.room?.friendlyName}?`}
-              onConfirm={() => remove()}
-            >
-              <Button
-                style={{ textAlign: 'start', width: '100%' }}
-                danger
-                icon={FD_ICONS.get('remove')}
-              >
-                Delete
-              </Button>
-            </Popconfirm>
-          </Menu.Item>
-          <Menu.Item key="clone">
-            <Button
-              onClick={() => clone()}
-              icon={FD_ICONS.get('clone')}
-              style={{ textAlign: 'start', width: '100%' }}
-            >
-              Clone
-            </Button>
-          </Menu.Item>
-          <ItemPin type="room" target={props.room?._id} menuItem />
-        </Menu>
+        <Menu
+          items={
+            [
+              {
+                label: (
+                  <Popconfirm
+                    icon={FD_ICONS.get('delete')}
+                    title={`Are you sure you want to delete ${props.room?.friendlyName}?`}
+                    onConfirm={() => remove()}
+                  >
+                    <Button
+                      style={{ textAlign: 'start', width: '100%' }}
+                      danger
+                      icon={FD_ICONS.get('remove')}
+                    >
+                      Delete
+                    </Button>
+                  </Popconfirm>
+                ),
+              },
+              {
+                label: (
+                  <Button
+                    onClick={() => clone()}
+                    icon={FD_ICONS.get('clone')}
+                    style={{ textAlign: 'start', width: '100%' }}
+                  >
+                    Clone
+                  </Button>
+                ),
+              },
+              {
+                label: (
+                  <ItemPin type="room" target={props.room?._id} menuItem />
+                ),
+              },
+            ] as MenuItem[]
+          }
+        />
       }
     >
       <Button type="text" size="small">

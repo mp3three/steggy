@@ -5,7 +5,7 @@ import {
 import { is } from '@steggy/utilities';
 import { Button, Dropdown, Menu, Popconfirm } from 'antd';
 
-import { FD_ICONS, sendRequest } from '../../types';
+import { FD_ICONS, MenuItem, sendRequest } from '../../types';
 import { ItemPin } from '../misc';
 
 export function RoutineExtraActions(props: {
@@ -47,44 +47,62 @@ export function RoutineExtraActions(props: {
   return (
     <Dropdown
       overlay={
-        <Menu>
-          <Menu.Item key="activate">
-            <Button
-              type="primary"
-              style={{ textAlign: 'start', width: '100%' }}
-              icon={FD_ICONS.get('execute')}
-              disabled={is.empty(props.routine?.command)}
-              onClick={() => activateRoutine()}
-            >
-              Manual Activate
-            </Button>
-          </Menu.Item>
-          <Menu.Item key="delete">
-            <Popconfirm
-              title={`Are you sure you want to delete ${props?.routine?.friendlyName}?`}
-              onConfirm={() => deleteRoutine()}
-            >
-              <Button
-                danger
-                style={{ textAlign: 'start', width: '100%' }}
-                icon={FD_ICONS.get('remove')}
-                disabled={!props.routine}
-              >
-                Delete
-              </Button>
-            </Popconfirm>
-          </Menu.Item>
-          <Menu.Item>
-            <Button
-              onClick={() => clone()}
-              icon={FD_ICONS.get('clone')}
-              style={{ textAlign: 'start', width: '100%' }}
-            >
-              Clone
-            </Button>
-          </Menu.Item>
-          <ItemPin type="routine" target={props.routine?._id} menuItem />
-        </Menu>
+        <Menu
+          items={
+            [
+              {
+                label: (
+                  <Button
+                    type="primary"
+                    style={{ textAlign: 'start', width: '100%' }}
+                    icon={FD_ICONS.get('execute')}
+                    disabled={is.empty(props.routine?.command)}
+                    onClick={() => activateRoutine()}
+                  >
+                    Manual Activate
+                  </Button>
+                ),
+              },
+              {
+                label: (
+                  <Popconfirm
+                    title={`Are you sure you want to delete ${props?.routine?.friendlyName}?`}
+                    onConfirm={() => deleteRoutine()}
+                  >
+                    <Button
+                      danger
+                      style={{ textAlign: 'start', width: '100%' }}
+                      icon={FD_ICONS.get('remove')}
+                      disabled={!props.routine}
+                    >
+                      Delete
+                    </Button>
+                  </Popconfirm>
+                ),
+              },
+              {
+                label: (
+                  <Button
+                    onClick={() => clone()}
+                    icon={FD_ICONS.get('clone')}
+                    style={{ textAlign: 'start', width: '100%' }}
+                  >
+                    Clone
+                  </Button>
+                ),
+              },
+              {
+                label: (
+                  <ItemPin
+                    type="routine"
+                    target={props.routine?._id}
+                    menuItem
+                  />
+                ),
+              },
+            ] as MenuItem[]
+          }
+        />
       }
     >
       <Button type="text" size="small">

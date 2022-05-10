@@ -1,9 +1,7 @@
-import { Menu, MenuProps } from 'antd';
+import { Menu } from 'antd';
 import { Link } from 'react-router-dom';
 
-import { FD_ICONS } from '../../types';
-
-type MenuItem = Required<MenuProps>['items'][number];
+import { FD_ICONS, MenuItem } from '../../types';
 
 function getSelected(isConfigured: boolean): string[] {
   if (!isConfigured) {

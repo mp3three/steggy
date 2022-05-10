@@ -25,7 +25,7 @@ import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import { useEffect, useState } from 'react';
 
-import { FD_ICONS, sendRequest } from '../../types';
+import { FD_ICONS, MenuItem, sendRequest } from '../../types';
 import { EntityInspect } from './EntityInspect';
 
 type showTypes = 'default' | 'all';
@@ -202,28 +202,40 @@ export function EntityPage() {
                   <Col span={2}>
                     <Dropdown
                       overlay={
-                        <Menu>
-                          <Menu.Item>
-                            <Button
-                              style={{ width: '100%' }}
-                              onClick={() => setShowType('default')}
-                              type={
-                                showType === 'default' ? 'primary' : 'default'
-                              }
-                            >
-                              Default List
-                            </Button>
-                          </Menu.Item>
-                          <Menu.Item>
-                            <Button
-                              style={{ width: '100%' }}
-                              onClick={() => setShowType('all')}
-                              type={showType === 'all' ? 'primary' : 'default'}
-                            >
-                              Include Hidden
-                            </Button>
-                          </Menu.Item>
-                        </Menu>
+                        <Menu
+                          items={
+                            [
+                              {
+                                label: (
+                                  <Button
+                                    style={{ width: '100%' }}
+                                    onClick={() => setShowType('default')}
+                                    type={
+                                      showType === 'default'
+                                        ? 'primary'
+                                        : 'default'
+                                    }
+                                  >
+                                    Default List
+                                  </Button>
+                                ),
+                              },
+                              {
+                                label: (
+                                  <Button
+                                    style={{ width: '100%' }}
+                                    onClick={() => setShowType('all')}
+                                    type={
+                                      showType === 'all' ? 'primary' : 'default'
+                                    }
+                                  >
+                                    Include Hidden
+                                  </Button>
+                                ),
+                              },
+                            ] as MenuItem[]
+                          }
+                        />
                       }
                     >
                       <Button

@@ -7,7 +7,7 @@
   "name": "@steggy/server",
   "license": "MIT",
   "displayName": "Server",
-  "version": "0.10.28",
+  "version": "0.10.29",
   "homepage": "https://github.com/ccontour/steggy",
   "repository": {
     "type": "git",

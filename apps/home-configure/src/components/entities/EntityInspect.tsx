@@ -18,7 +18,7 @@ import { dump } from 'js-yaml';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-import { domain, FD_ICONS, sendRequest } from '../../types';
+import { domain, FD_ICONS, MenuItem, sendRequest } from '../../types';
 import { ItemPin } from '../misc';
 import { FanEntityCard, LightEntityCard, SwitchEntityCard } from './domains';
 import { EntityHistory } from './EntityHistory';
@@ -210,15 +210,29 @@ export function EntityInspect(props: {
         <Dropdown
           placement="bottomRight"
           overlay={
-            <Menu>
-              <Menu.Item>
-                <EntityIdChange
-                  entity={props.entity?.entity_id}
-                  onRename={name => props.onRename(name)}
-                />
-              </Menu.Item>
-              <ItemPin type="entity" target={props.entity.entity_id} menuItem />
-            </Menu>
+            <Menu
+              items={
+                [
+                  {
+                    label: (
+                      <EntityIdChange
+                        entity={props.entity?.entity_id}
+                        onRename={name => props.onRename(name)}
+                      />
+                    ),
+                  },
+                  {
+                    label: (
+                      <ItemPin
+                        type="entity"
+                        target={props.entity.entity_id}
+                        menuItem
+                      />
+                    ),
+                  },
+                ] as MenuItem[]
+              }
+            />
           }
         >
           <Button type="text" size="small">

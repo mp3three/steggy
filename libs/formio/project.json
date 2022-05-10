@@ -16,7 +16,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Formio",
+            "command": "npx figlet-cli -f Pagga Formio",
             "description": "Announce it"
           },
           {
