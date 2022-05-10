@@ -1,14 +1,6 @@
 import { NotImplementedException } from '@nestjs/common';
-import {
-  AutoLogService,
-  CacheManagerService,
-  InjectCache,
-} from '@steggy/boilerplate';
-import {
-  GroupDTO,
-  RoomDTO,
-  RoomEntityDTO,
-} from '@steggy/controller-shared';
+import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
+import { GroupDTO, RoomDTO, RoomEntityDTO } from '@steggy/controller-shared';
 import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
@@ -18,6 +10,7 @@ import {
   PromptEntry,
   PromptService,
   Repl,
+  SyncLoggerService,
   ToMenuEntry,
 } from '@steggy/tty';
 import { DOWN, FILTER_OPERATIONS, is, LABEL, UP } from '@steggy/utilities';
@@ -43,7 +36,7 @@ export class RoomCommandService {
   constructor(
     @InjectCache()
     private readonly cache: CacheManagerService,
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,

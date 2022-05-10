@@ -1,12 +1,11 @@
 /* eslint-disable radar/no-duplicate-string */
-import { AutoLogService, QuickScript } from '@steggy/boilerplate';
+import { QuickScript } from '@steggy/boilerplate';
 import {
-  ansiMaxLength,
   ApplicationManagerService,
   PromptService,
   ScreenService,
   SyncLoggerService,
-  TextRenderingService,
+  ToMenuEntry,
   TTYModule,
 } from '@steggy/tty';
 import { eachSeries, is } from '@steggy/utilities';
@@ -38,7 +37,6 @@ export class BuildPipelineService {
     private readonly promptService: PromptService,
     private readonly screenService: ScreenService,
     private readonly applicationManager: ApplicationManagerService,
-    private readonly textRendering: TextRenderingService,
   ) {}
 
   public async exec(): Promise<void> {
@@ -46,10 +44,21 @@ export class BuildPipelineService {
     if (!is.empty(affected.libs)) {
       await this.bumpLibraries(affected);
     }
-    await this.bumpApplications(affected);
+    await this.promptService.menu({
+      right: ToMenuEntry(affected.apps.map(i => [i, i])),
+    });
+    const apps = await this.promptService.listBuild({
+      current: affected.apps.map(i => [i, i]),
+      items: 'Applications',
+      source: [],
+    });
+    if (!is.empty(apps)) {
+      await this.bumpApplications(apps);
+    }
+    this.logger.warn('DONE!');
   }
 
-  private async bumpApplications({ apps }: AffectedList): Promise<void> {
+  private async bumpApplications(apps: string[]): Promise<void> {
     apps.forEach(application => {
       const file = join('apps', application, 'package.json');
       if (!existsSync(file)) {
@@ -64,6 +73,7 @@ export class BuildPipelineService {
         `[${application}] {${packageJSON.version}} => {${update}}`,
       );
       packageJSON.version = update;
+      return;
       writeFileSync(file, JSON.stringify(packageJSON, undefined, '  ') + `\n`);
     });
     await eachSeries(apps, async app => {
@@ -77,6 +87,9 @@ export class BuildPipelineService {
 
   private async bumpLibraries(list: AffectedList) {
     const root = await this.bumpRoot(list);
+    if (!root) {
+      return;
+    }
     const { projects } = JSON.parse(readFileSync('workspace.json', 'utf8')) as {
       projects: Record<string, string>;
     };
@@ -88,6 +101,7 @@ export class BuildPipelineService {
       const packageJSON = JSON.parse(readFileSync(file, 'utf8')) as PACKAGE;
       this.logger.debug(`[${library}] {${packageJSON.version}} => {${root}}`);
       packageJSON.version = root;
+      return;
       writeFileSync(file, JSON.stringify(packageJSON, undefined, '  ') + `\n`);
     });
     await eachSeries(libraries, async library => {
@@ -103,8 +117,16 @@ export class BuildPipelineService {
     const packageJSON = JSON.parse(
       readFileSync('package.json', 'utf8'),
     ) as PACKAGE;
-    packageJSON.version = inc(packageJSON.version, 'patch');
-    await this.confirmActions(affected, packageJSON.version);
+    const newVersion = inc(packageJSON.version, 'patch');
+    const proceed = await this.confirmActions(
+      affected,
+      newVersion,
+      packageJSON.version,
+    );
+    packageJSON.version = newVersion;
+    if (!proceed) {
+      return ``;
+    }
     writeFileSync(
       'package.json',
       JSON.stringify(packageJSON, undefined, '  ') + `\n`,
@@ -112,10 +134,12 @@ export class BuildPipelineService {
     return packageJSON.version;
   }
 
-  private async confirmActions({ apps, libs }: AffectedList, version: string) {
-    const maxLength = this.applicationManager.setHeader(
-      `Bump Library Versions`,
-    );
+  private async confirmActions(
+    { apps, libs }: AffectedList,
+    newVersion: string,
+    oldVersion: string,
+  ) {
+    this.applicationManager.setHeader(`Bump Library Versions`);
     this.screenService.print(chalk`The following projects were affected:`);
     this.screenService.down();
     this.screenService.print(chalk.bold.cyan`APPS`);
@@ -133,15 +157,12 @@ export class BuildPipelineService {
       );
     });
     this.screenService.down();
-    this.screenService.print(chalk.bold.cyan`LIBS`);
+    this.screenService.print(
+      chalk.bold`{cyan LIBS} {blue ${oldVersion}} {white =>} {blue ${newVersion}}`,
+    );
     libs.forEach(line => this.screenService.print(chalk` {yellow - } ${line}`));
     this.screenService.down();
-    this.screenService.hr(maxLength);
-    const prompt = chalk`Bump all libraries to {blue ${version}}?`;
-    const padding = Math.floor((maxLength - ansiMaxLength(prompt)) / 2);
-    this.screenService.print(' '.repeat(padding) + prompt);
-    this.screenService.hr(maxLength);
-    await this.promptService.acknowledge();
+    return await this.promptService.confirm('Upgrade libraries?', true);
   }
 
   private async listAffected(): Promise<AffectedList> {

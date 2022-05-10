@@ -1,5 +1,4 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
-import { AutoLogService } from '@steggy/boilerplate';
 import {
   GeneralSaveStateDTO,
   GENERIC_COMMANDS,
@@ -19,6 +18,7 @@ import {
   PromptService,
   RGB,
   ScreenService,
+  SyncLoggerService,
 } from '@steggy/tty';
 import { DOWN, is, START, TitleCase, UP } from '@steggy/utilities';
 import { each } from 'async';
@@ -52,7 +52,7 @@ const GENERIC_COMMANDS: PromptEntry<GENERIC_COMMANDS>[] = [
 @Injectable()
 export class LightGroupCommandService {
   constructor(
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly applicationManager: ApplicationManagerService,
     private readonly screenService: ScreenService,

@@ -6,7 +6,6 @@ import {
   InternalServerErrorException,
   NotImplementedException,
 } from '@nestjs/common';
-import { AutoLogService } from '@steggy/boilerplate';
 import {
   GeneralSaveStateDTO,
   RoomDTO,
@@ -21,6 +20,7 @@ import {
   PromptEntry,
   PromptService,
   ScreenService,
+  SyncLoggerService,
   TextRenderingService,
   ToMenuEntry,
 } from '@steggy/tty';
@@ -46,7 +46,7 @@ type RCService = RoomCommandService;
 @Injectable()
 export class RoomStateService {
   constructor(
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     @Inject(forwardRef(() => RoomCommandService))
     private readonly roomService: RCService,

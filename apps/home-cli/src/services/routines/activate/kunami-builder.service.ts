@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@steggy/boilerplate';
 import { KunamiCodeActivateDTO } from '@steggy/controller-shared';
 import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
-import { PromptService } from '@steggy/tty';
+import { PromptService, SyncLoggerService } from '@steggy/tty';
 import { is } from '@steggy/utilities';
 import chalk from 'chalk';
 
@@ -14,7 +13,7 @@ const DEFAULT_RECORD_DURATION = 5;
 @Injectable()
 export class KunamiBuilderService {
   constructor(
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly entityService: EntityService,
     private readonly fetchService: HomeFetchService,

@@ -5,7 +5,6 @@ import {
   InternalServerErrorException,
   NotImplementedException,
 } from '@nestjs/common';
-import { AutoLogService } from '@steggy/boilerplate';
 import {
   GeneralSaveStateDTO,
   GroupDTO,
@@ -21,6 +20,7 @@ import {
   PromptEntry,
   PromptService,
   ScreenService,
+  SyncLoggerService,
   TextRenderingService,
   ToMenuEntry,
 } from '@steggy/tty';
@@ -41,7 +41,7 @@ type GService = GroupCommandService;
 @Injectable()
 export class GroupStateService {
   constructor(
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
     @Inject(forwardRef(() => GroupCommandService))

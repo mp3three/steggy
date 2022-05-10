@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, ModuleScannerService } from '@steggy/boilerplate';
+import { ModuleScannerService } from '@steggy/boilerplate';
 
 import {
   COMPONENT_CONFIG,
@@ -9,10 +9,7 @@ import {
 
 @Injectable()
 export class ComponentExplorerService {
-  constructor(
-    private readonly scanner: ModuleScannerService,
-    private readonly logger: AutoLogService,
-  ) {}
+  constructor(private readonly scanner: ModuleScannerService) {}
 
   public readonly REGISTERED_EDITORS = new Map<ComponentOptions, iComponent>();
 
@@ -30,7 +27,7 @@ export class ComponentExplorerService {
     return out;
   }
 
-  public findSettingsBytype(type: string): ComponentOptions {
+  public findSettingsByType(type: string): ComponentOptions {
     let out: ComponentOptions;
     this.REGISTERED_EDITORS.forEach((__, settings) => {
       if (settings.type === type) {

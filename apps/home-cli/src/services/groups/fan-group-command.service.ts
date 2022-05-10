@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@steggy/boilerplate';
 import {
   GENERIC_COMMANDS,
   GroupDTO,
   RoutineCommandGroupActionDTO,
 } from '@steggy/controller-shared';
-import { ICONS, KeyMap, PromptEntry, PromptService } from '@steggy/tty';
+import {
+  ICONS,
+  KeyMap,
+  PromptEntry,
+  PromptService,
+  SyncLoggerService,
+} from '@steggy/tty';
 import { is } from '@steggy/utilities';
 
 import { HomeFetchService } from '../home-fetch.service';
@@ -15,7 +20,7 @@ export class FanGroupCommandService {
   constructor(
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
   ) {}
 
   public keyMap: KeyMap = {

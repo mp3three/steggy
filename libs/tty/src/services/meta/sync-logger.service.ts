@@ -18,11 +18,15 @@ import dayjs from 'dayjs';
 
 import { ScreenService } from './screen.service';
 
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+const SORTED_LEVELS = [
+  'trace',
+  'debug',
+  'info',
+  'warn',
+  'error',
+  'fatal',
+] as LogLevels[];
 
-/**
- * Use `@InjectLogger()` if context is not automatically found
- */
 @Injectable({ scope: Scope.TRANSIENT })
 export class SyncLoggerService {
   constructor(
@@ -144,19 +148,25 @@ export class SyncLoggerService {
   }
 
   private log(level: LogLevels, ...parameters: Parameters<LoggerFunction>) {
-    const context = chalk`{${methodColors.get(level)} [${this.context}}]`;
+    if (SORTED_LEVELS.indexOf(level) < SORTED_LEVELS.indexOf(this.level)) {
+      return;
+    }
+    const context = chalk`{bold.${methodColors
+      .get(level)
+      .slice('bg'.length)
+      .toLowerCase()} [${this.context}]}`;
     const data = chalk.gray(
-      JSON.stringify(
-        is.object(parameters[START])
-          ? (parameters.shift() as Record<string, unknown>)
-          : {},
-      ),
+      is.object(parameters[START])
+        ? JSON.stringify(parameters.shift() as Record<string, unknown>)
+        : '',
     );
     const message = prettyFormatMessage(
       is.string(parameters[START]) ? (parameters.shift() as string) : ``,
     );
     this.screenService.print(
-      `[${dayjs().format('ddd HH:mm:ss.SSS')}]: ${context} ${message} ${data}`,
+      `[${dayjs().format('ddd HH:mm:ss.SSS')}]: ${context} ${chalk.cyan(
+        message,
+      )} ${data}`,
     );
   }
 }

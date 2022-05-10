@@ -1,10 +1,11 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { AutoLogService, CastResult, QuickScript } from '@steggy/boilerplate';
+import { CastResult, QuickScript } from '@steggy/boilerplate';
 import { RoutineDTO } from '@steggy/controller-shared';
 import { BaseMongoService, QuickConnectModule } from '@steggy/persistence';
 import {
   ApplicationManagerService,
   PromptService,
+  SyncLoggerService,
   TTYModule,
 } from '@steggy/tty';
 import { ResultControlDTO } from '@steggy/utilities';
@@ -21,7 +22,7 @@ export class RoutineUndelete extends BaseMongoService {
     @InjectModel(RoutineDTO.name)
     private readonly model: Model<RoutineDTO & Document>,
     private readonly promptService: PromptService,
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     private readonly app: ApplicationManagerService,
   ) {
     super();

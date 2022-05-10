@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
+import { InjectConfig } from '@steggy/boilerplate';
 import { DOWN, is, LABEL, UP, VALUE } from '@steggy/utilities';
 import dayjs from 'dayjs';
 import inquirer from 'inquirer';
@@ -8,7 +8,7 @@ import Separator from 'inquirer/lib/objects/separator';
 import { PAGE_SIZE } from '../config';
 import { PromptMenuItems, TableBuilderOptions } from '../contracts';
 import { ListBuilderOptions, MenuComponentOptions } from './components';
-import { ApplicationManagerService } from './meta';
+import { ApplicationManagerService, SyncLoggerService } from './meta';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
@@ -24,7 +24,7 @@ const FROM_OFFSET = 1;
 @Injectable()
 export class PromptService {
   constructor(
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
@@ -211,8 +211,8 @@ export class PromptService {
         const label = item[LABEL] as string | PROMPT_WITH_SHORT;
         return is.string(label)
           ? {
-              // Adding emojies can sometimes cause the final character to have rendering issues
-              // Insert sacraficial empty space to the end
+              // Adding emoji can sometimes cause the final character to have rendering issues
+              // Insert sacrificial empty space to the end
               name: `${label} `,
               short: `${label}${extendedShort ? ' ' : ''}`,
               value: item[VALUE] as T,

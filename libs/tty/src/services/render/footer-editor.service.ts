@@ -17,7 +17,7 @@ export class FooterEditorService {
     if (item.customKeymap) {
       return item.customKeymap({ ...element, type }, current);
     }
-    return this.editorExplorer.findSettingsBytype(type).keyMap;
+    return this.editorExplorer.findSettingsByType(type).keyMap;
   }
 
   public initConfig(current: unknown, element: TableBuilderElement): unknown {

@@ -1,12 +1,8 @@
-import {
-  AutoLogService,
-  FetchService,
-  InjectConfig,
-  QuickScript,
-} from '@steggy/boilerplate';
+import { FetchService, InjectConfig, QuickScript } from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
   PromptService,
+  SyncLoggerService,
   TTYModule,
 } from '@steggy/tty';
 import { FIRST, SINGLE } from '@steggy/utilities';
@@ -24,7 +20,7 @@ const DEFAULT_PAD_SIZE = 4;
 export class ImgurAlbumDownloadService {
   constructor(
     private readonly promptService: PromptService,
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     private readonly app: ApplicationManagerService,
     private readonly fetchService: FetchService,
     @InjectConfig('ALBUM_DOWNLOAD_TARGET')

@@ -1,5 +1,4 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { AutoLogService } from '@steggy/boilerplate';
 import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
@@ -9,7 +8,7 @@ import {
   ICONS,
   IsDone,
   PromptService,
-  Repl,
+  SyncLoggerService,
   ToMenuEntry,
 } from '@steggy/tty';
 import { is } from '@steggy/utilities';
@@ -24,7 +23,7 @@ const SINGLE_ITEM = 1;
 @Injectable()
 export class DeviceService {
   constructor(
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
     @Inject(forwardRef(() => EntityService))

@@ -4,11 +4,7 @@ import {
   InternalServerErrorException,
   NotImplementedException,
 } from '@nestjs/common';
-import {
-  AutoLogService,
-  CacheManagerService,
-  InjectCache,
-} from '@steggy/boilerplate';
+import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
 import {
   GeneralSaveStateDTO,
   GROUP_TYPES,
@@ -27,6 +23,7 @@ import {
   PromptEntry,
   PromptService,
   Repl,
+  SyncLoggerService,
   ToMenuEntry,
 } from '@steggy/tty';
 import {
@@ -100,7 +97,7 @@ export class GroupCommandService implements iRepl {
   constructor(
     @InjectCache()
     private readonly cache: CacheManagerService,
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
     private readonly entityService: EntityService,

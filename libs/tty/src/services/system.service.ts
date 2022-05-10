@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
   AbstractConfig,
-  AutoLogService,
   PACKAGE_FILE,
   WorkspaceService,
 } from '@steggy/boilerplate';
@@ -19,6 +18,7 @@ import { cwd } from 'process';
 import { inc } from 'semver';
 
 import { NXAffected } from '../contracts';
+import { SyncLoggerService } from './meta';
 import { PromptService } from './prompt.service';
 
 /**
@@ -28,7 +28,7 @@ import { PromptService } from './prompt.service';
 @Injectable()
 export class SystemService {
   constructor(
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly workspace: WorkspaceService,
   ) {}

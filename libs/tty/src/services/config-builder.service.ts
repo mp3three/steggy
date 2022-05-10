@@ -7,18 +7,15 @@ import {
   AbstractConfig,
   ACTIVE_APPLICATION,
   AutoConfigService,
-  AutoLogService,
   ConfigTypeDTO,
   InjectLogger,
-  SCAN_CONFIG_CONFIGURATION,
   StringConfig,
   WorkspaceService,
 } from '@steggy/boilerplate';
 import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
-import execa from 'execa';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 import { get, set } from 'object-path';
@@ -27,7 +24,11 @@ import { join } from 'path';
 
 import { DONE, ICONS, IsDone } from '../contracts';
 import { ToMenuEntry } from './components';
-import { ApplicationManagerService, ScreenService } from './meta';
+import {
+  ApplicationManagerService,
+  ScreenService,
+  SyncLoggerService,
+} from './meta';
 import { PromptEntry, PromptService } from './prompt.service';
 
 const ARGV_APP = 3;
@@ -43,7 +44,7 @@ export class ConfigBuilderService {
   constructor(
     @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
     @InjectLogger()
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     private readonly workspace: WorkspaceService,
     private readonly promptService: PromptService,
     private readonly configService: AutoConfigService,

@@ -1,5 +1,4 @@
 import { NotImplementedException } from '@nestjs/common';
-import { AutoLogService } from '@steggy/boilerplate';
 import { HomeAssistantServerLogItem } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
@@ -8,6 +7,7 @@ import {
   PromptService,
   Repl,
   ScreenService,
+  SyncLoggerService,
   ToMenuEntry,
 } from '@steggy/tty';
 import { is, START, TitleCase } from '@steggy/utilities';
@@ -29,7 +29,7 @@ const LEVELS = new Map([
 })
 export class ServerLogsService {
   constructor(
-    private readonly logger: AutoLogService,
+    private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
     private readonly screenService: ScreenService,

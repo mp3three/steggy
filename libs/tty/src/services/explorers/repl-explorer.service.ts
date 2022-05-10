@@ -1,14 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, ModuleScannerService } from '@steggy/boilerplate';
+import { ModuleScannerService } from '@steggy/boilerplate';
 
 import { iRepl, REPL_CONFIG, ReplOptions } from '../../contracts';
 
 @Injectable()
 export class ReplExplorerService {
-  constructor(
-    private readonly scanner: ModuleScannerService,
-    private readonly logger: AutoLogService,
-  ) {}
+  constructor(private readonly scanner: ModuleScannerService) {}
 
   public readonly REGISTERED_APPS = new Map<ReplOptions, iRepl>();
 

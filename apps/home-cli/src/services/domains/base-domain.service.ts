@@ -1,6 +1,5 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import {
-  AutoLogService,
   CacheManagerService,
   InjectCache,
   InjectConfig,
@@ -23,6 +22,7 @@ import {
   PromptEntry,
   PromptService,
   ScreenService,
+  SyncLoggerService,
   ToMenuEntry,
 } from '@steggy/tty';
 import {
@@ -68,7 +68,7 @@ export class BaseDomainService {
     @InjectCache()
     private readonly cache: CacheManagerService,
     private readonly chartingService: ChartingService,
-    protected readonly logger: AutoLogService,
+    protected readonly logger: SyncLoggerService,
     protected readonly fetchService: HomeFetchService,
     protected readonly screenService: ScreenService,
     protected readonly applicationManager: ApplicationManagerService,
