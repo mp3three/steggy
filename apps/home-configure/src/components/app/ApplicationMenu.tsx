@@ -1,7 +1,9 @@
-import { Menu } from 'antd';
+import { Menu, MenuProps } from 'antd';
 import { Link } from 'react-router-dom';
 
 import { FD_ICONS } from '../../types';
+
+type MenuItem = Required<MenuProps>['items'][number];
 
 function getSelected(isConfigured: boolean): string[] {
   if (!isConfigured) {
@@ -34,32 +36,49 @@ export function ApplicationMenu(props: { isConfigured: boolean }) {
       theme="dark"
       defaultSelectedKeys={getSelected(props.isConfigured)}
       mode="inline"
-    >
-      {!props.isConfigured ? undefined : (
-        <>
-          <Menu.Item key="home" icon={FD_ICONS.get('home')}>
-            <Link to="/">Home</Link>
-          </Menu.Item>
-          <Menu.Item key="groups" icon={FD_ICONS.get('groups')}>
-            <Link to="/groups">Groups</Link>
-          </Menu.Item>
-          <Menu.Item key="rooms" icon={FD_ICONS.get('rooms')}>
-            <Link to="/rooms">Rooms</Link>
-          </Menu.Item>
-          <Menu.Item key="people" icon={FD_ICONS.get('people')}>
-            <Link to="/people">People</Link>
-          </Menu.Item>
-          <Menu.Item key="routines" icon={FD_ICONS.get('routines')}>
-            <Link to="/routines">Routines</Link>
-          </Menu.Item>
-          <Menu.Item key="entities" icon={FD_ICONS.get('entities')}>
-            <Link to="/entities">Entities</Link>
-          </Menu.Item>
-        </>
-      )}
-      <Menu.Item key="settings" icon={FD_ICONS.get('settings')}>
-        <Link to="/settings">Settings</Link>
-      </Menu.Item>
-    </Menu>
+      items={
+        [
+          ...(!props.isConfigured
+            ? []
+            : [
+                {
+                  icon: FD_ICONS.get('home'),
+                  key: 'home',
+                  label: <Link to="/">Home</Link>,
+                },
+                {
+                  icon: FD_ICONS.get('groups'),
+                  key: 'groups',
+                  label: <Link to="/groups">Groups</Link>,
+                },
+                {
+                  icon: FD_ICONS.get('rooms'),
+                  key: 'rooms',
+                  label: <Link to="/rooms">Rooms</Link>,
+                },
+                {
+                  icon: FD_ICONS.get('people'),
+                  key: 'people',
+                  label: <Link to="/people">People</Link>,
+                },
+                {
+                  icon: FD_ICONS.get('routines'),
+                  key: 'routines',
+                  label: <Link to="/routines">Routines</Link>,
+                },
+                {
+                  icon: FD_ICONS.get('entities'),
+                  key: 'entities',
+                  label: <Link to="/entities">Entities</Link>,
+                },
+              ]),
+          {
+            icon: FD_ICONS.get('settings'),
+            key: 'settings',
+            label: <Link to="/settings">Settings</Link>,
+          },
+        ] as MenuItem[]
+      }
+    />
   );
 }
