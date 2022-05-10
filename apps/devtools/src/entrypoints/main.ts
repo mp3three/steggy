@@ -3,5 +3,4 @@
 
 // import './imgur-album-download.service';
 // import './routine-undelete.service';
-import './build-pipeline.service';
 // import './font-sampler.service';

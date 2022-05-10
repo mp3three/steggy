@@ -11,7 +11,7 @@
   "scripts": {
     "dev-controller": "npx nx serve home-controller & npx nx serve home-configure",
     "controller": "npx nx build-docker home-controller",
-    "pipeline": "./tools/scripts/publish-pipeline.sh",
+    "pipeline": "node tools/scripts/pipeline.js",
     "lint": "npx nx run-many --all --target=lint --fix",
     "nx": "npx nx",
     "nx-migrate": "npx nx migrate --latest"

@@ -1,6 +1,7 @@
 {
   "version": 2,
   "projects": {
+    "build-pipeline": "apps/build-pipeline",
     "boilerplate": "libs/boilerplate",
     "controller-shared": "libs/controller-shared",
     "devtools": "apps/devtools",

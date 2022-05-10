@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "../../dist/out-tsc",
+    "types": ["node"],
+    "emitDecoratorMetadata": true,
+    "target": "ESNext"
+  },
+  "exclude": ["**/*.spec.ts"],
+  "include": [
+    "**/*.ts",
+    "../../libs/boilerplate/**/*.ts",
+    "../../libs/utilities/**/*.ts"
+  ]
+}

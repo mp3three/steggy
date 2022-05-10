@@ -1,0 +1,13 @@
+{
+  "license": "MIT",
+  "description": "",
+  "main": "main.js",
+  "version": "0.1.0",
+  "author": {
+    "email": "git@programmable.work",
+    "name": "Cameron Contour"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

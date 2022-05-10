@@ -1,5 +1,5 @@
 /* eslint-disable radar/no-duplicate-string */
-import { AutoLogService, InjectConfig, QuickScript } from '@steggy/boilerplate';
+import { AutoLogService, QuickScript } from '@steggy/boilerplate';
 import { eachSeries, is } from '@steggy/utilities';
 import execa from 'execa';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
@@ -21,17 +21,10 @@ type PACKAGE = { version: string };
   },
 })
 export class BuildPipelineService {
-  constructor(
-    @InjectConfig('DRY') private readonly dryRun: boolean = false,
-    private readonly logger: AutoLogService,
-  ) {}
+  constructor(private readonly logger: AutoLogService) {}
 
   public async exec(): Promise<void> {
     const affected = await this.listAffected();
-    if (this.dryRun) {
-      this.logger.info({ affected });
-      return;
-    }
     if (!is.empty(affected.libs)) {
       await this.bumpLibraries();
     }
@@ -57,7 +50,6 @@ export class BuildPipelineService {
     });
     await eachSeries(apps, async app => {
       this.logger.info(`[${app}] publishing`);
-      return;
       const buildDocker = execa(`npx`, [`nx`, `publish`, app]);
       buildDocker.stdout.pipe(process.stdout);
       await buildDocker;
@@ -81,7 +73,6 @@ export class BuildPipelineService {
     });
     await eachSeries(libraries, async library => {
       this.logger.info(`[${library}] publishing`);
-      return;
       const publish = execa(`npx`, [`nx`, `publish`, library]);
       publish.stdout.pipe(process.stdout);
       await publish;
