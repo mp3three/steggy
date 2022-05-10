@@ -34,6 +34,13 @@
         "lintFilePatterns": ["libs/controller-shared/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": []
+      }
     }
   },
   "tags": ["shared"]
