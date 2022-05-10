@@ -3,7 +3,7 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import {
   CACHE_PROVIDER,
-  LIB_UTILS,
+  LIB_BOILERPLATE,
   LOG_LEVEL,
   REDIS_DEFAULT_TTL,
   REDIS_HOST,
@@ -67,7 +67,7 @@ import {
     WorkspaceService,
   ],
   imports: [RegisterCache(), DiscoveryModule],
-  library: LIB_UTILS,
+  library: LIB_BOILERPLATE,
   providers: [
     AutoConfigService,
     AutoLogService,

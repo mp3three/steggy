@@ -7,7 +7,7 @@ import {
   IsDone,
   PromptService,
   Repl,
-  TextRenderingService,
+  ScreenService,
   ToMenuEntry,
 } from '@steggy/tty';
 import { is, START, TitleCase } from '@steggy/utilities';
@@ -32,7 +32,7 @@ export class ServerLogsService {
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
-    private readonly textRendering: TextRenderingService,
+    private readonly screenService: ScreenService,
     private readonly applicationManager: ApplicationManagerService,
   ) {}
 
@@ -87,7 +87,7 @@ export class ServerLogsService {
         logs.map(i => [
           chalk.bold[LEVELS.get(i.level) ?? 'underline']`${i.message
             .join(chalk.cyan(' || '))
-            .slice(START, this.textRendering.getWidth())}`,
+            .slice(START, this.screenService.getWidth())}`,
           i,
         ]),
       ),

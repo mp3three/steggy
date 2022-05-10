@@ -1,21 +1,26 @@
-import { Injectable } from '@nestjs/common';
-import { EMPTY, is, SINGLE } from '@steggy/utilities';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { EMPTY, is, SINGLE, START } from '@steggy/utilities';
+import chalk from 'chalk';
 import { ReadStream } from 'fs';
 import MuteStream from 'mute-stream';
 import { createInterface, Interface } from 'readline';
 
 import { ansiEscapes, ansiStrip } from '../../includes';
-import { LayoutManagerService } from './layout-manager.service';
+import { ApplicationManagerService } from './application-manager.service';
 
 const lastLine = content => content.split('\n').pop();
 const PADDING = 2;
 const height = content => content.split('\n').length + PADDING;
+const DEFAULT_WIDTH = 80;
 
 const output = new MuteStream();
 output.pipe(process.stdout);
 @Injectable()
 export class ScreenService {
-  constructor(private readonly layout: LayoutManagerService) {}
+  constructor(
+    @Inject(forwardRef(() => ApplicationManagerService))
+    private readonly applicationManager: ApplicationManagerService,
+  ) {}
   public rl = createInterface({
     input: process.stdin,
     output,
@@ -48,12 +53,31 @@ export class ScreenService {
   }
 
   public down(amount = SINGLE): void {
+    if (amount === SINGLE) {
+      console.log();
+      return;
+    }
     console.log(ansiEscapes.cursorDown(amount));
   }
 
   public eraseLine(amount = SINGLE): void {
     console.log(ansiEscapes.eraseLines(amount));
   }
+
+  public getWidth(): number {
+    if (process.stdout.getWindowSize) {
+      return process.stdout.getWindowSize()[START] || DEFAULT_WIDTH;
+    }
+    if (process.stdout.columns) {
+      return process.stdout.columns;
+    }
+    return DEFAULT_WIDTH;
+  }
+
+  public hr(width?: number): void {
+    this.print(chalk.blue.dim('='.repeat(width ?? this.getWidth())));
+  }
+
   public print(line = ''): void {
     console.log(line);
   }

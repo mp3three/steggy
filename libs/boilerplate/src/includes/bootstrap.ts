@@ -13,7 +13,7 @@ import {
   AutoLogService,
   CONFIG_DEFAULTS,
   GlobalErrorInit,
-  LIB_UTILS,
+  LIB_BOILERPLATE,
   LifecycleService,
   NEST_NOOP_LOGGER,
   UsePrettyLogger,
@@ -98,7 +98,7 @@ export async function Bootstrap(
   }
   const lifecycle = app.get(LifecycleService);
   const logger = await app.resolve(AutoLogService);
-  logger.setContext(LIB_UTILS, { name: 'Bootstrap' });
+  logger.setContext(LIB_BOILERPLATE, { name: 'Bootstrap' });
   // onPreInit
   preInit ??= [];
   if (noGlobalError !== true) {

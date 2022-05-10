@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectConfig } from '@steggy/boilerplate';
 import { is } from '@steggy/utilities';
 import chalk from 'chalk';
@@ -26,6 +26,7 @@ export class ApplicationManagerService implements iStackProvider {
     @InjectConfig(DEFAULT_HEADER_FONT) private readonly primaryFont: Fonts,
     @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
     private readonly componentExplorer: ComponentExplorerService,
+    @Inject(forwardRef(() => ScreenService))
     private readonly screenService: ScreenService,
   ) {}
   private activeApplication: iComponent;
@@ -66,20 +67,20 @@ export class ApplicationManagerService implements iStackProvider {
     return this.activeApplication;
   }
 
-  public setHeader(primary: string, secondary = ''): void {
+  public setHeader(primary: string, secondary = ''): number {
     this.screenService.clear();
+    let max = 0;
     if (!is.empty(secondary)) {
       primary = figlet.textSync(primary, {
         font: this.primaryFont,
       });
-      this.screenService.print(
-        `\n` +
-          chalk
-            .cyan(primary)
-            .split(`\n`)
-            .map(i => `  ${i}`)
-            .join(`\n`),
-      );
+      const text = chalk
+        .cyan(primary)
+        .split(`\n`)
+        .map(i => `  ${i}`)
+        .join(`\n`);
+      max = ansiMaxLength(text);
+      this.screenService.print(`\n` + text);
     } else {
       secondary = primary;
       primary = '';
@@ -96,8 +97,10 @@ export class ApplicationManagerService implements iStackProvider {
       .split(`\n`)
       .map(i => `  ${i}`)
       .join(`\n`);
+    max = Math.max(max, ansiMaxLength(secondary));
     this.screenService.print(secondary);
     this.header = `${primary}\n${secondary}`;
+    return max;
   }
 
   private reset(): void {

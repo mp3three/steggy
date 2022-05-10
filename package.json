@@ -10,7 +10,6 @@
   },
   "scripts": {
     "dev-controller": "npx nx serve home-controller & npx nx serve home-configure",
-    "controller": "npx nx build-docker home-controller",
     "pipeline": "node tools/scripts/pipeline.js",
     "lint": "npx nx run-many --all --target=lint --fix",
     "nx": "npx nx",

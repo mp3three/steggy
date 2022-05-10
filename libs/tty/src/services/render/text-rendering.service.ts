@@ -24,7 +24,6 @@ const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim('|');
 const BUFFER_SIZE = 3;
 const MIN_SIZE = 2;
-const DEFAULT_WIDTH = 80;
 //
 const MAX_STRING_LENGTH = 300;
 
@@ -140,16 +139,6 @@ export class TextRenderingService {
       return [this.highlight(result), item[VALUE]] as MenuEntry<T>;
     });
     return highlighted;
-  }
-
-  public getWidth(): number {
-    if (process.stdout.getWindowSize) {
-      return process.stdout.getWindowSize()[START] || DEFAULT_WIDTH;
-    }
-    if (process.stdout.columns) {
-      return process.stdout.columns;
-    }
-    return DEFAULT_WIDTH;
   }
 
   public pad(message: string, amount = MIN_SIZE): string {

@@ -14,7 +14,7 @@ import minimist from 'minimist';
 import { get, set } from 'object-path';
 import { resolve } from 'path';
 
-import { LIB_UTILS, LOG_LEVEL } from '../config';
+import { LIB_BOILERPLATE, LOG_LEVEL } from '../config';
 import { CONFIG_DEFAULTS, ConfigItem } from '../contracts';
 import { AbstractConfig, ACTIVE_APPLICATION } from '../contracts/meta/config';
 import { LibraryModule } from '../decorators';
@@ -126,11 +126,11 @@ export class AutoConfigService {
     fileConfig.forEach(config => deepExtend(this.config, config));
     deepExtend(this.config, this.configDefaults ?? {});
     this.loadFromEnv();
-    this.logger.setContext(LIB_UTILS, AutoConfigService);
+    this.logger.setContext(LIB_BOILERPLATE, AutoConfigService);
     this.logger[
       'context'
-    ] = `${LIB_UTILS.description}:${AutoConfigService.name}`;
-    AutoLogService.logger.level = this.get([LIB_UTILS, LOG_LEVEL]);
+    ] = `${LIB_BOILERPLATE.description}:${AutoConfigService.name}`;
+    AutoLogService.logger.level = this.get([LIB_BOILERPLATE, LOG_LEVEL]);
     fileConfig.forEach((config, path) =>
       this.logger.info(`Loaded configuration from {${path}}`),
     );

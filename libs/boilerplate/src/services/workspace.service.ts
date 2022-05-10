@@ -6,7 +6,7 @@ import { homedir } from 'os';
 import { join } from 'path';
 import { cwd } from 'process';
 
-import { LIB_UTILS } from '../config';
+import { LIB_BOILERPLATE } from '../config';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
@@ -27,7 +27,7 @@ export class WorkspaceService {
     private readonly logger: AutoLogService,
     @Inject(ACTIVE_APPLICATION) private readonly application: symbol,
   ) {
-    logger.setContext(LIB_UTILS, WorkspaceService);
+    logger.setContext(LIB_BOILERPLATE, WorkspaceService);
   }
   public IS_DEVELOPMENT = isDevelopment;
   /**

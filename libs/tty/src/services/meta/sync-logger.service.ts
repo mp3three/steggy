@@ -1,116 +1,41 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
-import { is } from '@steggy/utilities';
-import pino from 'pino';
-
 import {
   ACTIVE_APPLICATION,
-  iLogger,
-  iLoggerCore,
+  InjectConfig,
+  LIB_BOILERPLATE,
   LOG_CONTEXT,
+  LOG_LEVEL,
+  LoggerFunction,
   LogLevels,
+  methodColors,
   MISSING_CONTEXT,
-} from '../contracts';
-import { mappedContexts } from '../decorators';
-import { storage } from '../includes';
+  prettyFormatMessage,
+} from '@steggy/boilerplate';
+import { is, START } from '@steggy/utilities';
+import chalk from 'chalk';
+import dayjs from 'dayjs';
+
+import { ScreenService } from './screen.service';
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-export type LoggerFunction =
-  | ((message: string, ...arguments_: unknown[]) => void)
-  | ((
-      object: Record<string, unknown>,
-      message?: string,
-      ...arguments_: unknown[]
-    ) => void);
-
-const NEST = '@nestjs';
-export const NEST_NOOP_LOGGER = {
-  error: (...items): void => {
-    // eslint-disable-next-line no-console
-    console.error(...items);
-  },
-  log: (): void => {
-    //
-  },
-  warn: (): void => {
-    //
-  },
-};
-
-const logger = pino() as iLogger;
 
 /**
  * Use `@InjectLogger()` if context is not automatically found
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class AutoLogService implements iLogger {
-  public static logger: iLoggerCore = logger;
-  public static nestLogger: Record<
-    'log' | 'warn' | 'error' | 'debug' | 'verbose',
-    (a: string, b: string) => void
-  > = {
-    debug: (message, context: string) =>
-      AutoLogService.logger.debug({ context: `${NEST}:${context}` }, message),
-    error: (message: string, context: string) =>
-      AutoLogService.logger.error({ context: `${NEST}:${context}` }, message),
-    log: (message, context) =>
-      AutoLogService.logger.info({ context: `${NEST}:${context}` }, message),
-    verbose: (message, context) =>
-      AutoLogService.logger.debug({ context: `${NEST}:${context}` }, message),
-    warn: (message, context) =>
-      AutoLogService.logger.warn({ context: `${NEST}:${context}` }, message),
-  };
-  public static prettyLogger = false;
-
-  /**
-   * Decide which method of formatting log messages is correct
-   *
-   * - Normal: intended for production use cases
-   * - Pretty: development use cases
-   */
-  public static call(
-    method: pino.Level,
-    context: string,
-    ...parameters: Parameters<LoggerFunction>
-  ): void {
-    if (method === 'trace' && AutoLogService.logger.level !== 'trace') {
-      // early shortcut for an over used call
-      return;
-    }
-    const logger = this.getLogger();
-    const data = is.object(parameters[0])
-      ? (parameters.shift() as Record<string, unknown>)
-      : {};
-    const message = is.string(parameters[0])
-      ? (parameters.shift() as string)
-      : ``;
-    logger[method](
-      {
-        context,
-        ...data,
-      },
-      message,
-      ...parameters,
-    );
-  }
-
-  public static getLogger(): iLoggerCore {
-    const store = storage.getStore();
-    return store || AutoLogService.logger;
-  }
-
+export class SyncLoggerService {
   constructor(
     @Inject(INQUIRER) private inquirerer: unknown,
     @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
+    private readonly screenService: ScreenService,
+    @InjectConfig(LOG_LEVEL, LIB_BOILERPLATE)
+    private readonly level: LogLevels,
   ) {}
 
   #cached: string;
   #context: string;
   private contextId: string;
-
-  public get level(): LogLevels {
-    return AutoLogService.logger.level as LogLevels;
-  }
 
   protected get context(): string {
     if (!this.#cached) {
@@ -143,7 +68,7 @@ export class AutoLogService implements iLogger {
     ...arguments_: unknown[]
   ): void;
   public debug(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call('debug', this.context, ...arguments_);
+    this.log('debug', ...arguments_);
   }
 
   public error(message: string, ...arguments_: unknown[]): void;
@@ -153,7 +78,7 @@ export class AutoLogService implements iLogger {
     ...arguments_: unknown[]
   ): void;
   public error(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call('error', this.context, ...arguments_);
+    this.log('error', ...arguments_);
   }
 
   public fatal(message: string, ...arguments_: unknown[]): void;
@@ -163,7 +88,7 @@ export class AutoLogService implements iLogger {
     ...arguments_: unknown[]
   ): void;
   public fatal(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call('fatal', this.context, ...arguments_);
+    this.log('fatal', ...arguments_);
   }
 
   public info(message: string, ...arguments_: unknown[]): void;
@@ -173,7 +98,7 @@ export class AutoLogService implements iLogger {
     ...arguments_: unknown[]
   ): void;
   public info(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call('info', this.context, ...arguments_);
+    this.log('info', ...arguments_);
   }
 
   /**
@@ -195,7 +120,7 @@ export class AutoLogService implements iLogger {
     ...arguments_: unknown[]
   ): void;
   public trace(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call('trace', this.context, ...arguments_);
+    this.log('trace', ...arguments_);
   }
 
   public warn(message: string, ...arguments_: unknown[]): void;
@@ -205,16 +130,33 @@ export class AutoLogService implements iLogger {
     ...arguments_: unknown[]
   ): void;
   public warn(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call('warn', this.context, ...arguments_);
+    this.log('warn', ...arguments_);
   }
 
   private getContext(): string {
     if (this.#context) {
       return this.#context;
     }
-    if (this.contextId) {
-      return mappedContexts.get(this.contextId);
-    }
+    // if (this.contextId) {
+    //   return mappedContexts.get(this.contextId);
+    // }
     return this.inquirerer?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT;
+  }
+
+  private log(level: LogLevels, ...parameters: Parameters<LoggerFunction>) {
+    const context = chalk`{${methodColors.get(level)} [${this.context}}]`;
+    const data = chalk.gray(
+      JSON.stringify(
+        is.object(parameters[START])
+          ? (parameters.shift() as Record<string, unknown>)
+          : {},
+      ),
+    );
+    const message = prettyFormatMessage(
+      is.string(parameters[START]) ? (parameters.shift() as string) : ``,
+    );
+    this.screenService.print(
+      `[${dayjs().format('ddd HH:mm:ss.SSS')}]: ${context} ${message} ${data}`,
+    );
   }
 }
