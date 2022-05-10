@@ -29,7 +29,6 @@
       "@steggy/boilerplate": ["libs/boilerplate/src/index.ts"],
       "@steggy/controller-shared": ["libs/controller-shared/src/index.ts"],
       "@steggy/formio": ["libs/formio/src/index.ts"],
-      "@steggy/google": ["libs/google/src/index.ts"],
       "@steggy/home-assistant": ["libs/home-assistant/src/index.ts"],
       "@steggy/home-assistant-shared": [
         "libs/home-assistant-shared/src/index.ts"
@@ -53,7 +52,6 @@
     { "path": "./libs/boilerplate/tsconfig.json" },
     { "path": "./libs/controller-shared/tsconfig.json" },
     { "path": "./libs/formio/tsconfig.json" },
-    { "path": "./libs/google/tsconfig.json" },
     { "path": "./libs/home-assistant-shared/tsconfig.json" },
     { "path": "./libs/home-assistant/tsconfig.json" },
     { "path": "./libs/mqtt/tsconfig.json" },

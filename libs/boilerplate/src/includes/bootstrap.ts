@@ -11,11 +11,11 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 import {
   AbstractConfig,
   AutoLogService,
+  CONFIG_DEFAULTS,
   GlobalErrorInit,
   LIB_UTILS,
   LifecycleService,
   NEST_NOOP_LOGGER,
-  USE_THIS_CONFIG,
   UsePrettyLogger,
 } from '@steggy/boilerplate';
 import { eachSeries, is } from '@steggy/utilities';
@@ -66,10 +66,10 @@ export async function Bootstrap(
     return;
   }
   const append = [...(bootOptions.globals ?? [])];
-  if (bootOptions.globals) {
+  if (bootOptions.config) {
     append.push({
-      provide: USE_THIS_CONFIG,
-      useValue: bootOptions.globals,
+      provide: CONFIG_DEFAULTS,
+      useValue: bootOptions.config,
     });
   }
   globals.exports.push(...append);

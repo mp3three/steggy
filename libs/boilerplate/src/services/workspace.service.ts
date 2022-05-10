@@ -140,7 +140,6 @@ export class WorkspaceService {
       const data = JSON.parse(
         readFileSync(packageFile, 'utf8'),
       ) as unknown as PackageJsonDTO;
-      this.logger.debug(` - [${project}] {${data.version}}`);
       this.PACKAGES.set(project, data);
     });
   }

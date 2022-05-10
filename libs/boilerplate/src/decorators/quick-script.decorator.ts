@@ -2,7 +2,6 @@ import { Injectable, Provider } from '@nestjs/common';
 import { is } from '@steggy/utilities';
 import { ClassConstructor } from 'class-transformer';
 
-import { AbstractConfig } from '../contracts';
 import { Bootstrap, BootstrapOptions } from '../includes';
 import { AutoConfigService } from '../services';
 import {
@@ -28,13 +27,11 @@ const CREATE_BOOT_MODULE = (metadata: ApplicationModuleMetadata) =>
  */
 export function QuickScript({
   NX_PROJECT,
-  OVERRIDE_DEFAULTS,
   WAIT_TIME = WAIT_BOOTSTRAP * ADDITIONAL_WAIT,
   bootstrap,
   ...options
 }: ApplicationModuleMetadata & {
   NX_PROJECT?: string;
-  OVERRIDE_DEFAULTS?: AbstractConfig;
   WAIT_TIME?: number;
   bootstrap?: BootstrapOptions;
 } = {}): ClassDecorator {
@@ -58,7 +55,6 @@ export function QuickScript({
     setTimeout(
       () =>
         Bootstrap(CREATE_BOOT_MODULE(options), {
-          config: OVERRIDE_DEFAULTS,
           nestNoopLogger: true,
           noGlobalError: true,
           postInit: [

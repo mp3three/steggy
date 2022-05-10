@@ -15,7 +15,7 @@ import { get, set } from 'object-path';
 import { resolve } from 'path';
 
 import { LIB_UTILS, LOG_LEVEL } from '../config';
-import { ConfigItem, USE_THIS_CONFIG } from '../contracts';
+import { CONFIG_DEFAULTS, ConfigItem } from '../contracts';
 import { AbstractConfig, ACTIVE_APPLICATION } from '../contracts/meta/config';
 import { LibraryModule } from '../decorators';
 import { AutoLogService } from './auto-log.service';
@@ -33,8 +33,8 @@ export class AutoConfigService {
     private readonly logger: AutoLogService,
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
     @Optional()
-    @Inject(USE_THIS_CONFIG)
-    private readonly overrideConfig: AbstractConfig,
+    @Inject(CONFIG_DEFAULTS)
+    private readonly configDefaults: AbstractConfig,
     private readonly workspace: WorkspaceService,
   ) {
     this.earlyInit();
@@ -75,7 +75,7 @@ export class AutoConfigService {
   }
 
   public getDefault<T extends unknown = unknown>(path: string): T {
-    const override = get(this.overrideConfig ?? {}, path);
+    const override = get(this.configDefaults ?? {}, path);
     if (!is.undefined(override)) {
       return override;
     }
@@ -124,7 +124,7 @@ export class AutoConfigService {
     this.setDefaults();
     const fileConfig = this.loadFromFiles();
     fileConfig.forEach(config => deepExtend(this.config, config));
-    deepExtend(this.config, this.overrideConfig ?? {});
+    deepExtend(this.config, this.configDefaults ?? {});
     this.loadFromEnv();
     this.logger.setContext(LIB_UTILS, AutoConfigService);
     this.logger[

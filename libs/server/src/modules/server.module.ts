@@ -62,13 +62,12 @@ import { MiddlewareService, RouteInjector, SwaggerService } from '../services';
       type: 'boolean',
     },
     [CORS]: {
-      default: '*',
       description:
         'CORS origin for the server. Set to blank to disable middleware',
       type: 'string',
     },
     [CSURF]: {
-      default: true,
+      default: false,
       description: 'Enable the CSURF middleware',
       type: 'boolean',
     },
@@ -107,7 +106,6 @@ import { MiddlewareService, RouteInjector, SwaggerService } from '../services';
       type: 'number',
     },
     [SWAGGER_PATH]: {
-      default: '/api',
       description: 'Where to access the swagger pages at? Blank to disable',
       type: 'string',
     },

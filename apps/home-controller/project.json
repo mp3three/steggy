@@ -87,7 +87,7 @@
       },
       "outputs": ["{options.outputFile}"]
     },
-    "build-docker": {
+    "publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "parallel": false,

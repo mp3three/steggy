@@ -5,7 +5,6 @@
     "controller-shared": "libs/controller-shared",
     "devtools": "apps/devtools",
     "formio": "libs/formio",
-    "google": "libs/google",
     "home-assistant-shared": "libs/home-assistant-shared",
     "home-assistant": "libs/home-assistant",
     "home-cli": "apps/home-cli",

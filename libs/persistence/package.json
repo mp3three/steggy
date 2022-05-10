@@ -6,7 +6,7 @@
   },
   "name": "@steggy/persistence",
   "license": "MIT",
-  "version": "0.10.24",
+  "version": "0.10.26",
   "homepage": "https://github.com/ccontour/steggy",
   "repository": {
     "type": "git",
