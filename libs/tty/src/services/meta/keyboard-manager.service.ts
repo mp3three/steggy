@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { each, is } from '@steggy/utilities';
 import chalk from 'chalk';
 import { fromEvent, takeUntil } from 'rxjs';
@@ -20,6 +20,7 @@ import { ScreenService } from './screen.service';
 export class KeyboardManagerService implements iStackProvider {
   constructor(
     private readonly screenService: ScreenService,
+    @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
   ) {}
   private activeKeymaps: Map<unknown, tKeyMap> = new Map();
@@ -78,11 +79,14 @@ export class KeyboardManagerService implements iStackProvider {
     const rl = this.screenService.rl;
     fromEvent(rl.input, 'keypress', (value, key = {}) => ({ key, value }))
       .pipe(takeUntil(fromEvent(rl, 'close')))
-      .forEach(this.keyPressHandler.bind(this));
+      .forEach(descriptor => this.keyPressHandler(descriptor));
   }
 
   // eslint-disable-next-line radar/cognitive-complexity
   private async keyPressHandler(descriptor: KeyDescriptor): Promise<void> {
+    if (is.empty(this.activeKeymaps)) {
+      return;
+    }
     const { key } = descriptor;
     const { ctrl, meta, shift, name, sequence } = key ?? {};
     let mixed = name ?? sequence ?? 'enter';

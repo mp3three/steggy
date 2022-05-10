@@ -26,6 +26,12 @@
         "type": "node",
         "request": "attach",
         "port": 33338
+      },
+      {
+        "name": "Build Pipeline",
+        "type": "node",
+        "request": "attach",
+        "port": 33339
       }
     ]
   },

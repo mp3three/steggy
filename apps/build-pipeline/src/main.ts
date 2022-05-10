@@ -5,10 +5,9 @@ import {
   PromptService,
   ScreenService,
   SyncLoggerService,
-  ToMenuEntry,
   TTYModule,
 } from '@steggy/tty';
-import { eachSeries, is } from '@steggy/utilities';
+import { eachSeries, is, TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
 import JSON from 'comment-json';
 import execa from 'execa';
@@ -33,10 +32,10 @@ type PACKAGE = { version: string };
 })
 export class BuildPipelineService {
   constructor(
+    private readonly applicationManager: ApplicationManagerService,
     private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly screenService: ScreenService,
-    private readonly applicationManager: ApplicationManagerService,
   ) {}
 
   public async exec(): Promise<void> {
@@ -44,11 +43,28 @@ export class BuildPipelineService {
     if (!is.empty(affected.libs)) {
       await this.bumpLibraries(affected);
     }
-    await this.promptService.menu({
-      right: ToMenuEntry(affected.apps.map(i => [i, i])),
+    if (is.empty(affected.apps)) {
+      return;
+    }
+    this.screenService.down(2);
+    this.screenService.print(chalk.bold.cyan`APPS`);
+    affected.apps.forEach(line => {
+      const file = join('apps', line, 'package.json');
+      if (!existsSync(file)) {
+        this.screenService.print(chalk` {yellow - } ${line}`);
+        return;
+      }
+      const { version } = JSON.parse(
+        readFileSync(join('apps', line, 'package.json'), 'utf8'),
+      ) as PACKAGE;
+      this.screenService.print(
+        chalk` {yellow - } ${version ? chalk` {gray ${version}} ` : ''}${line}`,
+      );
     });
+    this.screenService.down();
+    this.screenService.print(chalk`Select applications to rebuild`);
     const apps = await this.promptService.listBuild({
-      current: affected.apps.map(i => [i, i]),
+      current: affected.apps.map(i => [TitleCase(i), i]),
       items: 'Applications',
       source: [],
     });
@@ -73,12 +89,10 @@ export class BuildPipelineService {
         `[${application}] {${packageJSON.version}} => {${update}}`,
       );
       packageJSON.version = update;
-      return;
       writeFileSync(file, JSON.stringify(packageJSON, undefined, '  ') + `\n`);
     });
     await eachSeries(apps, async app => {
       this.logger.info(`[${app}] publishing`);
-      return;
       const buildDocker = execa(`npx`, [`nx`, `publish`, app]);
       buildDocker.stdout.pipe(process.stdout);
       await buildDocker;
@@ -101,15 +115,19 @@ export class BuildPipelineService {
       const packageJSON = JSON.parse(readFileSync(file, 'utf8')) as PACKAGE;
       this.logger.debug(`[${library}] {${packageJSON.version}} => {${root}}`);
       packageJSON.version = root;
-      return;
       writeFileSync(file, JSON.stringify(packageJSON, undefined, '  ') + `\n`);
     });
     await eachSeries(libraries, async library => {
       this.logger.info(`[${library}] publishing`);
-      return;
-      const publish = execa(`npx`, [`nx`, `publish`, library]);
-      publish.stdout.pipe(process.stdout);
-      await publish;
+      try {
+        const publish = execa(`npx`, [`nx`, `publish`, library]);
+        publish.stdout.pipe(process.stdout);
+        await publish;
+      } catch (error) {
+        this.logger.error(error.stderr);
+        // eslint-disable-next-line unicorn/no-process-exit
+        process.exit();
+      }
     });
   }
 
@@ -135,27 +153,11 @@ export class BuildPipelineService {
   }
 
   private async confirmActions(
-    { apps, libs }: AffectedList,
+    { libs }: AffectedList,
     newVersion: string,
     oldVersion: string,
   ) {
     this.applicationManager.setHeader(`Bump Library Versions`);
-    this.screenService.print(chalk`The following projects were affected:`);
-    this.screenService.down();
-    this.screenService.print(chalk.bold.cyan`APPS`);
-    apps.forEach(line => {
-      const file = join('apps', line, 'package.json');
-      if (!existsSync(file)) {
-        this.screenService.print(chalk` {yellow - } ${line}`);
-        return;
-      }
-      const { version } = JSON.parse(
-        readFileSync(join('apps', line, 'package.json'), 'utf8'),
-      ) as PACKAGE;
-      this.screenService.print(
-        chalk` {yellow - } ${version ? chalk` {gray ${version}} ` : ''}${line}`,
-      );
-    });
     this.screenService.down();
     this.screenService.print(
       chalk.bold`{cyan LIBS} {blue ${oldVersion}} {white =>} {blue ${newVersion}}`,

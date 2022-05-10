@@ -13,6 +13,7 @@ import { ApplicationStackProvider, iStackProvider } from '../../contracts';
 import { iComponent } from '../../decorators';
 import { ansiMaxLength } from '../../includes';
 import { ComponentExplorerService } from '../explorers';
+import { KeyboardManagerService } from './keyboard-manager.service';
 import { ScreenService } from './screen.service';
 
 // ? Is there anything else that needs to be kept track of?
@@ -28,6 +29,8 @@ export class ApplicationManagerService implements iStackProvider {
     private readonly componentExplorer: ComponentExplorerService,
     @Inject(forwardRef(() => ScreenService))
     private readonly screenService: ScreenService,
+    @Inject(forwardRef(() => KeyboardManagerService))
+    private readonly keyboard: KeyboardManagerService,
   ) {}
   private activeApplication: iComponent;
   private header = '';
@@ -37,17 +40,21 @@ export class ApplicationManagerService implements iStackProvider {
     configuration: CONFIG = {} as CONFIG,
   ): Promise<VALUE> {
     this.reset();
-    return await new Promise(done => {
-      const component = this.componentExplorer.findServiceByType<CONFIG, VALUE>(
-        name,
-      );
-      // There needs to be more type work around this
-      // It's a disaster
-      component.configure(configuration, value => {
-        done(value as VALUE);
+    return await this.keyboard.wrap<VALUE>(async () => {
+      const promise = new Promise<VALUE>(done => {
+        const component = this.componentExplorer.findServiceByType<
+          CONFIG,
+          VALUE
+        >(name);
+        // There needs to be more type work around this
+        // It's a disaster
+        component.configure(configuration, value => {
+          done(value as VALUE);
+        });
+        this.activeApplication = component;
+        component.render();
       });
-      this.activeApplication = component;
-      component.render();
+      return await promise;
     });
   }
 

@@ -89,18 +89,13 @@ export class PromptService {
   }
 
   public async confirm(
-    prompt = `Are you sure?`,
+    message = `Are you sure?`,
     defaultValue = false,
   ): Promise<boolean> {
-    const { result } = await inquirer.prompt([
-      {
-        default: defaultValue,
-        message: prompt,
-        name,
-        type: 'confirm',
-      },
-    ]);
-    return result;
+    return await this.applicationManager.activate('confirm', {
+      defaultValue,
+      message,
+    });
   }
 
   public async cron(value?: string): Promise<string> {

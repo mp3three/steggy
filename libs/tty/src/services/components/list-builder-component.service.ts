@@ -9,6 +9,7 @@ import {
   LABEL,
   NOT_FOUND,
   SINGLE,
+  sleep,
   START,
   UP,
   VALUE,
@@ -31,7 +32,7 @@ export interface ListBuilderOptions<T = unknown> {
 
 const KEYMAP_FIND: tKeyMap = new Map([
   [{ key: 'backspace' }, 'searchBack'],
-  [{ key: ['f4', '`'] }, 'toggle'],
+  [{ key: ['`', 'f4'] }, 'toggle selected'],
   [{ key: 'left' }, 'onLeft'],
   [{ key: 'tab' }, 'toggleFind'],
   [{ key: 'right' }, 'onRight'],
@@ -43,10 +44,10 @@ const KEYMAP_FIND: tKeyMap = new Map([
 ]);
 const KEYMAP_NORMAL: tKeyMap = new Map([
   [{ key: 'i' }, 'invert'],
-  [{ description: 'select all', key: ['a', '['] }, 'selectAll'],
-  [{ description: 'select none', key: ['n', ']'] }, 'selectNone'],
+  [{ description: 'select all', key: ['[', 'a'] }, 'selectAll'],
+  [{ description: 'select none', key: [']', 'n'] }, 'selectNone'],
   [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
-  [{ key: ['space', 'f4', '`'] }, 'toggle'],
+  [{ description: 'toggle selected', key: ['`', 'f4', 'space'] }, 'toggle'],
   [{ key: 'f12' }, 'reset'],
   [{ key: 'c' }, 'cancel'],
   [{ description: 'done', key: 'd' }, 'onEnd'],
@@ -71,9 +72,11 @@ export class ListBuilderComponentService<VALUE = unknown>
     private readonly screenService: ScreenService,
     private readonly keyboardService: KeyboardManagerService,
   ) {}
+  private complete = false;
   private current: MenuEntry<VALUE | string>[];
 
   private done: (type: VALUE[]) => void;
+  private final = false;
   private mode: 'find' | 'select' = 'select';
   private numericSelection = '';
   private opt: ListBuilderOptions<VALUE>;
@@ -86,6 +89,8 @@ export class ListBuilderComponentService<VALUE = unknown>
     options: ListBuilderOptions<VALUE>,
     done: (type: VALUE[]) => void,
   ): void {
+    this.complete = false;
+    this.final = false;
     this.done = done;
     this.opt = options;
     this.opt.source ??= [];
@@ -103,6 +108,9 @@ export class ListBuilderComponentService<VALUE = unknown>
   }
 
   public render(updateValue = false): void {
+    if (this.complete) {
+      return;
+    }
     const left = `Current ${this.opt.items}`;
     const right = `Available ${this.opt.items}`;
     const current = this.renderSide(
@@ -119,6 +127,15 @@ export class ListBuilderComponentService<VALUE = unknown>
       right,
       search,
     });
+    if (this.final) {
+      this.screenService.render(
+        message.join(`\n`),
+        chalk.blue('='.repeat(ansiMaxLength(message)) + `\n`),
+      );
+      this.final = false;
+      this.complete = true;
+      return;
+    }
     this.screenService.render(
       message.join(`\n`),
       this.keymap.keymapHelp({ message: message.join(`\n`) }),
@@ -227,8 +244,11 @@ export class ListBuilderComponentService<VALUE = unknown>
       ][VALUE] ?? this.value;
   }
 
-  protected onEnd(): void {
+  protected async onEnd(): Promise<void> {
     this.mode = 'select';
+    this.final = true;
+    this.render();
+    await sleep();
     this.done(this.current.map(i => i[VALUE] as VALUE));
   }
 

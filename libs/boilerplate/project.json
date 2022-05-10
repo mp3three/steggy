@@ -42,7 +42,7 @@
             "description": "Announce it"
           },
           {
-            "command": "npx nx build utilities --configuration=production",
+            "command": "npx nx build boilerplate --configuration=production",
             "description": "Create production optimized build"
           },
           {

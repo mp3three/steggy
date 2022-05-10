@@ -2,10 +2,7 @@
   "implicitDependencies": {
     ".eslintrc.json": "*",
     "nx.json": "*",
-    "package.json": {
-      "dependencies": "*",
-      "devDependencies": "*"
-    },
+    "package.json": "*",
     "project.json": {
       "targets": {
         "build": "*"

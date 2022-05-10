@@ -8,7 +8,7 @@
       "options": {
         "buildTarget": "build-pipeline:build",
         "inspect": "inspect",
-        "port": 33338
+        "port": 33339
       }
     },
     "build": {

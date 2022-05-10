@@ -144,11 +144,7 @@ export class MenuComponentService<VALUE = unknown>
     const defaultValue = this.side('right')[START]?.entry[VALUE];
     this.value ??= defaultValue;
     this.detectSide();
-    const oldKeymap = this.keyboardService.save();
-    this.done = value => {
-      this.keyboardService.load(oldKeymap);
-      done(value);
-    };
+    this.done = done;
     this.setKeymap();
     const contained = this.side().find(i => i.entry[VALUE] === this.value);
     if (!contained) {
