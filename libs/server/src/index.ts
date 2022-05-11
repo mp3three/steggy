@@ -1,3 +1,4 @@
+export * from './config';
 export * from './contracts';
 export * from './controllers';
 export * from './decorators';

@@ -73,7 +73,6 @@ import { MiddlewareService, RouteInjector, SwaggerService } from '../services';
     },
     [GLOBAL_PREFIX]: {
       careful: true,
-      default: '/api',
       description:
         "Ex: 'api' http://localhost:7000/normal/route/path => http://localhost:7000/api/normal/route/path",
       type: 'string',

@@ -8,7 +8,7 @@ AutoConfigService['USE_SCANNER_ASSETS'] = true;
 export const BOOTSTRAP_OPTIONS: BootstrapOptions = {
   config: {
     libs: {
-      utilities: {
+      boilerplate: {
         LOG_LEVEL: 'silent',
       },
     },
