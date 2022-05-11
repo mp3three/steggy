@@ -43,7 +43,7 @@
     "cookie-parser": "^1.4.6",
     "core-js": "^3.22.5",
     "cors": "^2.8.5",
-    "cron": "^1.8.3",
+    "cron": "^2.0.0",
     "csurf": "^1.11.0",
     "dayjs": "^1.11.2",
     "eventemitter3": "^4.0.7",
