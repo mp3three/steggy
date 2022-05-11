@@ -40,34 +40,36 @@ export class BuildPipelineService {
 
   public async exec(): Promise<void> {
     const affected = await this.listAffected();
+    let apps: string[] = [];
+    if (!is.empty(affected.apps)) {
+      this.screenService.down(2);
+      this.screenService.print(chalk.bold.cyan`APPS`);
+      affected.apps.forEach(line => {
+        const file = join('apps', line, 'package.json');
+        if (!existsSync(file)) {
+          this.screenService.print(chalk` {yellow - } ${line}`);
+          return;
+        }
+        const { version } = JSON.parse(
+          readFileSync(join('apps', line, 'package.json'), 'utf8'),
+        ) as PACKAGE;
+        this.screenService.print(
+          chalk` {yellow - } ${
+            version ? chalk` {gray ${version}} ` : ''
+          }${line}`,
+        );
+      });
+      this.screenService.down();
+      this.screenService.print(chalk`Select applications to rebuild`);
+      apps = await this.promptService.listBuild({
+        current: affected.apps.map(i => [TitleCase(i), i]),
+        items: 'Applications',
+        source: [],
+      });
+    }
     if (!is.empty(affected.libs)) {
       await this.bumpLibraries(affected);
     }
-    if (is.empty(affected.apps)) {
-      return;
-    }
-    this.screenService.down(2);
-    this.screenService.print(chalk.bold.cyan`APPS`);
-    affected.apps.forEach(line => {
-      const file = join('apps', line, 'package.json');
-      if (!existsSync(file)) {
-        this.screenService.print(chalk` {yellow - } ${line}`);
-        return;
-      }
-      const { version } = JSON.parse(
-        readFileSync(join('apps', line, 'package.json'), 'utf8'),
-      ) as PACKAGE;
-      this.screenService.print(
-        chalk` {yellow - } ${version ? chalk` {gray ${version}} ` : ''}${line}`,
-      );
-    });
-    this.screenService.down();
-    this.screenService.print(chalk`Select applications to rebuild`);
-    const apps = await this.promptService.listBuild({
-      current: affected.apps.map(i => [TitleCase(i), i]),
-      items: 'Applications',
-      source: [],
-    });
     if (!is.empty(apps)) {
       await this.bumpApplications(apps);
     }

@@ -176,11 +176,12 @@ export function CommandList(props: {
             pagination={false}
             dataSource={props.routine.command}
             renderItem={item => (
-              <List.Item key={item.id} onClick={() => setCommand(item)}>
+              <List.Item key={item.id}>
                 <List.Item.Meta
                   title={
                     <Button
                       size="small"
+                      onClick={() => setCommand(item)}
                       type={command?.id === item.id ? 'primary' : 'text'}
                     >
                       {item.friendlyName}
