@@ -20,7 +20,7 @@ import dayjs from 'dayjs';
 import { SAFE_MODE } from '../../config';
 import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../typings';
 import { StopProcessingCommandService } from '../commands';
-import { ChronoService } from '../misc/chrono.service';
+import { ChronoService } from '../misc';
 import { RoutinePersistenceService } from '../persistence';
 import { RoutineService } from '../routine.service';
 
@@ -102,7 +102,7 @@ export class RoutineEnabledService {
     this.ancestors = new Map();
     const root: RoutineDTO[] = [];
     this.RAW_LIST.forEach(routine => {
-      const parent = routine.parent ?? ROOT;
+      const parent = is.empty(routine.parent) ? ROOT : routine.parent;
       if (parent === ROOT) {
         root.push(routine);
       }
