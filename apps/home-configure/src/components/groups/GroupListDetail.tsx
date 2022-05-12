@@ -78,7 +78,7 @@ export function GroupListDetail(props: {
       case 'light':
         return ['light'] as string[];
       case 'switch':
-        return ['light', 'fan', 'switch', 'climate'];
+        return ['light', 'fan', 'switch', 'input_boolean', 'climate'];
       case 'lock':
         return ['lock'];
       case 'fan':

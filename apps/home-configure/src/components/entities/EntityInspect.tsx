@@ -49,6 +49,7 @@ export function EntityInspect(props: {
           </>
         );
       case 'media_player':
+      case 'input_boolean':
       case 'switch':
         return (
           <>

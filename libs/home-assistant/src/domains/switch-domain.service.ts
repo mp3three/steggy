@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
+import { domain, HASS_DOMAINS } from '@steggy/home-assistant-shared';
+import { is, START } from '@steggy/utilities';
 
 import { HACallService } from '../services';
 
@@ -15,10 +16,8 @@ export class SwitchDomainService {
   ): Promise<void> {
     return await this.callService.call(
       'toggle',
-      {
-        entity_id,
-      },
-      undefined,
+      { entity_id },
+      domain(is.string(entity_id) ? entity_id : entity_id[START]),
       waitForChange,
     );
   }
@@ -29,10 +28,8 @@ export class SwitchDomainService {
   ): Promise<void> {
     return await this.callService.call(
       'turn_off',
-      {
-        entity_id,
-      },
-      undefined,
+      { entity_id },
+      domain(is.string(entity_id) ? entity_id : entity_id[START]),
       waitForChange,
     );
   }
@@ -43,10 +40,8 @@ export class SwitchDomainService {
   ): Promise<void> {
     return await this.callService.call(
       'turn_on',
-      {
-        entity_id,
-      },
-      undefined,
+      { entity_id },
+      domain(is.string(entity_id) ? entity_id : entity_id[START]),
       waitForChange,
     );
   }

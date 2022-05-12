@@ -62,6 +62,7 @@ export class EntityCommandRouterService {
           waitForChange,
         );
         return;
+      case HASS_DOMAINS.input_boolean:
       case HASS_DOMAINS.switch:
         await this.switchEntity(
           id,

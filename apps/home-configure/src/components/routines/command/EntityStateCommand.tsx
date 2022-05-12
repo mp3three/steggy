@@ -26,9 +26,14 @@ export function EntityStateCommand(props: {
       const entities = await sendRequest<string[]>({ url: `/entity/list` });
       setEntities(
         entities.filter(i =>
-          ['light', 'switch', 'fan', 'media_player', 'lock'].includes(
-            domain(i),
-          ),
+          [
+            'light',
+            'switch',
+            'fan',
+            'media_player',
+            'lock',
+            'input_boolean',
+          ].includes(domain(i)),
         ),
       );
     }
@@ -48,6 +53,7 @@ export function EntityStateCommand(props: {
           />
         );
       case 'media_player':
+      case 'input_boolean':
       case 'switch':
         return (
           <SwitchEntityCard

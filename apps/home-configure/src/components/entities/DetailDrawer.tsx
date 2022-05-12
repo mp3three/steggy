@@ -23,6 +23,7 @@ export function EntityDetailDrawer({
           <LightEntityCard selfContained state={{ ref: entity.entity_id }} />
         );
       case 'media_player':
+      case 'input_boolean':
       case 'switch':
         return (
           <SwitchEntityCard selfContained state={{ ref: entity.entity_id }} />

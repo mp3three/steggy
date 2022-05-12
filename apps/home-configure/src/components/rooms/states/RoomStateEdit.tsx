@@ -141,7 +141,9 @@ export function RoomStateEdit(props: {
   const entities = targetItem?.entities
     .map(({ entity_id }) => entity_id)
     .filter(i =>
-      ['switch', 'light', 'fan', 'media_player'].includes(domain(i)),
+      ['switch', 'light', 'fan', 'media_player', 'input_boolean'].includes(
+        domain(i),
+      ),
     );
 
   useEffect(() => {
@@ -188,6 +190,7 @@ export function RoomStateEdit(props: {
     };
     switch (domain(entity)) {
       case 'switch':
+      case 'input_boolean':
       case 'media_player':
         return (
           <SwitchEntityCard

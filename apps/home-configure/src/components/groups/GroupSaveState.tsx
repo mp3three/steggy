@@ -22,9 +22,13 @@ export function GroupSaveStates(props: {
   onGroupUpdate: (group?: GroupDTO) => void;
 }) {
   const [friendlyName, setFriendlyName] = useState('');
-  const HAS_ENTITIES = ['light', 'switch', 'fan', 'lock'].includes(
-    props.group.type,
-  );
+  const HAS_ENTITIES = [
+    'light',
+    'switch',
+    'fan',
+    'lock',
+    'input_boolean',
+  ].includes(props.group.type);
 
   async function activateState(state: GroupSaveStateDTO): Promise<void> {
     const group = await sendRequest<GroupDTO>({
