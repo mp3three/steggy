@@ -8,7 +8,11 @@ import { ServerModule } from '@steggy/server';
 import { existsSync } from 'fs';
 import { join } from 'path';
 
-import { NODE_RED_URL, NOTIFY_CONNECTION_RESET } from '../config';
+import {
+  NODE_RED_URL,
+  NOTIFY_CONNECTION_RESET,
+  SEQUENCE_TIMEOUT,
+} from '../config';
 import {
   AdminController,
   AnimationController,
@@ -30,7 +34,6 @@ import {
   LightFlashCommandService,
   MetadataChangeService,
   NodeRedCommand,
-  RoutineEnabledService,
   RoutineTriggerService,
   ScheduleActivateService,
   SendNotificationService,
@@ -59,6 +62,12 @@ const rootPath = join(__dirname, 'ui');
         'Send a notification when home assistant connection is reset',
       type: 'boolean',
     },
+    [SEQUENCE_TIMEOUT]: {
+      default: 1500,
+      description:
+        'When tracking state changes for a kunami event, another change must happen inside this time window',
+      type: 'number',
+    },
   },
   controllers: [
     AdminController,
@@ -75,6 +84,7 @@ const rootPath = join(__dirname, 'ui');
   imports: [
     ControllerSDKModule,
     HomeAssistantModule,
+    HomeControllerModule,
     RegisterCache(),
     MongooseModule.forRootAsync({
       imports: [MongoPersistenceModule],
@@ -93,7 +103,6 @@ const rootPath = join(__dirname, 'ui');
     LightFlashCommandService,
     MetadataChangeService,
     NodeRedCommand,
-    RoutineEnabledService,
     RoutineTriggerService,
     ScheduleActivateService,
     SendNotificationService,

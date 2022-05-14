@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService, InjectConfig, OnEvent } from '@steggy/boilerplate';
+import { ActivationEvent, iActivationEvent } from '@steggy/controller-sdk';
 import {
+  RoutineActivateDTO,
   RoutineDTO,
   SequenceActivateDTO,
-  SequenceSensorEvent,
-  SequenceWatcher,
 } from '@steggy/controller-shared';
 import { EntityManagerService } from '@steggy/home-assistant';
 import {
@@ -14,9 +13,16 @@ import {
 import { each, is } from '@steggy/utilities';
 
 import { SEQUENCE_TIMEOUT } from '../../config';
+import { SequenceSensorEvent, SequenceWatcher } from '../../typings';
 
-@Injectable()
-export class SequenceActivateService {
+@ActivationEvent({
+  description: 'Activate in response to a pattern of state changes',
+  name: 'Sequence',
+  type: 'kunami',
+})
+export class SequenceActivateService
+  implements iActivationEvent<SequenceActivateDTO>
+{
   constructor(
     private readonly logger: AutoLogService,
     @InjectConfig(SEQUENCE_TIMEOUT) private readonly kunamiTimeout: number,
@@ -58,7 +64,7 @@ export class SequenceActivateService {
 
   public watch(
     routine: RoutineDTO,
-    activate: SequenceActivateDTO,
+    { activate }: RoutineActivateDTO<SequenceActivateDTO>,
     callback: () => Promise<void>,
   ): void {
     const watcher = this.WATCHED_SENSORS.get(activate.sensor) || [];

@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
+import { ActivationEvent, iActivationEvent } from '@steggy/controller-sdk';
 import {
   DeviceTriggerActivateDTO,
+  RoutineActivateDTO,
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { TriggerService } from '@steggy/home-assistant';
@@ -13,8 +14,15 @@ type tWatchType = {
   routine: string;
 };
 
-@Injectable()
-export class DeviceTriggerActivateService {
+@ActivationEvent({
+  description:
+    '(EXPERIMENTRAL) Use a Home Assistant trigger as an activation event',
+  name: 'Device trigger',
+  type: 'device_trigger',
+})
+export class DeviceTriggerActivateService
+  implements iActivationEvent<DeviceTriggerActivateDTO>
+{
   constructor(
     private readonly logger: AutoLogService,
     private readonly triggerService: TriggerService,
@@ -41,7 +49,7 @@ export class DeviceTriggerActivateService {
 
   public async watch(
     routine: RoutineDTO,
-    activate: DeviceTriggerActivateDTO,
+    { activate }: RoutineActivateDTO<DeviceTriggerActivateDTO>,
     callback: () => Promise<void>,
   ): Promise<void> {
     const subscription = await this.triggerService.subscribe(

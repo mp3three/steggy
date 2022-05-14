@@ -1,17 +1,28 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService, Cron } from '@steggy/boilerplate';
 import {
+  ActivationEvent,
+  iActivationEvent,
+  SolarCalcService,
+} from '@steggy/controller-sdk';
+import {
+  RoutineActivateDTO,
   RoutineDTO,
   SolarActivateDTO,
-  SolarWatcher,
 } from '@steggy/controller-shared';
 import { CronExpression, TitleCase } from '@steggy/utilities';
 import { CronJob } from 'cron';
 
-import { SolarCalcService } from '../lighting';
+import { SolarWatcher } from '../../typings';
 
-@Injectable()
-export class SolarActivateService {
+@ActivationEvent({
+  description:
+    'Activate at a predetermined time based on the position of the sun',
+  name: 'Solar Event',
+  type: 'solar',
+})
+export class SolarActivateService
+  implements iActivationEvent<SolarActivateDTO>
+{
   constructor(
     private readonly logger: AutoLogService,
     private readonly solarCalc: SolarCalcService,
@@ -35,7 +46,7 @@ export class SolarActivateService {
 
   public watch(
     routine: RoutineDTO,
-    activate: SolarActivateDTO,
+    { activate }: RoutineActivateDTO<SolarActivateDTO>,
     callback: () => Promise<void>,
   ): void {
     /**

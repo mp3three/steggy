@@ -1,15 +1,23 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
+import { ActivationEvent, iActivationEvent } from '@steggy/controller-sdk';
 import {
+  RoutineActivateDTO,
   RoutineDTO,
   ScheduleActivateDTO,
-  ScheduleWatcher,
 } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { CronJob } from 'cron';
 
-@Injectable()
-export class ScheduleActivateService {
+import { ScheduleWatcher } from '../../typings';
+
+@ActivationEvent({
+  description: 'Activate on a regular cron schedule',
+  name: 'Cron Schedule',
+  type: 'schedule',
+})
+export class ScheduleActivateService
+  implements iActivationEvent<ScheduleActivateDTO>
+{
   constructor(private readonly logger: AutoLogService) {}
 
   private SCHEDULES = new Set<ScheduleWatcher>();
@@ -31,7 +39,7 @@ export class ScheduleActivateService {
 
   public watch(
     routine: RoutineDTO,
-    activate: ScheduleActivateDTO,
+    { activate }: RoutineActivateDTO<ScheduleActivateDTO>,
     callback: () => Promise<void>,
   ): void {
     process.nextTick(() => {

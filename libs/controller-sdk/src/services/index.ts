@@ -1,5 +1,3 @@
-export * from './activate';
-export * from './commands';
 export * from './entities';
 export * from './group.service';
 export * from './groups';
@@ -11,5 +9,6 @@ export * from './persistence';
 export * from './person.service';
 export * from './room.service';
 export * from './routine.service';
+export * from './routine-enabled.service';
 export * from './save-state.service';
 export * from './secrets.service';

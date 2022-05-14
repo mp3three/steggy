@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
@@ -7,19 +7,20 @@ import {
   OnEvent,
 } from '@steggy/boilerplate';
 import {
+  ActivationEvent,
+  iActivationEvent,
+  MetadataUpdate,
+  PERSON_METADATA_UPDATED,
+  ROOM_METADATA_UPDATED,
+  RoomService,
+} from '@steggy/controller-sdk';
+import {
   MetadataChangeDTO,
   RoomDTO,
   RoutineActivateDTO,
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { each, is } from '@steggy/utilities';
-
-import {
-  MetadataUpdate,
-  PERSON_METADATA_UPDATED,
-  ROOM_METADATA_UPDATED,
-} from '../../typings';
-import { RoomService } from '../room.service';
 
 type tWatchType = {
   activate: RoutineActivateDTO<MetadataChangeDTO>;
@@ -34,8 +35,14 @@ const CACHE_KEY = (type: string) => `${CACHE_PREFIX}${type}`;
 // ? Should the reset / clear also remove latches?
 // Leaving as no right now, but do not have a good argument for why
 
-@Injectable()
-export class MetadataChangeService {
+@ActivationEvent({
+  description: 'Activate when person/room metadata changes',
+  name: 'Metadata Change',
+  type: 'metadata',
+})
+export class MetadataChangeService
+  implements iActivationEvent<MetadataChangeDTO>
+{
   constructor(
     private readonly logger: AutoLogService,
     @Inject(forwardRef(() => RoomService))

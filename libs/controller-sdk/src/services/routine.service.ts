@@ -10,39 +10,16 @@ import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
+  ModuleScannerService,
 } from '@steggy/boilerplate';
 import {
   ActivateCommand,
-  AttributeChangeActivateDTO,
   CloneRoutineDTO,
-  DeviceTriggerActivateDTO,
-  GeneralSaveStateDTO,
-  InternalEventActivateDTO,
-  MetadataChangeDTO,
-  ROUTINE_ACTIVATE_COMMAND,
-  ROUTINE_ACTIVATE_TYPE,
-  RoutineActivateDTO,
+  ROUTINE_ACTIVATE_TYPES,
   RoutineActivateOptionsDTO,
-  RoutineCaptureCommandDTO,
   RoutineCommandDTO,
-  RoutineCommandGroupActionDTO,
-  RoutineCommandGroupStateDTO,
-  RoutineCommandLightFlashDTO,
-  RoutineCommandNodeRedDTO,
-  RoutineCommandPersonStateDTO,
-  RoutineCommandRoomStateDTO,
-  RoutineCommandSendNotificationDTO,
-  RoutineCommandSleepDTO,
-  RoutineCommandStopProcessingDTO,
-  RoutineCommandTriggerRoutineDTO,
-  RoutineCommandWebhookDTO,
   RoutineDTO,
   RoutineTriggerEvent,
-  ScheduleActivateDTO,
-  SequenceActivateDTO,
-  SetRoomMetadataCommandDTO,
-  SolarActivateDTO,
-  StateChangeActivateDTO,
 } from '@steggy/controller-shared';
 import {
   each,
@@ -50,97 +27,41 @@ import {
   is,
   ResultControlDTO,
   sleep,
+  VALUE,
 } from '@steggy/utilities';
 import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';
 import { v4 as uuid, v4 } from 'uuid';
 
+import {
+  ACTIVATION_EVENT,
+  ActivationEventSettings,
+  iActivationEvent,
+} from '../decorators';
 import { ROUTINE_ACTIVATE } from '../typings';
-import {
-  AttributeChangeActivateService,
-  DeviceTriggerActivateService,
-  InternalEventChangeService,
-  MetadataChangeService,
-  RoutineEnabledService,
-  ScheduleActivateService,
-  SequenceActivateService,
-  SolarActivateService,
-  StateChangeActivateService,
-} from './activate';
-import {
-  CaptureCommandService,
-  LightFlashCommandService,
-  NodeRedCommand,
-  RoutineTriggerService,
-  SendNotificationService,
-  SetMetadataService,
-  SleepCommandService,
-  StopProcessingCommandService,
-  WebhookService,
-} from './commands';
-import { EntityCommandRouterService } from './entities';
-import { GroupService } from './group.service';
 import { RoutinePersistenceService } from './persistence';
-import { PersonService } from './person.service';
-import { RoomService } from './room.service';
+import { RoutineEnabledService } from './routine-enabled.service';
 
 const INSTANCE_ID = uuid();
 const RUN_CACHE = (routine: RoutineDTO) => `${INSTANCE_ID}_${routine._id}`;
-
-// So many @Injects. Remove any, and 💣
 
 @Injectable()
 export class RoutineService {
   constructor(
     @InjectCache()
     private readonly cacheService: CacheManagerService,
-    private readonly entityRouter: EntityCommandRouterService,
-    @Inject(forwardRef(() => LightFlashCommandService))
-    private readonly flashAnimation: LightFlashCommandService,
-    @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
-    @Inject(forwardRef(() => SequenceActivateService))
-    private readonly sequenceActivate: SequenceActivateService,
-    private readonly logger: AutoLogService,
-    @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
     private readonly routinePersistence: RoutinePersistenceService,
-    @Inject(forwardRef(() => NodeRedCommand))
-    private readonly nodeRedCommand: NodeRedCommand,
-    @Inject(forwardRef(() => ScheduleActivateService))
-    private readonly scheduleActivate: ScheduleActivateService,
-    @Inject(forwardRef(() => SetMetadataService))
-    private readonly setMetadataService: SetMetadataService,
-    @Inject(forwardRef(() => SolarActivateService))
-    private readonly solarService: SolarActivateService,
-    @Inject(forwardRef(() => RoutineTriggerService))
-    private readonly triggerService: RoutineTriggerService,
-    @Inject(forwardRef(() => CaptureCommandService))
-    private readonly captureCommand: CaptureCommandService,
-    @Inject(forwardRef(() => StateChangeActivateService))
-    private readonly stateChangeActivate: StateChangeActivateService,
-    @Inject(forwardRef(() => SendNotificationService))
-    private readonly sendNotification: SendNotificationService,
-    @Inject(forwardRef(() => SleepCommandService))
-    private readonly sleepService: SleepCommandService,
-    @Inject(forwardRef(() => WebhookService))
-    private readonly webhookService: WebhookService,
-    @Inject(forwardRef(() => StopProcessingCommandService))
-    private readonly stopProcessingService: StopProcessingCommandService,
-    @Inject(forwardRef(() => MetadataChangeService))
-    private readonly metadataChangeService: MetadataChangeService,
-    @Inject(forwardRef(() => AttributeChangeActivateService))
-    private readonly attributeChangeService: AttributeChangeActivateService,
-    @Inject(forwardRef(() => PersonService))
-    private readonly personService: PersonService,
-    @Inject(forwardRef(() => InternalEventChangeService))
-    private readonly internalEventActivate: InternalEventChangeService,
     @Inject(forwardRef(() => RoutineEnabledService))
     private readonly routineEnabled: RoutineEnabledService,
-    private readonly deviceTriggerActivate: DeviceTriggerActivateService,
     private readonly eventEmitter: EventEmitter,
+    private readonly moduleScanner: ModuleScannerService,
+    private readonly logger: AutoLogService,
   ) {}
 
+  private ACTIVATION_EVENTS: Map<
+    ActivationEventSettings,
+    iActivationEvent<ROUTINE_ACTIVATE_TYPES>
+  >;
   private readonly runQueue = new Map<string, (() => void)[]>();
 
   public async activateCommand(
@@ -154,90 +75,7 @@ export class RoutineService {
       ? routine.command.find(({ id }) => id === command)
       : command;
     this.logger.debug(` - {${command.friendlyName}}`);
-    switch (command.type) {
-      case ROUTINE_ACTIVATE_COMMAND.person_state:
-        await this.personService.activateState(
-          command.command as RoutineCommandPersonStateDTO,
-          waitForChange,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.group_action:
-        await this.groupService.activateCommand(
-          command.command as RoutineCommandGroupActionDTO,
-          waitForChange,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.webhook:
-        await this.webhookService.activate(
-          command.command as RoutineCommandWebhookDTO,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.group_state:
-        await this.groupService.activateState(
-          command.command as RoutineCommandGroupStateDTO,
-          waitForChange,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.room_state:
-        await this.roomService.activateState(
-          command.command as RoutineCommandRoomStateDTO,
-          waitForChange,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.entity_state:
-        await this.entityRouter.fromState(
-          command.command as GeneralSaveStateDTO,
-          waitForChange,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.send_notification:
-        await this.sendNotification.activate(
-          command.command as RoutineCommandSendNotificationDTO,
-          waitForChange,
-          runId,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.node_red:
-        await this.nodeRedCommand.activate(
-          command.command as RoutineCommandNodeRedDTO,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.set_metadata:
-        await this.setMetadataService.activate(
-          command.command as SetRoomMetadataCommandDTO,
-          runId,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.light_flash:
-        await this.flashAnimation.activate(
-          command.command as RoutineCommandLightFlashDTO,
-          waitForChange,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.trigger_routine:
-        await this.triggerService.activate(
-          command.command as RoutineCommandTriggerRoutineDTO,
-          routine,
-          waitForChange,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.sleep:
-        await this.sleepService.activate(
-          command.command as RoutineCommandSleepDTO,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.capture_state:
-        await this.captureCommand.activate(
-          command as RoutineCaptureCommandDTO,
-          routine,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.stop_processing:
-        const out = await this.stopProcessingService.activate(
-          command.command as RoutineCommandStopProcessingDTO,
-        );
-        return !out;
-    }
+    //
     return true;
   }
 
@@ -394,66 +232,12 @@ export class RoutineService {
         return;
       }
       this.logger.debug(` - {${activate.friendlyName}}`);
-      const callback = async () =>
-        await this.activateRoutine(routine, { source: activate.id });
-      switch (activate.type) {
-        case ROUTINE_ACTIVATE_TYPE.internal_event:
-          this.internalEventActivate.watch(
-            routine,
-            activate.activate as InternalEventActivateDTO,
-            callback,
-          );
-          return;
-        case ROUTINE_ACTIVATE_TYPE.device_trigger:
-          this.deviceTriggerActivate.watch(
-            routine,
-            activate.activate as DeviceTriggerActivateDTO,
-            callback,
-          );
-          return;
-        case ROUTINE_ACTIVATE_TYPE.attribute:
-          this.attributeChangeService.watch(
-            routine,
-            activate.activate as AttributeChangeActivateDTO,
-            callback,
-          );
-          return;
-        case ROUTINE_ACTIVATE_TYPE.solar:
-          this.solarService.watch(
-            routine,
-            activate.activate as SolarActivateDTO,
-            callback,
-          );
-          return;
-        case ROUTINE_ACTIVATE_TYPE.kunami:
-          this.sequenceActivate.watch(
-            routine,
-            activate.activate as SequenceActivateDTO,
-            callback,
-          );
-          return;
-        case ROUTINE_ACTIVATE_TYPE.state_change:
-          this.stateChangeActivate.watch(
-            routine,
-            activate.activate as StateChangeActivateDTO,
-            callback,
-          );
-          return;
-        case ROUTINE_ACTIVATE_TYPE.schedule:
-          this.scheduleActivate.watch(
-            routine,
-            activate.activate as ScheduleActivateDTO,
-            callback,
-          );
-          return;
-        case ROUTINE_ACTIVATE_TYPE.metadata:
-          this.metadataChangeService.watch(
-            routine,
-            activate as RoutineActivateDTO<MetadataChangeDTO>,
-            callback,
-          );
-          return;
-      }
+      this.getActivation(activate.type).watch(
+        routine,
+        activate,
+        async () =>
+          await this.activateRoutine(routine, { source: activate.id }),
+      );
     });
   }
 
@@ -464,32 +248,7 @@ export class RoutineService {
     this.logger.debug(`[${routine.friendlyName}] unmount`);
     routine.activate.forEach(activate => {
       this.logger.debug(` - ${activate.friendlyName}`);
-      switch (activate.type) {
-        case ROUTINE_ACTIVATE_TYPE.attribute:
-          this.attributeChangeService.clearRoutine(routine);
-          return;
-        case ROUTINE_ACTIVATE_TYPE.device_trigger:
-          this.deviceTriggerActivate.clearRoutine(routine);
-          return;
-        case ROUTINE_ACTIVATE_TYPE.internal_event:
-          this.internalEventActivate.clearRoutine(routine);
-          return;
-        case ROUTINE_ACTIVATE_TYPE.solar:
-          this.solarService.clearRoutine(routine);
-          return;
-        case ROUTINE_ACTIVATE_TYPE.kunami:
-          this.sequenceActivate.clearRoutine(routine);
-          return;
-        case ROUTINE_ACTIVATE_TYPE.state_change:
-          this.stateChangeActivate.clearRoutine(routine);
-          return;
-        case ROUTINE_ACTIVATE_TYPE.schedule:
-          this.scheduleActivate.clearRoutine(routine);
-          return;
-        case ROUTINE_ACTIVATE_TYPE.metadata:
-          this.metadataChangeService.clearRoutine(routine);
-          return;
-      }
+      this.getActivation(activate.type).clearRoutine(routine);
     });
   }
 
@@ -498,6 +257,19 @@ export class RoutineService {
     routine: Partial<RoutineDTO>,
   ): Promise<RoutineDTO> {
     return await this.routinePersistence.update(routine, id);
+  }
+
+  protected onApplicationBootstrap(): void {
+    this.ACTIVATION_EVENTS = this.moduleScanner.findWithSymbol<
+      iActivationEvent,
+      ActivationEventSettings
+    >(ACTIVATION_EVENT);
+  }
+
+  private getActivation(name: string): iActivationEvent {
+    return [...this.ACTIVATION_EVENTS.entries()].find(
+      ([options]) => name === options.name,
+    )[VALUE];
   }
 
   private async interruptCheck(

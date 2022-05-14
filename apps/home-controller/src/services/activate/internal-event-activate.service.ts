@@ -1,21 +1,31 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
+  ActivationEvent,
+  iActivationEvent,
+  VMService,
+} from '@steggy/controller-sdk';
+import {
   InternalEventActivateDTO,
+  RoutineActivateDTO,
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import EventEmitter from 'eventemitter3';
-
-import { VMService } from '../misc';
 
 type tWatchType = {
   remove: () => void;
   routine: string;
 };
 
-@Injectable()
-export class InternalEventChangeService {
+@ActivationEvent({
+  description:
+    'Trigger a routine in response to an (otherwise) internal controller event',
+  name: 'Internal Event',
+  type: 'internal_event',
+})
+export class InternalEventChangeService
+  implements iActivationEvent<InternalEventActivateDTO>
+{
   constructor(
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
@@ -45,7 +55,7 @@ export class InternalEventChangeService {
 
   public watch(
     routine: RoutineDTO,
-    activate: InternalEventActivateDTO,
+    { activate }: RoutineActivateDTO<InternalEventActivateDTO>,
     callback: () => Promise<void>,
   ): void {
     const process = async (data: Record<string, unknown>) => {

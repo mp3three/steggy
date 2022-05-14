@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
@@ -6,10 +5,11 @@ import {
   JSONFilterService,
   OnEvent,
 } from '@steggy/boilerplate';
+import { ActivationEvent, iActivationEvent } from '@steggy/controller-sdk';
 import {
   AttributeChangeActivateDTO,
+  RoutineActivateDTO,
   RoutineDTO,
-  StateChangeWatcher,
 } from '@steggy/controller-shared';
 import { EntityManagerService } from '@steggy/home-assistant';
 import {
@@ -19,12 +19,20 @@ import {
 import { each, is } from '@steggy/utilities';
 import { get } from 'object-path';
 
+import { StateChangeWatcher } from '../../typings';
+
 const LATCH_KEY = (id: string) => `ATTRIBUTE_LATCH:${id}`;
 const DEBOUNCE_KEY = (id: string) => `ATTRIBUTE_DEBOUNCE:${id}`;
 const NO_ACTIVATIONS = 0;
 
-@Injectable()
-export class AttributeChangeActivateService {
+@ActivationEvent({
+  description: 'Activate in response to an entity state comparison',
+  name: 'Attribute Change',
+  type: 'attribute',
+})
+export class AttributeChangeActivateService
+  implements iActivationEvent<AttributeChangeActivateDTO>
+{
   constructor(
     @InjectCache()
     private readonly cacheService: CacheManagerService,
@@ -56,7 +64,7 @@ export class AttributeChangeActivateService {
 
   public watch(
     routine: RoutineDTO,
-    activate: AttributeChangeActivateDTO,
+    { activate }: RoutineActivateDTO<AttributeChangeActivateDTO>,
     callback: () => Promise<void>,
   ): void {
     const list = this.WATCHED_ENTITIES.get(activate.entity) || [];

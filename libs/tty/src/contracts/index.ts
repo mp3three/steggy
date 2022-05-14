@@ -1,4 +1,4 @@
-export * from './application-stack';
+export * from './application-stack.decorator';
 export * from './constants';
 export * from './dto';
 export * from './i-repl.interface';

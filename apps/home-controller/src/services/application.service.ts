@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService, InjectConfig, OnEvent } from '@steggy/boilerplate';
 import { SAFE_MODE } from '@steggy/controller-sdk';
-import { NotifyDomainService } from '@steggy/home-assistant';
+import {
+  HASocketAPIService,
+  NotifyDomainService,
+} from '@steggy/home-assistant';
 import { HA_SOCKET_READY } from '@steggy/home-assistant-shared';
 
 import { NOTIFY_CONNECTION_RESET } from '../config';
@@ -15,8 +18,14 @@ export class ApplicationService {
     private readonly safeMode: boolean,
     private readonly logger: AutoLogService,
     private readonly notifyService: NotifyDomainService,
+    private readonly socketApi: HASocketAPIService,
   ) {}
   private connectionReady = false;
+
+  protected async onApplicationBootstrap(): Promise<void> {
+    this.logger.debug(`Init connection`);
+    await this.socketApi.initConnection();
+  }
 
   protected onPostInit(): void {
     // Mostly here for easy confirmation that the time zone is correct in containers

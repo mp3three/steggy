@@ -116,6 +116,50 @@ export class HASocketAPIService {
     });
   }
 
+  /**
+   * Set up a new websocket connection to home assistant
+   */
+  public initConnection(reset = false): void {
+    if (reset) {
+      this.eventEmitter.emit(CONNECTION_RESET);
+      this.connection = undefined;
+    }
+    if (this.connection) {
+      return;
+    }
+    this.logger.debug(`[CONNECTION_ACTIVE] = {false}`);
+    this.CONNECTION_ACTIVE = false;
+    const url = new URL(this.baseUrl);
+    try {
+      this.messageCount = START;
+      this.logger.info('Creating new socket connection');
+      this.connection = new WS(
+        this.websocketUrl ||
+          `${url.protocol === `http:` ? `ws:` : `wss:`}//${url.hostname}${
+            url.port ? `:${url.port}` : ``
+          }/api/websocket`,
+      );
+      let first = true;
+      this.connection.addEventListener('message', message => {
+        if (first) {
+          first = false;
+          this.subscribeEvents = false;
+          this.logger.debug(`Hello message received`);
+        }
+        this.onMessage(JSON.parse(message.data.toString()));
+      });
+      this.connection.on('error', async error => {
+        this.logger.error({ error: error.message || error }, 'Socket error');
+        if (!this.CONNECTION_ACTIVE) {
+          await sleep(this.retryInterval);
+          await this.initConnection(reset);
+        }
+      });
+    } catch (error) {
+      this.logger.error({ error }, `initConnection error`);
+    }
+  }
+
   public async listDevices(): Promise<DeviceListItemDTO[]> {
     return await this.sendMessage({
       type: HASSIO_WS_COMMAND.device_list,
@@ -187,16 +231,6 @@ export class HASocketAPIService {
     });
   }
 
-  protected async onApplicationBootstrap(): Promise<void> {
-    // Kick off the connection process
-    // Do not wait for it to actually complete through auth though
-    //
-    // That causes some race conditions that screw with the state managers
-    // The current flow forces the auth frames to get sent after app is started
-    this.logger.debug(`Init connection`);
-    await this.initConnection();
-  }
-
   @Cron(CronExpression.EVERY_10_SECONDS)
   protected async ping(): Promise<void> {
     if (!this.CONNECTION_ACTIVE) {
@@ -239,51 +273,6 @@ export class HASocketAPIService {
       this.logger.warn(
         `Message traffic ${this.CRASH_REQUESTS}>${count}>${this.WARN_REQUESTS}`,
       );
-    }
-  }
-
-  /**
-   * Set up a new websocket connection to home assistant
-   */
-
-  private initConnection(reset = false): void {
-    if (reset) {
-      this.eventEmitter.emit(CONNECTION_RESET);
-      this.connection = undefined;
-    }
-    if (this.connection) {
-      return;
-    }
-    this.logger.debug(`[CONNECTION_ACTIVE] = {false}`);
-    this.CONNECTION_ACTIVE = false;
-    const url = new URL(this.baseUrl);
-    try {
-      this.messageCount = START;
-      this.logger.info('Creating new socket connection');
-      this.connection = new WS(
-        this.websocketUrl ||
-          `${url.protocol === `http:` ? `ws:` : `wss:`}//${url.hostname}${
-            url.port ? `:${url.port}` : ``
-          }/api/websocket`,
-      );
-      let first = true;
-      this.connection.addEventListener('message', message => {
-        if (first) {
-          first = false;
-          this.subscribeEvents = false;
-          this.logger.debug(`Hello message received`);
-        }
-        this.onMessage(JSON.parse(message.data.toString()));
-      });
-      this.connection.on('error', async error => {
-        this.logger.error({ error: error.message || error }, 'Socket error');
-        if (!this.CONNECTION_ACTIVE) {
-          await sleep(this.retryInterval);
-          await this.initConnection(reset);
-        }
-      });
-    } catch (error) {
-      this.logger.error({ error }, `initConnection error`);
     }
   }
 
