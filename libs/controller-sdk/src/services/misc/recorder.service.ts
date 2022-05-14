@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  AutoLogService,
   CacheManagerService,
   InjectCache,
   InjectConfig,
@@ -20,7 +19,6 @@ const LOAD_CHUNKS = 100;
 @Injectable()
 export class RecorderService {
   constructor(
-    private readonly logger: AutoLogService,
     @InjectCache()
     private readonly cacheService: CacheManagerService,
     @InjectConfig(RECENT_ROUTINE_TTL) private readonly ttl: number,

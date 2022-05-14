@@ -25,7 +25,6 @@ import {
 import { is } from '@steggy/utilities';
 
 import { LightManagerService } from '../lighting';
-import { MetadataService } from '../metadata.service';
 
 @Injectable()
 export class EntityCommandRouterService {
@@ -37,7 +36,6 @@ export class EntityCommandRouterService {
     private readonly fanService: FanDomainService,
     private readonly lockService: LockDomainService,
     private readonly climateService: ClimateDomainService,
-    private readonly metadataService: MetadataService,
   ) {}
 
   public async fromState(
