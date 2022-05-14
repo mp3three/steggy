@@ -2,7 +2,7 @@ import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Card, Descriptions, Empty, Space, Tabs, Typography } from 'antd';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import { ActivateList } from './activate';
 import { ActivateHistory } from './ActivateHistory';
 import { CommandList } from './command';
@@ -55,8 +55,9 @@ export function RoutineListDetail(props: {
             }
             span={3}
           >
-            Routine is enabled, but is missing activation events, commands, or
-            both.
+            Routine is enabled, but is missing activation events or commands. If
+            children are present, then this will be used if activations OR
+            commands are present, but not both.
           </Descriptions.Item>
           <Descriptions.Item
             label={
@@ -66,7 +67,19 @@ export function RoutineListDetail(props: {
             }
             span={3}
           >
-            Routine is disabled.
+            Routine will not respond to activation attempts. If child routines
+            are present, those are disabled also.
+          </Descriptions.Item>
+          <Descriptions.Item
+            label={
+              <Typography.Text code>
+                {FD_ICONS.get('folder')} {FD_ICONS.get('folder_open')}
+              </Typography.Text>
+            }
+            span={3}
+          >
+            Routine contains children, but no activation events / commands of
+            it's own.
           </Descriptions.Item>
         </Descriptions>
       </Space>

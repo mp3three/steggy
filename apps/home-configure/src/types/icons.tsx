@@ -22,6 +22,8 @@ import {
   CloseOutlined,
   ExclamationCircleOutlined,
   ExclamationOutlined,
+  FolderFilled,
+  FolderOpenFilled,
   HomeOutlined,
   LoadingOutlined,
   MenuOutlined,
@@ -35,6 +37,8 @@ type iconTypes =
   | 'entities'
   | 'execute'
   | 'filter'
+  | 'folder'
+  | 'folder_open'
   | 'groups'
   | 'home'
   | 'information'
@@ -63,8 +67,11 @@ export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['delete', <ExclamationOutlined style={{ color: 'red' }} />],
   ['drag_handle', <MenuOutlined style={{ color: '#999', cursor: 'grab' }} />],
   ['entities', <AlarmBell />],
+  ['error', <ExclamationCircleOutlined style={{ color: '#AA0000' }} />],
   ['execute', <StepForward />],
   ['filter', <FilterVariant />],
+  ['folder', <FolderFilled />],
+  ['folder_open', <FolderOpenFilled />],
   ['groups', <LightbulbGroupOutline />],
   ['home', <HomeOutlined />],
   ['information', <InformationIcon />],
@@ -84,6 +91,5 @@ export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['routines', <HomeAutomation />],
   ['run', <DebugStepInto />],
   ['settings', <SettingOutlined />],
-  ['error', <ExclamationCircleOutlined style={{ color: '#AA0000' }} />],
   ['warning', <ExclamationCircleOutlined style={{ color: '#AAAA00' }} />],
 ]);

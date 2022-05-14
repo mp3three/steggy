@@ -38,6 +38,7 @@ export function RoutineTree(props: {
   const [routineMap, setRoutineMap] = useState<tRoutineMap>(new Map());
   const [treeData, setTreeData] = useState<DataNode[]>([]);
   const [friendlyName, setFriendlyName] = useState('');
+  const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
   useEffect(() => {
     refresh();
@@ -52,8 +53,68 @@ export function RoutineTree(props: {
     props.onSelect(routineMap.get(item).routine);
   }
 
+  routineMap.forEach(({ routine, item }) => {
+    item.title = (
+      <Tooltip title={routine.description}>{getTitle(item, routine)}</Tooltip>
+    );
+  });
+
+  function getTitle(item: DataNode, routine: RoutineDTO) {
+    const isEnabled = props.enabled.includes(routine._id);
+    if (
+      !is.empty(item.children) &&
+      is.empty(routine.activate) &&
+      is.empty(routine.command)
+    ) {
+      // Routines used for grouping only get fancy
+      return (
+        <Tooltip title={routine.description}>
+          {FD_ICONS.get(
+            expandedKeys.includes(routine._id) ? 'folder_open' : 'folder',
+          )}
+          <Typography.Text
+            strong
+            italic
+            type={isEnabled ? 'success' : 'danger'}
+          >
+            {` ${routine.friendlyName}`}
+          </Typography.Text>
+        </Tooltip>
+      );
+    }
+    if (
+      is.empty(item.children) ||
+      !is.empty(routine.command) ||
+      !is.empty(routine.activate)
+    ) {
+      // If the server will attempt to mount + reject, warn
+      return (
+        <Tooltip title={routine.description}>
+          {is.empty(routine.command) || is.empty(routine.activate) ? (
+            <Typography.Text
+              strong
+              italic
+              type={isEnabled ? 'warning' : 'danger'}
+            >
+              {routine.friendlyName}
+            </Typography.Text>
+          ) : (
+            <Typography.Text
+              strong
+              italic
+              type={isEnabled ? 'success' : 'danger'}
+            >
+              {routine.friendlyName}
+            </Typography.Text>
+          )}
+        </Tooltip>
+      );
+    }
+    return <Tooltip title={'Hello world'}>{item.title}</Tooltip>;
+  }
+
   function refresh(): void {
-    const { routines, enabled } = props;
+    const { routines } = props;
     const routineMap = new Map<
       string,
       { item: DataNode; routine: RoutineDTO }
@@ -76,53 +137,10 @@ export function RoutineTree(props: {
       }
       routineMap.get(routine.parent).item.children.push(item);
     });
-    routineMap.forEach(({ item, routine }) => {
-      const isEnabled = enabled.includes(routine._id);
+    routineMap.forEach(({ item }) => {
       item.children = item.children.sort((a, b) =>
         sortChildren(a, b, routineMap),
       );
-      if (
-        !is.empty(item.children) &&
-        is.empty(routine.activate) &&
-        is.empty(routine.command)
-      ) {
-        // Routines used for grouping only get fancy
-        item.title = (
-          <Typography.Text
-            strong
-            italic
-            type={isEnabled ? 'success' : 'danger'}
-          >
-            {routine.friendlyName}
-          </Typography.Text>
-        );
-        return;
-      }
-      if (
-        is.empty(item.children) ||
-        !is.empty(routine.command) ||
-        !is.empty(routine.activate)
-      ) {
-        // If the server will attempt to mount + reject, warn
-        item.title =
-          is.empty(routine.command) || is.empty(routine.activate) ? (
-            <Typography.Text
-              strong
-              italic
-              type={isEnabled ? 'warning' : 'danger'}
-            >
-              {routine.friendlyName}
-            </Typography.Text>
-          ) : (
-            <Typography.Text
-              strong
-              italic
-              type={isEnabled ? 'success' : 'danger'}
-            >
-              {routine.friendlyName}
-            </Typography.Text>
-          );
-      }
     });
     setRoutineMap(routineMap);
     setTreeData(treeData);
@@ -221,6 +239,8 @@ export function RoutineTree(props: {
           className="draggable-tree"
           draggable
           showIcon
+          onExpand={keys => setExpandedKeys(keys as string[])}
+          expandedKeys={expandedKeys}
           selectedKeys={[props.routine?._id]}
           onDrop={options => onDrop(options)}
           onSelect={(keys: string[]) => onSelect(keys)}
