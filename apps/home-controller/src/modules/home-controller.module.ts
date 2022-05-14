@@ -42,7 +42,6 @@ import {
   SleepCommandService,
   SolarActivateService,
   StateChangeActivateService,
-  StopProcessingCommandService,
   UpdateLoggerService,
   WebhookService,
 } from '../services';
@@ -111,7 +110,6 @@ const rootPath = join(__dirname, 'ui');
     SleepCommandService,
     SolarActivateService,
     StateChangeActivateService,
-    StopProcessingCommandService,
     UpdateLoggerService,
     WebhookService,
   ],

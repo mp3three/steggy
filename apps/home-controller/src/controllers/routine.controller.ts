@@ -15,6 +15,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { RoutineService } from '@steggy/controller-sdk';
 import {
   CloneRoutineDTO,
   GeneralSaveStateDTO,
@@ -41,8 +42,6 @@ import {
 } from '@steggy/server';
 import { NOT_FOUND } from '@steggy/utilities';
 import { v4 as uuid } from 'uuid';
-
-import { RoutineService } from '../services';
 
 @Controller(`/routine`)
 @AuthStack()

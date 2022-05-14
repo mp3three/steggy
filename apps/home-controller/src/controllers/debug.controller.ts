@@ -8,6 +8,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  DebuggerService,
+  RecorderService,
+  RoutineEnabledService,
+  SolarCalcService,
+} from '@steggy/controller-sdk';
 import { DebugReportDTO, RoutineTriggerEvent } from '@steggy/controller-shared';
 import {
   HACallService,
@@ -22,13 +28,7 @@ import {
   JSONFilterInterceptor,
 } from '@steggy/server';
 
-import {
-  DebuggerService,
-  NodeRedCommand,
-  RecorderService,
-  RoutineEnabledService,
-  SolarCalcService,
-} from '../services';
+import { NodeRedCommand } from '../services';
 
 @Controller(`/debug`)
 @ApiTags('debug')

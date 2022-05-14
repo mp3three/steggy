@@ -41,6 +41,7 @@ export class DebuggerService {
     private readonly entityManager: EntityManagerService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineService: RoutineService,
+    @Inject(forwardRef(() => PersonService))
     private readonly personService: PersonService,
   ) {}
 

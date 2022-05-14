@@ -52,10 +52,11 @@ export class StopProcessingCommandService
   }: {
     command: RoutineCommandDTO<RoutineCommandStopProcessingDTO>;
   }): Promise<boolean> {
+    const mode = command.command.mode ?? 'any';
     const results: boolean[] = [];
     await eachSeries(command.command.comparisons ?? [], async comparison => {
       // if it's "any", and we got a match, then cut to the chase
-      if (command.command.mode !== 'all' && results.some(Boolean)) {
+      if (mode !== 'all' && results.some(Boolean)) {
         return;
       }
       let result = false;
@@ -93,10 +94,7 @@ export class StopProcessingCommandService
       results.push(result);
     });
     // default to "any"
-    return (
-      (command.command.mode === 'all' && results.every(Boolean)) ||
-      results.some(Boolean)
-    );
+    return (mode === 'all' && results.every(Boolean)) || results.some(Boolean);
   }
 
   private attributeComparison(

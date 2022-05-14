@@ -8,6 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { GroupService, RoomService } from '@steggy/controller-sdk';
 import {
   CloneRoomDTO,
   GroupDTO,
@@ -25,8 +26,6 @@ import {
   ResponseLocals,
 } from '@steggy/server';
 import { each, eachSeries } from '@steggy/utilities';
-
-import { GroupService, RoomService } from '../services';
 
 @Controller('/room')
 @AuthStack()

@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService, OnEvent } from '@steggy/boilerplate';
+import {
+  ENTITY_METADATA_UPDATED,
+  MetadataService,
+} from '@steggy/controller-sdk';
 import { DEBUG_LOG } from '@steggy/controller-shared';
 import {
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
 } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
-
-import { ENTITY_METADATA_UPDATED } from '../../typings';
-import { MetadataService } from '../metadata.service';
 
 @Injectable()
 export class UpdateLoggerService {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
@@ -52,6 +52,7 @@ export class LightManagerService {
     @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly circadianService: CircadianService,
+    @Inject(forwardRef(() => MetadataService))
     private readonly metadataService: MetadataService,
     @InjectConfig(SAFE_MODE)
     private readonly safeMode: boolean,

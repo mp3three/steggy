@@ -10,6 +10,7 @@ import {
 } from '@steggy/controller-shared';
 import { HomeAssistantModule } from '@steggy/home-assistant';
 
+import { StopProcessingCommandService } from '../commands';
 import {
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
@@ -17,7 +18,6 @@ import {
   RECENT_ROUTINE_TTL,
   SAFE_MODE,
   SECRETS,
-  SEQUENCE_TIMEOUT,
 } from '../config';
 import {
   ChronoService,
@@ -43,6 +43,7 @@ import {
   RoomGroupService,
   RoomPersistenceService,
   RoomService,
+  RoutineEnabledService,
   RoutinePersistenceService,
   RoutineService,
   SaveStateService,
@@ -76,6 +77,7 @@ const providers = [
   RoomGroupService,
   RoomPersistenceService,
   RoomService,
+  RoutineEnabledService,
   RoutinePersistenceService,
   RoutineService,
   SaveStateService,
@@ -83,6 +85,7 @@ const providers = [
   SolarCalcService,
   SwitchGroupService,
   VMService,
+  StopProcessingCommandService,
 ];
 
 @LibraryModule({
@@ -119,12 +122,6 @@ const providers = [
     [SECRETS]: {
       description: 'Key / value pairs ',
       type: 'record',
-    },
-    [SEQUENCE_TIMEOUT]: {
-      default: 1500,
-      description:
-        'When tracking state changes for a kunami event, another change must happen inside this time window',
-      type: 'number',
     },
   },
   exports: providers,

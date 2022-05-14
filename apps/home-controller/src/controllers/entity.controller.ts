@@ -12,6 +12,13 @@ import {
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
+  EntityCommandRouterService,
+  EntityRenameService,
+  EntityService,
+  LightManagerService,
+  MetadataService,
+} from '@steggy/controller-sdk';
+import {
   EntityHistoryRequest,
   GeneralSaveStateDTO,
   UpdateEntityIdDTO,
@@ -34,14 +41,6 @@ import {
   Locals,
   ResponseLocals,
 } from '@steggy/server';
-
-import {
-  EntityCommandRouterService,
-  EntityRenameService,
-  EntityService,
-  LightManagerService,
-  MetadataService,
-} from '../services';
 
 @ApiTags('entity')
 @Controller('/entity')

@@ -83,6 +83,12 @@ export class SolarActivateService
   protected dailyReset(): void {
     const current = this.SCHEDULES;
     this.reset();
-    current.forEach(i => this.watch(i.routine, i, i.callback));
+    current.forEach(({ routine, callback, ...activate }) =>
+      this.watch(
+        routine,
+        { activate } as RoutineActivateDTO<SolarActivateDTO>,
+        callback,
+      ),
+    );
   }
 }

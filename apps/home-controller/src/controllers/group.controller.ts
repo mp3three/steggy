@@ -8,6 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { GroupService } from '@steggy/controller-sdk';
 import {
   CloneGroupDTO,
   ENTITY_EXTRAS_SCHEMA,
@@ -25,8 +26,6 @@ import {
   Locals,
   ResponseLocals,
 } from '@steggy/server';
-
-import { GroupService } from '../services';
 
 @Controller('/group')
 @ApiTags('group')

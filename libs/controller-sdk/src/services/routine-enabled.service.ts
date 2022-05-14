@@ -4,6 +4,8 @@ import {
   MetadataComparisonDTO,
   ROUTINE_UPDATE,
   RoutineAttributeComparisonDTO,
+  RoutineCommandDTO,
+  RoutineCommandStopProcessingDTO,
   RoutineDTO,
   RoutineRelativeDateComparisonDTO,
   RoutineStateComparisonDTO,
@@ -17,6 +19,7 @@ import {
 import { each, INCREMENT, is, SECOND } from '@steggy/utilities';
 import dayjs from 'dayjs';
 
+import { StopProcessingCommandService } from '../commands';
 import { SAFE_MODE } from '../config';
 import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../typings';
 import { ChronoService } from './misc';
@@ -201,7 +204,11 @@ export class RoutineEnabledService {
     if (type === 'disable') {
       return false;
     }
-    const testState = await this.stopProcessingService.activate(enable);
+    const testState = await this.stopProcessingService.activate({
+      command: {
+        command: enable,
+      } as RoutineCommandDTO<RoutineCommandStopProcessingDTO>,
+    });
     return (
       (type === 'enable_rules' && testState) ||
       (type === 'disable_rules' && !testState)
