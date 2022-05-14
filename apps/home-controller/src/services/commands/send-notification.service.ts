@@ -1,16 +1,28 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
-import { RoutineCommandSendNotificationDTO } from '@steggy/controller-shared';
+import {
+  iRoutineCommand,
+  RoutineCommand,
+  VMService,
+} from '@steggy/controller-sdk';
+import {
+  RoutineCommandDTO,
+  RoutineCommandSendNotificationDTO,
+} from '@steggy/controller-shared';
 import {
   HASocketAPIService,
   NotifyDomainService,
 } from '@steggy/home-assistant';
 import { is } from '@steggy/utilities';
 
-import { VMService } from '../misc';
-
-@Injectable()
-export class SendNotificationService {
+@RoutineCommand({
+  description: 'Send notification using Home Assistant',
+  name: 'Send Notification',
+  type: 'send_notification',
+})
+export class SendNotificationService
+  implements iRoutineCommand<RoutineCommandSendNotificationDTO>
+{
   constructor(
     private readonly logger: AutoLogService,
     private readonly socketService: HASocketAPIService,
@@ -19,12 +31,16 @@ export class SendNotificationService {
     private readonly vmService: VMService,
   ) {}
 
-  public async activate(
-    command: RoutineCommandSendNotificationDTO,
-    waitForChange = false,
-    runId?: string,
-  ): Promise<void> {
-    const message = await this.buildMessage(command, runId);
+  public async activate({
+    command,
+    waitForChange,
+    runId,
+  }: {
+    command: RoutineCommandDTO<RoutineCommandSendNotificationDTO>;
+    runId: string;
+    waitForChange: boolean;
+  }): Promise<void> {
+    const message = await this.buildMessage(command.command, runId);
     this.logger.debug({ message }, `Sending notification`);
     await this.notification.notify(message, undefined, waitForChange);
   }

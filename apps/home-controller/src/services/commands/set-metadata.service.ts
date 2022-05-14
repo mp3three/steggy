@@ -1,13 +1,20 @@
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
+import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
+import {
+  ChronoService,
+  iRoutineCommand,
+  MetadataUpdate,
+  PERSON_METADATA_UPDATED,
+  PersonService,
+  ROOM_METADATA_UPDATED,
+  RoomService,
+  RoutineCommand,
+  VMService,
+} from '@steggy/controller-sdk';
 import {
   RoomDTO,
   RoomMetadataDTO,
+  RoutineCommandDTO,
   SetRoomMetadataCommandDTO,
 } from '@steggy/controller-shared';
 import { HASocketAPIService } from '@steggy/home-assistant';
@@ -16,20 +23,16 @@ import { isNumberString } from 'class-validator';
 import EventEmitter from 'eventemitter3';
 import { parse } from 'mathjs';
 
-import {
-  MetadataUpdate,
-  PERSON_METADATA_UPDATED,
-  ROOM_METADATA_UPDATED,
-} from '../../typings';
-import { VMService } from '../misc';
-import { ChronoService } from '../misc/chrono.service';
-import { PersonService } from '../person.service';
-import { RoomService } from '../room.service';
-
 type NumberTypes = 'set_value' | 'increment' | 'decrement' | 'formula';
 
-@Injectable()
-export class SetMetadataService {
+@RoutineCommand({
+  description: 'Update metadata for a person/room',
+  name: 'Metadata Set',
+  type: 'set_metadata',
+})
+export class SetMetadataService
+  implements iRoutineCommand<SetRoomMetadataCommandDTO>
+{
   constructor(
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
@@ -43,29 +46,34 @@ export class SetMetadataService {
     private readonly vmService: VMService,
   ) {}
 
-  public async activate(
-    command: SetRoomMetadataCommandDTO,
-    runId: string,
-  ): Promise<void> {
+  public async activate({
+    command,
+    runId,
+  }: {
+    command: RoutineCommandDTO<SetRoomMetadataCommandDTO>;
+    runId: string;
+  }): Promise<void> {
     const room =
-      command.type === 'person'
-        ? await this.personService.get(command.room)
-        : await this.roomService.get(command.room);
+      command.command.type === 'person'
+        ? await this.personService.get(command.command.room)
+        : await this.roomService.get(command.command.room);
     room.metadata ??= [];
-    const entry = room.metadata.find(({ name }) => name === command.name);
+    const entry = room.metadata.find(
+      ({ name }) => name === command.command.name,
+    );
     if (!entry) {
       this.logger.error(
-        `[${room.friendlyName}] cannot set {${command.name}}, property does not exist`,
+        `[${room.friendlyName}] cannot set {${command.command.name}}, property does not exist`,
       );
       return;
     }
-    entry.value = await this.getValue(command, room, entry, runId);
-    await (command.type === 'person'
+    entry.value = await this.getValue(command.command, room, entry, runId);
+    await (command.command.type === 'person'
       ? this.personService.update({ metadata: room.metadata }, room._id)
       : this.roomService.update({ metadata: room.metadata }, room._id));
     this.logger.debug(`${room.friendlyName}#${entry.name} = ${entry.value}`);
     this.eventEmitter.emit(
-      command.type === 'person'
+      command.command.type === 'person'
         ? PERSON_METADATA_UPDATED
         : ROOM_METADATA_UPDATED,
       {

@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject } from '@nestjs/common';
 import {
   AutoLogService,
   FetchService,
@@ -7,6 +7,7 @@ import {
 import {
   MetadataComparisonDTO,
   RoutineAttributeComparisonDTO,
+  RoutineCommandDTO,
   RoutineCommandStopProcessingDTO,
   RoutineRelativeDateComparisonDTO,
   RoutineStateComparisonDTO,
@@ -23,11 +24,18 @@ import dayjs from 'dayjs';
 import { Response } from 'node-fetch';
 import { get } from 'object-path';
 
-import { ChronoService } from '../misc/chrono.service';
-import { RoomService } from '../room.service';
+import { iRoutineCommand, RoutineCommand } from '../decorators';
+import { ChronoService, RoomService } from '../services';
 
-@Injectable()
-export class StopProcessingCommandService {
+@RoutineCommand({
+  description: 'Conditionally stop the command sequence.',
+  name: 'Stop Processing',
+  syncOnly: true,
+  type: 'stop_processing',
+})
+export class StopProcessingCommandService
+  implements iRoutineCommand<RoutineCommandStopProcessingDTO>
+{
   constructor(
     private readonly entityManager: EntityManagerService,
     private readonly fetchService: FetchService,
@@ -39,13 +47,15 @@ export class StopProcessingCommandService {
     private readonly chronoService: ChronoService,
   ) {}
 
-  public async activate(
-    command: RoutineCommandStopProcessingDTO,
-  ): Promise<boolean> {
+  public async activate({
+    command,
+  }: {
+    command: RoutineCommandDTO<RoutineCommandStopProcessingDTO>;
+  }): Promise<boolean> {
     const results: boolean[] = [];
-    await eachSeries(command.comparisons ?? [], async comparison => {
+    await eachSeries(command.command.comparisons ?? [], async comparison => {
       // if it's "any", and we got a match, then cut to the chase
-      if (command.mode !== 'all' && results.some(Boolean)) {
+      if (command.command.mode !== 'all' && results.some(Boolean)) {
         return;
       }
       let result = false;
@@ -84,7 +94,7 @@ export class StopProcessingCommandService {
     });
     // default to "any"
     return (
-      (command.mode === 'all' && results.every(Boolean)) ||
+      (command.command.mode === 'all' && results.every(Boolean)) ||
       results.some(Boolean)
     );
   }

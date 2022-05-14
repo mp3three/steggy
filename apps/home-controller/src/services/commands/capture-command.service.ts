@@ -4,6 +4,7 @@ import {
   CacheManagerService,
   InjectCache,
 } from '@steggy/boilerplate';
+import { GroupService } from '@steggy/controller-sdk';
 import {
   GeneralSaveStateDTO,
   RoutineCaptureCommandDTO,
@@ -11,8 +12,6 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { each } from '@steggy/utilities';
-
-import { GroupService } from '../group.service';
 
 @Injectable()
 export class CaptureCommandService {

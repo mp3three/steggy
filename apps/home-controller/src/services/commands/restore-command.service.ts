@@ -4,14 +4,13 @@ import {
   CacheManagerService,
   InjectCache,
 } from '@steggy/boilerplate';
+import { GroupService } from '@steggy/controller-sdk';
 import {
   RoutineCaptureData,
   RoutineDTO,
   RoutineRestoreCommandDTO,
 } from '@steggy/controller-shared';
 import { each } from '@steggy/utilities';
-
-import { GroupService } from '../group.service';
 
 @Injectable()
 export class RestoreCommandService {

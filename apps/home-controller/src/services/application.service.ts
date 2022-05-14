@@ -23,7 +23,7 @@ export class ApplicationService {
   private connectionReady = false;
 
   protected async onApplicationBootstrap(): Promise<void> {
-    this.logger.debug(`Init connection`);
+    this.logger.debug(`Init home assistant socket connection`);
     await this.socketApi.initConnection();
   }
 
@@ -46,7 +46,7 @@ export class ApplicationService {
     }
     // This should NOT be happening regularly
     await this.notifyService.notify(
-      `Connection reset at ${new Date().toISOString()}`,
+      `Connection reset at ${new Date().toLocaleString()}`,
       { title: `Temporarily lost connection with Home Assistant` },
     );
   }

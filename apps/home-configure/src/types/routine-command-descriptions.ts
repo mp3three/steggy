@@ -8,11 +8,6 @@ export const ROUTINE_COMMAND_LIST = [
     type: 'entity_state',
   },
   {
-    description: 'Activate a node in Node Red',
-    name: 'Node Red',
-    type: 'node_red',
-  },
-  {
     description: 'Activate a previously saved group state',
     name: 'Group State',
     type: 'group_state',
@@ -31,37 +26,5 @@ export const ROUTINE_COMMAND_LIST = [
     description: 'Activate a previously saved person state',
     name: 'Person State',
     type: 'person_state',
-  },
-  {
-    description: 'Send notification using Home Assistant',
-    name: 'Send Notification',
-    type: 'send_notification',
-  },
-  {
-    description:
-      'Conditionally stop the command sequence. Only usable with synchronous command processing',
-    name: 'Stop Processing',
-    type: 'stop_processing',
-  },
-  {
-    description: 'Trigger another routine',
-    name: 'Trigger Routine',
-    type: 'trigger_routine',
-  },
-  {
-    description: 'Emit a http request from the controller',
-    name: 'Webhook',
-    type: 'webhook',
-  },
-  {
-    description:
-      'Pause processing for a period of time. Only usable with synchronous command processing',
-    name: 'Sleep',
-    type: 'sleep',
-  },
-  {
-    description: 'Update metadata for a person/room',
-    name: 'Metadata Set',
-    type: 'set_metadata',
   },
 ].sort((a, b) => (a.name > b.name ? UP : DOWN)) as listItem[];

@@ -1,16 +1,26 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import {
   AutoLogService,
   FetchService,
   InjectConfig,
 } from '@steggy/boilerplate';
-import { RoutineCommandNodeRedDTO } from '@steggy/controller-shared';
+import { iRoutineCommand, RoutineCommand } from '@steggy/controller-sdk';
+import {
+  RoutineCommandDTO,
+  RoutineCommandNodeRedDTO,
+} from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 
 import { NODE_RED_URL } from '../../config';
 
-@Injectable()
-export class NodeRedCommand {
+@RoutineCommand({
+  description: 'Activate a node in Node Red',
+  name: 'Node Red',
+  type: 'node_red',
+})
+export class NodeRedCommand
+  implements iRoutineCommand<RoutineCommandNodeRedDTO>
+{
   constructor(
     private readonly logger: AutoLogService,
     private readonly fetchService: FetchService,
@@ -19,14 +29,18 @@ export class NodeRedCommand {
     this.fetchService.BASE_URL = this.nodeRed;
   }
 
-  public async activate(command: RoutineCommandNodeRedDTO): Promise<void> {
+  public async activate({
+    command,
+  }: {
+    command: RoutineCommandDTO<RoutineCommandNodeRedDTO>;
+  }): Promise<void> {
     if (is.empty(this.nodeRed)) {
       throw new InternalServerErrorException(`NodeRed not configured`);
     }
-    this.logger.debug(`Attempting to activate node [${command.name}]`);
+    this.logger.debug(`Attempting to activate node [${command.command.name}]`);
     const result = await this.fetchService.fetch<{ success: boolean }>({
       method: 'post',
-      url: `/steggy/routine-command/${command.name}`,
+      url: `/steggy/routine-command/${command.command.name}`,
     });
     this.logger.debug({ result });
   }

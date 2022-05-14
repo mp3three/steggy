@@ -13,9 +13,7 @@ import {
   ModuleScannerService,
 } from '@steggy/boilerplate';
 import {
-  ActivateCommand,
   CloneRoutineDTO,
-  ROUTINE_ACTIVATE_TYPES,
   RoutineActivateOptionsDTO,
   RoutineCommandDTO,
   RoutineDTO,
@@ -37,6 +35,8 @@ import {
   ACTIVATION_EVENT,
   ActivationEventSettings,
   iActivationEvent,
+  iRoutineCommand,
+  RoutineCommandSettings,
 } from '../decorators';
 import { ROUTINE_ACTIVATE } from '../typings';
 import { RoutinePersistenceService } from './persistence';
@@ -60,10 +60,17 @@ export class RoutineService {
 
   private ACTIVATION_EVENTS: Map<
     ActivationEventSettings,
-    iActivationEvent<ROUTINE_ACTIVATE_TYPES>
+    iActivationEvent<unknown>
+  >;
+  private ROUTINE_COMMAND: Map<
+    RoutineCommandSettings,
+    iRoutineCommand<unknown>
   >;
   private readonly runQueue = new Map<string, (() => void)[]>();
 
+  /**
+   * @return {boolean} continue past this command?
+   */
   public async activateCommand(
     command: RoutineCommandDTO | string,
     routine: RoutineDTO | string,
@@ -75,8 +82,14 @@ export class RoutineService {
       ? routine.command.find(({ id }) => id === command)
       : command;
     this.logger.debug(` - {${command.friendlyName}}`);
-    //
-    return true;
+    const routineCommand = this.getCommand(command.type);
+    const result = await routineCommand.activate({
+      command,
+      routine,
+      runId,
+      waitForChange,
+    });
+    return !result;
   }
 
   public async activateRoutine(
@@ -98,11 +111,7 @@ export class RoutineService {
       time: Date.now(),
     } as RoutineTriggerEvent);
     let aborted = false;
-    waitForChange ??=
-      routine.sync ||
-      routine.command.some(({ type }) =>
-        (['stop_processing', 'sleep'] as ActivateCommand[]).includes(type),
-      );
+    waitForChange ||= this.isSync(routine);
     await (routine.sync ? eachSeries : each)(
       routine.command ?? [],
       async command => {
@@ -266,8 +275,14 @@ export class RoutineService {
     >(ACTIVATION_EVENT);
   }
 
-  private getActivation(name: string): iActivationEvent {
+  private getActivation<T>(name: string): iActivationEvent<T> {
     return [...this.ACTIVATION_EVENTS.entries()].find(
+      ([options]) => name === options.name,
+    )[VALUE];
+  }
+
+  private getCommand<T = unknown>(name: string): iRoutineCommand<T> {
+    return [...this.ROUTINE_COMMAND.entries()].find(
       ([options]) => name === options.name,
     )[VALUE];
   }
@@ -319,6 +334,17 @@ export class RoutineService {
     }
     this.logger.error(`Unknown repeat type: ${routine.repeat}`);
     return undefined;
+  }
+
+  private isSync(routine: RoutineDTO): boolean {
+    if (routine.sync) {
+      return true;
+    }
+    const commandTypes = is.unique(routine.command.map(({ type }) => type));
+    const keys = [...this.ROUTINE_COMMAND.keys()];
+    return commandTypes.some(type =>
+      keys.some(i => i.type === type && i.syncOnly),
+    );
   }
 
   /**

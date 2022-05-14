@@ -1,10 +1,8 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
+import { FlashAnimationService, GroupService } from '@steggy/controller-sdk';
 import { RoutineCommandLightFlashDTO } from '@steggy/controller-shared';
 import { each } from '@steggy/utilities';
-
-import { GroupService } from '../group.service';
-import { FlashAnimationService } from '../lighting';
 
 @Injectable()
 export class LightFlashCommandService {

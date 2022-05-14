@@ -1,7 +1,18 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject } from '@nestjs/common';
 import { AutoLogService, FetchService } from '@steggy/boilerplate';
 import {
+  iRoutineCommand,
+  MetadataUpdate,
+  PERSON_METADATA_UPDATED,
+  PersonService,
+  ROOM_METADATA_UPDATED,
+  RoomService,
+  RoutineCommand,
+  SecretsService,
+} from '@steggy/controller-sdk';
+import {
   RoomMetadataDTO,
+  RoutineCommandDTO,
   RoutineCommandWebhookDTO,
 } from '@steggy/controller-shared';
 import { is, START } from '@steggy/utilities';
@@ -9,17 +20,14 @@ import { isDateString, isNumberString } from 'class-validator';
 import EventEmitter from 'eventemitter3';
 import { get } from 'object-path';
 
-import {
-  MetadataUpdate,
-  PERSON_METADATA_UPDATED,
-  ROOM_METADATA_UPDATED,
-} from '../../typings';
-import { PersonService } from '../person.service';
-import { RoomService } from '../room.service';
-import { SecretsService } from '../secrets.service';
-
-@Injectable()
-export class WebhookService {
+@RoutineCommand({
+  description: 'Emit a http request from the controller',
+  name: 'Webhook',
+  type: 'webhook',
+})
+export class WebhookService
+  implements iRoutineCommand<RoutineCommandWebhookDTO>
+{
   constructor(
     private readonly logger: AutoLogService,
     private readonly fetchService: FetchService,
@@ -32,21 +40,20 @@ export class WebhookService {
   ) {}
 
   public async activate({
-    assignProperty,
-    assignTo,
-    assignType,
-    objectPath,
-    parse,
-    ...command
-  }: RoutineCommandWebhookDTO): Promise<void> {
+    command,
+  }: {
+    command: RoutineCommandDTO<RoutineCommandWebhookDTO>;
+  }): Promise<void> {
+    const { assignProperty, assignTo, assignType, objectPath, ...extra } =
+      command.command;
     this.logger.debug({ command }, `Sending webhook`);
     let result = await this.fetchService.fetch<string>({
       headers: this.buildHeaders(),
-      method: command.method,
+      method: extra.method,
       process: 'text',
-      url: command.url,
+      url: extra.url,
     });
-    parse ??= 'none';
+    const parse = extra.parse ?? 'none';
     if (parse === 'none') {
       return;
     }
