@@ -15,6 +15,10 @@ export class SecretsService {
 
   private SECRETS: Record<string, string> = {};
 
+  public buildMetadata(): Record<string, Record<string, unknown>> {
+    return { secrets: this.SECRETS };
+  }
+
   public tokenReplace(text: string): string {
     Object.keys(this.SECRETS).forEach(token => {
       text = text.replaceAll(`{{${token}}}`, this.SECRETS[token]);
