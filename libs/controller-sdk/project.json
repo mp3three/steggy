@@ -1,0 +1,57 @@
+{
+  "root": "libs/controller-sdk",
+  "sourceRoot": "libs/controller-sdk/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/controller-sdk",
+        "tsConfig": "libs/controller-sdk/tsconfig.lib.json",
+        "packageJson": "libs/controller-sdk/package.json",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "main": "libs/controller-sdk/src/index.ts",
+        "assets": ["libs/controller-sdk/package.json"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "buildableProjectDepsInPackageJsonType": "dependencies",
+          "updateBuildableProjectDepsInPackageJson": true,
+          "fileReplacements": []
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["libs/controller-sdk/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Controller SDK",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build controller-sdk --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn publish --cwd dist/libs/controller-sdk --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    }
+  },
+  "tags": ["nestjs"]
+}
