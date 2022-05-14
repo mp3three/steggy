@@ -12,6 +12,7 @@
     "**/*.ts",
     "../../libs/boilerplate/**/*.ts",
     "../../libs/controller-shared/**/*.ts",
+    "../../libs/controller-sdk/**/*.ts",
     "../../libs/home-assistant-shared/**/*.ts",
     "../../libs/home-assistant/**/*.ts",
     "../../libs/persistence/**/*.ts",

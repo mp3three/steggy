@@ -1,4 +1,6 @@
-import { ApplicationModule, RegisterCache } from '@steggy/boilerplate';
+import { Type } from '@nestjs/common';
+import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
+import { LibraryModule, RegisterCache } from '@steggy/boilerplate';
 import {
   GroupDTO,
   MetadataDTO,
@@ -7,7 +9,6 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { HomeAssistantModule } from '@steggy/home-assistant';
-import { QuickConnectModule } from '@steggy/persistence';
 
 import {
   CIRCADIAN_MAX_TEMP,
@@ -84,8 +85,7 @@ const providers = [
   VMService,
 ];
 
-@ApplicationModule({
-  application: Symbol('home-controller'),
+@LibraryModule({
   configuration: {
     [CIRCADIAN_MAX_TEMP]: {
       default: 5500,
@@ -127,17 +127,20 @@ const providers = [
       type: 'number',
     },
   },
+  exports: providers,
   imports: [
     HomeAssistantModule,
     RegisterCache(),
-    ...QuickConnectModule.forRoot([
-      GroupDTO,
-      MetadataDTO,
-      PersonDTO,
-      RoomDTO,
-      RoutineDTO,
-    ]),
+    MongooseModule.forFeature(
+      ([GroupDTO, MetadataDTO, PersonDTO, RoomDTO, RoutineDTO] as Type[]).map(
+        i => ({
+          name: i.name,
+          schema: SchemaFactory.createForClass(i),
+        }),
+      ),
+    ),
   ],
-  providers,
+  library: Symbol('controller-sdk'),
+  providers: [...providers],
 })
-export class HomeControllerModule {}
+export class ControllerSDKModule {}

@@ -4,6 +4,7 @@
     "build-pipeline": "apps/build-pipeline",
     "boilerplate": "libs/boilerplate",
     "controller-shared": "libs/controller-shared",
+    "controller-sdk": "libs/controller-sdk",
     "devtools": "apps/devtools",
     "formio": "libs/formio",
     "home-assistant-shared": "libs/home-assistant-shared",

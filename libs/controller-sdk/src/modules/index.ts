@@ -1,1 +1,1 @@
-export * from './home-controller.module';
+export * from './controller-sdk.module';
