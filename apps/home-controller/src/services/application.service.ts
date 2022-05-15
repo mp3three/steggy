@@ -22,12 +22,9 @@ export class ApplicationService {
   ) {}
   private connectionReady = false;
 
-  protected async onApplicationBootstrap(): Promise<void> {
+  protected async onPostInit(): Promise<void> {
     this.logger.debug(`Init home assistant socket connection`);
     await this.socketApi.initConnection();
-  }
-
-  protected onPostInit(): void {
     // Mostly here for easy confirmation that the time zone is correct in containers
     this.logger.info(`Server boot time {${new Date().toLocaleString()}}`);
     if (this.safeMode) {

@@ -12,7 +12,6 @@ import { GroupService } from '@steggy/controller-sdk';
 import {
   CloneGroupDTO,
   ENTITY_EXTRAS_SCHEMA,
-  GENERIC_COMMANDS,
   GROUP_REFERENCE_TYPES,
   GroupDTO,
   GroupSaveStateDTO,
@@ -41,7 +40,7 @@ export class GroupController {
   })
   public async activateCommand(
     @Param('group') group: string,
-    @Param('command') command: GENERIC_COMMANDS,
+    @Param('command') command: string,
     @Body() extra: Record<string, unknown>,
   ): Promise<GroupDTO> {
     await this.groupService.activateCommand({

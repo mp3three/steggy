@@ -1,4 +1,6 @@
 export * from './capture-command.service';
+export * from './entity-state.service';
+export * from './group-state.service';
 export * from './light-flash-command.service';
 export * from './node-red-command.service';
 export * from './routine-trigger.service';

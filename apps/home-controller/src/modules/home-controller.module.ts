@@ -30,6 +30,8 @@ import {
   AttributeChangeActivateService,
   CaptureCommandService,
   DeviceTriggerActivateService,
+  EntityStateChangeCommandService,
+  GroupStateChangeCommandService,
   InternalEventChangeService,
   LightFlashCommandService,
   MetadataChangeService,
@@ -45,6 +47,9 @@ import {
   UpdateLoggerService,
   WebhookService,
 } from '../services';
+import { GroupActionCommandService } from '../services/commands/group-action.service';
+import { PersonStateChangeCommandService } from '../services/commands/person-state.service';
+import { RoomStateChangeCommandService } from '../services/commands/room-state.service';
 
 const rootPath = join(__dirname, 'ui');
 
@@ -98,10 +103,15 @@ const rootPath = join(__dirname, 'ui');
     AttributeChangeActivateService,
     CaptureCommandService,
     DeviceTriggerActivateService,
+    EntityStateChangeCommandService,
+    GroupActionCommandService,
+    GroupStateChangeCommandService,
     InternalEventChangeService,
     LightFlashCommandService,
     MetadataChangeService,
     NodeRedCommand,
+    PersonStateChangeCommandService,
+    RoomStateChangeCommandService,
     RoutineTriggerService,
     ScheduleActivateService,
     SendNotificationService,

@@ -28,7 +28,7 @@ export class UpdateLoggerService {
       return;
     }
     this.logger.info(`Watching {${this.entities.length}} entities for changes`);
-    this.entities.forEach(i => this.logger.debug(` - ${i}`));
+    this.entities.forEach(i => this.logger.debug(` - {${i}}`));
   }
 
   @OnEvent(HA_EVENT_STATE_CHANGE)

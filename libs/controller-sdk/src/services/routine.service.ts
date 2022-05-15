@@ -4,6 +4,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -23,9 +24,9 @@ import {
   each,
   eachSeries,
   is,
+  LABEL,
   ResultControlDTO,
   sleep,
-  VALUE,
 } from '@steggy/utilities';
 import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';
@@ -36,6 +37,7 @@ import {
   ActivationEventSettings,
   iActivationEvent,
   iRoutineCommand,
+  ROUTINE_COMMAND,
   RoutineCommandSettings,
 } from '../decorators';
 import { ROUTINE_ACTIVATE } from '../typings';
@@ -59,12 +61,12 @@ export class RoutineService {
   ) {}
 
   private ACTIVATION_EVENTS: Map<
-    ActivationEventSettings,
-    iActivationEvent<unknown>
+    iActivationEvent<unknown>,
+    ActivationEventSettings
   >;
   private ROUTINE_COMMAND: Map<
-    RoutineCommandSettings,
-    iRoutineCommand<unknown>
+    iRoutineCommand<unknown>,
+    RoutineCommandSettings
   >;
   private readonly runQueue = new Map<string, (() => void)[]>();
 
@@ -268,23 +270,49 @@ export class RoutineService {
     return await this.routinePersistence.update(routine, id);
   }
 
-  protected onApplicationBootstrap(): void {
+  protected onModuleInit(): void {
     this.ACTIVATION_EVENTS = this.moduleScanner.findWithSymbol<
-      iActivationEvent,
-      ActivationEventSettings
+      ActivationEventSettings,
+      iActivationEvent
     >(ACTIVATION_EVENT);
+    this.logger.info(
+      `Loaded {${this.ACTIVATION_EVENTS.size}} activation events`,
+    );
+    this.ACTIVATION_EVENTS.forEach(event =>
+      this.logger.debug(` - [${event.name}] / {${event.type}}`),
+    );
+    this.ROUTINE_COMMAND = this.moduleScanner.findWithSymbol<
+      RoutineCommandSettings,
+      iRoutineCommand<unknown>
+    >(ROUTINE_COMMAND);
+    this.logger.info(`Loaded {${this.ROUTINE_COMMAND.size}} commands`);
+    this.ROUTINE_COMMAND.forEach(event =>
+      this.logger.debug(` - [${event.name}] / {${event.type}}`),
+    );
   }
 
   private getActivation<T>(name: string): iActivationEvent<T> {
-    return [...this.ACTIVATION_EVENTS.entries()].find(
-      ([options]) => name === options.name,
-    )[VALUE];
+    const event = [...this.ACTIVATION_EVENTS.entries()].find(
+      ([, { type }]) => name === type,
+    );
+    if (!event) {
+      const message = `[${name}] unknown activation type`;
+      this.logger.fatal(message);
+      throw new InternalServerErrorException(message);
+    }
+    return event[LABEL];
   }
 
   private getCommand<T = unknown>(name: string): iRoutineCommand<T> {
-    return [...this.ROUTINE_COMMAND.entries()].find(
-      ([options]) => name === options.name,
-    )[VALUE];
+    const event = [...this.ROUTINE_COMMAND.entries()].find(
+      ([, { type }]) => name === type,
+    );
+    if (!event) {
+      const message = `[${name}] unknown command type`;
+      this.logger.fatal(message);
+      throw new InternalServerErrorException(message);
+    }
+    return event[LABEL];
   }
 
   private async interruptCheck(
@@ -341,7 +369,7 @@ export class RoutineService {
       return true;
     }
     const commandTypes = is.unique(routine.command.map(({ type }) => type));
-    const keys = [...this.ROUTINE_COMMAND.keys()];
+    const keys = [...this.ROUTINE_COMMAND.values()];
     return commandTypes.some(type =>
       keys.some(i => i.type === type && i.syncOnly),
     );

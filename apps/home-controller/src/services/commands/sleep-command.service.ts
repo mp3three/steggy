@@ -10,6 +10,7 @@ import { is, sleep } from '@steggy/utilities';
   description:
     'Pause processing for a period of time. Only usable with synchronous command processing',
   name: 'Sleep',
+  syncOnly: true,
   type: 'sleep',
 })
 export class SleepCommandService

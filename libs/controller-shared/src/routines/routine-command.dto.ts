@@ -1,4 +1,4 @@
-import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { HTTP_METHODS } from '@steggy/utilities';
 import {
   IsBoolean,
@@ -12,53 +12,7 @@ import {
 } from 'class-validator';
 
 import { MINIMUM_NAME_SIZE } from '../constants';
-import { GeneralSaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';
-import { InternalEventActivateDTO } from './internal-event.dto';
-import { RoutineCommandStopProcessingDTO } from './stop-processing.dto';
-
-export type ActivateCommand =
-  | 'capture_state'
-  | 'entity_state'
-  | 'group_action'
-  | 'group_state'
-  | 'light_flash'
-  | 'node_red'
-  | 'person_state'
-  | 'restore_state'
-  | 'room_state'
-  | 'send_notification'
-  | 'set_metadata'
-  | 'sleep'
-  | 'stop_processing'
-  | 'trigger_routine'
-  | 'webhook';
-
-export enum ROUTINE_ACTIVATE_COMMAND {
-  capture_state = 'capture_state',
-  entity_state = 'entity_state',
-  group_action = 'group_action',
-  group_state = 'group_state',
-  light_flash = 'light_flash',
-  node_red = 'node_red',
-  person_state = 'person_state',
-  restore_state = 'restore_state',
-  room_state = 'room_state',
-  send_notification = 'send_notification',
-  set_metadata = 'set_metadata',
-  sleep = 'sleep',
-  stop_processing = 'stop_processing',
-  trigger_routine = 'trigger_routine',
-  webhook = 'webhook',
-}
-
-export type GENERIC_COMMANDS =
-  | 'circadianOn'
-  | 'dimDown'
-  | 'dimUp'
-  | 'setBrightness'
-  | 'turnOff'
-  | 'turnOn';
 
 export class RoutineCommandRoomStateDTO {
   @IsString()
@@ -92,7 +46,7 @@ export class RoutineCommandGroupActionDTO<
 > {
   @IsString()
   @ApiProperty()
-  public command: GENERIC_COMMANDS | string;
+  public command: string;
   @IsObject()
   @IsOptional()
   @ApiProperty()
@@ -229,45 +183,8 @@ export class RoutineCommandWebhookDTO {
   public url: string;
 }
 
-export class RoutineCommandDTO<
-  COMMAND =
-    | GeneralSaveStateDTO
-    | InternalEventActivateDTO
-    | RoutineCaptureCommandDTO
-    | RoutineCommandGroupActionDTO
-    | RoutineCommandGroupStateDTO
-    | RoutineCommandLightFlashDTO
-    | RoutineCommandPersonStateDTO
-    | RoutineCommandRoomStateDTO
-    | RoutineCommandSendNotificationDTO
-    | RoutineCommandSleepDTO
-    | RoutineCommandStopProcessingDTO
-    | RoutineRestoreCommandDTO
-    | SetRoomMetadataCommandDTO
-    | RoutineCommandNodeRedDTO
-    | RoutineCommandTriggerRoutineDTO
-    | RoutineCommandWebhookDTO,
-> {
-  @ApiProperty({
-    oneOf: [
-      { $ref: getSchemaPath(GeneralSaveStateDTO) },
-      { $ref: getSchemaPath(InternalEventActivateDTO) },
-      { $ref: getSchemaPath(RoutineCaptureCommandDTO) },
-      { $ref: getSchemaPath(RoutineCommandGroupActionDTO) },
-      { $ref: getSchemaPath(RoutineCommandGroupStateDTO) },
-      { $ref: getSchemaPath(RoutineCommandLightFlashDTO) },
-      { $ref: getSchemaPath(RoutineCommandNodeRedDTO) },
-      { $ref: getSchemaPath(RoutineCommandPersonStateDTO) },
-      { $ref: getSchemaPath(RoutineCommandRoomStateDTO) },
-      { $ref: getSchemaPath(RoutineCommandSendNotificationDTO) },
-      { $ref: getSchemaPath(RoutineCommandSleepDTO) },
-      { $ref: getSchemaPath(RoutineCommandStopProcessingDTO) },
-      { $ref: getSchemaPath(RoutineCommandTriggerRoutineDTO) },
-      { $ref: getSchemaPath(RoutineCommandWebhookDTO) },
-      { $ref: getSchemaPath(RoutineRestoreCommandDTO) },
-      { $ref: getSchemaPath(SetRoomMetadataCommandDTO) },
-    ],
-  })
+export class RoutineCommandDTO<COMMAND = unknown> {
+  @ApiProperty()
   @ValidateNested()
   public command: COMMAND;
   @MinLength(MINIMUM_NAME_SIZE)
@@ -276,6 +193,6 @@ export class RoutineCommandDTO<
   @IsString()
   @IsOptional()
   public id?: string;
-  @IsEnum(ROUTINE_ACTIVATE_COMMAND)
-  public type: ActivateCommand;
+  @IsString()
+  public type: string;
 }
