@@ -22,6 +22,7 @@ export function ActivateAdd(props: {
     async function refresh() {
       setActivateList(
         await sendRequest<ActivationEventSettings[]>({
+          control: { sort: ['name'] },
           url: `/debug/activation-event`,
         }),
       );

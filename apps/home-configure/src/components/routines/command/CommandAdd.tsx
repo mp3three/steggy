@@ -20,6 +20,7 @@ export function CommandAdd(props: {
     async function refresh() {
       setCommandList(
         await sendRequest<RoutineCommandSettings[]>({
+          control: { sort: ['name'] },
           url: `/debug/routine-command`,
         }),
       );

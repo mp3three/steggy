@@ -154,12 +154,12 @@ export class JSONFilterService {
   private sort<T = unknown>(fields: string[], data: T[]): T[] {
     const sort = fields.map(item => {
       if (item.charAt(START) === '+') {
-        return [true, item.slice(FIRST)];
-      }
-      if (item.charAt(START) === '-') {
         return [false, item.slice(FIRST)];
       }
-      return [false, item];
+      if (item.charAt(START) === '-') {
+        return [true, item.slice(FIRST)];
+      }
+      return [true, item];
     }) as [boolean, string][];
     return data.sort((a, b) => {
       for (let i = START; i < sort.length; i++) {
