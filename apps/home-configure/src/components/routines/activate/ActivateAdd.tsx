@@ -1,8 +1,12 @@
-import { RoutineActivateDTO, RoutineDTO } from '@steggy/controller-shared';
+import {
+  ActivationEventSettings,
+  RoutineActivateDTO,
+  RoutineDTO,
+} from '@steggy/controller-shared';
 import { Button, Drawer, Empty, List, Typography } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { FD_ICONS, ROUTINE_ACTIVATE_LIST, sendRequest } from '../../../types';
+import { FD_ICONS, sendRequest } from '../../../types';
 
 export function ActivateAdd(props: {
   highlight: boolean;
@@ -10,6 +14,20 @@ export function ActivateAdd(props: {
   routine: RoutineDTO;
 }) {
   const [visible, setVisible] = useState(false);
+  const [activateList, setActivateList] = useState<ActivationEventSettings[]>(
+    [],
+  );
+
+  useEffect(() => {
+    async function refresh() {
+      setActivateList(
+        await sendRequest<ActivationEventSettings[]>({
+          url: `/debug/activation-event`,
+        }),
+      );
+    }
+    refresh();
+  }, []);
 
   async function addCommand(type: string, name: string): Promise<void> {
     const routine = await sendRequest<RoutineDTO>({
@@ -35,7 +53,7 @@ export function ActivateAdd(props: {
         onClose={() => setVisible(false)}
       >
         <List
-          dataSource={ROUTINE_ACTIVATE_LIST}
+          dataSource={activateList}
           renderItem={item => (
             <List.Item>
               <List.Item.Meta

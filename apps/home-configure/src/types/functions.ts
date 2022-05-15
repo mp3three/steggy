@@ -77,6 +77,7 @@ export function split(
   }
   return entity.split('.') as [HASS_DOMAINS, string];
 }
+
 /**
  * This should come from home-assistant-shared, but doing so makes webpack shit a brick for no reason
  */

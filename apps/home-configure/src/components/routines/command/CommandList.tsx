@@ -1,11 +1,11 @@
 import {
-  ActivateCommand,
   RoutineCommandDTO,
+  RoutineCommandSettings,
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { ARRAY_OFFSET, is, TitleCase } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Space, Table } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   SortableContainer,
   SortableElement,
@@ -39,9 +39,21 @@ export function CommandList(props: {
   routine: RoutineDTO;
 }) {
   const [command, setCommand] = useState<RoutineCommandDTO>();
+  const [commandList, setCommandList] = useState<RoutineCommandSettings[]>([]);
+
+  useEffect(() => {
+    async function refresh() {
+      setCommandList(
+        await sendRequest<RoutineCommandSettings[]>({
+          url: `/debug/routine-command`,
+        }),
+      );
+    }
+    refresh();
+  }, []);
   const id = props.routine._id;
   const overrideSync = props.routine.command.some(({ type }) =>
-    (['sleep', 'stop_processing'] as ActivateCommand[]).includes(type),
+    commandList.some(command => command.type === type && command.syncOnly),
   );
 
   function addCommand(routine: RoutineDTO): void {

@@ -1,8 +1,12 @@
-import { RoutineCommandDTO, RoutineDTO } from '@steggy/controller-shared';
+import {
+  RoutineCommandDTO,
+  RoutineCommandSettings,
+  RoutineDTO,
+} from '@steggy/controller-shared';
 import { Button, Drawer, Empty, List, Typography } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { FD_ICONS, ROUTINE_COMMAND_LIST, sendRequest } from '../../../types';
+import { FD_ICONS, sendRequest } from '../../../types';
 
 export function CommandAdd(props: {
   highlight: boolean;
@@ -10,6 +14,18 @@ export function CommandAdd(props: {
   routine: RoutineDTO;
 }) {
   const [visible, setVisible] = useState(false);
+  const [commandList, setCommandList] = useState<RoutineCommandSettings[]>([]);
+
+  useEffect(() => {
+    async function refresh() {
+      setCommandList(
+        await sendRequest<RoutineCommandSettings[]>({
+          url: `/debug/routine-command`,
+        }),
+      );
+    }
+    refresh();
+  }, []);
 
   async function addCommand(type: string, name: string): Promise<void> {
     const routine = await sendRequest<RoutineDTO>({
@@ -36,7 +52,7 @@ export function CommandAdd(props: {
       >
         <List
           pagination={{ pageSize: 20, size: 'small' }}
-          dataSource={ROUTINE_COMMAND_LIST}
+          dataSource={commandList}
           renderItem={item => (
             <List.Item>
               <List.Item.Meta

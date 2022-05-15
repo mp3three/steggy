@@ -1,4 +1,4 @@
-import { ActivateCommand, RoutineDTO } from '@steggy/controller-shared';
+import { RoutineCommandSettings, RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import {
   Card,
@@ -23,6 +23,18 @@ export function RoutineSettings(props: {
   routine: RoutineDTO;
 }) {
   const [description, setDescription] = useState('');
+  const [commandList, setCommandList] = useState<RoutineCommandSettings[]>([]);
+
+  useEffect(() => {
+    async function refresh() {
+      setCommandList(
+        await sendRequest<RoutineCommandSettings[]>({
+          url: `/debug/routine-command`,
+        }),
+      );
+    }
+    refresh();
+  }, []);
 
   async function update(body: Partial<RoutineDTO>): Promise<void> {
     const routine = await sendRequest<RoutineDTO>({
@@ -127,7 +139,9 @@ export function RoutineSettings(props: {
         <Checkbox
           checked={props.routine.sync}
           disabled={props.routine.command.some(({ type }) =>
-            (['sleep', 'stop_processing'] as ActivateCommand[]).includes(type),
+            commandList.some(
+              activate => activate.type === type && activate.syncOnly,
+            ),
           )}
           onChange={({ target }) => update({ sync: target.checked })}
         >

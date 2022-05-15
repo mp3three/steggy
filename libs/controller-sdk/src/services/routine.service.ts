@@ -14,9 +14,11 @@ import {
   ModuleScannerService,
 } from '@steggy/boilerplate';
 import {
+  ActivationEventSettings,
   CloneRoutineDTO,
   RoutineActivateOptionsDTO,
   RoutineCommandDTO,
+  RoutineCommandSettings,
   RoutineDTO,
   RoutineTriggerEvent,
 } from '@steggy/controller-shared';
@@ -34,11 +36,9 @@ import { v4 as uuid, v4 } from 'uuid';
 
 import {
   ACTIVATION_EVENT,
-  ActivationEventSettings,
   iActivationEvent,
   iRoutineCommand,
   ROUTINE_COMMAND,
-  RoutineCommandSettings,
 } from '../decorators';
 import { ROUTINE_ACTIVATE } from '../typings';
 import { RoutinePersistenceService } from './persistence';

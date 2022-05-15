@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { AutoLogService, CastResult } from '@steggy/boilerplate';
-import { MetadataDocument, MetadataDTO } from '@steggy/controller-shared';
+import { MetadataDTO } from '@steggy/controller-shared';
 import { BaseMongoService, BaseSchemaDTO } from '@steggy/persistence';
 import { is, ResultControlDTO } from '@steggy/utilities';
 import { Model } from 'mongoose';
@@ -11,7 +11,7 @@ export class MetadataPersistenceService extends BaseMongoService {
   constructor(
     private readonly logger: AutoLogService,
     @InjectModel(MetadataDTO.name)
-    private readonly ServerMetadataModel: Model<MetadataDocument>,
+    private readonly ServerMetadataModel: Model<MetadataDTO>,
   ) {
     super();
   }

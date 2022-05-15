@@ -1,8 +1,6 @@
-import { Optional } from '@nestjs/common';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { TransformObjectId } from '@steggy/persistence';
-import { is } from '@steggy/utilities';
+import { is, TransformObjectId } from '@steggy/utilities';
 import { Expose, Type } from 'class-transformer';
 import {
   IsArray,
@@ -14,7 +12,6 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { Document } from 'mongoose';
 
 import { MINIMUM_NAME_SIZE } from '../constants';
 import { GeneralSaveStateDTO, ROOM_ENTITY_EXTRAS } from '../rooms';
@@ -160,7 +157,7 @@ export class GroupSaveStateDTO<SAVE_STATE = ROOM_ENTITY_EXTRAS> {
   @Expose()
   @IsString()
   @ApiProperty({ required: false })
-  @Optional()
+  @IsOptional()
   public id?: string;
 
   /**
@@ -171,6 +168,3 @@ export class GroupSaveStateDTO<SAVE_STATE = ROOM_ENTITY_EXTRAS> {
   @Expose()
   public states: GeneralSaveStateDTO<SAVE_STATE>[];
 }
-
-export type GroupDocument = GroupDTO & Document;
-export const GroupSchema = SchemaFactory.createForClass(GroupDTO);

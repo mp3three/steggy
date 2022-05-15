@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { AutoLogService, CastResult } from '@steggy/boilerplate';
-import { ROOM_UPDATE, RoomDocument, RoomDTO } from '@steggy/controller-shared';
+import { ROOM_UPDATE, RoomDTO } from '@steggy/controller-shared';
 import {
   BaseMongoService,
   BaseSchemaDTO,
@@ -17,7 +17,7 @@ export class RoomPersistenceService extends BaseMongoService {
     private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
     @InjectModel(RoomDTO.name)
-    private readonly roomModel: Model<RoomDocument>,
+    private readonly roomModel: Model<RoomDTO>,
     private readonly encryptService: EncryptionService,
   ) {
     super();

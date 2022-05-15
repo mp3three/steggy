@@ -1,11 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { AutoLogService, CastResult } from '@steggy/boilerplate';
-import {
-  ROUTINE_UPDATE,
-  RoutineDocument,
-  RoutineDTO,
-} from '@steggy/controller-shared';
+import { ROUTINE_UPDATE, RoutineDTO } from '@steggy/controller-shared';
 import { BaseMongoService, BaseSchemaDTO } from '@steggy/persistence';
 import { is, ResultControlDTO } from '@steggy/utilities';
 import EventEmitter from 'eventemitter3';
@@ -17,7 +13,7 @@ export class RoutinePersistenceService extends BaseMongoService {
     private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
     @InjectModel(RoutineDTO.name)
-    private readonly model: Model<RoutineDocument>,
+    private readonly model: Model<RoutineDTO>,
   ) {
     super();
   }

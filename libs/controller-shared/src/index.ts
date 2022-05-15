@@ -1,3 +1,4 @@
+export * from './activation-event-settings';
 export * from './animation.dto';
 export * from './clone-group.dto';
 export * from './clone-room.dto';
@@ -12,6 +13,7 @@ export * from './room-metadata';
 export * from './rooms';
 export * from './routine-activate-options.dto';
 export * from './routine-capture.dto';
+export * from './routine-command.settings';
 export * from './routine-trigger-event.dto';
 export * from './routines';
 export * from './schemas';

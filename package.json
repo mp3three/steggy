@@ -100,6 +100,7 @@
     "@babel/core": "^7.17.10",
     "@babel/plugin-proposal-decorators": "^7.17.9",
     "@babel/preset-env": "7.17.10",
+    "@babel/preset-flow": "^7.16.7",
     "@babel/preset-typescript": "7.16.7",
     "@babel/runtime": "^7.17.9",
     "@nestjs/schematics": "^8.0.11",

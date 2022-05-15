@@ -311,23 +311,28 @@
             "depConstraints": [
               {
                 "sourceTag": "frontend",
-                "onlyDependOnLibsWithTags": ["shared"]
+                "onlyDependOnLibsWithTags": ["shared"],
+                "bannedExternalImports": ["@nestjs/*"]
               },
               {
                 "sourceTag": "backend",
-                "onlyDependOnLibsWithTags": ["nestjs", "shared"]
+                "onlyDependOnLibsWithTags": ["nestjs", "shared"],
+                "bannedExternalImports": []
               },
               {
                 "sourceTag": "terminal",
-                "onlyDependOnLibsWithTags": ["nestjs", "shared", "tty"]
+                "onlyDependOnLibsWithTags": ["nestjs", "shared", "tty"],
+                "bannedExternalImports": []
               },
               {
                 "sourceTag": "shared",
-                "onlyDependOnLibsWithTags": ["shared"]
+                "onlyDependOnLibsWithTags": ["shared"],
+                "bannedExternalImports": []
               },
               {
                 "sourceTag": "nestjs",
-                "onlyDependOnLibsWithTags": ["nestjs", "shared"]
+                "onlyDependOnLibsWithTags": ["nestjs", "shared"],
+                "bannedExternalImports": []
               },
               {
                 "sourceTag": "tty",
@@ -335,7 +340,16 @@
               },
               {
                 "sourceTag": "standalone",
-                "onlyDependOnLibsWithTags": ["shared"]
+                "onlyDependOnLibsWithTags": ["shared"],
+                "bannedExternalImports": ["@nestjs/*"]
+              },
+              {
+                "sourceTag": "*",
+                "bannedExternalImports": [
+                  // dayjs is preferred
+                  // moment is needed for corner cases
+                  "moment"
+                ]
               }
             ]
           }

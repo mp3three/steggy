@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { TransformObjectId } from '@steggy/persistence';
+import { TransformObjectId } from '@steggy/utilities';
 import {
   IsBoolean,
   IsDateString,
@@ -11,7 +11,6 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { Document } from 'mongoose';
 
 import { MINIMUM_NAME_SIZE } from '../constants';
 import {
@@ -117,8 +116,3 @@ export class RoutineDTO {
   @IsBoolean()
   public sync?: boolean;
 }
-
-export type RoutineDocument = RoutineDTO & Document;
-export const RoutineSchema = SchemaFactory.createForClass(RoutineDTO);
-RoutineSchema.index({ deleted: 1 });
-RoutineSchema.index({ deleted: 1, friendlyName: 1 });

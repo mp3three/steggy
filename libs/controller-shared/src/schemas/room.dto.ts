@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
-import { TransformObjectId } from '@steggy/persistence';
+import { TransformObjectId } from '@steggy/utilities';
 import { Exclude, Expose, Type } from 'class-transformer';
 import {
   IsDateString,
@@ -12,7 +12,7 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
 
 import { MINIMUM_NAME_SIZE } from '../constants';
 import { RoomMetadataDTO } from '../room-metadata';
@@ -147,6 +147,3 @@ export class RoomDTO {
    */
   protected settings_encrypted?: string;
 }
-
-export type RoomDocument = RoomDTO & Document;
-export const RoomSchema = SchemaFactory.createForClass(RoomDTO);

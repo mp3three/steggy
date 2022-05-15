@@ -1,7 +1,8 @@
-import { applyDecorators } from '@nestjs/common';
-import { is } from '@steggy/utilities';
 import { Transform } from 'class-transformer';
-import { Types } from 'mongoose';
+import type { Types } from 'mongoose';
+
+import { applyDecorators } from '../apply-decorators';
+import { is } from '../is';
 
 /**
  * Assistance for class-transformer to properly cast ObjectIds

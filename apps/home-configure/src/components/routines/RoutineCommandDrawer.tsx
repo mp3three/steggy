@@ -55,7 +55,7 @@ export function RoutineCommandDrawer(props: {
     props.onUpdate({
       ...props.command,
       command: {
-        ...props.command.command,
+        ...(props.command.command as Record<string, unknown>),
         ...command,
       },
     });

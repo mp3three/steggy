@@ -1,5 +1,7 @@
+export * from './apply-decorators';
 export * from './async';
 export * from './cron';
+export * from './decorators';
 export * from './extend';
 export * from './is';
 export * from './query';

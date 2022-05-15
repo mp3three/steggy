@@ -1,8 +1,7 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { TransformObjectId } from '@steggy/persistence';
+import { TransformObjectId } from '@steggy/utilities';
 import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
-import { Document } from 'mongoose';
 
 @Schema({
   collection: `metadata`,
@@ -51,6 +50,3 @@ export class MetadataDTO<DATA extends unknown = Record<string, unknown>> {
   @Prop({ index: true })
   public type: string;
 }
-
-export type MetadataDocument = MetadataDTO & Document;
-export const MetadataSchema = SchemaFactory.createForClass(MetadataDTO);

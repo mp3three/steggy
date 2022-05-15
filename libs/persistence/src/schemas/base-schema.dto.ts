@@ -1,7 +1,6 @@
 import { Prop } from '@nestjs/mongoose';
+import { TransformObjectId } from '@steggy/utilities';
 import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
-
-import { TransformObjectId } from '../decorators';
 
 export class BaseSchemaDTO {
   /**

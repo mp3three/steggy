@@ -1,21 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { ApiProperty } from '@nestjs/swagger';
 import {
+  ActivationEventSettings,
   ROUTINE_ACTIVATE_TYPES,
   RoutineActivateDTO,
   RoutineDTO,
 } from '@steggy/controller-shared';
 
 export const ACTIVATION_EVENT = Symbol('activation-event');
-
-export class ActivationEventSettings {
-  @ApiProperty()
-  public description: string;
-  @ApiProperty()
-  public name: string;
-  @ApiProperty()
-  public type: string;
-}
 
 export function ActivationEvent(
   options: ActivationEventSettings,

@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
-import { TransformObjectId } from '@steggy/persistence';
+import { TransformObjectId } from '@steggy/utilities';
 import { Expose } from 'class-transformer';
 import {
   IsDateString,
@@ -11,7 +11,7 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
 
 import { MINIMUM_NAME_SIZE } from '../constants';
 import { PinnedItemDTO } from '../pinned-item.dto';
@@ -127,8 +127,3 @@ export class PersonDTO {
   @Prop()
   public save_states?: RoomStateDTO[];
 }
-
-export type PersonDocument = PersonDTO & Document;
-export const PersonSchema = SchemaFactory.createForClass(PersonDTO);
-PersonSchema.index({ deleted: 1 });
-PersonSchema.index({ deleted: 1, friendlyName: 1 });

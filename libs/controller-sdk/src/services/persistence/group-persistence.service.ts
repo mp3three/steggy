@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { AutoLogService, CastResult } from '@steggy/boilerplate';
 import type { ROOM_ENTITY_EXTRAS } from '@steggy/controller-shared';
-import { GroupDocument, GroupDTO } from '@steggy/controller-shared';
+import { GroupDTO } from '@steggy/controller-shared';
 import { BaseMongoService, BaseSchemaDTO } from '@steggy/persistence';
 import { is, ResultControlDTO } from '@steggy/utilities';
 import { Model } from 'mongoose';
@@ -12,7 +12,7 @@ export class GroupPersistenceService extends BaseMongoService {
   constructor(
     private readonly logger: AutoLogService,
     @InjectModel(GroupDTO.name)
-    private readonly model: Model<GroupDocument>,
+    private readonly model: Model<GroupDTO>,
   ) {
     super();
   }
