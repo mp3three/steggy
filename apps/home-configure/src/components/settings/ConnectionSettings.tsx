@@ -1,3 +1,6 @@
+// ? Just doing the type, shouldn't affect the build
+// ? It's too much of a mess to find a refactor for this without breaking linting somewhere
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import type { VersionResponse } from '@steggy/server';
 import { is } from '@steggy/utilities';
 import {

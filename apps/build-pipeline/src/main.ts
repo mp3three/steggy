@@ -38,6 +38,10 @@ export class BuildPipelineService {
     private readonly screenService: ScreenService,
   ) {}
 
+  private WORKSPACE = JSON.parse(readFileSync('workspace.json', 'utf8')) as {
+    projects: Record<string, string>;
+  };
+
   public async exec(): Promise<void> {
     const affected = await this.listAffected();
     let apps: string[] = [];
@@ -62,7 +66,9 @@ export class BuildPipelineService {
       this.screenService.down();
       this.screenService.print(chalk`Select applications to rebuild`);
       apps = await this.promptService.listBuild({
-        current: affected.apps.map(i => [TitleCase(i), i]),
+        current: affected.apps
+          .filter(app => this.hasPublish(app))
+          .map(i => [TitleCase(i), i]),
         items: 'Applications',
         source: [],
       });
@@ -106,9 +112,7 @@ export class BuildPipelineService {
     if (!root) {
       return;
     }
-    const { projects } = JSON.parse(readFileSync('workspace.json', 'utf8')) as {
-      projects: Record<string, string>;
-    };
+    const { projects } = this.WORKSPACE;
     const libraries = Object.entries(projects)
       .filter(([, path]) => path.startsWith('lib'))
       .map(([library]) => library);
@@ -167,6 +171,17 @@ export class BuildPipelineService {
     libs.forEach(line => this.screenService.print(chalk` {yellow - } ${line}`));
     this.screenService.down();
     return await this.promptService.confirm('Upgrade libraries?', true);
+  }
+
+  private hasPublish(name: string): boolean {
+    const target = this.WORKSPACE.projects[name];
+    if (target.startsWith('libs')) {
+      return true;
+    }
+    const project = JSON.parse(
+      readFileSync(join(target, 'project.json'), 'utf8'),
+    ) as { targets: Record<string, unknown> };
+    return !is.undefined(project.targets.publish);
   }
 
   private async listAffected(): Promise<AffectedList> {

@@ -310,8 +310,32 @@
             "allow": [],
             "depConstraints": [
               {
-                "sourceTag": "*",
-                "onlyDependOnLibsWithTags": ["*"]
+                "sourceTag": "frontend",
+                "onlyDependOnLibsWithTags": ["shared"]
+              },
+              {
+                "sourceTag": "backend",
+                "onlyDependOnLibsWithTags": ["nestjs", "shared"]
+              },
+              {
+                "sourceTag": "terminal",
+                "onlyDependOnLibsWithTags": ["nestjs", "shared", "tty"]
+              },
+              {
+                "sourceTag": "shared",
+                "onlyDependOnLibsWithTags": ["shared"]
+              },
+              {
+                "sourceTag": "nestjs",
+                "onlyDependOnLibsWithTags": ["nestjs", "shared"]
+              },
+              {
+                "sourceTag": "tty",
+                "onlyDependOnLibsWithTags": ["nestjs", "shared", "tty"]
+              },
+              {
+                "sourceTag": "standalone",
+                "onlyDependOnLibsWithTags": ["shared"]
               }
             ]
           }

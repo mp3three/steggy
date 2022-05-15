@@ -9,9 +9,12 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
+  ActivationEventSettings,
   DebuggerService,
   RecorderService,
+  RoutineCommandSettings,
   RoutineEnabledService,
+  RoutineService,
   SolarCalcService,
 } from '@steggy/controller-sdk';
 import { DebugReportDTO, RoutineTriggerEvent } from '@steggy/controller-shared';
@@ -41,6 +44,7 @@ export class DebugController {
     private readonly notification: NotifyDomainService,
     private readonly recorderService: RecorderService,
     private readonly routineEnabled: RoutineEnabledService,
+    private readonly routineService: RoutineService,
     private readonly socketService: HASocketAPIService,
     private readonly solarCalc: SolarCalcService,
   ) {}
@@ -105,6 +109,20 @@ export class DebugController {
   })
   public async hassConfig(): Promise<HassConfig> {
     return await this.socketService.getConfig();
+  }
+
+  @Get(`/activation-event`)
+  @ApiResponse({ type: [ActivationEventSettings] })
+  @UseInterceptors(JSONFilterInterceptor)
+  public listActivationEvents(): ActivationEventSettings[] {
+    return [...this.routineService.ACTIVATION_EVENTS.values()];
+  }
+
+  @Get(`/routine-command`)
+  @ApiResponse({ type: [RoutineCommandSettings] })
+  @UseInterceptors(JSONFilterInterceptor)
+  public listRoutineCommands(): RoutineCommandSettings[] {
+    return [...this.routineService.ROUTINE_COMMAND.values()];
   }
 
   @Get(`/node-red/commands`)

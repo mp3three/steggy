@@ -5,7 +5,7 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
-        "unicorn/filename-case":"off",
+        "unicorn/filename-case": "off",
         "no-console": "off"
       },
       "parserOptions": {

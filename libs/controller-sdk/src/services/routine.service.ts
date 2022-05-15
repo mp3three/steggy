@@ -60,14 +60,11 @@ export class RoutineService {
     private readonly logger: AutoLogService,
   ) {}
 
-  private ACTIVATION_EVENTS: Map<
+  public ACTIVATION_EVENTS: Map<
     iActivationEvent<unknown>,
     ActivationEventSettings
   >;
-  private ROUTINE_COMMAND: Map<
-    iRoutineCommand<unknown>,
-    RoutineCommandSettings
-  >;
+  public ROUTINE_COMMAND: Map<iRoutineCommand<unknown>, RoutineCommandSettings>;
   private readonly runQueue = new Map<string, (() => void)[]>();
 
   /**

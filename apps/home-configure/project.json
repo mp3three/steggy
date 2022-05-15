@@ -47,7 +47,6 @@
         "buildTarget": "home-configure:build:development",
         "hmr": true,
         "port": 4200,
-        // add to hosts file + use reverse proxy
         "allowedHosts": "dev-controller.localhost",
         "host": "0.0.0.0"
       },
@@ -72,14 +71,7 @@
         "jestConfig": "apps/home-configure/jest.config.js",
         "passWithNoTests": true
       }
-    },
-    "publish": {
-      "executor": "@nrwl/workspace:run-commands",
-      "options": {
-        "parallel": false,
-        "commands": []
-      }
     }
   },
-  "tags": []
+  "tags": ["frontend"]
 }
