@@ -17,6 +17,7 @@
     "../../libs/home-assistant/**/*.ts",
     "../../libs/persistence/**/*.ts",
     "../../libs/server/**/*.ts",
+    "../../libs/rules-engine/**/*.ts",
     "../../libs/utilities/**/*.ts"
   ]
 }

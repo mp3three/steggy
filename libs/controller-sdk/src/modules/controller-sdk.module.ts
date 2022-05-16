@@ -10,7 +10,10 @@ import {
 } from '@steggy/controller-shared';
 import { HomeAssistantModule } from '@steggy/home-assistant';
 
-import { StopProcessingCommandService } from '../commands';
+import {
+  CustomCommandService,
+  StopProcessingCommandService,
+} from '../commands';
 import {
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
@@ -138,6 +141,6 @@ const providers = [
     ),
   ],
   library: Symbol('controller-sdk'),
-  providers: [...providers],
+  providers: [...providers, CustomCommandService],
 })
 export class ControllerSDKModule {}

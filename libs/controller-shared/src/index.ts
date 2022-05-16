@@ -4,6 +4,7 @@ export * from './clone-group.dto';
 export * from './clone-room.dto';
 export * from './clone-routine.dto';
 export * from './constants';
+export * from './custom-command.dto';
 export * from './debug-report.dto';
 export * from './entity-history.dto';
 export * from './events';
