@@ -7,8 +7,7 @@
       "executor": "@nrwl/node:node",
       "options": {
         "buildTarget": "home-controller:build",
-        "inspect": "inspect",
-        "port": 33334
+        "inspect": "inspect"
       }
     },
     "build": {

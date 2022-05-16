@@ -399,7 +399,8 @@
       "files": ["*.decorator.ts"],
       "rules": {
         // Incorrectly firing for exported maps and stuff
-        "radar/no-unused-collection": "off"
+        "radar/no-unused-collection": "off",
+        "@typescript-eslint/ban-types": "off"
       }
     },
     {

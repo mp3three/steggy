@@ -43,7 +43,7 @@ export class FlashAnimationService {
     await eachSeries(frames, async state => {
       this.logger.debug({ state }, animation.entity_id);
       // Merge together timeouts
-      // Doing them consectively will throw off total timing
+      // Doing them consecutively will throw off total timing
       await Promise.all([
         await this.lightManager.turnOn(
           animation.entity_id,

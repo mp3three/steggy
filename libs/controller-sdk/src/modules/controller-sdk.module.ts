@@ -9,11 +9,9 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { HomeAssistantModule } from '@steggy/home-assistant';
+import { MongoPersistenceModule } from '@steggy/persistence';
 
-import {
-  CustomCommandService,
-  StopProcessingCommandService,
-} from '../commands';
+import { StopProcessingCommandService } from '../commands';
 import {
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
@@ -64,7 +62,6 @@ const providers = [
   EntityRenameService,
   EntityService,
   FanGroupService,
-  FlashAnimationService,
   GroupGroupService,
   GroupPersistenceService,
   GroupService,
@@ -130,10 +127,11 @@ const providers = [
   exports: providers,
   imports: [
     HomeAssistantModule,
+    MongoPersistenceModule,
     RegisterCache(),
     MongooseModule.forFeature(
-      ([GroupDTO, MetadataDTO, PersonDTO, RoomDTO, RoutineDTO] as Type[]).map(
-        i => ({
+      [GroupDTO, MetadataDTO, PersonDTO, RoomDTO, RoutineDTO].map(
+        (i: Type) => ({
           name: i.name,
           schema: SchemaFactory.createForClass(i),
         }),
@@ -141,6 +139,10 @@ const providers = [
     ),
   ],
   library: Symbol('controller-sdk'),
-  providers: [...providers, CustomCommandService],
+  providers: [
+    ...providers,
+    FlashAnimationService,
+    // CustomCommandService
+  ],
 })
 export class ControllerSDKModule {}

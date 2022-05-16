@@ -91,6 +91,7 @@
     "swagger-ui-express": "^4.3.0",
     "tslib": "^2.4.0",
     "typescript": "^4.6.4",
+    "upath": "^2.0.1",
     "uuid": "^8.3.2",
     "vm2": "^3.9.8",
     "ws": "^8.6.0"

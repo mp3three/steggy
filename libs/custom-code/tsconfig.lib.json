@@ -9,5 +9,10 @@
     "target": "ESNext"
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../boilerplate/**/*ts",
+    "../utilities/**/*ts"
+  ]
 }

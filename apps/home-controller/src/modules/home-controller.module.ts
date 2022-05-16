@@ -1,7 +1,12 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { ApplicationModule, RegisterCache } from '@steggy/boilerplate';
+import {
+  ApplicationModule,
+  LOGGER_LIBRARY,
+  RegisterCache,
+} from '@steggy/boilerplate';
 import { ControllerSDKModule } from '@steggy/controller-sdk';
+import { CUSTOM_PROVIDERS } from '@steggy/custom-code';
 import { HomeAssistantModule } from '@steggy/home-assistant';
 import { ConnectService, MongoPersistenceModule } from '@steggy/persistence';
 import { ServerModule } from '@steggy/server';
@@ -15,7 +20,6 @@ import {
 } from '../config';
 import {
   AdminController,
-  AnimationController,
   DebugController,
   DeviceController,
   EntityController,
@@ -30,11 +34,13 @@ import {
   AttributeChangeActivateService,
   CaptureCommandService,
   EntityStateChangeCommandService,
+  GroupActionCommandService,
   GroupStateChangeCommandService,
   InternalEventChangeService,
-  LightFlashCommandService,
   MetadataChangeService,
   NodeRedCommand,
+  PersonStateChangeCommandService,
+  RoomStateChangeCommandService,
   RoutineTriggerService,
   ScheduleActivateService,
   SendNotificationService,
@@ -46,9 +52,6 @@ import {
   UpdateLoggerService,
   WebhookService,
 } from '../services';
-import { GroupActionCommandService } from '../services/commands/group-action.service';
-import { PersonStateChangeCommandService } from '../services/commands/person-state.service';
-import { RoomStateChangeCommandService } from '../services/commands/room-state.service';
 
 const rootPath = join(__dirname, 'ui');
 
@@ -74,7 +77,7 @@ const rootPath = join(__dirname, 'ui');
   },
   controllers: [
     AdminController,
-    AnimationController,
+    // AnimationController,
     DebugController,
     DeviceController,
     EntityController,
@@ -85,6 +88,14 @@ const rootPath = join(__dirname, 'ui');
     RoutineController,
   ],
   imports: [
+    (async () =>
+      await {
+        module: class CustomCodeModule {},
+        providers: CUSTOM_PROVIDERS.map(provider => {
+          provider[LOGGER_LIBRARY] = 'custom-code';
+          return provider;
+        }),
+      })(),
     ControllerSDKModule,
     HomeAssistantModule,
     HomeControllerModule,
@@ -106,7 +117,7 @@ const rootPath = join(__dirname, 'ui');
     GroupActionCommandService,
     GroupStateChangeCommandService,
     InternalEventChangeService,
-    LightFlashCommandService,
+    // LightFlashCommandService,
     MetadataChangeService,
     NodeRedCommand,
     PersonStateChangeCommandService,
