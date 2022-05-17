@@ -179,6 +179,7 @@
     "ts-toolbelt": "^9.6.0",
     "webpack": "^5.72.1",
     "webpack-dev-server": "4.9.0",
+    "webpack-merge": "^5.8.0",
     "webpack-node-externals": "^3.0.0",
     "yarn": "^1.22.18"
   },

@@ -1,12 +1,8 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import {
-  ApplicationModule,
-  LOGGER_LIBRARY,
-  RegisterCache,
-} from '@steggy/boilerplate';
+import { ApplicationModule, RegisterCache } from '@steggy/boilerplate';
 import { ControllerSDKModule } from '@steggy/controller-sdk';
-import { CUSTOM_PROVIDERS } from '@steggy/custom-code';
+import { CustomCodeModule } from '@steggy/custom-code';
 import { HomeAssistantModule } from '@steggy/home-assistant';
 import { ConnectService, MongoPersistenceModule } from '@steggy/persistence';
 import { ServerModule } from '@steggy/server';
@@ -54,9 +50,10 @@ import {
 } from '../services';
 
 const rootPath = join(__dirname, 'ui');
+const APPLICATION = Symbol('home-controller');
 
 @ApplicationModule({
-  application: Symbol('home-controller'),
+  application: APPLICATION,
   configuration: {
     [NODE_RED_URL]: {
       description: 'API target for outgoing node red hooks.',
@@ -88,14 +85,7 @@ const rootPath = join(__dirname, 'ui');
     RoutineController,
   ],
   imports: [
-    (async () =>
-      await {
-        module: class CustomCodeModule {},
-        providers: CUSTOM_PROVIDERS.map(provider => {
-          provider[LOGGER_LIBRARY] = 'custom-code';
-          return provider;
-        }),
-      })(),
+    CustomCodeModule(APPLICATION),
     ControllerSDKModule,
     HomeAssistantModule,
     HomeControllerModule,

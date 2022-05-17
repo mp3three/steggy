@@ -9,6 +9,7 @@
   },
   "exclude": ["**/*.spec.ts"],
   "include": [
+    "**/*.js",
     "**/*.ts",
     "../../libs/boilerplate/**/*.ts",
     "../../libs/controller-shared/**/*.ts",

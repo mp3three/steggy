@@ -1,4 +1,5 @@
 {
+  "env": { "es6": true, "node": true },
   "root": true,
   "ignorePatterns": ["**/*"],
   "plugins": [
@@ -15,7 +16,7 @@
   ],
   "overrides": [
     {
-      "files": ["*.ts", "*.tsx"],
+      "files": ["*.ts", "*.tsx", "*js"],
       "extends": [
         "plugin:@nrwl/nx/typescript",
         "plugin:@typescript-eslint/recommended",
@@ -176,6 +177,7 @@
               "selectable",
               "serializers",
               "sider",
+              "usr",
               "ssl",
               "stderr",
               "stdin",

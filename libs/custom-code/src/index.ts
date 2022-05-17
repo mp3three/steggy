@@ -1,2 +1,2 @@
 export * from './decorators';
-export * from './includes';
+export * from './modules';

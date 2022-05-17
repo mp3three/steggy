@@ -1,1 +1,1 @@
-export * from './loader';
+export * from './native-require';
