@@ -5,14 +5,14 @@ import { existsSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'upath';
 
-import { CUSTOM_PROVIDERS } from '../decorators';
 import { nativeRequire } from '../includes';
 
 export const CustomCodeModule = (application: symbol): DynamicModule => {
   load(application);
   return {
+    imports: [],
     module: class {},
-    providers: CUSTOM_PROVIDERS.map(provider => {
+    providers: global.CUSTOM_PROVIDERS.map(provider => {
       provider[LOGGER_LIBRARY] = 'custom-code';
       return provider;
     }),
