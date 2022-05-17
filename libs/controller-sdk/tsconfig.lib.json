@@ -9,11 +9,5 @@
     "target": "ESNext"
   },
   "exclude": ["**/*.spec.ts"],
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "../controller-shared/**/*ts",
-    "../boilerplate/**/*ts",
-    "../home-assistant/**/*ts"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"]
 }
