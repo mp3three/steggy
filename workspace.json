@@ -3,6 +3,7 @@
   "projects": {
     "build-pipeline": "apps/build-pipeline",
     "boilerplate": "libs/boilerplate",
+    "config-builder": "apps/config-builder",
     "controller-shared": "libs/controller-shared",
     "controller-sdk": "libs/controller-sdk",
     "devtools": "apps/devtools",

@@ -1,0 +1,14 @@
+{
+  "bin": {
+    "config-builder": "main.js"
+  },
+  "name": "@steggy/config-builder",
+  "license": "MIT",
+  "main": "main.js",
+  "displayName": "Config Builder",
+  "version": "0.7.6",
+  "homepage": "https://github.com/ccontour/steggy",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

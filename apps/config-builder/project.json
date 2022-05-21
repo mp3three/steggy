@@ -1,0 +1,89 @@
+{
+  "root": "apps/config-builder",
+  "sourceRoot": "apps/config-builder/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "config-builder:build",
+        "inspect": "inspect",
+        "port": 33337
+      }
+    },
+    "prepare": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "npx nx build config-builder --configuration=config-scanner"
+          }
+        ]
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "assets": [],
+        "outputPath": "dist/apps/config-builder",
+        "generatePackageJson": true,
+        "main": "apps/config-builder/src/entrypoints/main.ts",
+        "tsConfig": "apps/config-builder/tsconfig.app.json"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "inspect": false,
+          "fileReplacements": []
+        },
+        "scan-config": {
+          "outputPath": "dist/config-scanner/config-builder",
+          "fileReplacements": [
+            {
+              "replace": "apps/config-builder/src/environments/environment.ts",
+              "with": "apps/config-builder/src/environments/scanner.environment.ts"
+            }
+          ]
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/config-builder/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish2": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Home CLI",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build config-builder --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "npx terser dist/apps/config-builder/main.js -c -m --keep-classnames --module > dist/apps/config-builder/minified.js",
+            "description": "Minify it"
+          },
+          {
+            "command": "echo '#!/usr/bin/env node' > dist/apps/config-builder/main.js; cat dist/apps/config-builder/minified.js >> dist/apps/config-builder/main.js",
+            "description": "Replace output (can't be done in previous step)"
+          },
+          {
+            "command": "npx yarn publish --cwd dist/apps/config-builder --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    }
+  },
+  "tags": ["terminal"]
+}
