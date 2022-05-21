@@ -1,15 +1,34 @@
 import { RoutineRelativeDateComparisonDTO } from '@steggy/controller-shared';
 import { Card, Divider, Form, Input, Radio, Tooltip, Typography } from 'antd';
+import { useEffect, useState } from 'react';
 
+import { sendRequest } from '../../../types';
 import { ChronoExamples, renderDateExpression } from '../ChronoExamples';
 
 export function RelativeDate(props: {
   comparison: RoutineRelativeDateComparisonDTO;
   onUpdate: (value: Partial<RoutineRelativeDateComparisonDTO>) => void;
 }) {
+  const [currentExpression, setCurrentExpression] = useState<string[]>([]);
+  useEffect(() => {
+    async function refresh() {
+      const [result] = await sendRequest<string[][]>({
+        body: { expression: [props.comparison?.expression] },
+        method: 'post',
+        url: `/debug/chrono-parse`,
+      });
+      setCurrentExpression(result);
+    }
+    refresh();
+  }, [props.comparison?.expression]);
   return (
     <>
-      <Card title="Relative Date Comparison" type="inner">
+      <Card
+        title={
+          <Typography.Text strong>Relative Date Comparison</Typography.Text>
+        }
+        type="inner"
+      >
         <Form.Item label="Comparison">
           <Tooltip
             title={
@@ -57,8 +76,8 @@ export function RelativeDate(props: {
             }
           />
         </Form.Item>
-        <Form.Item label="Current Value">
-          {renderDateExpression(props.comparison.expression as string)}
+        <Form.Item label="Resolved Value">
+          {renderDateExpression(currentExpression)}
         </Form.Item>
       </Card>
       <ChronoExamples range />

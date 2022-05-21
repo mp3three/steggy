@@ -15,6 +15,7 @@ import {
   Skeleton,
   Space,
   Tabs,
+  Tooltip,
   Typography,
 } from 'antd';
 import { useEffect, useState } from 'react';
@@ -241,17 +242,21 @@ export function RoomMetadata(props: {
               <List.Item>
                 <List.Item.Meta
                   title={
-                    <Button
-                      size="small"
-                      type={metadata?.id === record.id ? 'primary' : 'text'}
-                      onClick={() => setMetadata(record)}
-                    >
-                      {is.empty(record.name) ? (
-                        <Typography.Text type="danger">NO NAME</Typography.Text>
-                      ) : (
-                        record.name
-                      )}
-                    </Button>
+                    <Tooltip title={record.description}>
+                      <Button
+                        size="small"
+                        type={metadata?.id === record.id ? 'primary' : 'text'}
+                        onClick={() => setMetadata(record)}
+                      >
+                        {is.empty(record.name) ? (
+                          <Typography.Text type="danger">
+                            NO NAME
+                          </Typography.Text>
+                        ) : (
+                          record.name
+                        )}
+                      </Button>
+                    </Tooltip>
                   }
                   description={record.type}
                 />

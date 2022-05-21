@@ -32,6 +32,23 @@ export function SetRoomMetadataCommand(props: {
   const [rooms, setRooms] = useState<
     Pick<RoomDTO, '_id' | 'friendlyName' | 'metadata'>[]
   >([]);
+  const [expression, setExpression] = useState<string>();
+  const [parsedExpression, setParsedExpression] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function refresh() {
+      const [parsed] = await sendRequest<string[][]>({
+        body: { expression: [expression] },
+        method: 'post',
+        url: `/debug/chrono-parse`,
+      });
+      setParsedExpression(parsed);
+    }
+    if (props?.command?.type !== 'date') {
+      return;
+    }
+    refresh();
+  }, [expression, props?.command]);
 
   const room =
     rooms.find(({ _id }) => _id === props.command?.room) ||
@@ -131,6 +148,7 @@ export function SetRoomMetadataCommand(props: {
   }
 
   function renderValueDate() {
+    setExpression(props.command.value as string);
     return (
       <>
         <Form.Item label="Value">
@@ -141,7 +159,7 @@ export function SetRoomMetadataCommand(props: {
               onBlur={({ target }) => props.onUpdate({ value: target.value })}
             />
             <Typography.Paragraph>
-              {renderDateExpression(props.command.value as string)}
+              {renderDateExpression(parsedExpression)}
             </Typography.Paragraph>
           </Space>
         </Form.Item>

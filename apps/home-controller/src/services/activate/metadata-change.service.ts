@@ -11,6 +11,7 @@ import {
   iActivationEvent,
   MetadataUpdate,
   PERSON_METADATA_UPDATED,
+  PersonService,
   ROOM_METADATA_UPDATED,
   RoomService,
 } from '@steggy/controller-sdk';
@@ -47,6 +48,7 @@ export class MetadataChangeService
     private readonly logger: AutoLogService,
     @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
+    private readonly personService: PersonService,
     private readonly jsonFilter: JSONFilterService,
     @InjectCache()
     private readonly cacheService: CacheManagerService,
@@ -77,9 +79,15 @@ export class MetadataChangeService
     callback: () => Promise<void>,
   ): Promise<void> {
     // Look up room name just for logging
-    const room = await this.roomService.get(activate.activate.room, false, {
-      select: ['friendlyName'],
-    });
+
+    const room =
+      activate.activate.type === 'room'
+        ? await this.roomService.get(activate.activate.room, false, {
+            select: ['friendlyName'],
+          })
+        : await this.personService.get(activate.activate.room, false, {
+            select: ['friendlyName'],
+          });
     this.WATCHERS.add({
       activate,
       callback,

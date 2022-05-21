@@ -10,6 +10,7 @@ import {
   Popover,
   Row,
   Table,
+  Tooltip,
   Typography,
 } from 'antd';
 import { dump } from 'js-yaml';
@@ -18,7 +19,7 @@ import { useState } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-import { sendRequest } from '../../types';
+import { COLOR_MAP, FD_ICONS, sendRequest } from '../../types';
 
 export function EntityHistory(props: { entity: string; nested?: boolean }) {
   const [from, setFrom] = useState(moment().subtract(1, 'day'));
@@ -59,7 +60,19 @@ export function EntityHistory(props: { entity: string; nested?: boolean }) {
   function renderBody() {
     return (
       <>
-        <Form.Item label="Range">
+        <Form.Item
+          label={
+            <>
+              <Tooltip
+                title="History provided by Home Assistant"
+                color={COLOR_MAP.get('homeassistant')}
+              >
+                {FD_ICONS.get('information')}
+              </Tooltip>
+              <Typography style={{ marginLeft: '4px' }}> Range</Typography>
+            </>
+          }
+        >
           <Row>
             <Col span={21}>
               <DatePicker.RangePicker

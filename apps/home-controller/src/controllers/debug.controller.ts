@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
+  ChronoService,
   DebuggerService,
   RecorderService,
   RoutineEnabledService,
@@ -42,6 +43,7 @@ import { NodeRedCommand } from '../services';
 export class DebugController {
   constructor(
     private readonly callService: HACallService,
+    private readonly chronoService: ChronoService,
     private readonly debugService: DebuggerService,
     private readonly nodeRed: NodeRedCommand,
     private readonly notification: NotifyDomainService,
@@ -51,6 +53,15 @@ export class DebugController {
     private readonly socketService: HASocketAPIService,
     private readonly solarCalc: SolarCalcService,
   ) {}
+
+  @Post(`/chrono-parse`)
+  public chronoParse(
+    @Body() { expression }: { expression: string[] },
+  ): string[][] {
+    return expression.map(line =>
+      this.chronoService.parse(line).map((date: Date) => date.toISOString()),
+    );
+  }
 
   @Delete(`/notification/:id`)
   @ApiGenericResponse()
