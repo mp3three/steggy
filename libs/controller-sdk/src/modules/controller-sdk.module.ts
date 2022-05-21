@@ -13,6 +13,7 @@ import { MongoPersistenceModule } from '@steggy/persistence';
 
 import { StopProcessingCommandService } from '../commands';
 import {
+  CIRCADIAN_ENABLED,
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
   MIN_BRIGHTNESS,
@@ -90,6 +91,12 @@ const providers = [
 
 @LibraryModule({
   configuration: {
+    [CIRCADIAN_ENABLED]: {
+      default: true,
+      description:
+        'Setting to false will prevent lights from having their temperature managed',
+      type: 'boolean',
+    },
     [CIRCADIAN_MAX_TEMP]: {
       default: 5500,
       description:
@@ -120,7 +127,7 @@ const providers = [
       type: 'boolean',
     },
     [SECRETS]: {
-      description: 'Key / value pairs ',
+      description: 'Key / value pairs',
       type: 'record',
     },
   },

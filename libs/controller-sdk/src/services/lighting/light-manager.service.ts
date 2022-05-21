@@ -26,7 +26,7 @@ import {
 } from '@steggy/home-assistant-shared';
 import { DOWN, each, INVERT_VALUE, is, PERCENT, UP } from '@steggy/utilities';
 
-import { MIN_BRIGHTNESS, SAFE_MODE } from '../../config';
+import { MIN_BRIGHTNESS } from '../../config';
 import { ENTITY_METADATA_UPDATED } from '../../typings';
 import { MetadataService } from '../metadata.service';
 import { CircadianService } from './circadian.service';
@@ -54,8 +54,6 @@ export class LightManagerService {
     private readonly circadianService: CircadianService,
     @Inject(forwardRef(() => MetadataService))
     private readonly metadataService: MetadataService,
-    @InjectConfig(SAFE_MODE)
-    private readonly safeMode: boolean,
     @InjectConfig(MIN_BRIGHTNESS) private readonly minBrightness: number,
   ) {}
 
@@ -224,9 +222,6 @@ export class LightManagerService {
 
   @OnEvent(CIRCADIAN_UPDATE)
   protected async circadianLightingUpdate(color_temp: number): Promise<void> {
-    if (this.safeMode) {
-      return;
-    }
     const lights = await this.findCircadianLights();
     await this.setAttributes(
       lights.map(({ entity_id }) => entity_id),
@@ -235,9 +230,6 @@ export class LightManagerService {
   }
 
   protected async onModuleInit(): Promise<void> {
-    if (this.safeMode) {
-      this.logger.warn(`[SAFE_MODE] set, circadian lighting updates blocked`);
-    }
     await this.refreshForceList();
   }
 

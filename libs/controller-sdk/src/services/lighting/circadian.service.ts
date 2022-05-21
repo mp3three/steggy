@@ -10,7 +10,12 @@ import { CronExpression } from '@steggy/utilities';
 import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';
 
-import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from '../../config';
+import {
+  CIRCADIAN_ENABLED,
+  CIRCADIAN_MAX_TEMP,
+  CIRCADIAN_MIN_TEMP,
+  SAFE_MODE,
+} from '../../config';
 import { SolarCalcService } from './solar-calc.service';
 
 const MIN = 0;
@@ -29,6 +34,10 @@ export class CircadianService {
     private readonly maxTemperature: number,
     @InjectConfig(CIRCADIAN_MIN_TEMP)
     private readonly minTemperature: number,
+    @InjectConfig(CIRCADIAN_ENABLED)
+    private readonly circadianEnabled: boolean,
+    @InjectConfig(SAFE_MODE)
+    private readonly safeMode: boolean,
     private readonly eventEmitter: EventEmitter,
   ) {}
 
@@ -39,8 +48,17 @@ export class CircadianService {
     await this.updateKelvin();
   }
 
+  protected onModuleInit(): void {
+    if (!this.circadianEnabled || this.safeMode) {
+      this.logger.warn(`Circadian lighting updates disabled`);
+    }
+  }
+
   @Cron(CronExpression.EVERY_MINUTE)
   protected updateKelvin(): void {
+    if (!this.circadianEnabled || this.safeMode) {
+      return;
+    }
     const kelvin = this.getCurrentTemperature();
     if (kelvin === this.CURRENT_LIGHT_TEMPERATURE) {
       return;
