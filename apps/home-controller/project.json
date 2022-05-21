@@ -14,7 +14,6 @@
       "executor": "@nrwl/node:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "webpackConfig": "apps/home-controller/webpack.config.js",
         "outputPath": "dist/apps/home-controller",
         "generatePackageJson": false,
         "buildableProjectDepsInPackageJsonType": "dependencies",

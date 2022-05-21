@@ -2,7 +2,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ApplicationModule, RegisterCache } from '@steggy/boilerplate';
 import { ControllerSDKModule } from '@steggy/controller-sdk';
-import { CustomCodeModule } from '@steggy/custom-code';
 import { HomeAssistantModule } from '@steggy/home-assistant';
 import { ConnectService, MongoPersistenceModule } from '@steggy/persistence';
 import { ServerModule } from '@steggy/server';
@@ -85,7 +84,6 @@ const APPLICATION = Symbol('home-controller');
     RoutineController,
   ],
   imports: [
-    CustomCodeModule(APPLICATION),
     ControllerSDKModule,
     HomeAssistantModule,
     HomeControllerModule,

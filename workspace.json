@@ -5,7 +5,6 @@
     "boilerplate": "libs/boilerplate",
     "controller-shared": "libs/controller-shared",
     "controller-sdk": "libs/controller-sdk",
-    "custom-code": "libs/custom-code",
     "devtools": "apps/devtools",
     "formio": "libs/formio",
     "home-assistant-shared": "libs/home-assistant-shared",

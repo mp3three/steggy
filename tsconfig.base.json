@@ -29,7 +29,6 @@
       "@steggy/boilerplate": ["libs/boilerplate/src/index.ts"],
       "@steggy/controller-shared": ["libs/controller-shared/src/index.ts"],
       "@steggy/controller-sdk": ["libs/controller-sdk/src/index.ts"],
-      "@steggy/custom-code": ["libs/custom-code/src/index.ts"],
       "@steggy/formio": ["libs/formio/src/index.ts"],
       "@steggy/home-assistant": ["libs/home-assistant/src/index.ts"],
       "@steggy/home-assistant-shared": [
@@ -53,7 +52,6 @@
     { "path": "./apps/pico-relay/tsconfig.json" },
     { "path": "./libs/boilerplate/tsconfig.json" },
     { "path": "./libs/controller-sdk/tsconfig.json" },
-    { "path": "./libs/custom-code/tsconfig.json" },
     { "path": "./libs/controller-shared/tsconfig.json" },
     { "path": "./libs/formio/tsconfig.json" },
     { "path": "./libs/home-assistant-shared/tsconfig.json" },
