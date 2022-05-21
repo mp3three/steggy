@@ -123,6 +123,7 @@ export function MetadataEdit(props: {
               <Divider orientation="left">Enum options (1 per line)</Divider>
               <Input.TextArea
                 defaultValue={(props.metadata.options ?? []).join(`\n`)}
+                style={{ minHeight: '150px' }}
                 onBlur={({ target }) =>
                   onUpdate({
                     options: target.value

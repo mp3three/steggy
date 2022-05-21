@@ -4,7 +4,7 @@ import {
   RoomDTO,
   RoomEntityDTO,
 } from '@steggy/controller-shared';
-import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
+import { DOWN, EMPTY, is, TitleCase, UP } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
@@ -162,7 +162,7 @@ export function PersonConfiguration(props: {
     props.onUpdate(
       await sendRequest<PersonDTO>({
         method: 'delete',
-        url: `/person/${props.person._id}/entity/${entity}`,
+        url: `/person/${props.person?._id}/entity/${entity}`,
       }),
     );
   }
@@ -219,14 +219,14 @@ export function PersonConfiguration(props: {
         title={
           <>
             <Typography.Text type="secondary">
-              ({props.person.entities.length})
+              ({props.person?.entities?.length ?? EMPTY})
             </Typography.Text>
             <Typography.Text strong> Entities</Typography.Text>
           </>
         }
         extra={
           <EntityModalPicker
-            highlight={is.empty(props.person.entities)}
+            highlight={is.empty(props.person?.entities)}
             onAdd={items => addEntities(items)}
             exclude={(props.person?.entities ?? []).map(
               ({ entity_id }) => entity_id,
@@ -235,7 +235,7 @@ export function PersonConfiguration(props: {
         }
       >
         <List
-          dataSource={(props.person.entities ?? []).sort((a, b) =>
+          dataSource={(props.person?.entities ?? []).sort((a, b) =>
             a > b ? UP : DOWN,
           )}
           pagination={{ size: 'small' }}
@@ -247,22 +247,22 @@ export function PersonConfiguration(props: {
         title={
           <>
             <Typography.Text type="secondary">
-              ({props.person.groups.length})
+              ({props.person?.groups?.length ?? EMPTY})
             </Typography.Text>
             <Typography.Text strong> Groups</Typography.Text>
           </>
         }
         extra={
           <GroupModalPicker
-            highlight={is.empty(props.person.groups)}
-            exclude={props.person.groups}
+            highlight={is.empty(props.person?.groups)}
+            exclude={props.person?.groups}
             onAdd={groups => addGroups(groups)}
           />
         }
       >
         <List
           pagination={{ size: 'small' }}
-          dataSource={props.person.groups}
+          dataSource={props.person?.groups}
           renderItem={item => groupRender(item)}
         />
       </Card>
@@ -271,22 +271,22 @@ export function PersonConfiguration(props: {
         title={
           <>
             <Typography.Text type="secondary">
-              ({props.person.rooms.length})
+              ({props.person?.rooms?.length ?? EMPTY})
             </Typography.Text>
             <Typography.Text strong> Rooms</Typography.Text>
           </>
         }
         extra={
           <RoomModalPicker
-            highlight={is.empty(props.person.rooms)}
-            exclude={props.person.rooms}
+            highlight={is.empty(props.person?.rooms)}
+            exclude={props.person?.rooms}
             onAdd={rooms => addRooms(rooms)}
           />
         }
       >
         <List
           pagination={{ size: 'small' }}
-          dataSource={props.person.rooms}
+          dataSource={props.person?.rooms}
           renderItem={item => roomRender(item)}
         />
       </Card>

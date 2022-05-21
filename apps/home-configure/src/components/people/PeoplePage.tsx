@@ -8,6 +8,7 @@ import {
   Input,
   Layout,
   List,
+  notification,
   Popconfirm,
   Row,
   Typography,
@@ -97,6 +98,12 @@ export function PeoplePage() {
 
   async function validate(): Promise<void> {
     try {
+      if (is.empty(friendlyName)) {
+        notification.error({
+          message: `Friendly name is required`,
+        });
+        return;
+      }
       const created = await sendRequest<PersonDTO>({
         body: { friendlyName },
         method: 'post',

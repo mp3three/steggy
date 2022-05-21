@@ -1,5 +1,5 @@
 import { GroupDTO, RoomDTO, RoomEntityDTO } from '@steggy/controller-shared';
-import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
+import { DOWN, EMPTY, is, TitleCase, UP } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
@@ -127,7 +127,7 @@ export function RoomConfiguration(props: {
     props.onUpdate(
       await sendRequest<RoomDTO>({
         method: 'delete',
-        url: `/room/${props.room._id}/entity/${entity}`,
+        url: `/room/${props.room?._id}/entity/${entity}`,
       }),
     );
   }
@@ -147,22 +147,22 @@ export function RoomConfiguration(props: {
         title={
           <>
             <Typography.Text type="secondary">{`(${
-              props.room?.entities?.length ?? 0
+              props.room?.entities?.length ?? EMPTY
             }) `}</Typography.Text>
             <Typography.Text strong>Entities</Typography.Text>
           </>
         }
         extra={
           <EntityModalPicker
-            highlight={is.empty(props.room.entities)}
+            highlight={is.empty(props.room?.entities)}
             onAdd={entities => addEntities(entities)}
-            exclude={props.room.entities.map(({ entity_id }) => entity_id)}
+            exclude={props.room?.entities?.map(({ entity_id }) => entity_id)}
           />
         }
       >
         <List
           pagination={{ size: 'small' }}
-          dataSource={(props.room.entities ?? []).sort((a, b) =>
+          dataSource={(props.room?.entities ?? []).sort((a, b) =>
             a > b ? UP : DOWN,
           )}
           renderItem={item => entityRender(item)}
@@ -173,22 +173,22 @@ export function RoomConfiguration(props: {
         title={
           <>
             <Typography.Text type="secondary">{`(${
-              props.room?.groups?.length ?? 0
+              props.room?.groups?.length ?? EMPTY
             }) `}</Typography.Text>
             <Typography.Text strong>Groups</Typography.Text>
           </>
         }
         extra={
           <GroupModalPicker
-            highlight={is.empty(props.room.groups)}
-            exclude={props.room.groups}
+            highlight={is.empty(props.room?.groups)}
+            exclude={props.room?.groups}
             onAdd={groups => addGroups(groups)}
           />
         }
       >
         <List
           pagination={{ size: 'small' }}
-          dataSource={props.room.groups}
+          dataSource={props.room?.groups}
           renderItem={item => groupRender(item)}
         />
       </Card>

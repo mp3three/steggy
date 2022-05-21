@@ -91,7 +91,7 @@ export function StopProcessingCommand(props: {
           <Col offset={1}>
             <Button
               size="small"
-              disabled={props.disabled}
+              disabled={props.disabled || is.empty(addComparison)}
               type="primary"
               onClick={() => append()}
             >

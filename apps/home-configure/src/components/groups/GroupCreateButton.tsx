@@ -1,6 +1,13 @@
 import { GROUP_TYPES, GroupDTO } from '@steggy/controller-shared';
-import { TitleCase } from '@steggy/utilities';
-import { Button, Form, Popconfirm, Select, Typography } from 'antd';
+import { is, TitleCase } from '@steggy/utilities';
+import {
+  Button,
+  Form,
+  notification,
+  Popconfirm,
+  Select,
+  Typography,
+} from 'antd';
 import { useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
@@ -14,6 +21,12 @@ export function GroupCreateButton(props: {
 
   async function create(): Promise<void> {
     try {
+      if (is.empty(type)) {
+        notification.error({
+          message: `Select a type`,
+        });
+        return;
+      }
       const group = await sendRequest<GroupDTO>({
         body: {
           friendlyName: `New ${TitleCase(type)} Group`,
