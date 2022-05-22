@@ -1,11 +1,12 @@
 import { INestApplication } from '@nestjs/common';
 
+import { ACTIVE_APPLICATION, ConfigDefinitionDTO } from '../contracts';
 import { ConfigTypeDTO, CONSUMES_CONFIG } from '../contracts/config';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
 import { LibraryModule } from '../decorators';
 import { ModuleScannerService } from '../services';
 
-export function ScanConfig(app: INestApplication): ConfigTypeDTO[] {
+export function ScanConfig(app: INestApplication): ConfigDefinitionDTO {
   const scanner = app.get(ModuleScannerService);
   const used = new Set<string>();
 
@@ -33,5 +34,8 @@ export function ScanConfig(app: INestApplication): ConfigTypeDTO[] {
       });
     });
   });
-  return out;
+  return {
+    application: app.get<symbol>(ACTIVE_APPLICATION).description,
+    config: out,
+  };
 }

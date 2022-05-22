@@ -1,13 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { is } from '@steggy/utilities';
+import { INVERT_VALUE, is, START } from '@steggy/utilities';
 import JSON from 'comment-json';
 import { existsSync, readFileSync } from 'fs';
+import { decode } from 'ini';
+import { load } from 'js-yaml';
 import { homedir } from 'os';
 import { join } from 'path';
 import { cwd } from 'process';
 
 import { LIB_BOILERPLATE } from '../config';
 import {
+  AbstractConfig,
   ACTIVE_APPLICATION,
   GenericVersionDTO,
   PACKAGE_FILE,
@@ -15,6 +18,7 @@ import {
 } from '../contracts';
 import { LibraryModule } from '../decorators';
 import { AutoLogService } from './auto-log.service';
+const extensions = ['json', 'ini', 'yaml'];
 
 /**
  * The workspace file is def not getting out into any builds, seems like a reasonably unique name
@@ -60,9 +64,8 @@ export class WorkspaceService {
    * - ~/.config/{name}/config.ini
    * - ~/.config/{name}/config.yaml
    */
-  public get configFilePaths(): string[] {
+  public configFilePaths(name = this.application.description): string[] {
     const out: string[] = [];
-    const name = this.application.description;
     if (!this.isWindows) {
       out.push(
         ...this.withExtensions(join(`/etc`, name, 'config')),
@@ -100,6 +103,69 @@ export class WorkspaceService {
 
   public isProject(project: string): boolean {
     return this.application.description !== project;
+  }
+
+  public loadConfigFromFile(
+    out: Map<string, AbstractConfig>,
+    filePath: string,
+  ) {
+    if (!existsSync(filePath)) {
+      return undefined;
+    }
+    const fileContent = readFileSync(filePath, 'utf8').trim();
+    const hasExtension = extensions.some(extension => {
+      if (
+        filePath.slice(extension.length * INVERT_VALUE).toLowerCase() ===
+        extension
+      ) {
+        switch (extension) {
+          case 'ini':
+            out.set(filePath, decode(fileContent));
+            return true;
+          case 'yaml':
+          case 'yml':
+            out.set(filePath, load(fileContent));
+            return true;
+          case 'json':
+            out.set(filePath, JSON.parse(fileContent) as AbstractConfig);
+            return true;
+        }
+      }
+      return false;
+    });
+    if (hasExtension) {
+      return undefined;
+    }
+    // Guessing JSON
+    if (fileContent[START] === '{') {
+      out.set(filePath, JSON.parse(fileContent) as AbstractConfig);
+      return true;
+    }
+    // Guessing yaml
+    try {
+      const content = load(fileContent);
+      if (is.object(content)) {
+        out.set(filePath, content);
+        return true;
+      }
+    } catch {
+      // Is not a yaml file
+    }
+    // Final fallback: INI
+    out.set(filePath, decode(fileContent));
+    return true;
+  }
+
+  public loadMergedConfig(
+    list: string[] = [],
+  ): [Map<string, AbstractConfig>, string[]] {
+    const out = new Map<string, AbstractConfig>();
+    const files: string[] = [];
+    list.forEach(filePath => {
+      this.loadConfigFromFile(out, filePath);
+      files.push(filePath);
+    });
+    return [out, files];
   }
 
   public path(project: string): string {

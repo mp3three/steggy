@@ -28,7 +28,7 @@
         "assets": [],
         "outputPath": "dist/apps/config-builder",
         "generatePackageJson": true,
-        "main": "apps/config-builder/src/entrypoints/main.ts",
+        "main": "apps/config-builder/src/main.ts",
         "tsConfig": "apps/config-builder/tsconfig.app.json"
       },
       "configurations": {

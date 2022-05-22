@@ -2,7 +2,7 @@ import { INestApplication, Injectable } from '@nestjs/common';
 import { eachSeries } from '@steggy/utilities';
 import { Express } from 'express';
 
-import { iLifecycle } from '../contracts/lifecycle';
+import { iSteggyProvider } from '../contracts';
 import { BootstrapOptions } from '../includes';
 import { ModuleScannerService } from './explorers/module-scanner.service';
 
@@ -21,7 +21,7 @@ export class LifecycleService {
         options: BootstrapOptions,
       ): Promise<void>;
     }>[] = [];
-    this.scanner.applicationProviders<iLifecycle>().forEach(instance => {
+    this.scanner.applicationProviders<iSteggyProvider>().forEach(instance => {
       if (instance.onPostInit) {
         instances.push(instance);
       }
@@ -42,7 +42,7 @@ export class LifecycleService {
         options: BootstrapOptions,
       ): Promise<void>;
     }>[] = [];
-    this.scanner.applicationProviders<iLifecycle>().forEach(instance => {
+    this.scanner.applicationProviders<iSteggyProvider>().forEach(instance => {
       if (instance.onPreInit) {
         instances.push(instance);
       }

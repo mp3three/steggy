@@ -43,11 +43,26 @@
         "commands": [
           {
             "command": "npx nx build build-pipeline --configuration=production",
-            "description": "Assemble docker image"
+            "description": "Create build"
           },
           {
             "command": "npx terser dist/apps/build-pipeline/main.js -c -m --keep-classnames --module > tools/scripts/pipeline.js",
             "description": "Move to final destination"
+          }
+        ]
+      }
+    },
+    "scan-config": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build build-pipeline --configuration=production",
+            "description": "Create build"
+          },
+          {
+            "command": "node dist/apps/build-pipeline/main.js --config-scanner"
           }
         ]
       }

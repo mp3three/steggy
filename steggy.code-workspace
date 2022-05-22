@@ -66,6 +66,7 @@
       "home-controller": "ini",
       "home-cli": "ini",
       "pico-relay": "ini",
+      "config-builder": "ini",
       "devtools": "ini"
     },
     "files.exclude": {

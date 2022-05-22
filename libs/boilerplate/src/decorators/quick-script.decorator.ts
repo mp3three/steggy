@@ -3,6 +3,7 @@ import { is } from '@steggy/utilities';
 import { ClassConstructor } from 'class-transformer';
 import minimist from 'minimist';
 
+import { iSteggyProvider } from '../contracts';
 import { Bootstrap, BootstrapOptions, ScanConfig } from '../includes';
 import { AutoConfigService } from '../services';
 import {
@@ -19,6 +20,10 @@ const ADDITIONAL_WAIT = 5;
 
 const CREATE_BOOT_MODULE = (metadata: ApplicationModuleMetadata) =>
   ApplicationModule(metadata)(class {}) as unknown as ClassConstructor<unknown>;
+
+export interface iQuickScript extends iSteggyProvider {
+  exec: () => void | Promise<void>;
+}
 
 /**
  * Use as an annotation for a single NestJS provider.

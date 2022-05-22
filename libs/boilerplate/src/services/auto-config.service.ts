@@ -5,11 +5,9 @@ import {
   InternalServerErrorException,
   Optional,
 } from '@nestjs/common';
-import { deepExtend, INVERT_VALUE, is, START } from '@steggy/utilities';
-import JSON from 'comment-json';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { decode, encode } from 'ini';
-import yaml from 'js-yaml';
+import { deepExtend, is } from '@steggy/utilities';
+import { writeFileSync } from 'fs';
+import { encode } from 'ini';
 import minimist from 'minimist';
 import { get, set } from 'object-path';
 import { resolve } from 'path';
@@ -20,8 +18,6 @@ import { AbstractConfig, ACTIVE_APPLICATION } from '../contracts/meta/config';
 import { LibraryModule } from '../decorators';
 import { AutoLogService } from './auto-log.service';
 import { WorkspaceService } from './workspace.service';
-
-const extensions = ['json', 'ini', 'yaml'];
 
 @Injectable()
 export class AutoConfigService {
@@ -121,7 +117,12 @@ export class AutoConfigService {
   private earlyInit(): void {
     this.config = {};
     this.setDefaults();
-    const fileConfig = this.loadFromFiles();
+
+    const [fileConfig, files] = this.workspace.loadMergedConfig([
+      ...this.workspace.configFilePaths(this.appName),
+      ...(this.switches['config'] ? [resolve(this.switches['config'])] : []),
+    ]);
+    this.configFiles = files;
     fileConfig.forEach(config => deepExtend(this.config, config));
     deepExtend(this.config, this.configDefaults ?? {});
     this.loadFromEnv();
@@ -131,7 +132,7 @@ export class AutoConfigService {
     ] = `${LIB_BOILERPLATE.description}:${AutoConfigService.name}`;
     AutoLogService.logger.level = this.get([LIB_BOILERPLATE, LOG_LEVEL]);
     fileConfig.forEach((config, path) =>
-      this.logger.info(`Loaded configuration from {${path}}`),
+      this.logger.debug(`Loaded configuration from {${path}}`),
     );
   }
 
@@ -222,70 +223,6 @@ export class AutoConfigService {
         }
       });
     });
-  }
-
-  private loadFromFile(out: Map<string, AbstractConfig>, filePath: string) {
-    if (!existsSync(filePath)) {
-      return undefined;
-    }
-    this.loadedConfigPath = filePath;
-    const fileContent = readFileSync(filePath, 'utf8').trim();
-    this.loadedConfigFiles.push(filePath);
-    const hasExtension = extensions.some(extension => {
-      if (
-        filePath.slice(extension.length * INVERT_VALUE).toLowerCase() ===
-        extension
-      ) {
-        switch (extension) {
-          case 'ini':
-            out.set(filePath, decode(fileContent));
-            return true;
-          case 'yaml':
-          case 'yml':
-            out.set(filePath, yaml.load(fileContent));
-            return true;
-          case 'json':
-            out.set(filePath, JSON.parse(fileContent) as AbstractConfig);
-            return true;
-        }
-      }
-      return false;
-    });
-    if (hasExtension) {
-      return undefined;
-    }
-    // Guessing JSON
-    if (fileContent[START] === '{') {
-      out.set(filePath, JSON.parse(fileContent) as AbstractConfig);
-      return true;
-    }
-    // Guessing yaml
-    try {
-      const content = yaml.load(fileContent);
-      if (is.object(content)) {
-        out.set(filePath, content);
-        return true;
-      }
-    } catch {
-      // Is not a yaml file
-    }
-    // Final fallback: INI
-    out.set(filePath, decode(fileContent));
-    return true;
-  }
-
-  private loadFromFiles(): Map<string, AbstractConfig> {
-    this.configFiles = this.workspace.configFilePaths;
-    if (this.switches['config']) {
-      this.configFiles.push(resolve(this.switches['config']));
-    }
-    this.loadedConfigFiles = [];
-    const out = new Map<string, AbstractConfig>();
-    this.configFiles.forEach(filePath => {
-      this.loadFromFile(out, filePath);
-    });
-
-    return out;
   }
 
   private setDefaults(): void {
