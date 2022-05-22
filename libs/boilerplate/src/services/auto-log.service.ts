@@ -40,7 +40,7 @@ export const NEST_NOOP_LOGGER = {
 const logger = pino() as iLogger;
 
 /**
- * Use `@InjectLogger()` if context is not automatically found
+ * Context aware wrapper around pino logger. Use `@InjectLogger()` if context is not automatically found
  */
 @Injectable({ scope: Scope.TRANSIENT })
 export class AutoLogService implements iLogger {

@@ -2,9 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { is } from '@steggy/utilities';
 
-import { LOGGER_LIBRARY } from '../../contracts/logger';
+import { LOGGER_LIBRARY } from '../../contracts';
+// Crashy crashy if importing from directory
 import { OnceIsEnough } from '../../decorators/once-is-enough.decorator';
 
+/**
+ * The repo uses a standard of replacing the `@Injectable()` NestJS annotation with a specialized wrapper.
+ * This makes it easy to do automatic registration of classes for certain processes.
+ *
+ * ModuleScannerService is used for looking up those providers.
+ * It will return a map containing a reference to the provider, and the configuration info passed into the wrapper annotation
+ */
 @Injectable()
 export class ModuleScannerService {
   constructor(private readonly discoveryService: DiscoveryService) {}

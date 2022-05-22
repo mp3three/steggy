@@ -8,7 +8,6 @@ import { homedir } from 'os';
 import { join } from 'path';
 import { cwd } from 'process';
 
-import { LIB_BOILERPLATE } from '../config';
 import {
   AbstractConfig,
   ACTIVE_APPLICATION,
@@ -17,22 +16,22 @@ import {
   PackageJsonDTO,
 } from '../contracts';
 import { LibraryModule } from '../decorators';
-import { AutoLogService } from './auto-log.service';
-const extensions = ['json', 'ini', 'yaml'];
+
+const extensions = ['json', 'ini', 'yaml', 'yml'];
 
 /**
  * The workspace file is def not getting out into any builds, seems like a reasonably unique name
  */
 const isDevelopment = existsSync(join(cwd(), 'steggy.code-workspace'));
 
+/**
+ * Tools for describing the current environment the code is running in
+ */
 @Injectable()
 export class WorkspaceService {
   constructor(
-    private readonly logger: AutoLogService,
     @Inject(ACTIVE_APPLICATION) private readonly application: symbol,
-  ) {
-    logger.setContext(LIB_BOILERPLATE, WorkspaceService);
-  }
+  ) {}
   public IS_DEVELOPMENT = isDevelopment;
   /**
    * package.json
@@ -211,6 +210,6 @@ export class WorkspaceService {
   }
 
   private withExtensions(path: string): string[] {
-    return [path, `${path}.json`, `${path}.ini`, `${path}.yaml`, `${path}.yml`];
+    return [path, ...extensions.map(i => `${path}.${i}`)];
   }
 }

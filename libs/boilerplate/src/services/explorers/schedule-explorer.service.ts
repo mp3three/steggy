@@ -5,9 +5,12 @@ import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { CRON_SCHEDULE } from '@steggy/utilities';
 import { CronJob } from 'cron';
 
-import { LOG_CONTEXT } from '../../contracts/logger/constants';
+import { LOG_CONTEXT } from '../../contracts';
 import { AutoLogService } from '../auto-log.service';
 
+/**
+ * Schedule setup for @Cron() annotations
+ */
 @Injectable()
 export class ScheduleExplorerService {
   constructor(

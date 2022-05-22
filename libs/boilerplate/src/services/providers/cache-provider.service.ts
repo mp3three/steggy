@@ -9,6 +9,9 @@ import {
 } from '../../config';
 import { InjectConfig } from '../../decorators/injectors/inject-config.decorator';
 
+/**
+ * Provider to bind configurations to the cache module
+ */
 @Injectable()
 export class CacheProviderService {
   constructor(

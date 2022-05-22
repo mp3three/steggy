@@ -14,6 +14,7 @@ const FIRST = 0;
 
 type FetchWith<T extends Record<never, string> = Record<never, string>> =
   Partial<FetchArguments> & T;
+
 export class BaseFetchService {
   public BASE_URL: string;
   public TRUNCATE_LENGTH = DEFAULT_TRUNCATE_LENGTH;

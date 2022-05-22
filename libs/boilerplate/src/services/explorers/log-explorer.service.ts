@@ -2,21 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { is } from '@steggy/utilities';
 
-import { LOG_LEVEL } from '../../config';
 import { LOG_CONTEXT, LOGGER_LIBRARY } from '../../contracts/logger';
-import { InjectConfig, mappedContexts } from '../../decorators/injectors';
+import { mappedContexts } from '../../decorators/injectors';
 
 // Don't remove LOG_LEVEL injection
 // Including it here forces it to appear in config builder
 // Including it in AutoLogService makes things explode
 
 const SKIP_PROVIDERS = new Set(['ModuleRef', '', 'useFactory']);
+
+/**
+ * Sets up the logger contexts early in the boot process.
+ *
+ * Without this, most messages would get prefixed with `[MISSING CONTEXT]`
+ */
 @Injectable()
 export class LogExplorerService {
-  constructor(
-    private readonly discoveryService: DiscoveryService,
-    @InjectConfig(LOG_LEVEL) private readonly logLevel: string,
-  ) {}
+  constructor(private readonly discoveryService: DiscoveryService) {}
 
   public load(): void {
     const providers = [

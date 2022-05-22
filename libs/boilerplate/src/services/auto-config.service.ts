@@ -14,11 +14,17 @@ import { resolve } from 'path';
 
 import { LIB_BOILERPLATE, LOG_LEVEL } from '../config';
 import { CONFIG_DEFAULTS, ConfigItem } from '../contracts';
-import { AbstractConfig, ACTIVE_APPLICATION } from '../contracts/meta/config';
+import { AbstractConfig, ACTIVE_APPLICATION } from '../contracts';
 import { LibraryModule } from '../decorators';
 import { AutoLogService } from './auto-log.service';
 import { WorkspaceService } from './workspace.service';
 
+/**
+ * Configuration and environment variable management service.
+ * Merges configurations from environment variables, file based configurations, and command line switches.
+ *
+ * This class should not be needed for most situations. The intended way to retrieve configurations is via DI w/ `@InjectConfig()`
+ */
 @Injectable()
 export class AutoConfigService {
   public static DEFAULTS = new Map<string, Record<string, unknown>>();
@@ -32,6 +38,11 @@ export class AutoConfigService {
     private readonly configDefaults: AbstractConfig,
     private readonly workspace: WorkspaceService,
   ) {
+    // AutoConfig is one of the first services to initialize
+    // Running it here will force load the configuration at the earliest possible time
+    //
+    // Needs to happen ASAP in order to provide values for @InjectConfig, and any direct loading of this class to work right
+    //
     this.earlyInit();
   }
 

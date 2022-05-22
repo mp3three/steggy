@@ -6,6 +6,9 @@ import { iSteggyProvider } from '../contracts';
 import { BootstrapOptions } from '../includes';
 import { ModuleScannerService } from './explorers/module-scanner.service';
 
+/**
+ * Part of bootstrap process. Internal use
+ */
 @Injectable()
 export class LifecycleService {
   constructor(private readonly scanner: ModuleScannerService) {}

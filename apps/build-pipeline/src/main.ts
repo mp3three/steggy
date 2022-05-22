@@ -17,6 +17,7 @@ import { inc } from 'semver';
 
 type AffectedList = { apps: string[]; libs: string[] };
 type PACKAGE = { version: string };
+
 /**
  * Basic build pipeline.
  * Assume that all the affected packages need a patch version bump, and to be re-published

@@ -10,14 +10,17 @@ import {
 } from '../../decorators/events.decorator';
 import { AutoLogService } from '../auto-log.service';
 
+/**
+ * Search out all the methods that were annotated with `@OnEvent`, and set up subscriptions
+ */
 @Injectable()
 export class EventsExplorerService {
   constructor(
-    private readonly logger: AutoLogService,
     private readonly discoveryService: DiscoveryService,
     private readonly eventEmitter: EventEmitter,
-    private readonly reflector: Reflector,
+    private readonly logger: AutoLogService,
     private readonly metadataScanner: MetadataScanner,
+    private readonly reflector: Reflector,
   ) {}
 
   public getEventHandlerMetadata(
