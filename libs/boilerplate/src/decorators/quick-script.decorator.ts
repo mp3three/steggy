@@ -1,8 +1,9 @@
 import { Injectable, Provider } from '@nestjs/common';
 import { is } from '@steggy/utilities';
 import { ClassConstructor } from 'class-transformer';
+import minimist from 'minimist';
 
-import { Bootstrap, BootstrapOptions } from '../includes';
+import { Bootstrap, BootstrapOptions, ScanConfig } from '../includes';
 import { AutoConfigService } from '../services';
 import {
   ApplicationModule,
@@ -52,25 +53,40 @@ export function QuickScript({
     // Set up a fake application module that uses it as the only provider
     // Bootstrap that module, and call the `exec()` method on the target class to officially "start" the app
     //
-    setTimeout(
-      () =>
-        Bootstrap(CREATE_BOOT_MODULE(options), {
+    setTimeout(() => {
+      let BOOTSTRAP_OPTIONS: BootstrapOptions = {
+        nestNoopLogger: true,
+        noGlobalError: true,
+        postInit: [
+          app =>
+            setTimeout(() => {
+              const provider = app.get(target);
+              if (is.function(provider.exec)) {
+                provider.exec();
+              }
+            }, WAIT_TIME),
+        ],
+        prettyLog: true,
+        ...bootstrap,
+      };
+      if (!is.undefined(minimist(process.argv)['config-scanner'])) {
+        BOOTSTRAP_OPTIONS = {
+          ...BOOTSTRAP_OPTIONS,
+          config: { libs: { boilerplate: { LOG_LEVEL: 'silent' } } },
           nestNoopLogger: true,
-          noGlobalError: true,
-          postInit: [
-            app =>
-              setTimeout(() => {
-                const provider = app.get(target);
-                if (is.function(provider.exec)) {
-                  provider.exec();
-                }
-              }, WAIT_TIME),
+          preInit: [
+            app => {
+              // eslint-disable-next-line no-console
+              console.log(JSON.stringify(ScanConfig(app)));
+              // eslint-disable-next-line unicorn/no-process-exit
+              process.exit();
+            },
           ],
-          prettyLog: true,
-          ...bootstrap,
-        }),
-      WAIT_BOOTSTRAP,
-    );
+        };
+      }
+
+      Bootstrap(CREATE_BOOT_MODULE(options), BOOTSTRAP_OPTIONS);
+    }, WAIT_BOOTSTRAP);
     options.providers.push(target as unknown as Provider);
     return Injectable()(target);
   };

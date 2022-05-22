@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService, InjectConfig, OnEvent } from '@steggy/boilerplate';
-import { SAFE_MODE } from '@steggy/controller-sdk';
+import { LIB_CONTROLLER_SDK, SAFE_MODE } from '@steggy/controller-sdk';
 import {
   HASocketAPIService,
   NotifyDomainService,
@@ -14,7 +14,7 @@ export class ApplicationService {
   constructor(
     @InjectConfig(NOTIFY_CONNECTION_RESET)
     private readonly sendNotification: boolean,
-    @InjectConfig(SAFE_MODE)
+    @InjectConfig(SAFE_MODE, LIB_CONTROLLER_SDK)
     private readonly safeMode: boolean,
     private readonly logger: AutoLogService,
     private readonly notifyService: NotifyDomainService,

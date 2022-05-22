@@ -27,7 +27,6 @@ const extensions = ['json', 'ini', 'yaml'];
 export class AutoConfigService {
   public static DEFAULTS = new Map<string, Record<string, unknown>>();
   public static NX_PROJECT?: string;
-  protected static USE_SCANNER_ASSETS = false;
 
   constructor(
     private readonly logger: AutoLogService,

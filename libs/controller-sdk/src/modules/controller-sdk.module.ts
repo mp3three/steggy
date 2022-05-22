@@ -16,6 +16,7 @@ import {
   CIRCADIAN_ENABLED,
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
+  LIB_CONTROLLER_SDK,
   MIN_BRIGHTNESS,
   RECENT_ROUTINE_TTL,
   SAFE_MODE,
@@ -145,7 +146,7 @@ const providers = [
       ),
     ),
   ],
-  library: Symbol('controller-sdk'),
+  library: LIB_CONTROLLER_SDK,
   providers: [
     ...providers,
     FlashAnimationService,

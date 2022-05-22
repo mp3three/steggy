@@ -25,6 +25,13 @@ RUN npx nx build home-controller --configuration=production
 RUN npx terser dist/apps/home-controller/main.js -c -m --keep-classnames --module > dist/apps/home-controller/minified.js
 # </STAGE 1>
 
+# <STAGE 1.5> - Same layer, different work
+RUN npx figlet-cli -f Pagga Analyzing Configs
+RUN npx nx build home-controller --configuration=scanner
+RUN node dist/scanner/home-controller/main.js > config.json
+# </STAGE 1.5>
+
+
 # <STAGE 2>
 # Build node_modules for final container
 FROM node:16-alpine AS node_modules
@@ -75,6 +82,7 @@ COPY --from=build /app/dist/apps/home-controller/minified.js ./main.js
 COPY --from=build /app/dist/apps/home-controller/package.json ./package.json
 COPY --from=build /app/dist/apps/home-configure ./ui
 COPY --from=build /app/dist/apps/home-controller/assets ./assets
+COPY --from=build /app/config.json ./config.json
 
 HEALTHCHECK CMD curl --fail http://localhost:7000/api/health
 CMD ["node", "./main.js"]

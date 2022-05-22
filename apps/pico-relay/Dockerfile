@@ -19,6 +19,8 @@ RUN npx figlet-cli -f Pagga Pico Relay
 RUN npx nx build pico-relay --configuration=production
 # Minify
 RUN npx terser dist/apps/pico-relay/main.js -c -m --keep-classnames --module > dist/apps/pico-relay/minified.js
+# Scan the config
+RUN node dist/scanner/pico-relay/main.js --scan-config > config.json
 # </STAGE 1>
 
 # <STAGE 2>
@@ -69,6 +71,7 @@ WORKDIR /app
 COPY --from=node_modules /app/node_modules ./node_modules
 COPY --from=build /app/dist/apps/pico-relay/minified.js ./main.js
 COPY --from=build /app/dist/apps/pico-relay/package.json ./package.json
+COPY --from=build /app/config.json ./config.json
 
 CMD ["node", "./main.js"]
 # </STAGE 3>

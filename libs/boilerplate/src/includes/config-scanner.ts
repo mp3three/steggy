@@ -1,41 +1,37 @@
 import { INestApplication } from '@nestjs/common';
 
-import { ACTIVE_APPLICATION } from '../contracts';
 import { ConfigTypeDTO, CONSUMES_CONFIG } from '../contracts/config';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
-import { AutoConfigService, ModuleScannerService } from '../services';
+import { LibraryModule } from '../decorators';
+import { ModuleScannerService } from '../services';
 
-export function ScanConfig(app: INestApplication): void {
-  const configService = app.get(AutoConfigService);
+export function ScanConfig(app: INestApplication): ConfigTypeDTO[] {
   const scanner = app.get(ModuleScannerService);
-  const application = app.get<symbol>(ACTIVE_APPLICATION);
   const used = new Set<string>();
 
-  const map = scanner.findWithSymbol<string[]>(CONSUMES_CONFIG);
+  const map = scanner.findWithSymbol<[string, symbol][]>(CONSUMES_CONFIG);
   const out: ConfigTypeDTO[] = [];
+  const { configs } = LibraryModule;
   map.forEach((config, instance) => {
     const ctor = instance.constructor;
     const library = ctor[LOGGER_LIBRARY] || 'application';
-    config.forEach((property) => {
-      const joined = [library, property].join('.');
+    config.forEach(([property, from]) => {
+      const target = from ? from.description : library;
+      const joined = [target, property].join('.');
       if (used.has(joined)) {
         return;
       }
       used.add(joined);
-      const metadata = configService['metadata'].get(
-        library === 'application' ? application.description : library,
-      ).configuration[property];
+
+      const { configuration } = configs.get(target);
+      const metadata = configuration[property];
       out.push({
-        default: metadata.default,
+        default: metadata?.default,
         library,
         metadata,
         property,
       });
     });
   });
-
-  // eslint-disable-next-line no-console
-  console.log(JSON.stringify(out, undefined, '  '));
-  // eslint-disable-next-line unicorn/no-process-exit
-  process.exit();
+  return out;
 }

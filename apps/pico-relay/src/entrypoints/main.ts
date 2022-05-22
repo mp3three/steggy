@@ -16,9 +16,9 @@ import {
   LUTRON_USERNAME,
   PICO_MAPPINGS,
   RECONNECT_INTERVAL,
-} from './config';
-import { LUTRON_EVENT } from './constants';
-import { LutronClientService } from './lutron-client.service';
+} from '../config';
+import { LutronClientService } from '../services';
+import { LUTRON_EVENT } from '../types/constants';
 
 enum PicoDirection {
   down = '3',

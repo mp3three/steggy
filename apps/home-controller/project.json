@@ -8,6 +8,11 @@
       "options": {
         "buildTarget": "home-controller:build",
         "inspect": "inspect"
+      },
+      "configurations": {
+        "scanner": {
+          "buildTarget": "home-controller:build:scan-config"
+        }
       }
     },
     "build": {
@@ -74,6 +79,15 @@
               "input": "apps/home-controller",
               "glob": "package.json",
               "output": "./assets/home-controller"
+            }
+          ]
+        },
+        "scan-config": {
+          "outputPath": "dist/scanner/home-controller",
+          "fileReplacements": [
+            {
+              "replace": "apps/home-controller/src/environments/environment.ts",
+              "with": "apps/home-controller/src/environments/scanner.environment.ts"
             }
           ]
         }

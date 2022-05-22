@@ -18,7 +18,7 @@
         "assets": [],
         "outputPath": "dist/apps/pico-relay",
         "generatePackageJson": true,
-        "main": "apps/pico-relay/src/main.ts",
+        "main": "apps/pico-relay/src/entrypoints/main.ts",
         "tsConfig": "apps/pico-relay/tsconfig.app.json"
       },
       "configurations": {
@@ -26,6 +26,15 @@
           "optimization": true,
           "extractLicenses": false,
           "inspect": false
+        },
+        "scanner": {
+          "outputPath": "dist/scanner/pico-relay",
+          "fileReplacements": [
+            {
+              "replace": "apps/pico-relay/src/environments/environment.ts",
+              "with": "apps/pico-relay/src/environments/scanner.environment.ts"
+            }
+          ]
         }
       }
     },

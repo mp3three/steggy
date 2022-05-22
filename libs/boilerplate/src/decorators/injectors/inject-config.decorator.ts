@@ -13,7 +13,7 @@ export const CONFIG_PROVIDERS = new Set<Provider>();
 export function InjectConfig(path: string, from?: symbol): ParameterDecorator {
   return function (target, key, index) {
     target[CONSUMES_CONFIG] ??= [];
-    target[CONSUMES_CONFIG].push(path);
+    target[CONSUMES_CONFIG].push([path, from]);
     const id = uuid();
     CONFIG_PROVIDERS.add({
       inject: [AutoConfigService, ACTIVE_APPLICATION],
