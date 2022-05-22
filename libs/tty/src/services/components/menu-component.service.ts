@@ -111,7 +111,9 @@ export class MenuComponentService<VALUE = unknown>
   ) {}
 
   private callbackOutput = '';
+  private complete = false;
   private done: (type: VALUE) => void;
+  private final = false;
   private headerPadding: number;
   private leftHeader: string;
   private mode: 'find' | 'select' = 'select';
@@ -127,6 +129,8 @@ export class MenuComponentService<VALUE = unknown>
     done: (type: VALUE) => void,
   ): void {
     this.opt = config;
+    this.complete = false;
+    this.final = false;
     // this.showHelp = this.opt.showHelp ?? true;
     this.opt.left ??= [];
     this.opt.item ??= 'actions';
@@ -156,6 +160,18 @@ export class MenuComponentService<VALUE = unknown>
    * Entrypoint for rendering logic
    */
   public render(updateValue = false): void {
+    // Complete = this widget must have `configure()` called prior to doing more rendering
+    if (this.complete) {
+      return;
+    }
+    // Final = this widget has returned a value,
+    //   and wants to clean up the UI a bit before finishing
+    if (this.final) {
+      this.final = false;
+      this.complete = true;
+      return this.renderFinal();
+    }
+    // VVVVV Normal rendering work VVVVV
     if (this.mode === 'select') {
       return this.renderSelect();
     }
@@ -265,8 +281,10 @@ export class MenuComponentService<VALUE = unknown>
    * Terminate the editor
    */
   protected onEnd(): boolean {
+    this.final = true;
     this.mode = 'select';
     this.done(this.value);
+    this.render();
     return false;
   }
 
@@ -438,6 +456,27 @@ export class MenuComponentService<VALUE = unknown>
     return out ?? list[START];
   }
 
+  private renderFinal() {
+    const item = this.selectedEntry();
+    let message = '';
+    if (!is.empty(item?.helpText)) {
+      message += chalk`{blue ?} ${item.helpText
+        .split(`\n`)
+        .map(line => line.replace(new RegExp('^ -'), chalk.cyan('   -')))
+        .join(`\n`)}\n`;
+    }
+    message += chalk` {cyan >} `;
+    if (!is.empty(item.icon)) {
+      message += `${item.icon} `;
+    }
+    if (!is.empty(item.type)) {
+      message += chalk`{magenta.bold [${item.type}]} `;
+    }
+
+    message += chalk.blue`${item.entry[LABEL]}`;
+    this.screen.render(message);
+  }
+
   /**
    * Rendering for search mode
    */
@@ -452,7 +491,7 @@ export class MenuComponentService<VALUE = unknown>
   /**
    * Rendering for while not in find mode
    */
-  private renderSelect() {
+  private renderSelect(extraContent?: string) {
     let message = '';
     if (!is.empty(this.callbackOutput)) {
       message = this.callbackOutput + `\n\n`;
@@ -478,21 +517,23 @@ export class MenuComponentService<VALUE = unknown>
     }
     this.screen.render(
       message,
-      this.keymap.keymapHelp({
-        message,
-        prefix: new Map(
-          Object.entries(this.opt.keyMap).map(([description, item]) => {
-            if (!Array.isArray(item)) {
-              return;
-            }
-            const [label] = item;
-            return [
-              { description: (label + '  ') as string, key: description },
-              '',
-            ];
+      !is.empty(extraContent)
+        ? extraContent
+        : this.keymap.keymapHelp({
+            message,
+            prefix: new Map(
+              Object.entries(this.opt.keyMap).map(([description, item]) => {
+                if (!Array.isArray(item)) {
+                  return;
+                }
+                const [label] = item;
+                return [
+                  { description: (label + '  ') as string, key: description },
+                  '',
+                ];
+              }),
+            ),
           }),
-        ),
-      }),
     );
   }
 
@@ -521,7 +562,12 @@ export class MenuComponentService<VALUE = unknown>
     const maxType = ansiMaxLength(...menu.map(({ type }) => type));
     let last = '';
     const maxLabel =
-      ansiMaxLength(...menu.map(({ entry }) => entry[LABEL])) + ARRAY_OFFSET;
+      ansiMaxLength(
+        ...menu.map(
+          ({ entry, icon }) =>
+            entry[LABEL] + (is.empty(icon) ? '' : `${icon} `),
+        ),
+      ) + ARRAY_OFFSET;
     if (is.empty(menu) && !this.opt.keyOnly) {
       out.push(
         chalk.bold` ${ICONS.WARNING}{yellowBright.inverse  No ${this.opt.item} to select from }`,
@@ -545,7 +591,10 @@ export class MenuComponentService<VALUE = unknown>
         prefix = ``;
       }
       const inverse = item.entry[VALUE] === this.value;
-      const padded = ansiPadEnd(item.entry[LABEL], maxLabel);
+      const padded = ansiPadEnd(
+        (is.empty(item.icon) ? '' : `${item.icon} `) + item.entry[LABEL],
+        maxLabel,
+      );
       if (this.selectedType === side) {
         out.push(
           chalk` {magenta.bold ${prefix}} {${
@@ -577,6 +626,12 @@ export class MenuComponentService<VALUE = unknown>
       out.shift();
     }
     return out;
+  }
+
+  private selectedEntry() {
+    return [...this.side('right'), ...this.side('left')].find(
+      item => item.entry[VALUE] === this.value,
+    );
   }
 
   private setKeymap(): void {

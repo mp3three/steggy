@@ -111,6 +111,22 @@
           }
         ]
       }
+    },
+    "scan-config": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build home-controller --configuration=scan-config",
+            "description": "Create build"
+          },
+          {
+            "command": "node dist/scanner/home-controller/main.js",
+            "description": "Output results"
+          }
+        ]
+      }
     }
   },
   "tags": ["backend"]

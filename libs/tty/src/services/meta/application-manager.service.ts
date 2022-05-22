@@ -76,6 +76,7 @@ export class ApplicationManagerService implements iStackProvider {
 
   public setHeader(primary: string, secondary = ''): number {
     this.screenService.clear();
+    this.screenService.print();
     let max = 0;
     if (!is.empty(secondary)) {
       primary = figlet.textSync(primary, {
