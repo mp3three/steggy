@@ -59,7 +59,9 @@ export class NumberEditorService
   public render(): void {
     if (this.complete) {
       this.screenService.render(
-        chalk`{green ? } {bold ${this.config.label}} ${this.value}`,
+        chalk`{green ? } {bold ${this.config.label}} ${Number(
+          this.value,
+        ).toLocaleString()}`,
       );
       return;
     }

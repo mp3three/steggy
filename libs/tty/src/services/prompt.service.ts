@@ -1,13 +1,22 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectConfig } from '@steggy/boilerplate';
 import { DOWN, is, LABEL, UP, VALUE } from '@steggy/utilities';
+import chalk from 'chalk';
 import dayjs from 'dayjs';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
 import { PAGE_SIZE } from '../config';
-import { PromptMenuItems, TableBuilderOptions } from '../contracts';
-import { ListBuilderOptions, MenuComponentOptions } from './components';
+import {
+  MainMenuEntry,
+  PromptMenuItems,
+  TableBuilderOptions,
+} from '../contracts';
+import {
+  ListBuilderOptions,
+  MenuComponentOptions,
+  ToMenuEntry,
+} from './components';
 import {
   NumberEditorRenderOptions,
   StringEditorRenderOptions,
@@ -48,15 +57,16 @@ export class PromptService {
     message: string,
     defaultValue?: boolean,
   ): Promise<boolean> {
-    const { result } = await inquirer.prompt([
-      {
-        default: defaultValue,
-        message,
-        name,
-        type: 'confirm',
-      },
-    ]);
-    return result;
+    return (await this.menu({
+      condensed: true,
+      headerMessage: chalk`  {green ?} ${message}`,
+      hideSearch: true,
+      right: ToMenuEntry([
+        ['true', true],
+        ['false', false],
+      ]),
+      value: defaultValue,
+    })) as boolean;
   }
 
   public async brightness(
@@ -317,24 +327,18 @@ export class PromptService {
 
   public async pickOne<T extends unknown = string>(
     message = `Pick one`,
-    options: PromptEntry<T>[],
+    options: MainMenuEntry<T>[],
     defaultValue?: string | T,
   ): Promise<T> {
     if (is.empty(options)) {
       this.logger.warn(`No choices to pick from`);
       return undefined;
     }
-    const { result } = await inquirer.prompt([
-      {
-        choices: this.itemsFromEntries(options, true),
-        default: defaultValue,
-        message,
-        name,
-        pageSize: this.pageSize,
-        type: 'rawlist',
-      },
-    ]);
-    return result;
+    return (await this.menu({
+      right: options,
+      rightHeader: message,
+      value: defaultValue,
+    })) as T;
   }
 
   public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {

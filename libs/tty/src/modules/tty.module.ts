@@ -21,7 +21,6 @@ import {
 import {
   AcknowledgeComponentService,
   ApplicationManagerService,
-  BooleanEditorService,
   ChartingService,
   ColorsService,
   ComparisonToolsService,
@@ -154,7 +153,6 @@ import {
   providers: [
     AcknowledgeComponentService,
     ApplicationManagerService,
-    BooleanEditorService,
     ChartingService,
     ColorsService,
     ComparisonToolsService,

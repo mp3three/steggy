@@ -24,7 +24,7 @@ import { existsSync, readFileSync } from 'fs';
 import { get, set } from 'object-path';
 import { exit } from 'process';
 
-const NO_VALUE = Symbol();
+// const NO_VALUE = Symbol();
 @QuickScript({
   application: Symbol('config-builder'),
   imports: [TTYModule],
@@ -50,7 +50,10 @@ export class ConfigScanner implements iQuickScript {
   }
 
   public async exec() {
-    this.applicationManager.setHeader('Config Builder');
+    this.applicationManager.setHeader(
+      'App Config',
+      TitleCase(this.configDefinition.application),
+    );
     const action = await this.promptService.menu({
       hideSearch: true,
       right: ToMenuEntry([
@@ -94,25 +97,6 @@ export class ConfigScanner implements iQuickScript {
     this.config = mergedConfig;
   }
 
-  private colorProperty(entry: ConfigTypeDTO): string {
-    const { property, metadata } = entry;
-    const path = this.path(entry);
-    const value = get(this.config, path, NO_VALUE);
-    if (value !== NO_VALUE) {
-      return chalk.greenBright(property);
-    }
-    if (metadata.required) {
-      return chalk.redBright(property);
-    }
-    if (metadata.warnDefault) {
-      return chalk.magentaBright(property);
-    }
-    if (metadata.careful) {
-      return chalk.yellowBright(property);
-    }
-    return chalk.whiteBright(property);
-  }
-
   private async editConfig(config: ConfigTypeDTO): Promise<void> {
     const path = this.path(config);
     const current = get(this.config, path, config?.default);
@@ -142,7 +126,7 @@ export class ConfigScanner implements iQuickScript {
         result = Array.isArray(metadata.enum)
           ? await this.promptService.pickOne(
               config.property,
-              metadata.enum.map(i => [i, i]),
+              ToMenuEntry(metadata.enum.map(i => [i, i])),
               current,
             )
           : await this.promptService.string(config.property, current as string);
@@ -199,7 +183,7 @@ export class ConfigScanner implements iQuickScript {
     return `application.${config.property}`;
   }
 
-  private async selectConfig(): Promise<void> {
+  private async selectConfig(initial?: ConfigTypeDTO): Promise<void> {
     const mergedConfig = this.config;
     const item = await this.promptService.menu({
       keyMap: { d: [chalk.bold`Done`, DONE] },
@@ -248,11 +232,12 @@ export class ConfigScanner implements iQuickScript {
           type: TitleCase(item.library),
         } as MainMenuEntry<ConfigTypeDTO>;
       }),
+      value: initial,
     });
     if (is.string(item)) {
       return;
     }
     await this.editConfig(item);
-    return await this.selectConfig();
+    return await this.selectConfig(item);
   }
 }

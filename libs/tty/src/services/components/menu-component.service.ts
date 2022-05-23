@@ -31,6 +31,7 @@ import { PromptEntry } from '../prompt.service';
 import { KeymapService, TextRenderingService } from '../render';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
+type tMenuItem = [InquirerKeypressOptions, string | DirectCB];
 
 export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
   const out: MainMenuEntry<T>[] = [];
@@ -63,6 +64,8 @@ export type MainMenuCB<T = unknown> = (
 ) => (string | boolean) | Promise<string | boolean>;
 
 export interface MenuComponentOptions<T = unknown> {
+  condensed?: boolean;
+  headerMessage?: string;
   headerPadding?: number;
   hideSearch?: boolean;
   item?: string;
@@ -466,14 +469,14 @@ export class MenuComponentService<VALUE = unknown>
         .join(`\n`)}\n`;
     }
     message += chalk` {cyan >} `;
-    if (!is.empty(item.icon)) {
+    if (!is.empty(item?.icon)) {
       message += `${item.icon} `;
     }
-    if (!is.empty(item.type)) {
+    if (!is.empty(item?.type)) {
       message += chalk`{magenta.bold [${item.type}]} `;
     }
 
-    message += chalk.blue`${item.entry[LABEL]}`;
+    message += chalk.blue`${item?.entry[LABEL]}`;
     this.screen.render(message);
   }
 
@@ -494,7 +497,10 @@ export class MenuComponentService<VALUE = unknown>
   private renderSelect(extraContent?: string) {
     let message = '';
     if (!is.empty(this.callbackOutput)) {
-      message = this.callbackOutput + `\n\n`;
+      message += this.callbackOutput + `\n\n`;
+    }
+    if (!is.empty(this.opt.headerMessage)) {
+      message += this.opt.headerMessage + `\n\n`;
     }
     const out = !is.empty(this.opt.left)
       ? this.textRender.assemble(
@@ -635,7 +641,7 @@ export class MenuComponentService<VALUE = unknown>
   }
 
   private setKeymap(): void {
-    const PARTIAL_LIST: [InquirerKeypressOptions, string | DirectCB][] = [
+    const PARTIAL_LIST: tMenuItem[] = [
       [{ catchAll: true, noHelp: true }, 'activateKeyMap'],
       [{ key: 'down' }, 'next'],
       [{ description: 'select entry', key: 'enter' }, 'onEnd'],
@@ -644,14 +650,18 @@ export class MenuComponentService<VALUE = unknown>
         { description: 'select item', key: [...'0123456789'], noHelp: true },
         'numberSelect',
       ],
-      [{ key: ['end', 'pagedown'] }, 'bottom'],
-      [{ key: ['home', 'pageup'] }, 'top'],
+      ...((this.opt.condensed
+        ? []
+        : [
+            [{ key: ['end', 'pagedown'] }, 'bottom'],
+            [{ key: ['home', 'pageup'] }, 'top'],
+          ]) as tMenuItem[]),
     ];
-    const LEFT_RIGHT: [InquirerKeypressOptions, string | DirectCB][] = [
+    const LEFT_RIGHT: tMenuItem[] = [
       [{ description: 'left', key: 'left' }, 'onLeft'],
       [{ description: 'right', key: 'right' }, 'onRight'],
     ];
-    const SEARCH: [InquirerKeypressOptions, string | DirectCB][] = [
+    const SEARCH: tMenuItem[] = [
       [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
     ];
 
