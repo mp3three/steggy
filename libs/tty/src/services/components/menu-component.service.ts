@@ -677,17 +677,25 @@ export class MenuComponentService<VALUE = unknown>
     if (this.mode === 'find' && !noRecurse) {
       return [...this.side('right', true), ...this.side('left', true)];
     }
-    return this.opt[side].sort((a, b) => {
-      if (a.type === b.type) {
-        return a.entry[LABEL].replace(UNSORTABLE, '') >
-          b.entry[LABEL].replace(UNSORTABLE, '')
-          ? UP
-          : DOWN;
-      }
-      if (a.type > b.type) {
-        return UP;
-      }
-      return DOWN;
-    }) as MainMenuEntry<VALUE>[];
+    // TODO: find way of caching the replacements
+    // Might be an issue in large lists
+    return this.opt[side]
+      .map(
+        item =>
+          [item, ansiStrip(item.entry[LABEL]).replace(UNSORTABLE, '')] as [
+            MainMenuEntry,
+            string,
+          ],
+      )
+      .sort(([a, aLabel], [b, bLabel]) => {
+        if (a.type === b.type) {
+          return aLabel > bLabel ? UP : DOWN;
+        }
+        if (a.type > b.type) {
+          return UP;
+        }
+        return DOWN;
+      })
+      .map(([item]) => item) as MainMenuEntry<VALUE>[];
   }
 }

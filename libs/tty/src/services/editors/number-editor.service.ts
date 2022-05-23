@@ -1,8 +1,6 @@
 import { INVERT_VALUE, is, START } from '@steggy/utilities';
-import chalk from 'chalk';
 
-import { Editor, iBuilderEditor } from '../../decorators';
-import { ansiPadEnd } from '../../includes';
+import { Editor } from '../../decorators';
 import { TextRenderingService } from '../render';
 
 export interface NumberEditorRenderOptions {
@@ -15,17 +13,8 @@ export interface NumberEditorRenderOptions {
 
 const INTERNAL_PADDING = ' ';
 
-@Editor({
-  keyMap: new Map([
-    [{ description: 'cancel', key: 'tab' }, ''],
-    [{ description: 'left', key: 'left' }, ''],
-    [{ description: 'right', key: 'right' }, ''],
-  ]),
-  type: 'number',
-})
-export class NumberEditorService
-  implements iBuilderEditor<NumberEditorRenderOptions>
-{
+@Editor({ type: 'number' })
+export class NumberEditorService {
   constructor(private readonly textRendering: TextRenderingService) {}
 
   public onKeyPress(config, key): NumberEditorRenderOptions {
@@ -49,22 +38,23 @@ export class NumberEditorService
     return config;
   }
 
-  public render({ width, ...config }): string {
-    const out: string[] = [];
-    const value = config.label
-      ? config.current.toLocaleString()
-      : config.current.toString();
-    if (config.label) {
-      out.push(chalk.bold.magenta.dim(config.label));
-    }
-    let color = 'bgWhite';
-    if (is.number(config.max) && config.current > config.max) {
-      color = 'bgRed';
-    }
-    const maxLength = width; //- this.leftPadding - this.leftPadding;
-    out.push(
-      chalk[color].black(ansiPadEnd(INTERNAL_PADDING + value, maxLength)),
-    );
-    return this.textRendering.pad(out.join(`\n`));
+  public render(): void {
+    return;
+    // const out: string[] = [];
+    // const value = config.label
+    //   ? config.current.toLocaleString()
+    //   : config.current.toString();
+    // if (config.label) {
+    //   out.push(chalk.bold.magenta.dim(config.label));
+    // }
+    // let color = 'bgWhite';
+    // if (is.number(config.max) && config.current > config.max) {
+    //   color = 'bgRed';
+    // }
+    // const maxLength = width; //- this.leftPadding - this.leftPadding;
+    // out.push(
+    //   chalk[color].black(ansiPadEnd(INTERNAL_PADDING + value, maxLength)),
+    // );
+    // return this.textRendering.pad(out.join(`\n`));
   }
 }

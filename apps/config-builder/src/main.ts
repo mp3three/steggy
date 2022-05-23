@@ -85,6 +85,13 @@ export class ConfigScanner implements iQuickScript {
     this.configDefinition = JSON.parse(
       readFileSync(this.definitionFile, 'utf8'),
     );
+
+    const [configs] = this.workspaceService.loadMergedConfig(
+      this.workspaceService.configFilePaths(this.configDefinition.application),
+    );
+    const mergedConfig: AbstractConfig = {};
+    configs.forEach(config => deepExtend(mergedConfig, config));
+    this.config = mergedConfig;
   }
 
   private colorProperty(entry: ConfigTypeDTO): string {
@@ -108,36 +115,46 @@ export class ConfigScanner implements iQuickScript {
 
   private async editConfig(config: ConfigTypeDTO): Promise<void> {
     const path = this.path(config);
-    const label = this.colorProperty(config);
     const current = get(this.config, path, config?.default);
     let result: unknown;
     switch (config.metadata.type) {
       case 'boolean':
-        result = await this.promptService.boolean(label, current as boolean);
+        result = await this.promptService.boolean(
+          config.property,
+          current as boolean,
+        );
         break;
       case 'number':
-        result = await this.promptService.number(label, current as number);
+        result = await this.promptService.number(
+          config.property,
+          current as number,
+        );
         break;
       case 'password':
-        result = await this.promptService.password(label, current as string);
+        result = await this.promptService.password(
+          config.property,
+          current as string,
+        );
         break;
       case 'url':
       case 'string':
         const { metadata } = config as ConfigTypeDTO<StringConfig>;
         result = Array.isArray(metadata.enum)
           ? await this.promptService.pickOne(
-              label,
+              config.property,
               metadata.enum.map(i => [i, i]),
               current,
             )
-          : await this.promptService.string(label, current as string);
+          : await this.promptService.string(config.property, current as string);
         break;
     }
+    // await sleep(5000);
     if (result === config.default || result === current) {
       // Don't set defaults
       return;
     }
     set(this.config, path, result);
+    this.dirty = true;
   }
 
   private listConfigFiles(): void {
@@ -183,13 +200,7 @@ export class ConfigScanner implements iQuickScript {
   }
 
   private async selectConfig(): Promise<void> {
-    const [configs] = this.workspaceService.loadMergedConfig(
-      this.workspaceService.configFilePaths(this.configDefinition.application),
-    );
-    const mergedConfig: AbstractConfig = {};
-    configs.forEach(config => deepExtend(mergedConfig, config));
-    this.config = mergedConfig;
-
+    const mergedConfig = this.config;
     const item = await this.promptService.menu({
       keyMap: { d: [chalk.bold`Done`, DONE] },
       right: this.configDefinition.config.map(item => {

@@ -8,6 +8,7 @@ import Separator from 'inquirer/lib/objects/separator';
 import { PAGE_SIZE } from '../config';
 import { PromptMenuItems, TableBuilderOptions } from '../contracts';
 import { ListBuilderOptions, MenuComponentOptions } from './components';
+import { StringEditorRenderOptions } from './editors';
 import { ApplicationManagerService, SyncLoggerService } from './meta';
 
 const name = `result`;
@@ -36,7 +37,7 @@ export class PromptService {
    * Good for giving the user time to read a message before a screen clear happens
    */
   public async acknowledge(): Promise<void> {
-    await this.applicationManager.activate('acknowledge');
+    await this.applicationManager.activateComponent('acknowledge');
   }
 
   public async boolean(
@@ -92,7 +93,7 @@ export class PromptService {
     message = `Are you sure?`,
     defaultValue = false,
   ): Promise<boolean> {
-    return await this.applicationManager.activate('confirm', {
+    return await this.applicationManager.activateComponent('confirm', {
       defaultValue,
       message,
     });
@@ -222,7 +223,7 @@ export class PromptService {
   }
 
   public async listBuild<T>(options: ListBuilderOptions<T>): Promise<T[]> {
-    const result = await this.applicationManager.activate<
+    const result = await this.applicationManager.activateComponent<
       ListBuilderOptions<T>,
       T[]
     >('list', options);
@@ -233,7 +234,7 @@ export class PromptService {
     options: MenuComponentOptions<T | string>,
   ): Promise<T | string> {
     options.keyMap ??= {};
-    const result = await this.applicationManager.activate<
+    const result = await this.applicationManager.activateComponent<
       MenuComponentOptions,
       T
     >('menu', options);
@@ -259,7 +260,7 @@ export class PromptService {
   }
 
   public async objectBuilder<T>(options: TableBuilderOptions<T>): Promise<T[]> {
-    const result = await this.applicationManager.activate<
+    const result = await this.applicationManager.activateComponent<
       TableBuilderOptions<T>,
       T[]
     >('table', options);
@@ -350,21 +351,16 @@ export class PromptService {
   }
 
   public async string(
-    message = `String value`,
-    defaultValue?: string,
-    { prefix, suffix }: { prefix?: string; suffix?: string } = {},
+    label = `String value`,
+    current?: string,
+    options: Omit<StringEditorRenderOptions, 'label' | 'current'> = {},
   ): Promise<string> {
-    const { result } = await inquirer.prompt([
-      {
-        default: defaultValue,
-        message,
-        name,
-        prefix,
-        suffix,
-        type: 'input',
-      },
-    ]);
-    return result;
+    return await this.applicationManager.activateEditor('string', {
+      current,
+      label,
+      width: 50,
+      ...options,
+    } as StringEditorRenderOptions);
   }
 
   public async time(

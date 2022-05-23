@@ -1,10 +1,15 @@
 import { INVERT_VALUE, is, SINGLE, START } from '@steggy/utilities';
 import chalk from 'chalk';
 
-import { KeyModifiers } from '../../contracts';
+import {
+  InquirerKeypressOptions,
+  KeyModifiers,
+  tKeyMap,
+} from '../../contracts';
 import { Editor, iBuilderEditor } from '../../decorators';
-import { ansiPadEnd } from '../../includes';
-import { TextRenderingService } from '../render';
+import { ansiPadEnd, ansiStrip } from '../../includes';
+import { KeyboardManagerService, ScreenService } from '../meta';
+import { KeymapService, TextRenderingService } from '../render';
 
 export interface StringEditorRenderOptions {
   current: string;
@@ -13,77 +18,120 @@ export interface StringEditorRenderOptions {
   minLength?: number;
   placeholder?: string;
   validate?: (value: string) => true | string;
-  width: number;
+  width?: number;
 }
 
 const DEFAULT_PLACEHOLDER = 'enter value';
+const ELLIPSES = '...';
 const INTERNAL_PADDING = ' ';
 const PADDING = 2;
+const KEYMAP: tKeyMap = new Map<InquirerKeypressOptions, string>([
+  [{ catchAll: true, noHelp: true }, 'onKeyPress'],
+  [{ description: 'done', key: 'enter' }, 'onEnd'],
+  [{ key: 'escape' }, 'reset'],
+]);
 
-@Editor({
-  keyMap: new Map([
-    [{ description: 'cancel', key: 'tab' }, ''],
-    [{ description: 'clear', key: 'escape' }, ''],
-  ]),
-  type: 'string',
-})
+@Editor({ type: 'string' })
 export class StringEditorService
   implements iBuilderEditor<StringEditorRenderOptions>
 {
-  constructor(private readonly textRendering: TextRenderingService) {}
+  constructor(
+    private readonly keyboardService: KeyboardManagerService,
+    private readonly keymap: KeymapService,
+    private readonly screenService: ScreenService,
+    private readonly textRendering: TextRenderingService,
+  ) {}
 
-  public onKeyPress(
+  private complete = false;
+  private config: StringEditorRenderOptions;
+  private done: (type: string) => void;
+  private value: string;
+
+  public configure(
     config: StringEditorRenderOptions,
-    key: string,
-    { shift }: KeyModifiers,
-  ): StringEditorRenderOptions {
+    done: (type: unknown) => void,
+  ) {
+    this.config = config;
+    this.complete = false;
+    this.value = this.config.current ?? '';
+    this.done = done;
+    this.keyboardService.setKeyMap(this, KEYMAP);
+  }
+
+  public render(): void {
+    if (this.complete) {
+      this.screenService.render(
+        chalk`{green ? } {bold ${this.config.label}} ${this.value}`,
+      );
+      return;
+    }
+    if (is.empty(this.value)) {
+      return this.renderBox('bgBlue');
+    }
+    return this.renderBox('bgWhite');
+  }
+
+  protected onEnd() {
+    this.complete = true;
+    this.done(this.value);
+    this.render();
+  }
+
+  protected onKeyPress(key: string, { shift }: KeyModifiers) {
     if (key === 'backspace') {
-      config.current ??= '';
-      config.current = config.current.slice(START, INVERT_VALUE);
-      return config;
+      this.value = this.value.slice(START, INVERT_VALUE);
+      return;
     }
     if (key === 'space') {
-      config.current ??= '';
-      config.current += ' ';
-      return config;
+      this.value += ' ';
+      return;
     }
     if (key === 'tab') {
-      return undefined;
-    }
-    if (key === 'escape') {
-      config.current = '';
-      return config;
+      return;
     }
     if (key.length > SINGLE) {
-      return config;
+      return;
     }
-    config.current ??= '';
-    config.current += shift ? key.toUpperCase() : key;
-    return config;
+    this.value += shift ? key.toUpperCase() : key;
   }
 
-  public render(options: StringEditorRenderOptions): string {
-    if (is.empty(options.current)) {
-      return this.renderBox(options, 'bgBlue');
-    }
-    return this.renderBox(options, 'bgWhite');
+  protected reset(): void {
+    this.value = this.config.current;
   }
 
-  private renderBox(
-    config: StringEditorRenderOptions,
-    bgColor: string,
-  ): string {
-    const value = is.empty(config.current)
-      ? config.placeholder ?? DEFAULT_PLACEHOLDER
-      : config.current;
-    const maxLength = config.width - PADDING;
+  private renderBox(bgColor: string): void {
+    let value = is.empty(this.value)
+      ? this.config.placeholder ?? DEFAULT_PLACEHOLDER
+      : this.value;
+    const maxLength = this.config.width - PADDING;
     const out: string[] = [];
-    if (config.label) {
-      out.push(chalk.bold.magenta.dim(config.label));
+    if (this.config.label) {
+      out.push(chalk`{green ? } ${this.config.label}`);
     }
+
+    const stripped = ansiStrip(value);
+    let length = stripped.length;
+    if (length > maxLength - ELLIPSES.length) {
+      const update =
+        ELLIPSES + stripped.slice((maxLength - ELLIPSES.length) * INVERT_VALUE);
+      value = value.replace(stripped, update);
+      length = update.length;
+    }
+
     out.push(
-      chalk[bgColor].black(ansiPadEnd(INTERNAL_PADDING + value, maxLength)),
+      chalk[bgColor].black(
+        ansiPadEnd(
+          INTERNAL_PADDING + value + INTERNAL_PADDING,
+          INTERNAL_PADDING.length + maxLength + INTERNAL_PADDING.length,
+        ),
+      ),
     );
-    return this.textRendering.pad(out.join(`\n`));
+    const message = this.textRendering.pad(out.join(`\n`));
+    this.screenService.render(
+      message,
+      this.keymap.keymapHelp({
+        message,
+      }),
+    );
   }
 }

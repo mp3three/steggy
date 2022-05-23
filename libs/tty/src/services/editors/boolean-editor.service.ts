@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 
-import { Editor, iBuilderEditor } from '../../decorators';
+import { Editor } from '../../decorators';
 import { TextRenderingService } from '../render';
 
 export interface BooleanEditorRenderOptions {
@@ -8,17 +8,8 @@ export interface BooleanEditorRenderOptions {
   label?: string;
 }
 
-@Editor({
-  keyMap: new Map([
-    [{ description: 'cancel', key: 'tab' }, ''],
-    [{ description: 'left', key: 'left' }, ''],
-    [{ description: 'right', key: 'right' }, ''],
-  ]),
-  type: 'boolean',
-})
-export class BooleanEditorService
-  implements iBuilderEditor<BooleanEditorRenderOptions>
-{
+@Editor({ type: 'boolean' })
+export class BooleanEditorService {
   constructor(private readonly textRendering: TextRenderingService) {}
 
   public onKeyPress(

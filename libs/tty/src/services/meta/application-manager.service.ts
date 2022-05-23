@@ -10,9 +10,9 @@ import {
   SECONDARY_HEADER_FONT,
 } from '../../config';
 import { ApplicationStackProvider, iStackProvider } from '../../contracts';
-import { iComponent } from '../../decorators';
+import { iBuilderEditor, iComponent } from '../../decorators';
 import { ansiMaxLength } from '../../includes';
-import { ComponentExplorerService } from '../explorers';
+import { ComponentExplorerService, EditorExplorerService } from '../explorers';
 import { KeyboardManagerService } from './keyboard-manager.service';
 import { ScreenService } from './screen.service';
 
@@ -26,16 +26,19 @@ export class ApplicationManagerService implements iStackProvider {
     @InjectConfig(HEADER_COLOR) private readonly color: string,
     @InjectConfig(DEFAULT_HEADER_FONT) private readonly primaryFont: Fonts,
     @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
+    private readonly editorExplorer: EditorExplorerService,
     private readonly componentExplorer: ComponentExplorerService,
     @Inject(forwardRef(() => ScreenService))
     private readonly screenService: ScreenService,
     @Inject(forwardRef(() => KeyboardManagerService))
     private readonly keyboard: KeyboardManagerService,
   ) {}
+
   private activeApplication: iComponent;
+  private activeEditor: iBuilderEditor;
   private header = '';
 
-  public async activate<CONFIG, VALUE>(
+  public async activateComponent<CONFIG, VALUE>(
     name: string,
     configuration: CONFIG = {} as CONFIG,
   ): Promise<VALUE> {
@@ -58,6 +61,21 @@ export class ApplicationManagerService implements iStackProvider {
     });
   }
 
+  public async activateEditor<CONFIG, VALUE>(
+    name: string,
+    configuration: CONFIG = {} as CONFIG,
+  ): Promise<VALUE> {
+    return await this.keyboard.wrap<VALUE>(async () => {
+      const promise = new Promise<VALUE>(done => {
+        const editor = this.editorExplorer.findServiceByType(name);
+        editor.configure(configuration, value => done(value as VALUE));
+        this.activeEditor = editor;
+        editor.render();
+      });
+      return await promise;
+    });
+  }
+
   public headerLength(): number {
     return ansiMaxLength(this.header) + LINE_PADDING;
   }
@@ -67,7 +85,8 @@ export class ApplicationManagerService implements iStackProvider {
   }
 
   public render(): void {
-    this.activeApplication.render();
+    this.activeApplication?.render();
+    this.activeEditor?.render();
   }
 
   public save(): Partial<iComponent> {
@@ -113,5 +132,6 @@ export class ApplicationManagerService implements iStackProvider {
 
   private reset(): void {
     this.activeApplication = undefined;
+    this.activeEditor = undefined;
   }
 }

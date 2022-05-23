@@ -1,7 +1,7 @@
 import { ARRAY_OFFSET, INCREMENT, START, VALUE } from '@steggy/utilities';
 import chalk from 'chalk';
 
-import { Editor, iBuilderEditor } from '../../decorators';
+import { Editor } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { TextRenderingService } from '../render';
 
@@ -11,17 +11,8 @@ export interface EnumEditorRenderOptions<T extends unknown = unknown> {
   label?: string;
 }
 
-@Editor({
-  keyMap: new Map([
-    [{ description: 'cancel', key: 'escape' }, ''],
-    [{ description: 'up', key: 'up' }, ''],
-    [{ description: 'down', key: 'down' }, ''],
-  ]),
-  type: 'enum',
-})
-export class EnumEditorService
-  implements iBuilderEditor<EnumEditorRenderOptions>
-{
+@Editor({ type: 'enum' })
+export class EnumEditorService {
   constructor(private readonly textRendering: TextRenderingService) {}
 
   public onKeyPress(

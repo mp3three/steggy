@@ -8,7 +8,7 @@
       "options": {
         "buildTarget": "config-builder:build",
         "inspect": "inspect",
-        "port": 33337
+        "port": 33340
       }
     },
     "prepare": {

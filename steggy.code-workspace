@@ -32,6 +32,12 @@
         "type": "node",
         "request": "attach",
         "port": 33339
+      },
+      {
+        "name": "Config Builder",
+        "type": "node",
+        "request": "attach",
+        "port": 33340
       }
     ]
   },
