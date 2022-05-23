@@ -8,7 +8,10 @@ import Separator from 'inquirer/lib/objects/separator';
 import { PAGE_SIZE } from '../config';
 import { PromptMenuItems, TableBuilderOptions } from '../contracts';
 import { ListBuilderOptions, MenuComponentOptions } from './components';
-import { StringEditorRenderOptions } from './editors';
+import {
+  NumberEditorRenderOptions,
+  StringEditorRenderOptions,
+} from './editors';
 import { ApplicationManagerService, SyncLoggerService } from './meta';
 
 const name = `result`;
@@ -21,6 +24,7 @@ const OFF_BRIGHTNESS = 0;
 const MIN_BRIGHTNESS = 1;
 const MAX_BRIGHTNESS = 255;
 const FROM_OFFSET = 1;
+const DEFAULT_WIDTH = 50;
 
 @Injectable()
 export class PromptService {
@@ -242,21 +246,16 @@ export class PromptService {
   }
 
   public async number(
-    message = `Number value`,
-    defaultValue?: number,
-    { prefix, suffix }: { prefix?: string; suffix?: string } = {},
+    label = `Number value`,
+    current?: number,
+    options: Omit<NumberEditorRenderOptions, 'label' | 'current'> = {},
   ): Promise<number> {
-    const { result } = await inquirer.prompt([
-      {
-        default: defaultValue,
-        message,
-        name,
-        prefix,
-        suffix,
-        type: 'number',
-      },
-    ]);
-    return result;
+    return await this.applicationManager.activateEditor('number', {
+      current,
+      label,
+      width: DEFAULT_WIDTH,
+      ...options,
+    } as NumberEditorRenderOptions);
   }
 
   public async objectBuilder<T>(options: TableBuilderOptions<T>): Promise<T[]> {
@@ -358,7 +357,7 @@ export class PromptService {
     return await this.applicationManager.activateEditor('string', {
       current,
       label,
-      width: 50,
+      width: DEFAULT_WIDTH,
       ...options,
     } as StringEditorRenderOptions);
   }

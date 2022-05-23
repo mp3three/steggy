@@ -24,7 +24,7 @@ export interface StringEditorRenderOptions {
 const DEFAULT_PLACEHOLDER = 'enter value';
 const ELLIPSES = '...';
 const INTERNAL_PADDING = ' ';
-const PADDING = 2;
+const PADDING = 4;
 const KEYMAP: tKeyMap = new Map<InquirerKeypressOptions, string>([
   [{ catchAll: true, noHelp: true }, 'onKeyPress'],
   [{ description: 'done', key: 'enter' }, 'onEnd'],
@@ -122,7 +122,7 @@ export class StringEditorService
       chalk[bgColor].black(
         ansiPadEnd(
           INTERNAL_PADDING + value + INTERNAL_PADDING,
-          INTERNAL_PADDING.length + maxLength + INTERNAL_PADDING.length,
+          maxLength + PADDING,
         ),
       ),
     );
