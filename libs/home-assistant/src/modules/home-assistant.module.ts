@@ -67,39 +67,40 @@ const services: Provider[] = [
     [BASE_URL]: {
       default: 'http://localhost:8123',
       description: 'Url to reach Home Assistant at',
+      required: true,
       type: 'url',
     },
     [CRASH_REQUESTS_PER_SEC]: {
       default: 500,
       description:
-        'Socket service will self-terminate the process if this limit is exceeded',
+        'Socket service will commit sudoku if more than this many outgoing messages are sent to Home Assistant in a second. Usually indicates accidental infinite loops.',
       type: 'number',
     },
     [RENDER_TIMEOUT]: {
       default: 3,
-      description: 'Max time for template rendering',
+      description:
+        'Max time to wait for template rendering via Home Assistant. This value is used by HA, not the controller.',
       type: 'number',
     },
     [RETRY_INTERVAL]: {
       default: 5000,
-      description: 'How often to retry connecting on connection failure',
+      description: 'How often to retry connecting on connection failure (ms).',
       type: 'number',
     },
     [TOKEN]: {
-      description: 'Auth token to access Home Assistant',
+      description: 'Long lived access token to Home Assistant.',
       required: true,
       type: 'password',
     },
     [WARN_REQUESTS_PER_SEC]: {
       default: 300,
       description:
-        'Emit warnings if the home controller attempts to send more than X messages to Home Assistant inside of a second',
+        'Emit warnings if the home controller attempts to send more than X messages to Home Assistant inside of a second.',
       type: 'number',
     },
     [WEBSOCKET_URL]: {
       careful: true,
-      description:
-        "Override calculated value if it's breaking or you want something custom. Make sure to use ws[s]://",
+      description: `Override calculated value if it's breaking or you want something custom. Make sure to use "ws[s]://" scheme.`,
       type: 'string',
     },
   },

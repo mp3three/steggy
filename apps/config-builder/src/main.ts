@@ -11,6 +11,7 @@ import {
 import {
   ApplicationManagerService,
   DONE,
+  FontAwesomeIcons,
   MainMenuEntry,
   PromptService,
   ScreenService,
@@ -43,7 +44,7 @@ export class ConfigScanner implements iQuickScript {
 
   private config: AbstractConfig;
   private configDefinition: ConfigDefinitionDTO;
-  private dirty = false;
+  private readonly dirty = new Map<string, unknown>();
 
   private get loadedApplication() {
     return this.configDefinition.application;
@@ -54,6 +55,20 @@ export class ConfigScanner implements iQuickScript {
       'App Config',
       TitleCase(this.configDefinition.application),
     );
+    await this.promptService.objectBuilder({
+      current: [
+        { key: 'Foo 1', value: 1000 },
+        { key: 'Foo 2', value: 2000 },
+        { key: 'Foo 3', value: 3000 },
+        { key: 'Foo 4', value: 4000 },
+        { key: 'Foo 5', value: 5000 },
+      ],
+      elements: [
+        { name: 'Key', path: 'key', type: 'string' },
+        { name: 'Value', path: 'value', type: 'number' },
+      ],
+    });
+    return;
     const action = await this.promptService.menu({
       hideSearch: true,
       right: ToMenuEntry([
@@ -64,6 +79,7 @@ export class ConfigScanner implements iQuickScript {
     switch (action) {
       case 'list-files':
         this.listConfigFiles();
+        this.screenService.down();
         await this.promptService.acknowledge();
         return await this.exec();
       case 'edit':
@@ -97,6 +113,42 @@ export class ConfigScanner implements iQuickScript {
     this.config = mergedConfig;
   }
 
+  private buildMenuEntry(
+    item: ConfigTypeDTO,
+    currentValue: unknown,
+  ): MainMenuEntry<ConfigTypeDTO> {
+    let helpText = item.metadata.description;
+    if (item.metadata.default) {
+      const color =
+        {
+          boolean: 'green',
+          internal: 'magenta',
+          number: 'yellow',
+        }[item.metadata.type] ?? 'white';
+      helpText = chalk`{blue Default Value:} {${color} ${item.metadata.default}}\n {cyan.bold > }${helpText}`;
+    }
+    let color = [item.metadata.default, undefined].includes(currentValue)
+      ? 'white'
+      : 'green.bold';
+    let warnDefault = '';
+    let required = '';
+    if (item.metadata.warnDefault && item.metadata.default === currentValue) {
+      color = 'yellow.bold';
+      warnDefault = FontAwesomeIcons.warning + ' ';
+    }
+    if (item.metadata.required) {
+      required = chalk.red`* `;
+    }
+    return {
+      entry: [
+        chalk`{${color} ${required}${warnDefault}${item.property}}`,
+        item,
+      ],
+      helpText,
+      type: TitleCase(item.library),
+    };
+  }
+
   private async editConfig(config: ConfigTypeDTO): Promise<void> {
     const path = this.path(config);
     const current = get(this.config, path, config?.default);
@@ -115,11 +167,6 @@ export class ConfigScanner implements iQuickScript {
         );
         break;
       case 'password':
-        result = await this.promptService.password(
-          config.property,
-          current as string,
-        );
-        break;
       case 'url':
       case 'string':
         const { metadata } = config as ConfigTypeDTO<StringConfig>;
@@ -131,14 +178,21 @@ export class ConfigScanner implements iQuickScript {
             )
           : await this.promptService.string(config.property, current as string);
         break;
+      default:
+        await this.promptService.acknowledge(
+          chalk.red`"${config.metadata.type}" editor not supported`,
+        );
     }
     // await sleep(5000);
-    if (result === config.default || result === current) {
-      // Don't set defaults
+    set(this.config, path, result);
+    // Track the original value as loaded by script
+    if (this.dirty.get(path) === result) {
+      this.dirty.delete(path);
       return;
     }
-    set(this.config, path, result);
-    this.dirty = true;
+    if (!this.dirty.has(path)) {
+      this.dirty.set(path, current);
+    }
   }
 
   private listConfigFiles(): void {
@@ -209,28 +263,7 @@ export class ConfigScanner implements iQuickScript {
             }
             currentValue = Boolean(currentValue);
         }
-        let helpText = item.metadata.description;
-        if (item.metadata.default) {
-          const color =
-            {
-              boolean: 'green',
-              internal: 'magenta',
-              number: 'yellow',
-            }[item.metadata.type] ?? 'white';
-          helpText = chalk`{blue Default Value:} {${color} ${item.metadata.default}}\n {cyan.bold > }${helpText}`;
-        }
-        return {
-          entry: [
-            chalk`{${
-              [item.metadata.default, undefined].includes(currentValue)
-                ? 'white'
-                : 'green.bold'
-            } ${item.property}}`,
-            item,
-          ],
-          helpText,
-          type: TitleCase(item.library),
-        } as MainMenuEntry<ConfigTypeDTO>;
+        return this.buildMenuEntry(item, currentValue);
       }),
       value: initial,
     });

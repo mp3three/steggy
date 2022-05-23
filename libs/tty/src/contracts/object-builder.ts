@@ -1,11 +1,9 @@
 export enum TABLE_CELL_TYPE {
   string = 'string',
-  confirm = 'confirm',
   boolean = 'boolean',
   number = 'number',
   enum = 'enum',
   date = 'date',
-  discriminator = 'discriminator',
   list = 'list',
 }
 
@@ -53,5 +51,4 @@ export class ObjectBuilderOptions<
 > {
   public current?: T | T[];
   public elements: ObjectBuilderElement[];
-  public mode?: 'single' | 'multi';
 }

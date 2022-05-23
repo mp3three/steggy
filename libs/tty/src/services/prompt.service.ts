@@ -49,8 +49,8 @@ export class PromptService {
    *
    * Good for giving the user time to read a message before a screen clear happens
    */
-  public async acknowledge(): Promise<void> {
-    await this.applicationManager.activateComponent('acknowledge');
+  public async acknowledge(message?: string): Promise<void> {
+    await this.applicationManager.activateComponent('acknowledge', { message });
   }
 
   public async boolean(

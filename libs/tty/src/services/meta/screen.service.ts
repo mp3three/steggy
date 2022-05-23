@@ -7,6 +7,7 @@ import { createInterface, Interface } from 'readline';
 
 import { ansiEscapes, ansiStrip } from '../../includes';
 import { ApplicationManagerService } from './application-manager.service';
+import { EnvironmentService } from './environment.service';
 
 const lastLine = content => content.split('\n').pop();
 const PADDING = 2;
@@ -15,11 +16,13 @@ const DEFAULT_WIDTH = 80;
 
 const output = new MuteStream();
 output.pipe(process.stdout);
+
 @Injectable()
 export class ScreenService {
   constructor(
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
+    private readonly environmentService: EnvironmentService,
   ) {}
   public rl = createInterface({
     input: process.stdin,
@@ -28,6 +31,8 @@ export class ScreenService {
   }) as Interface & { input: ReadStream; output: MuteStream };
 
   private height = EMPTY;
+  private lastContent: [string, string[]];
+  private sticky: [string, string[]];
 
   public clear(): void {
     this.height = EMPTY;
@@ -64,51 +69,61 @@ export class ScreenService {
     console.log(ansiEscapes.eraseLines(amount));
   }
 
-  public getWidth(): number {
-    if (process.stdout.getWindowSize) {
-      return process.stdout.getWindowSize()[START] || DEFAULT_WIDTH;
-    }
-    if (process.stdout.columns) {
-      return process.stdout.columns;
-    }
-    return DEFAULT_WIDTH;
+  public async footerWrap<T>(callback: () => Promise<T>): Promise<T> {
+    return await (async () => {
+      //
+      const result = await callback();
+      return result;
+    })();
   }
 
   public hr(width?: number): void {
-    this.print(chalk.blue.dim('='.repeat(width ?? this.getWidth())));
+    this.print(
+      chalk.blue.dim(
+        '='.repeat(width ?? this.environmentService.getDimensions().width),
+      ),
+    );
   }
 
+  /**
+   * console.log, with less options
+   */
   public print(line = ''): void {
-    console.log(line);
-  }
-
-  public render(content: string, ...extra: string[]): void {
     this.rl.output.unmute();
-    console.log(ansiEscapes.eraseLines(this.height));
-    const promptLine = lastLine(content);
-    const rawPromptLine = ansiStrip(promptLine);
-
-    const [width] = process.stdout.getWindowSize
-      ? process.stdout.getWindowSize() || [EMPTY]
-      : [EMPTY];
-
-    content = this.breakLines(content, width);
-    let bottomContent = is.empty(extra) ? `` : extra.join(`\n`);
-    if (!is.empty(bottomContent)) {
-      bottomContent = this.breakLines(bottomContent, width);
-    }
-
-    if (rawPromptLine.length % width === EMPTY) {
-      content += '\n';
-    }
-
-    const fullContent = content + (bottomContent ? '\n' + bottomContent : '');
-    console.log(fullContent);
-    this.height = height(fullContent);
-
+    console.log(line);
     // Muting prevents user interactions from presenting to the screen directly
     // Must rely on application rendering to display keypresses
     this.rl.output.mute();
+  }
+
+  /**
+   * Print content to the screen, maintaining an internal log of what happened
+   * so that the content can be redrawn in place clearing out the previous render.
+   */
+  public render(content: string, ...extra: string[]): void {
+    this.lastContent = [content, extra];
+    // Clear previous content
+    console.log(ansiEscapes.eraseLines(this.height));
+
+    const { width: maxWidth } = this.environmentService.getDimensions();
+    content = this.breakLines(content, maxWidth);
+    let bottomContent = is.empty(extra) ? `` : extra.join(`\n`);
+    if (!is.empty(bottomContent)) {
+      bottomContent = this.breakLines(bottomContent, maxWidth);
+    }
+
+    let stickyContent = '';
+    if (this.sticky) {
+      stickyContent = this.sticky[START];
+    }
+
+    // Calculate the total height of the rendered content
+    const fullContent =
+      (stickyContent ? `${stickyContent}\n` : '') +
+      content +
+      (bottomContent ? '\n' + bottomContent : '');
+    this.height = height(fullContent);
+    this.print(fullContent);
   }
 
   public up(amount = SINGLE): void {
