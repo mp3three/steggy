@@ -17,13 +17,7 @@ export class LifecycleService {
     app: INestApplication,
     { server, options }: { options: BootstrapOptions; server?: Express },
   ): Promise<void> {
-    const instances: Partial<{
-      onPostInit(
-        app: INestApplication,
-        server: Express,
-        options: BootstrapOptions,
-      ): Promise<void>;
-    }>[] = [];
+    const instances: Partial<iSteggyProvider>[] = [];
     this.scanner.applicationProviders<iSteggyProvider>().forEach(instance => {
       if (instance.onPostInit) {
         instances.push(instance);
@@ -38,13 +32,7 @@ export class LifecycleService {
     app: INestApplication,
     { server, options }: { options: BootstrapOptions; server?: Express },
   ): Promise<void> {
-    const instances: Partial<{
-      onPreInit(
-        app: INestApplication,
-        server: Express,
-        options: BootstrapOptions,
-      ): Promise<void>;
-    }>[] = [];
+    const instances: Partial<iSteggyProvider>[] = [];
     this.scanner.applicationProviders<iSteggyProvider>().forEach(instance => {
       if (instance.onPreInit) {
         instances.push(instance);

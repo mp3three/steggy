@@ -155,6 +155,9 @@ export class WorkspaceService {
     return true;
   }
 
+  /**
+   * workspaceService.configFilePaths can provide a good default list
+   */
   public loadMergedConfig(
     list: string[] = [],
   ): [Map<string, AbstractConfig>, string[]] {

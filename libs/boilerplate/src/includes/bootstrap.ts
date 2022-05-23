@@ -96,6 +96,7 @@ export async function Bootstrap(
   } else {
     app = await NestFactory.create(module, options);
   }
+  app.enableShutdownHooks();
   const lifecycle = app.get(LifecycleService);
   const logger = await app.resolve(AutoLogService);
   logger.setContext(LIB_BOILERPLATE, { name: 'Bootstrap' });

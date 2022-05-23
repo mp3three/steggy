@@ -36,7 +36,7 @@ export class AdminKeyGuard implements CanActivate {
   /**
    * Add to the startup logs if an admin key is provided
    */
-  protected onPostInit(): void {
+  protected onModuleInit(): void {
     if (this.adminKey) {
       this.logger.warn(`{${ADMIN_KEY_HEADER}} usable`);
     }

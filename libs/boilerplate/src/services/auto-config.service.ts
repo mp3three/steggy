@@ -33,6 +33,9 @@ export class AutoConfigService {
   constructor(
     private readonly logger: AutoLogService,
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
+    /**
+     * Override defaults provided by Bootstrap
+     */
     @Optional()
     @Inject(CONFIG_DEFAULTS)
     private readonly configDefaults: AbstractConfig,
@@ -46,9 +49,9 @@ export class AutoConfigService {
     this.earlyInit();
   }
 
-  public config: AbstractConfig = {};
   public configFiles: string[];
   public loadedConfigFiles: string[];
+  private config: AbstractConfig = {};
   private loadedConfigPath: string;
   private switches = minimist(process.argv);
 
@@ -60,6 +63,7 @@ export class AutoConfigService {
     if (Array.isArray(path)) {
       path = ['libs', path[0].description, path[1]].join('.');
     }
+
     let value = get(this.config, path) ?? this.getConfiguration(path)?.default;
     const config = this.getConfiguration(path);
     if (config.warnDefault && value === config.default) {

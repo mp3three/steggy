@@ -115,6 +115,10 @@ export class ScreenService {
     console.log(ansiEscapes.cursorUp(amount));
   }
 
+  protected onModuleDestroy(): void {
+    console.log(ansiEscapes.cursorShow);
+  }
+
   protected onModuleInit(): void {
     console.log(ansiEscapes.cursorHide);
   }

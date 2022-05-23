@@ -1,15 +1,16 @@
 import {
+  AbstractConfig,
   ConfigDefinitionDTO,
   ConfigTypeDTO,
   InjectConfig,
   iQuickScript,
   QuickScript,
+  StringConfig,
   WorkspaceService,
 } from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
   DONE,
-  FontAwesomeIcons,
   MainMenuEntry,
   PromptService,
   ScreenService,
@@ -17,11 +18,13 @@ import {
   ToMenuEntry,
   TTYModule,
 } from '@steggy/tty';
-import { is, TitleCase } from '@steggy/utilities';
+import { deepExtend, is, TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
 import { existsSync, readFileSync } from 'fs';
+import { get, set } from 'object-path';
 import { exit } from 'process';
 
+const NO_VALUE = Symbol();
 @QuickScript({
   application: Symbol('config-builder'),
   imports: [TTYModule],
@@ -38,7 +41,13 @@ export class ConfigScanner implements iQuickScript {
     private readonly applicationManager: ApplicationManagerService,
   ) {}
 
+  private config: AbstractConfig;
   private configDefinition: ConfigDefinitionDTO;
+  private dirty = false;
+
+  private get loadedApplication() {
+    return this.configDefinition.application;
+  }
 
   public async exec() {
     this.applicationManager.setHeader('Config Builder');
@@ -49,19 +58,20 @@ export class ConfigScanner implements iQuickScript {
         ['Edit config', 'edit'],
       ]),
     });
-    // await sleep(5000);
     switch (action) {
       case 'list-files':
         this.listConfigFiles();
         await this.promptService.acknowledge();
         return await this.exec();
       case 'edit':
-        await this.editConfig();
+        await this.selectConfig();
+        console.log(this.config);
+        await this.promptService.acknowledge();
         return await this.exec();
     }
   }
 
-  protected onModuleInit() {
+  public onModuleInit() {
     if (is.empty(this.definitionFile)) {
       this.logger.error(`[DEFINITION_FILE] not provided`);
       exit();
@@ -77,39 +87,68 @@ export class ConfigScanner implements iQuickScript {
     );
   }
 
-  private async editConfig() {
-    const keys = Object.keys(FontAwesomeIcons);
-    const item = await this.promptService.menu({
-      keyMap: { d: [chalk.bold`Done`, DONE] },
-      right: this.configDefinition.config.map(
-        item =>
-          ({
-            entry: [item.property, item],
-            helpText: item.metadata.description,
-            icon: FontAwesomeIcons[
-              keys[Math.floor(Math.random() * keys.length)]
-            ],
-            type: TitleCase(item.library),
-          } as MainMenuEntry<ConfigTypeDTO>),
-      ),
-    });
-    if (is.string(item)) {
-      return;
+  private colorProperty(entry: ConfigTypeDTO): string {
+    const { property, metadata } = entry;
+    const path = this.path(entry);
+    const value = get(this.config, path, NO_VALUE);
+    if (value !== NO_VALUE) {
+      return chalk.greenBright(property);
     }
-    await this.promptService.acknowledge();
+    if (metadata.required) {
+      return chalk.redBright(property);
+    }
+    if (metadata.warnDefault) {
+      return chalk.magentaBright(property);
+    }
+    if (metadata.careful) {
+      return chalk.yellowBright(property);
+    }
+    return chalk.whiteBright(property);
   }
 
-  private listConfigFiles() {
-    if (is.empty(this.configDefinition.application)) {
+  private async editConfig(config: ConfigTypeDTO): Promise<void> {
+    const path = this.path(config);
+    const label = this.colorProperty(config);
+    const current = get(this.config, path, config?.default);
+    let result: unknown;
+    switch (config.metadata.type) {
+      case 'boolean':
+        result = await this.promptService.boolean(label, current as boolean);
+        break;
+      case 'number':
+        result = await this.promptService.number(label, current as number);
+        break;
+      case 'password':
+        result = await this.promptService.password(label, current as string);
+        break;
+      case 'url':
+      case 'string':
+        const { metadata } = config as ConfigTypeDTO<StringConfig>;
+        result = Array.isArray(metadata.enum)
+          ? await this.promptService.pickOne(
+              label,
+              metadata.enum.map(i => [i, i]),
+              current,
+            )
+          : await this.promptService.string(label, current as string);
+        break;
+    }
+    if (result === config.default || result === current) {
+      // Don't set defaults
+      return;
+    }
+    set(this.config, path, result);
+  }
+
+  private listConfigFiles(): void {
+    if (is.empty(this.loadedApplication)) {
       this.logger.error(`[APPLICATION] not provided`);
       return;
     }
-    const list = this.workspaceService.configFilePaths(
-      this.configDefinition.application,
-    );
+    const list = this.workspaceService.configFilePaths(this.loadedApplication);
     this.applicationManager.setHeader('Config Files');
     this.screenService.print(
-      chalk`Potential configuration files for {blue.bold ${this.configDefinition.application}}`,
+      chalk`Potential configuration files for {blue.bold ${this.loadedApplication}}`,
     );
     list.forEach(item =>
       this.screenService.print(
@@ -131,5 +170,78 @@ export class ConfigScanner implements iQuickScript {
     this.screenService.print(
       chalk` {yellow -} values from command line switches`,
     );
+  }
+
+  private path(config: ConfigTypeDTO): string {
+    if (
+      !is.empty(config.library) &&
+      config.library !== this.loadedApplication
+    ) {
+      return `libs.${config.library}.${config.property}`;
+    }
+    return `application.${config.property}`;
+  }
+
+  private async selectConfig(): Promise<void> {
+    const [configs] = this.workspaceService.loadMergedConfig(
+      this.workspaceService.configFilePaths(this.configDefinition.application),
+    );
+    const mergedConfig: AbstractConfig = {};
+    configs.forEach(config => deepExtend(mergedConfig, config));
+    this.config = mergedConfig;
+
+    const item = await this.promptService.menu({
+      keyMap: { d: [chalk.bold`Done`, DONE] },
+      right: this.configDefinition.config.map(item => {
+        const prefix =
+          this.configDefinition.application === item.library
+            ? 'application'
+            : `libs.${item.library}`;
+        let currentValue = get(
+          mergedConfig,
+          `${prefix}.${item.property}`,
+        ) as unknown;
+        switch (item.metadata.type) {
+          case 'number':
+            // currentValue = Number(currentValue);
+            break;
+          case 'boolean':
+            if (is.string(currentValue)) {
+              currentValue = ['false', 'n'].includes(
+                currentValue.toLowerCase(),
+              );
+              break;
+            }
+            currentValue = Boolean(currentValue);
+        }
+        let helpText = item.metadata.description;
+        if (item.metadata.default) {
+          const color =
+            {
+              boolean: 'green',
+              internal: 'magenta',
+              number: 'yellow',
+            }[item.metadata.type] ?? 'white';
+          helpText = chalk`{blue Default Value:} {${color} ${item.metadata.default}}\n {cyan.bold > }${helpText}`;
+        }
+        return {
+          entry: [
+            chalk`{${
+              [item.metadata.default, undefined].includes(currentValue)
+                ? 'white'
+                : 'green.bold'
+            } ${item.property}}`,
+            item,
+          ],
+          helpText,
+          type: TitleCase(item.library),
+        } as MainMenuEntry<ConfigTypeDTO>;
+      }),
+    });
+    if (is.string(item)) {
+      return;
+    }
+    await this.editConfig(item);
+    return await this.selectConfig();
   }
 }
