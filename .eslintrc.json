@@ -203,6 +203,7 @@
               "undelete",
               "unmount",
               "unmute",
+              "unsortable",
               "uptime",
               "uri",
               "urls",

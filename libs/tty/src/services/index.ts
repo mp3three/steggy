@@ -10,3 +10,4 @@ export * from './pinned-item.service';
 export * from './prompt.service';
 export * from './render';
 export * from './system.service';
+export * from './terminal-help.service';
