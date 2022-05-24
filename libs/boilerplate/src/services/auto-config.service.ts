@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable radar/no-identical-functions, @typescript-eslint/no-magic-numbers */
 import {
   Inject,
   Injectable,
@@ -257,11 +257,19 @@ export class AutoConfigService {
           return switchKeys.some(item => item.match(match));
         });
         if (flag) {
-          set(this.config, configPath, this.switches[flag]);
-          // Finish trying if a switch is found, it has the highest priority
+          const formattedFlag = switchKeys.find(key =>
+            search.some(line =>
+              key.match(
+                new RegExp(
+                  line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]'),
+                  'gi',
+                ),
+              ),
+            ),
+          );
+          set(this.config, configPath, this.switches[formattedFlag]);
           return;
         }
-
         // Find an environment variable
         const environment = search.find(line => {
           const match = new RegExp(
@@ -273,7 +281,17 @@ export class AutoConfigService {
         if (is.empty(environment)) {
           return;
         }
-        set(this.config, configPath, env[environment]);
+        const environmentName = environmentKeys.find(key =>
+          search.some(line =>
+            key.match(
+              new RegExp(
+                line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]'),
+                'gi',
+              ),
+            ),
+          ),
+        );
+        set(this.config, configPath, env[environmentName]);
       });
     });
   }
