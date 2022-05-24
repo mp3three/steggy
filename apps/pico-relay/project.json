@@ -26,15 +26,6 @@
           "optimization": true,
           "extractLicenses": false,
           "inspect": false
-        },
-        "scanner": {
-          "outputPath": "dist/scanner/pico-relay",
-          "fileReplacements": [
-            {
-              "replace": "apps/pico-relay/src/environments/environment.ts",
-              "with": "apps/pico-relay/src/environments/scanner.environment.ts"
-            }
-          ]
         }
       }
     },
@@ -53,6 +44,22 @@
           {
             "command": "./tools/scripts/docker-build-publish.sh pico-relay",
             "description": "Assemble docker image"
+          }
+        ]
+      }
+    },
+    "scan-config": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build pico-relay --configuration=production",
+            "description": "Create build"
+          },
+          {
+            "command": "mkdir -p dist/configs; node dist/apps/pico-relay/main.js --config-scanner > dist/configs/pico-relay.json",
+            "description": "Output results"
           }
         ]
       }

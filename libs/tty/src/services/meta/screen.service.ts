@@ -110,17 +110,6 @@ export class ScreenService {
   }
 
   /**
-   * Draw a blue horizontal line
-   */
-  public hr(width?: number): void {
-    this.print(
-      chalk.blue.dim(
-        '='.repeat(width ?? this.environmentService.getDimensions().width),
-      ),
-    );
-  }
-
-  /**
    * console.log, with less options
    */
   public print(line: unknown = ''): void {
@@ -135,7 +124,7 @@ export class ScreenService {
    * Print content to the screen, maintaining an internal log of what happened
    * so that the content can be redrawn in place clearing out the previous render.
    */
-  public render(content?: string, ...extra: string[]): void {
+  public async render(content?: string, ...extra: string[]): Promise<void> {
     this.lastContent = [content, extra];
 
     // footerWrap means new content is rendered below previous
@@ -162,7 +151,7 @@ export class ScreenService {
       return;
     }
 
-    const { width: maxWidth } = this.environmentService.getDimensions();
+    const { width: maxWidth } = await this.environmentService.getDimensions();
     content = this.breakLines(content, maxWidth);
 
     // Intended for supplemental content

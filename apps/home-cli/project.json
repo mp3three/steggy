@@ -133,6 +133,22 @@
           }
         ]
       }
+    },
+    "scan-config": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build home-cli --configuration=scan-config",
+            "description": "Create standard production build"
+          },
+          {
+            "command": "mkdir -p dist/configs; node dist/apps/home-cli/main.js > dist/configs/home-cli.json",
+            "description": "Scan config, output to dist"
+          }
+        ]
+      }
     }
   },
   "tags": ["terminal"]

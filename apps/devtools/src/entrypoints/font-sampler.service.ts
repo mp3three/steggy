@@ -112,6 +112,11 @@ const ALL_FONTS = [
   'Whimsy',
 ] as Fonts[];
 
+/**
+ * Run through all the fonts that are reasonably readable (my subjective opinion), and print out a word
+ *
+ * If looking for alternate header fonts for TTY headers, this is a good way to run through the list of options
+ */
 @QuickScript({
   imports: [TTYModule],
 })

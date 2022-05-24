@@ -37,15 +37,6 @@
           "extractLicenses": false,
           "inspect": false,
           "fileReplacements": []
-        },
-        "scan-config": {
-          "outputPath": "dist/config-scanner/config-builder",
-          "fileReplacements": [
-            {
-              "replace": "apps/config-builder/src/environments/environment.ts",
-              "with": "apps/config-builder/src/environments/scanner.environment.ts"
-            }
-          ]
         }
       }
     },
@@ -56,13 +47,13 @@
       },
       "outputs": ["{options.outputFile}"]
     },
-    "publish2": {
+    "publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Home CLI",
+            "command": "npx figlet-cli -f Pagga Config Builder",
             "description": "Announce it"
           },
           {
@@ -75,7 +66,11 @@
           },
           {
             "command": "echo '#!/usr/bin/env node' > dist/apps/config-builder/main.js; cat dist/apps/config-builder/minified.js >> dist/apps/config-builder/main.js",
-            "description": "Replace output (can't be done in previous step)"
+            "description": "Add environment for bash. Replace output (can't be done in previous step)"
+          },
+          {
+            "command": "cp dist/apps/config-builder/main.js tools/scripts/config-builder.js",
+            "description": "Cache locally"
           },
           {
             "command": "npx yarn publish --cwd dist/apps/config-builder --non-interactive",

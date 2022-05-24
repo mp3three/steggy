@@ -59,7 +59,7 @@ export class ChartingService {
    *
    * Original code based off the asciichart library
    */
-  // Too many variables to clealy refactor smaller
+  // Too many variables to cleanly refactor smaller
   // You should see the original function though...
   // eslint-disable-next-line radar/cognitive-complexity
   public async plot(

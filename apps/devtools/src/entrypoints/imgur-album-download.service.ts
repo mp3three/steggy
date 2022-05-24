@@ -13,6 +13,11 @@ import { join, normalize } from 'path';
 const SEPARATOR = ' - ';
 const DEFAULT_PAD_SIZE = 4;
 
+/**
+ * ? Script used to build out initial PromptService + execa interactions POC's
+ *
+ * Keeping it around since it's occasionally useful
+ */
 @QuickScript({
   application: Symbol('album-download'),
   imports: [TTYModule],

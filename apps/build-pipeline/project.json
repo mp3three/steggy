@@ -59,10 +59,11 @@
         "commands": [
           {
             "command": "npx nx build build-pipeline --configuration=production",
-            "description": "Create build"
+            "description": "Create standard production build"
           },
           {
-            "command": "node dist/apps/build-pipeline/main.js --config-scanner"
+            "command": "mkdir -p dist/configs; node dist/apps/build-pipeline/main.js --config-scanner > dist/configs/build-pipeline.json",
+            "description": "Scan config, output to dist"
           }
         ]
       }

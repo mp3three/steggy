@@ -122,7 +122,7 @@
             "description": "Create build"
           },
           {
-            "command": "node dist/scanner/home-controller/main.js",
+            "command": "mkdir -p dist/configs; node dist/scanner/home-controller/main.js > dist/configs/home-controller.json",
             "description": "Output results"
           }
         ]
