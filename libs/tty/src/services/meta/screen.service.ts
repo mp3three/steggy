@@ -1,18 +1,17 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { EMPTY, is, SINGLE, START } from '@steggy/utilities';
+import { EMPTY, INCREMENT, is, SINGLE, START } from '@steggy/utilities';
 import chalk from 'chalk';
 import { ReadStream } from 'fs';
 import MuteStream from 'mute-stream';
 import { createInterface, Interface } from 'readline';
 
-import { ansiEscapes, ansiStrip } from '../../includes';
+import { ansiEscapes, ansiMaxLength } from '../../includes';
 import { ApplicationManagerService } from './application-manager.service';
 import { EnvironmentService } from './environment.service';
+import { KeyboardManagerService } from './keyboard-manager.service';
 
-const lastLine = content => content.split('\n').pop();
 const PADDING = 2;
 const height = content => content.split('\n').length + PADDING;
-const DEFAULT_WIDTH = 80;
 
 const output = new MuteStream();
 output.pipe(process.stdout);
@@ -20,10 +19,13 @@ output.pipe(process.stdout);
 @Injectable()
 export class ScreenService {
   constructor(
+    private readonly environmentService: EnvironmentService,
+    @Inject(forwardRef(() => KeyboardManagerService))
+    private readonly keyboardService: KeyboardManagerService,
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
-    private readonly environmentService: EnvironmentService,
   ) {}
+
   public rl = createInterface({
     input: process.stdin,
     output,
@@ -45,38 +47,71 @@ export class ScreenService {
   }
 
   public cursorLeft(amount = SINGLE): void {
-    console.log(ansiEscapes.cursorBackward(amount));
+    this.print(ansiEscapes.cursorBackward(amount));
   }
 
   public cursorRight(amount = SINGLE): void {
-    console.log(ansiEscapes.cursorForward(amount));
+    this.print(ansiEscapes.cursorForward(amount));
   }
 
+  /**
+   * A shotgun attempt at returning the terminal to a normal state
+   */
   public done() {
+    this.clear();
+    this.rl.output.unmute();
     this.rl.setPrompt('');
+    console.log(ansiEscapes.cursorShow);
     console.log('\n');
   }
 
+  /**
+   * Move the rendering cursor down 1 row
+   */
   public down(amount = SINGLE): void {
+    this.rl.output.unmute();
     if (amount === SINGLE) {
-      console.log();
+      this.print();
       return;
     }
-    console.log(ansiEscapes.cursorDown(amount));
+    this.print(ansiEscapes.cursorDown(amount));
+    this.rl.output.mute();
   }
 
+  /**
+   * Delete line(s) and move cursor up
+   */
   public eraseLine(amount = SINGLE): void {
-    console.log(ansiEscapes.eraseLines(amount));
+    this.print(ansiEscapes.eraseLines(amount));
   }
 
+  /**
+   * - Capture the current render content as static content
+   * - Deactivate current keyboard shortcuts
+   * - Nest a new rendering session underneath the current
+   * - DOES NOT DO MULTIPLE LEVELS!
+   *
+   * Intended use case is a dual editor situation. Ex:
+   *
+   * - Editable table cells where the table remains visible
+   */
   public async footerWrap<T>(callback: () => Promise<T>): Promise<T> {
-    return await (async () => {
-      //
+    this.sticky = this.lastContent;
+    return await this.keyboardService.wrap(async () => {
+      this.render();
       const result = await callback();
+      this.print(ansiEscapes.eraseLines(height(this.sticky[START]) + PADDING));
+      this.sticky = undefined;
+      this.height = PADDING;
+      // Next-render up to the calling service
+      // The sticky content is stale now 🤷
       return result;
-    })();
+    });
   }
 
+  /**
+   * Draw a blue horizontal line
+   */
   public hr(width?: number): void {
     this.print(
       chalk.blue.dim(
@@ -100,44 +135,68 @@ export class ScreenService {
    * Print content to the screen, maintaining an internal log of what happened
    * so that the content can be redrawn in place clearing out the previous render.
    */
-  public render(content: string, ...extra: string[]): void {
+  public render(content?: string, ...extra: string[]): void {
     this.lastContent = [content, extra];
-    // Clear previous content
-    console.log(ansiEscapes.eraseLines(this.height));
+
+    // footerWrap means new content is rendered below previous
+    let stickyContent = '';
+    if (this.sticky) {
+      const header = this.sticky[START];
+      stickyContent =
+        header +
+        `\n` +
+        chalk.blue.dim(
+          '='.repeat(
+            Math.max(
+              ansiMaxLength(header, content ?? ''),
+              this.applicationManager.headerLength(),
+            ),
+          ),
+        ) +
+        `\n`;
+    }
+
+    if (is.empty(content)) {
+      this.print(ansiEscapes.eraseLines(this.height) + stickyContent);
+      this.height = 0;
+      return;
+    }
 
     const { width: maxWidth } = this.environmentService.getDimensions();
     content = this.breakLines(content, maxWidth);
+
+    // Intended for supplemental content
+    // keyboard shortcut listings and such
     let bottomContent = is.empty(extra) ? `` : extra.join(`\n`);
     if (!is.empty(bottomContent)) {
       bottomContent = this.breakLines(bottomContent, maxWidth);
     }
 
-    let stickyContent = '';
-    if (this.sticky) {
-      stickyContent = this.sticky[START];
-    }
+    const fullContent = content + (bottomContent ? '\n' + bottomContent : '');
 
-    // Calculate the total height of the rendered content
-    const fullContent =
-      (stickyContent ? `${stickyContent}\n` : '') +
-      content +
-      (bottomContent ? '\n' + bottomContent : '');
-    this.height = height(fullContent);
-    this.print(fullContent);
+    this.print(ansiEscapes.eraseLines(this.height) + fullContent);
+    // Increment to account for `eraseLines` being output at the same time as the new content
+    this.height = height(fullContent) - INCREMENT;
   }
 
+  /**
+   * Move the rendering cursor up 1 line
+   */
   public up(amount = SINGLE): void {
-    console.log(ansiEscapes.cursorUp(amount));
+    this.print(ansiEscapes.cursorUp(amount));
   }
 
   protected onModuleDestroy(): void {
-    console.log(ansiEscapes.cursorShow);
+    this.done();
   }
 
   protected onModuleInit(): void {
-    console.log(ansiEscapes.cursorHide);
+    this.print(ansiEscapes.cursorHide);
   }
 
+  /**
+   * 🧙 Perform some witchcraft to chunk up lines that are too long
+   */
   private breakLines(content: string, width: number): string {
     const regex = new RegExp(`(?:(?:\\033[[0-9;]*m)*.?){1,${width}}`, 'g');
     return content

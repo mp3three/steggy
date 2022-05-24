@@ -57,6 +57,7 @@ export class ApplicationManagerService implements iStackProvider {
         this.activeApplication = component;
         component.render();
       });
+      this.activeEditor = undefined;
       return await promise;
     });
   }
@@ -66,13 +67,18 @@ export class ApplicationManagerService implements iStackProvider {
     configuration: CONFIG = {} as CONFIG,
   ): Promise<VALUE> {
     return await this.keyboard.wrap<VALUE>(async () => {
+      const component = this.activeApplication;
+      this.activeApplication = undefined;
       const promise = new Promise<VALUE>(done => {
         const editor = this.editorExplorer.findServiceByType(name);
         editor.configure(configuration, value => done(value as VALUE));
         this.activeEditor = editor;
         editor.render();
       });
-      return await promise;
+      const result = await promise;
+      this.activeEditor = undefined;
+      this.activeApplication = component;
+      return result;
     });
   }
 

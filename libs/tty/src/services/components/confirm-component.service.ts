@@ -29,6 +29,7 @@ export class ConfirmComponentService implements iComponent {
       new Map([
         [{ key: 'y' }, 'accept'],
         [{ key: 'n' }, 'deny'],
+        [{ description: 'default answer', key: 'enter' }, 'selectDefault'],
       ]),
     );
   }
@@ -37,7 +38,7 @@ export class ConfirmComponentService implements iComponent {
     if (this.complete) {
       return;
     }
-    this.screenService.print(
+    this.screenService.render(
       `${this.message} (${this.initialState ? 'Y/n' : 'y/N'})`,
     );
   }
@@ -50,5 +51,13 @@ export class ConfirmComponentService implements iComponent {
   protected deny(): void {
     this.complete = true;
     this.done(false);
+  }
+
+  protected selectDefault() {
+    if (this.initialState) {
+      this.accept();
+      return;
+    }
+    this.deny();
   }
 }

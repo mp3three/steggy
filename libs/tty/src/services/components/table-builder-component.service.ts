@@ -1,22 +1,36 @@
+import { forwardRef, Inject } from '@nestjs/common';
 import { ARRAY_OFFSET, is, START } from '@steggy/utilities';
 import { get, set } from 'object-path';
 
 import {
   DirectCB,
   InquirerKeypressOptions,
-  KeyModifiers,
+  TableBuilderElement,
   TableBuilderOptions,
+  tKeyMap,
 } from '../../contracts';
 import { Component, iComponent } from '../../decorators';
-import { ansiMaxLength } from '../../includes';
-import { StringEditorRenderOptions } from '../editors';
 import {
   ApplicationManagerService,
   KeyboardManagerService,
   ScreenService,
 } from '../meta';
+import { PromptService } from '../prompt.service';
 import { KeymapService, TableService, TextRenderingService } from '../render';
 import { FooterEditorService } from './footer-editor.service';
+import { ToMenuEntry } from './menu-component.service';
+
+const KEYMAP: tKeyMap = new Map([
+  // While there is no editor
+  [{ description: 'done', key: 's', modifiers: { ctrl: true } }, 'onEnd'],
+  [{ description: 'cursor left', key: 'left' }, 'onLeft'],
+  [{ description: 'cursor right', key: 'right' }, 'onRight'],
+  [{ description: 'cursor up', key: 'up' }, 'onUp'],
+  [{ description: 'cursor down', key: 'down' }, 'onDown'],
+  [{ description: 'add row', key: '+' }, 'add'],
+  [{ description: 'delete row', key: ['-', 'delete'] }, 'delete'],
+  [{ description: 'edit cell', key: 'enter' }, 'enableEdit'],
+] as [InquirerKeypressOptions, string | DirectCB][]);
 
 @Component({ type: 'table' })
 export class TableBuilderComponentService<VALUE = unknown>
@@ -30,12 +44,11 @@ export class TableBuilderComponentService<VALUE = unknown>
     private readonly applicationManager: ApplicationManagerService,
     private readonly screenService: ScreenService,
     private readonly keyboardService: KeyboardManagerService,
+    @Inject(forwardRef(() => PromptService))
+    private readonly promptService: PromptService,
   ) {}
 
-  private confirmCB: (value: boolean) => void;
-  private currentEditor: string;
   private done: (type: VALUE[]) => void;
-  private editorOptions: unknown;
   private isSelected = false;
   private opt: TableBuilderOptions<VALUE>;
   private rows: VALUE[];
@@ -52,7 +65,7 @@ export class TableBuilderComponentService<VALUE = unknown>
     this.rows = Array.isArray(this.opt.current)
       ? this.opt.current
       : [this.opt.current];
-    this.createKeymap();
+    this.keyboardService.setKeyMap(this, KEYMAP);
   }
 
   public render(): void {
@@ -64,37 +77,30 @@ export class TableBuilderComponentService<VALUE = unknown>
         this.selectedCell,
       ),
     );
-    const column = this.opt.elements[this.selectedCell];
-    const keymap = this.keymapService.keymapHelp({
-      message,
-      prefix: new Map(),
-    });
-    const max = ansiMaxLength(keymap, message);
     this.screenService.render(
       message,
-      [` `, ...this.renderEditor(max), keymap].join(`\n`),
+      this.keymapService.keymapHelp({
+        message,
+      }),
     );
   }
+
   private get columns() {
     return this.opt.elements;
   }
+
   protected add(): void {
     this.rows.push({} as VALUE);
   }
-  protected async delete(): Promise<void> {
-    const result = await new Promise<boolean>(done => {
-      this.confirmCB = done;
-      // this.currentEditor = TABLE_CELL_TYPE.confirm;
-      // this.editorOptions = {
-      //   current: false,
-      //   label: `Are you sure you want to delete this?`,
-      // } as ConfirmEditorRenderOptions;
-      this.render();
+
+  protected async delete(): Promise<boolean> {
+    const result = await this.screenService.footerWrap(async () => {
+      return await this.promptService.confirm(
+        'Are you sure you want to delete this?',
+      );
     });
-    this.currentEditor = undefined;
-    this.editorOptions = undefined;
-    this.confirmCB = undefined;
     if (!result) {
+      this.render();
       return;
     }
     this.rows = this.rows.filter((item, index) => index !== this.selectedRow);
@@ -102,37 +108,36 @@ export class TableBuilderComponentService<VALUE = unknown>
       this.selectedRow = this.rows.length - ARRAY_OFFSET;
     }
     this.render();
+    return false;
   }
 
-  protected editComplete(): void {
-    if (!this.currentEditor) {
-      return;
-    }
-    if (this.confirmCB) {
-      // this.confirmCB(
-      //   (this.editorOptions as ConfirmEditorRenderOptions).current,
-      // );
-      return;
-    }
-    const column = this.opt.elements[this.selectedCell];
-    const current = this.rows[this.selectedRow];
-    set(
-      is.object(current) ? current : {},
-      column.path,
-      (this.editorOptions as StringEditorRenderOptions).current,
-    );
-    this.currentEditor = undefined;
-    this.editorOptions = undefined;
-  }
-
-  protected enableEdit(): void {
-    this.keyboardService.wrap(async () => {
-      const column = this.opt.elements[this.selectedCell];
-      this.currentEditor = await column.type;
+  protected async enableEdit(): Promise<boolean> {
+    await this.screenService.footerWrap(async () => {
+      const column = this.opt.elements[
+        this.selectedCell
+      ] as TableBuilderElement<{ options: string[] }>;
       const row = this.rows[this.selectedRow];
       const current = get(is.object(row) ? row : {}, column.path);
-      // this.editorOptions = this.footerEditor.initConfig(current, column);
+      let value: unknown;
+      switch (column.type) {
+        case 'boolean':
+          value = await this.promptService.boolean(column.name, current);
+          break;
+        case 'string':
+          value = await this.promptService.string(column.name, current);
+          break;
+        case 'enum':
+          value = await this.promptService.pickOne(
+            column.name,
+            ToMenuEntry(column.extra.options.map(i => [i, i])),
+            current,
+          );
+          break;
+      }
+      set(is.object(row) ? row : {}, column.path, value);
     });
+    this.render();
+    return false;
   }
 
   protected onDown(): boolean {
@@ -140,6 +145,7 @@ export class TableBuilderComponentService<VALUE = unknown>
       return false;
     }
     this.selectedRow++;
+    this.render();
   }
 
   protected onEnd(): void {
@@ -151,6 +157,7 @@ export class TableBuilderComponentService<VALUE = unknown>
       return false;
     }
     this.selectedCell--;
+    this.render();
   }
 
   protected onRight(): boolean {
@@ -158,6 +165,7 @@ export class TableBuilderComponentService<VALUE = unknown>
       return false;
     }
     this.selectedCell++;
+    this.render();
   }
 
   protected onUp(): boolean {
@@ -165,92 +173,6 @@ export class TableBuilderComponentService<VALUE = unknown>
       return false;
     }
     this.selectedRow--;
-  }
-
-  protected selectCell(): void {
-    this.isSelected = !this.isSelected;
-  }
-
-  private createKeymap(): void {
-    this.keyboardService.setKeyMap(
-      this,
-      new Map([
-        // While there is no editor
-        ...[
-          [
-            { description: 'done', key: 's', modifiers: { ctrl: true } },
-            'onEnd',
-          ],
-          [{ description: 'cursor left', key: 'left' }, 'onLeft'],
-          [{ description: 'cursor right', key: 'right' }, 'onRight'],
-          [{ description: 'cursor up', key: 'up' }, 'onUp'],
-          [{ description: 'cursor down', key: 'down' }, 'onDown'],
-          [{ description: 'add row', key: '+' }, 'add'],
-          [{ description: 'delete row', key: ['-', 'delete'] }, 'delete'],
-          [{ description: 'edit cell', key: 'enter' }, 'enableEdit'],
-        ].map(
-          ([options, key]: [{ description: string; key: string }, string]) => [
-            { active: () => is.empty(this.currentEditor), ...options },
-            key,
-          ],
-        ),
-        // Only with editor
-        ...[
-          [{ description: 'done editing', key: 'enter' }, 'editComplete'],
-        ].map(
-          ([options, key]: [{ description: string; key: string }, string]) => [
-            { active: () => !is.empty(this.currentEditor), ...options },
-            key,
-          ],
-        ),
-        // Others
-        [
-          { catchAll: true, noHelp: true },
-          (key, modifiers) => this.editorKeyPress(key, modifiers),
-        ],
-      ] as [InquirerKeypressOptions, string | DirectCB][]),
-    );
-  }
-
-  private async editorKeyPress(
-    key: string,
-    modifiers: KeyModifiers,
-  ): Promise<void> {
-    if (!this.currentEditor) {
-      return;
-    }
-    // const column = this.opt.elements[this.selectedCell];
-    // this.editorOptions = await this.footerEditor.onKeyPress(
-    //   column,
-    //   this.editorOptions,
-    //   key,
-    //   modifiers,
-    //   this.currentEditor,
-    // );
-    // if (is.undefined(this.editorOptions)) {
-    //   // It cancelled itself
-    //   this.currentEditor = undefined;
-    // }
-    // this.render();
-  }
-
-  private renderEditor(width: number): string[] {
-    if (!this.currentEditor) {
-      return [];
-    }
-    // const column = this.opt.elements[this.selectedCell];
-    // const line = chalk`{${this.footerEditor.lineColor(
-    //   this.currentEditor,
-    //   this.editorOptions,
-    // )} ${'='.repeat(width)}}`;
-    // return [
-    //   line,
-    //   this.footerEditor.render(
-    //     column,
-    //     this.editorOptions,
-    //     width,
-    //     this.currentEditor,
-    //   ),
-    // ];
+    this.render();
   }
 }

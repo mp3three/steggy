@@ -12,7 +12,7 @@ export class TableBuilderElement<EXTRA = unknown> {
   public format?: (value: unknown) => string;
   public name: string;
   public path: string;
-  public type: string;
+  public type: `${TABLE_CELL_TYPE}`;
 }
 
 export class TableBuilderOptions<T extends unknown> {

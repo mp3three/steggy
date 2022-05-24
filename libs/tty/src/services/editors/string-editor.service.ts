@@ -73,8 +73,9 @@ export class StringEditorService
 
   protected onEnd() {
     this.complete = true;
-    this.done(this.value);
     this.render();
+    this.done(this.value);
+    return false;
   }
 
   protected onKeyPress(key: string, { shift }: KeyModifiers) {

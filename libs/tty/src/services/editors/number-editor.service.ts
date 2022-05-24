@@ -81,8 +81,9 @@ export class NumberEditorService
 
   protected onEnd() {
     this.complete = true;
-    this.done(Number(this.value));
     this.render();
+    this.done(Number(this.value));
+    return false;
   }
 
   protected onKeyPress(key: string): void {
