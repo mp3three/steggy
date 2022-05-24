@@ -83,6 +83,7 @@ export interface MenuComponentOptions<T = unknown> {
   rightHeader?: string;
   showHeaders?: boolean;
   showHelp?: boolean;
+  sort?: boolean;
   titleTypes?: boolean;
   value?: T;
 }
@@ -689,15 +690,15 @@ export class MenuComponentService<VALUE = unknown>
     }
     // TODO: find way of caching the replacements
     // Might be an issue in large lists
-    return this.opt[side]
-      .map(
-        item =>
-          [item, ansiStrip(item.entry[LABEL]).replace(UNSORTABLE, '')] as [
-            MainMenuEntry,
-            string,
-          ],
-      )
-      .sort(([a, aLabel], [b, bLabel]) => {
+    let temp = this.opt[side].map(
+      item =>
+        [item, ansiStrip(item.entry[LABEL]).replace(UNSORTABLE, '')] as [
+          MainMenuEntry,
+          string,
+        ],
+    );
+    if (this.opt.sort !== false) {
+      temp = temp.sort(([a, aLabel], [b, bLabel]) => {
         if (a.type === b.type) {
           return aLabel > bLabel ? UP : DOWN;
         }
@@ -705,7 +706,8 @@ export class MenuComponentService<VALUE = unknown>
           return UP;
         }
         return DOWN;
-      })
-      .map(([item]) => item) as MainMenuEntry<VALUE>[];
+      });
+    }
+    return temp.map(([item]) => item) as MainMenuEntry<VALUE>[];
   }
 }

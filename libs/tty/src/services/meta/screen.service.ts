@@ -123,7 +123,7 @@ export class ScreenService {
   /**
    * console.log, with less options
    */
-  public print(line = ''): void {
+  public print(line: unknown = ''): void {
     this.rl.output.unmute();
     console.log(line);
     // Muting prevents user interactions from presenting to the screen directly

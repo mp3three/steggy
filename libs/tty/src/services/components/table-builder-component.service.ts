@@ -22,7 +22,7 @@ import { ToMenuEntry } from './menu-component.service';
 
 const KEYMAP: tKeyMap = new Map([
   // While there is no editor
-  [{ description: 'done', key: 's', modifiers: { ctrl: true } }, 'onEnd'],
+  [{ description: 'done', key: 'd' }, 'onEnd'],
   [{ description: 'cursor left', key: 'left' }, 'onLeft'],
   [{ description: 'cursor right', key: 'right' }, 'onRight'],
   [{ description: 'cursor up', key: 'up' }, 'onUp'],
@@ -91,6 +91,9 @@ export class TableBuilderComponentService<VALUE = unknown>
 
   protected add(): void {
     this.rows.push({} as VALUE);
+    // ? Needs an extra render for some reason
+    // Should be unnecessary
+    this.render();
   }
 
   protected async delete(): Promise<boolean> {
@@ -111,7 +114,7 @@ export class TableBuilderComponentService<VALUE = unknown>
     return false;
   }
 
-  protected async enableEdit(): Promise<boolean> {
+  protected async enableEdit(): Promise<void> {
     await this.screenService.footerWrap(async () => {
       const column = this.opt.elements[
         this.selectedCell
@@ -120,6 +123,12 @@ export class TableBuilderComponentService<VALUE = unknown>
       const current = get(is.object(row) ? row : {}, column.path);
       let value: unknown;
       switch (column.type) {
+        case 'date':
+          value = await this.promptService.date(column.name, new Date(current));
+          break;
+        case 'number':
+          value = await this.promptService.number(column.name, current);
+          break;
         case 'boolean':
           value = await this.promptService.boolean(column.name, current);
           break;
@@ -136,8 +145,6 @@ export class TableBuilderComponentService<VALUE = unknown>
       }
       set(is.object(row) ? row : {}, column.path, value);
     });
-    this.render();
-    return false;
   }
 
   protected onDown(): boolean {
@@ -145,7 +152,6 @@ export class TableBuilderComponentService<VALUE = unknown>
       return false;
     }
     this.selectedRow++;
-    this.render();
   }
 
   protected onEnd(): void {
@@ -157,7 +163,6 @@ export class TableBuilderComponentService<VALUE = unknown>
       return false;
     }
     this.selectedCell--;
-    this.render();
   }
 
   protected onRight(): boolean {
@@ -165,7 +170,6 @@ export class TableBuilderComponentService<VALUE = unknown>
       return false;
     }
     this.selectedCell++;
-    this.render();
   }
 
   protected onUp(): boolean {
@@ -173,6 +177,5 @@ export class TableBuilderComponentService<VALUE = unknown>
       return false;
     }
     this.selectedRow--;
-    this.render();
   }
 }

@@ -19,13 +19,15 @@ import {
   ToMenuEntry,
   TTYModule,
 } from '@steggy/tty';
-import { deepExtend, is, TitleCase } from '@steggy/utilities';
+import { deepExtend, FIRST, is, TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { encode } from 'ini';
+import { dump } from 'js-yaml';
 import { get, set } from 'object-path';
 import { exit } from 'process';
 
-// const NO_VALUE = Symbol();
+const NO_VALUE = Symbol();
 @QuickScript({
   application: Symbol('config-builder'),
   imports: [TTYModule],
@@ -45,48 +47,78 @@ export class ConfigScanner implements iQuickScript {
   private config: AbstractConfig;
   private configDefinition: ConfigDefinitionDTO;
   private readonly dirty = new Map<string, unknown>();
+  private loadedFiles: string[] = [];
 
   private get loadedApplication() {
     return this.configDefinition.application;
   }
 
-  public async exec() {
+  public async exec(defaultValue = 'edit') {
     this.applicationManager.setHeader(
       'App Config',
-      TitleCase(this.configDefinition.application),
+      TitleCase(this.loadedApplication),
     );
-    await this.promptService.objectBuilder({
-      current: [
-        { key: 'Foo 1', value: 1000 },
-        { key: 'Foo 2', value: 2000 },
-        { key: 'Foo 3', value: 3000 },
-        { key: 'Foo 4', value: 4000 },
-        { key: 'Foo 5', value: 5000 },
-      ],
-      elements: [
-        { name: 'Key', path: 'key', type: 'string' },
-        { name: 'Value', path: 'value', type: 'number' },
-      ],
-    });
-    return;
+    const entries = [
+      {
+        entry: ['Show loaded config', 'print'],
+        helpText: `Print the loaded configuration`,
+      },
+      {
+        entry: ['List config files', 'list-files'],
+        helpText:
+          'List all file locations that the script may look for a configuration file at',
+      },
+      {
+        entry: [`Edit configuration`, 'edit'],
+        helpText: `Change the value of configuration items`,
+      },
+      {
+        entry: ['Write to local file', 'write-local'],
+        helpText: `Save config to a user config file`,
+      },
+      {
+        entry: ['Output environment variables', 'environment'],
+        helpText:
+          'Output config as environment variables suitable for docker containers',
+      },
+    ] as MainMenuEntry[];
+    if (!is.empty(this.outputFile)) {
+      entries.push({
+        entry: ['Write to config file', 'write-config'],
+        helpText: chalk`Write to file {bold.cyan ${this.outputFile}}`,
+      });
+    }
     const action = await this.promptService.menu({
       hideSearch: true,
-      right: ToMenuEntry([
-        ['List config files', 'list-files'],
-        ['Edit config', 'edit'],
-      ]),
+      right: entries,
+      sort: false,
+      value: defaultValue,
     });
     switch (action) {
+      case 'print':
+        this.screenService.print(this.config);
+        await this.promptService.acknowledge();
+        return await this.exec(action);
       case 'list-files':
         this.listConfigFiles();
         this.screenService.down();
         await this.promptService.acknowledge();
-        return await this.exec();
+        return await this.exec(action);
       case 'edit':
         await this.selectConfig();
-        console.log(this.config);
+        return await this.exec(action);
+      case 'environment':
+        this.printEnvironment();
         await this.promptService.acknowledge();
-        return await this.exec();
+        return await this.exec(action);
+      case 'write-local':
+        await this.writeLocal();
+        await this.promptService.acknowledge();
+        return await this.exec(action);
+      case 'write-config':
+        this.writeConfig();
+        await this.promptService.acknowledge();
+        return await this.exec(action);
     }
   }
 
@@ -106,10 +138,11 @@ export class ConfigScanner implements iQuickScript {
     );
 
     const [configs] = this.workspaceService.loadMergedConfig(
-      this.workspaceService.configFilePaths(this.configDefinition.application),
+      this.workspaceService.configFilePaths(this.loadedApplication),
     );
     const mergedConfig: AbstractConfig = {};
     configs.forEach(config => deepExtend(mergedConfig, config));
+    this.loadedFiles = [...configs.keys()];
     this.config = mergedConfig;
   }
 
@@ -125,7 +158,11 @@ export class ConfigScanner implements iQuickScript {
           internal: 'magenta',
           number: 'yellow',
         }[item.metadata.type] ?? 'white';
-      helpText = chalk`{blue Default Value:} {${color} ${item.metadata.default}}\n {cyan.bold > }${helpText}`;
+      helpText = [
+        chalk`{blue Default Value:} {${color} ${item.metadata.default}}`,
+        // ...item
+        chalk` {cyan.bold > }${helpText}`,
+      ].join(`\n`);
     }
     let color = [item.metadata.default, undefined].includes(currentValue)
       ? 'white'
@@ -165,6 +202,15 @@ export class ConfigScanner implements iQuickScript {
           config.property,
           current as number,
         );
+        break;
+      case 'record':
+        result = await this.promptService.objectBuilder({
+          current: Array.isArray(current) ? current : [],
+          elements: [
+            { name: 'Key', path: 'key', type: 'string' },
+            { name: 'Value', path: 'value', type: 'string' },
+          ],
+        });
         break;
       case 'password':
       case 'url':
@@ -237,13 +283,42 @@ export class ConfigScanner implements iQuickScript {
     return `application.${config.property}`;
   }
 
+  /**
+   * Dump as environment variables appropriate for docker containers
+   */
+  private printEnvironment(): void {
+    const environment: string[] = [];
+    this.configDefinition.config.forEach(config => {
+      const path = this.path(config);
+      let value: unknown = get(this.config, path, NO_VALUE);
+      if (value === NO_VALUE || value === config.metadata.default) {
+        return;
+      }
+      if (!is.string(value)) {
+        value = is.object(value) ? JSON.stringify(value) : String(value);
+      }
+      environment.push(`${config.property}=${value}`);
+    });
+    this.screenService.down();
+    if (is.empty(environment)) {
+      this.screenService.print(chalk`  {yellow No variables to provide}`);
+      this.screenService.down();
+      return;
+    }
+    this.screenService.print(environment.join(`\n`));
+    this.screenService.down();
+  }
+
+  /**
+   * Build a fancy menu prompt to display all the configuration options grouped by project
+   */
   private async selectConfig(initial?: ConfigTypeDTO): Promise<void> {
     const mergedConfig = this.config;
     const item = await this.promptService.menu({
       keyMap: { d: [chalk.bold`Done`, DONE] },
       right: this.configDefinition.config.map(item => {
         const prefix =
-          this.configDefinition.application === item.library
+          this.loadedApplication === item.library
             ? 'application'
             : `libs.${item.library}`;
         let currentValue = get(
@@ -271,6 +346,44 @@ export class ConfigScanner implements iQuickScript {
       return;
     }
     await this.editConfig(item);
+    // re-re-recursion!
     return await this.selectConfig(item);
+  }
+
+  private writeConfig(target = this.outputFile): void {
+    const environment: AbstractConfig = {};
+    this.configDefinition.config.forEach(config => {
+      const path = this.path(config);
+      const value: unknown = get(this.config, path, NO_VALUE);
+      if (value === NO_VALUE || value === config.metadata.default) {
+        return;
+      }
+      set(environment, this.path(config), value);
+    });
+    const extension = target.split('.').pop().toLowerCase();
+    let contents: string;
+    switch (extension) {
+      case 'json':
+        contents = JSON.stringify(environment, undefined, '  ');
+        break;
+      case 'yaml':
+      case 'yml':
+        contents = dump(environment);
+        break;
+      default:
+        contents = encode(environment);
+    }
+    writeFileSync(target, contents);
+  }
+
+  private async writeLocal(): Promise<void> {
+    const list = this.workspaceService.configFilePaths(this.loadedApplication);
+    const defaultValue =
+      this.loadedFiles[FIRST] ?? list.find(path => path.includes('.config'));
+    const target = await this.promptService.menu({
+      right: ToMenuEntry(list.map(item => [item, item])),
+      value: defaultValue,
+    });
+    this.writeConfig(target);
   }
 }
