@@ -34,7 +34,7 @@ export const is = {
     return typeof test === 'number' && !Number.isNaN(test);
   },
   object(test: unknown): test is object {
-    return typeof test === 'object' && test !== null;
+    return typeof test === 'object' && test !== null && !Array.isArray(test);
   },
   string(test: unknown): test is string {
     return typeof test === 'string';

@@ -158,8 +158,11 @@ export class ConfigScanner implements iQuickScript {
           internal: 'magenta',
           number: 'yellow',
         }[item.metadata.type] ?? 'white';
+      const defaultValue = is.object(item.metadata.default)
+        ? JSON.stringify(item.metadata.default, undefined, '  ')
+        : item.metadata.default;
       helpText = [
-        chalk`{blue Default Value:} {${color} ${item.metadata.default}}`,
+        chalk`{blue Default Value:} {${color} ${defaultValue}}`,
         // ...item
         chalk` {cyan.bold > }${helpText}`,
       ].join(`\n`);
@@ -188,7 +191,7 @@ export class ConfigScanner implements iQuickScript {
 
   private async editConfig(config: ConfigTypeDTO): Promise<void> {
     const path = this.path(config);
-    const current = get(this.config, path, config?.default);
+    let current = get(this.config, path, config?.metadata?.default);
     let result: unknown;
     switch (config.metadata.type) {
       case 'boolean':
@@ -204,13 +207,23 @@ export class ConfigScanner implements iQuickScript {
         );
         break;
       case 'record':
+        current = is.object(current) ? current : {};
         result = await this.promptService.objectBuilder({
-          current: Array.isArray(current) ? current : [],
+          current: Object.entries(current).map(([key, value]) => ({
+            key,
+            value,
+          })),
           elements: [
             { name: 'Key', path: 'key', type: 'string' },
             { name: 'Value', path: 'value', type: 'string' },
           ],
         });
+        result = Object.fromEntries(
+          (result as { key: string; value: string }[]).map(({ key, value }) => [
+            key,
+            value,
+          ]),
+        );
         break;
       case 'password':
       case 'url':
@@ -325,18 +338,20 @@ export class ConfigScanner implements iQuickScript {
           mergedConfig,
           `${prefix}.${item.property}`,
         ) as unknown;
-        switch (item.metadata.type) {
-          case 'number':
-            // currentValue = Number(currentValue);
-            break;
-          case 'boolean':
-            if (is.string(currentValue)) {
-              currentValue = ['false', 'n'].includes(
-                currentValue.toLowerCase(),
-              );
+        if (!is.undefined(currentValue)) {
+          switch (item.metadata.type) {
+            case 'number':
+              currentValue = Number(currentValue);
               break;
-            }
-            currentValue = Boolean(currentValue);
+            case 'boolean':
+              if (is.string(currentValue)) {
+                currentValue = ['false', 'n'].includes(
+                  currentValue.toLowerCase(),
+                );
+                break;
+              }
+              currentValue = Boolean(currentValue);
+          }
         }
         return this.buildMenuEntry(item, currentValue);
       }),

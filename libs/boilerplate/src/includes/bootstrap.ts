@@ -1,4 +1,7 @@
-/* Something about bootstrapping completely breaks things with a normal reference */
+/**
+ * Something about bootstrapping completely breaks things with a normal reference.
+ * Imports from @steggy/boilerplate are on purpose here
+ * */
 /* eslint-disable @nrwl/nx/enforce-module-boundaries, radar/no-identical-functions */
 import {
   DynamicModule,
@@ -66,12 +69,10 @@ export async function Bootstrap(
     return;
   }
   const append = [...(bootOptions.globals ?? [])];
-  if (bootOptions.config) {
-    append.push({
-      provide: CONFIG_DEFAULTS,
-      useValue: bootOptions.config,
-    });
-  }
+  append.push({
+    provide: CONFIG_DEFAULTS,
+    useValue: bootOptions.config ?? {},
+  });
   globals.exports.push(...append);
   globals.providers.push(...append);
 

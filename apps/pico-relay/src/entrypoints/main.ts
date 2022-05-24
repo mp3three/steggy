@@ -76,7 +76,7 @@ const translation = new Map([
     [PICO_MAPPINGS]: {
       default: {},
       description:
-        'id=sensor.entity_id, only mapped items are sent to home assistant',
+        'id:sensor.entity_id, only mapped items are sent to home assistant',
       type: 'record',
     },
     [RECONNECT_INTERVAL]: {

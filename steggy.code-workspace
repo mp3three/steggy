@@ -22,7 +22,7 @@
         "port": 33337
       },
       {
-        "name": "Lutron Relay",
+        "name": "Pico Relay",
         "type": "node",
         "request": "attach",
         "port": 33338

@@ -82,7 +82,9 @@ export function QuickScript({
           preInit: [
             app => {
               // eslint-disable-next-line no-console
-              console.log(JSON.stringify(ScanConfig(app)));
+              console.log(
+                JSON.stringify(ScanConfig(app, BOOTSTRAP_OPTIONS.config)),
+              );
               // eslint-disable-next-line unicorn/no-process-exit
               process.exit();
             },

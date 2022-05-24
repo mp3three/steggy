@@ -3,7 +3,6 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  Optional,
 } from '@nestjs/common';
 import { deepExtend, is } from '@steggy/utilities';
 import { writeFileSync } from 'fs';
@@ -13,8 +12,12 @@ import { get, set } from 'object-path';
 import { resolve } from 'path';
 
 import { LIB_BOILERPLATE, LOG_LEVEL } from '../config';
-import { CONFIG_DEFAULTS, ConfigItem } from '../contracts';
-import { AbstractConfig, ACTIVE_APPLICATION } from '../contracts';
+import {
+  AbstractConfig,
+  ACTIVE_APPLICATION,
+  CONFIG_DEFAULTS,
+  ConfigItem,
+} from '../contracts';
 import { LibraryModule } from '../decorators';
 import { AutoLogService } from './auto-log.service';
 import { WorkspaceService } from './workspace.service';
@@ -36,11 +39,11 @@ export class AutoConfigService {
     /**
      * Override defaults provided by Bootstrap
      */
-    @Optional()
     @Inject(CONFIG_DEFAULTS)
     private readonly configDefaults: AbstractConfig,
     private readonly workspace: WorkspaceService,
   ) {
+    AutoLogService.logger.level = this.get([LIB_BOILERPLATE, LOG_LEVEL]);
     // AutoConfig is one of the first services to initialize
     // Running it here will force load the configuration at the earliest possible time
     //
@@ -129,10 +132,19 @@ export class AutoConfigService {
     return data;
   }
 
+  /**
+   * Build up `this.config` with the fully resolved configuration data for this run.
+   * Start with an empty object, and fill in values in descending order (later items replace earlier).
+   *
+   * - values provided via module definitions
+   * - values provided via bootstrap
+   * - values loaded from configuration files
+   * - values loaded from environment variables
+   * - values loaded from command line switches
+   */
   private earlyInit(): void {
     this.config = {};
     this.setDefaults();
-
     const [fileConfig, files] = this.workspace.loadMergedConfig([
       ...this.workspace.configFilePaths(this.appName),
       ...(this.switches['config'] ? [resolve(this.switches['config'])] : []),
@@ -145,7 +157,6 @@ export class AutoConfigService {
     this.logger[
       'context'
     ] = `${LIB_BOILERPLATE.description}:${AutoConfigService.name}`;
-    AutoLogService.logger.level = this.get([LIB_BOILERPLATE, LOG_LEVEL]);
     fileConfig.forEach((config, path) =>
       this.logger.debug(`Loaded configuration from {${path}}`),
     );
@@ -191,9 +202,33 @@ export class AutoConfigService {
     return result;
   }
 
+  /**
+   * Merge in both environment variables, and command line switches. Both of these are operate under unique rules.
+   * The "full name" of an environment variable is formatted like this:
+   * - "[appName]__[path]_[to]_[property]"
+   *
+   * Where 2x underscores separate app name from property path, with single underscores replacing the dots for the object path.
+   * Original logic for this is based off the `rc` library.
+   *
+   * This is super verbose, and a massive pain to use in the real world. This function allows for several other ways of providing the variable:
+   *
+   * - without app reference "[path]_[to]_[property]"
+   * - minimum "[property]"
+   *
+   * The minimum option is the injected key the application / library uses (Ex: "MONGO" / "BASE_URL" / etc).
+   * What it gains in easy readability it loses in precision, and the ability to potentially have conflicts between libraries.
+   *
+   * Configuration property names here attempt to snag anything that seems close to the correct thing.
+   * They are treated as case insensitive, and dashes / underscores are both interchangable.
+   *
+   * Pulling switches from argv operates on similar rules
+   */
   private loadFromEnv(): void {
     const { env } = process;
-    LibraryModule.configs.forEach(({ configuration }, project) => {
+    const environmentKeys = Object.keys(env);
+    const switchKeys = Object.keys(this.switches);
+    const configs = LibraryModule.configs;
+    configs.forEach(({ configuration }, project) => {
       configuration ??= {};
       const cleanedProject = (
         project ?? this.APPLICATION.description
@@ -207,35 +242,38 @@ export class AutoConfigService {
         : `libs.${cleanedProject}`;
       Object.keys(configuration).forEach(key => {
         const noAppPath = `${environmentPrefix}_${key}`;
-        const fullPath = `${this.APPLICATION.description}__${noAppPath}`;
-        const full = env[fullPath] ?? this.switches[fullPath];
-        const noApp = env[noAppPath] ?? this.switches[noAppPath];
-        const lazy =
-          env[key] ?? this.switches[key] ?? this.switches[key.toLowerCase()];
+        const search = [
+          `${this.APPLICATION.description}__${noAppPath}`,
+          noAppPath,
+          key,
+        ];
         const configPath = `${configPrefix}.${key}`;
-        if (!is.undefined(full)) {
-          set(
-            this.config,
-            configPath,
-            this.cast(noApp, configuration[key].type),
+        // Find an applicable switch
+        const flag = search.find(line => {
+          const match = new RegExp(
+            line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]'),
+            'gi',
           );
+          return switchKeys.some(item => item.match(match));
+        });
+        if (flag) {
+          set(this.config, configPath, this.switches[flag]);
+          // Finish trying if a switch is found, it has the highest priority
           return;
         }
-        if (!is.undefined(noApp)) {
-          set(
-            this.config,
-            configPath,
-            this.cast(noApp, configuration[key].type),
+
+        // Find an environment variable
+        const environment = search.find(line => {
+          const match = new RegExp(
+            line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]'),
+            'gi',
           );
+          return environmentKeys.some(item => item.match(match));
+        });
+        if (is.empty(environment)) {
           return;
         }
-        if (!is.undefined(lazy)) {
-          set(
-            this.config,
-            configPath,
-            this.cast(lazy, configuration[key].type),
-          );
-        }
+        set(this.config, configPath, env[environment]);
       });
     });
   }
@@ -245,10 +283,17 @@ export class AutoConfigService {
       const isApplication = this.appName === project;
       Object.keys(configuration).forEach(key => {
         if (!is.undefined(configuration[key].default)) {
+          let defaultValue = configuration[key].default;
+          if (Array.isArray(defaultValue)) {
+            defaultValue = [...defaultValue];
+          } else
+            defaultValue = is.object(defaultValue)
+              ? { ...defaultValue }
+              : defaultValue;
           set(
             this.config,
             `${isApplication ? 'application' : `libs.${project}`}.${key}`,
-            configuration[key].default,
+            defaultValue,
           );
         }
       });
