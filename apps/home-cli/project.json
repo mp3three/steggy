@@ -23,53 +23,6 @@
       "executor": "@nrwl/node:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "assets": [
-          {
-            "input": "libs/utilities",
-            "glob": "*.json",
-            "output": "./assets/utilities"
-          },
-          {
-            "input": "libs/tty",
-            "glob": "*.json",
-            "output": "./assets/tty"
-          },
-          {
-            "input": "apps/home-cli",
-            "glob": "*.json",
-            "output": "./assets/home-cli"
-          },
-          {
-            "input": "libs/home-assistant",
-            "glob": "*.json",
-            "output": "./assets/home-assistant"
-          },
-          {
-            "input": "libs/controller-shared",
-            "glob": "*.json",
-            "output": "./assets/controller-shared"
-          },
-          {
-            "input": "libs/server",
-            "glob": "*.json",
-            "output": "./assets/server"
-          },
-          {
-            "input": "libs/boilerplate",
-            "glob": "*.json",
-            "output": "./assets/boilerplate"
-          },
-          {
-            "input": "libs/persistence",
-            "glob": "*.json",
-            "output": "./assets/persistence"
-          },
-          {
-            "input": "./",
-            "glob": "workspace.json",
-            "output": "./assets/"
-          }
-        ],
         "outputPath": "dist/apps/home-cli",
         "generatePackageJson": true,
         "fileReplacements": [
@@ -144,7 +97,7 @@
             "description": "Create standard production build"
           },
           {
-            "command": "mkdir -p dist/configs; node dist/apps/home-cli/main.js > dist/configs/home-cli.json",
+            "command": "mkdir -p dist/configs; node dist/config-scanner/home-cli/main.js > dist/configs/home-cli.json",
             "description": "Scan config, output to dist"
           }
         ]

@@ -1,9 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { AutoConfigService, InjectConfig } from '@steggy/boilerplate';
+import { PromptEntry } from '@steggy/tty';
 import { is } from '@steggy/utilities';
-
-import { LIB_TTY, PINNED_ITEMS } from '../config';
-import { PromptEntry } from './prompt.service';
 
 export class PinnedItemDTO<T = unknown> {
   public data?: T;
@@ -14,23 +11,15 @@ export class PinnedItemDTO<T = unknown> {
 
 @Injectable()
 export class PinnedItemService<T = unknown> {
-  constructor(
-    private readonly configService: AutoConfigService,
-    @InjectConfig(PINNED_ITEMS) private pinned: PinnedItemDTO<T>[],
-  ) {
-    this.pinned = pinned.map(item =>
-      is.string(item) ? JSON.parse(item) : item,
-    );
-  }
-
   public readonly loaders = new Map<
     string,
     (data: PinnedItemDTO<T>) => Promise<void>
   >();
+  private pinned: PinnedItemDTO<T>[] = [];
 
   public addPinned(item: PinnedItemDTO<T>): void {
     this.pinned.push(item);
-    this.configService.set([LIB_TTY, PINNED_ITEMS], this.pinned, true);
+    // this.configService.set([LIB_TTY, PINNED_ITEMS], this.pinned, true);
   }
 
   public async exec(item: PinnedItemDTO<T>): Promise<void> {
@@ -60,7 +49,7 @@ export class PinnedItemService<T = unknown> {
 
   public removePinned(item: PinnedItemDTO<T>): void {
     this.pinned = this.pinned.filter(i => i !== item);
-    this.configService.set([LIB_TTY, PINNED_ITEMS], this.pinned, true);
+    // this.configService.set([LIB_TTY, PINNED_ITEMS], this.pinned, true);
   }
 
   public toggle(item: PinnedItemDTO<T>): void {

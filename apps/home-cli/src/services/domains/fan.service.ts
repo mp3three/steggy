@@ -93,9 +93,9 @@ export class FanService extends SwitchService {
     // });
   }
 
-  protected buildKeymap(id: string): KeyMap {
+  protected buildKeymap(): KeyMap {
     return {
-      ...super.buildKeymap(id),
+      ...super.buildKeymap(),
       '[': [`${ICONS.DOWN}Speed Down`, 'fanSpeedDown'],
       ']': [`${ICONS.UP}Speed Up`, 'fanSpeedUp'],
     };

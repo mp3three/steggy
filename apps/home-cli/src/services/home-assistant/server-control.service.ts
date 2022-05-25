@@ -1,9 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import {
   ApplicationManagerService,
   ICONS,
   IsDone,
   PromptService,
-  Repl,
   ScreenService,
   ToMenuEntry,
 } from '@steggy/tty';
@@ -13,11 +13,12 @@ import inquirer from 'inquirer';
 import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 
-@Repl({
-  category: 'Home Assistant',
-  icon: ICONS.ADMIN,
-  name: `Server Control`,
-})
+// @Repl({
+//   category: 'Home Assistant',
+//   icon: ICONS.ADMIN,
+//   name: `Server Control`,
+// })
+Injectable();
 export class ServerControlService {
   constructor(
     private readonly fetchService: HomeFetchService,

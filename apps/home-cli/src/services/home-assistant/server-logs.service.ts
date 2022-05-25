@@ -1,4 +1,4 @@
-import { NotImplementedException } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { HomeAssistantServerLogItem } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
@@ -6,7 +6,6 @@ import {
   ICONS,
   IsDone,
   PromptService,
-  Repl,
   SyncLoggerService,
   ToMenuEntry,
 } from '@steggy/tty';
@@ -22,11 +21,12 @@ const LEVELS = new Map([
   ['WARNING', 'yellow'],
 ]);
 
-@Repl({
-  category: 'Home Assistant',
-  icon: ICONS.LOGS,
-  name: `Server Logs`,
-})
+// @Repl({
+//   category: 'Home Assistant',
+//   icon: ICONS.LOGS,
+//   name: `Server Logs`,
+// })
+@Injectable()
 export class ServerLogsService {
   constructor(
     private readonly logger: SyncLoggerService,

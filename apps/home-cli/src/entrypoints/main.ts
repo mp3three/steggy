@@ -1,9 +1,8 @@
 import { Bootstrap } from '@steggy/boilerplate';
-import { MainCLIService } from '@steggy/tty';
-import { show } from 'cli-cursor';
 
 import { BOOTSTRAP_OPTIONS } from '../environments/environment';
 import { HomeCLIModule } from '../modules';
+import { MainCLIService } from '../services';
 
 const FINISH_BOOTSTRAPPING = 10;
 

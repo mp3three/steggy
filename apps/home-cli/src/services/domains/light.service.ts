@@ -155,9 +155,9 @@ export class LightService extends SwitchService {
     });
   }
 
-  protected buildKeymap(id: string): KeyMap {
+  protected buildKeymap(): KeyMap {
     return {
-      ...super.buildKeymap(id),
+      ...super.buildKeymap(),
       '[': [`${ICONS.UP}Dim Up`, 'dimUp'],
       ']': [`${ICONS.DOWN}Dim Down`, 'dimDown'],
       b: [`${ICONS.BRIGHTNESS}Set Brightness`, 'brightness'],

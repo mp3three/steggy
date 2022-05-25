@@ -1,28 +1,27 @@
-import { Inject, Optional } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
+import {
+  ApplicationManagerService,
+  CONFIG_APPLICATION_TITLE,
+  MainMenuEntry,
+  MenuEntry,
+  PromptEntry,
+  PromptService,
+} from '@steggy/tty';
 import { DOWN, is, UP, VALUE } from '@steggy/utilities';
+import { ReplOptions } from 'repl';
 
-import { CONFIG_APPLICATION_TITLE } from '../config';
-import { iRepl, MainMenuEntry, MenuEntry, ReplOptions } from '../contracts';
-import { Repl } from '../decorators';
-import { ReplExplorerService } from './explorers';
-import { ApplicationManagerService } from './meta';
 import { PinnedItemDTO, PinnedItemService } from './pinned-item.service';
-import { PromptEntry, PromptService } from './prompt.service';
 
 // Filter out non-sortable characters (like emoji)
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
 const CACHE_KEY = 'MAIN-CLI:LAST_LABEL';
 type ENTRY_TYPE = string | PinnedItemDTO;
 
-@Repl({
-  category: 'main',
-  name: 'Main',
-})
-export class MainCLIService implements iRepl {
+@Injectable()
+export class MainCLIService {
   constructor(
     private readonly applicationManager: ApplicationManagerService,
-    private readonly explorer: ReplExplorerService,
     private readonly promptService: PromptService,
     private readonly pinnedItem: PinnedItemService,
     @InjectCache()
@@ -40,13 +39,13 @@ export class MainCLIService implements iRepl {
       await this.pinnedItem.exec(name as PinnedItemDTO);
       return this.exec();
     }
-    let instance: iRepl;
-    this.explorer.REGISTERED_APPS.forEach((i, options) => {
-      if (options.name === name) {
-        instance = i;
-      }
-    });
-    await instance.exec();
+    // let instance: iRepl;
+    // this.explorer.REGISTERED_APPS.forEach((i, options) => {
+    //   if (options.name === name) {
+    //     instance = i;
+    //   }
+    // });
+    // await instance.exec();
     await this.exec();
   }
 
@@ -90,23 +89,23 @@ export class MainCLIService implements iRepl {
   private async pickOne(): Promise<ENTRY_TYPE> {
     const types: Record<string, PromptEntry<ENTRY_TYPE>[]> = {};
     const keyMap = {};
-    this.explorer.REGISTERED_APPS.forEach(
-      (
-        instance: iRepl,
-        { category: type, name, icon, keybind, keyOnly }: ReplOptions,
-      ) => {
-        if (name !== 'Main') {
-          if (keybind) {
-            keyMap[keybind] = [`${icon ?? ''}${name}`, name];
-            if (keyOnly) {
-              return;
-            }
-          }
-          types[type] ??= [];
-          types[type].push([`${icon ?? ''}${name}`, name]);
-        }
-      },
-    );
+    // this.explorer.REGISTERED_APPS.forEach(
+    //   (
+    //     instance: iRepl,
+    //     { category: type, name, icon, keybind, keyOnly }: ReplOptions,
+    //   ) => {
+    //     if (name !== 'Main') {
+    //       if (keybind) {
+    //         keyMap[keybind] = [`${icon ?? ''}${name}`, name];
+    //         if (keyOnly) {
+    //           return;
+    //         }
+    //       }
+    //       types[type] ??= [];
+    //       types[type].push([`${icon ?? ''}${name}`, name]);
+    //     }
+    //   },
+    // );
     const right = this.getRight(types);
     const left = this.getLeft();
     if (is.object(this.last) && this.last !== null) {

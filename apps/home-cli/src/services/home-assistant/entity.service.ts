@@ -1,3 +1,4 @@
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import {
   domain,
@@ -7,14 +8,10 @@ import {
   LightAttributesDTO,
 } from '@steggy/home-assistant-shared';
 import {
-  ICONS,
-  iRepl,
   IsDone,
   MenuEntry,
-  PinnedItemService,
   PromptEntry,
   PromptService,
-  Repl,
   ToMenuEntry,
 } from '@steggy/tty';
 import { is, VALUE } from '@steggy/utilities';
@@ -30,25 +27,34 @@ import {
   SwitchService,
 } from '../domains';
 import { HomeFetchService } from '../home-fetch.service';
+import { PinnedItemService } from '../pinned-item.service';
 
-@Repl({
-  category: `Home Assistant`,
-  description: [`Commands scoped to a single/manually built list of entities`],
-  icon: ICONS.ENTITIES,
-  keybind: 'e',
-  name: `Entities`,
-})
-export class EntityService implements iRepl {
+// @Repl({
+//   category: `Home Assistant`,
+//   description: [`Commands scoped to a single/manually built list of entities`],
+//   icon: ICONS.ENTITIES,
+//   keybind: 'e',
+//   name: `Entities`,
+// })
+@Injectable()
+export class EntityService {
   constructor(
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
+    @Inject(forwardRef(() => BaseDomainService))
     private readonly baseService: BaseDomainService,
+    @Inject(forwardRef(() => LightService))
     private readonly lightService: LightService,
+    @Inject(forwardRef(() => SwitchService))
     private readonly switchService: SwitchService,
+    @Inject(forwardRef(() => FanService))
     private readonly fanService: FanService,
+    @Inject(forwardRef(() => MediaService))
     private readonly mediaService: MediaService,
+    @Inject(forwardRef(() => LockService))
     private readonly lockService: LockService,
     private readonly pinnedItems: PinnedItemService,
+    @Inject(forwardRef(() => ClimateService))
     private readonly climateService: ClimateService,
   ) {}
 

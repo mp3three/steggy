@@ -1,4 +1,4 @@
-import { NotImplementedException } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
 import { GroupDTO, RoomDTO, RoomEntityDTO } from '@steggy/controller-shared';
 import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
@@ -6,10 +6,8 @@ import {
   ApplicationManagerService,
   ICONS,
   IsDone,
-  PinnedItemService,
   PromptEntry,
   PromptService,
-  Repl,
   SyncLoggerService,
   ToMenuEntry,
 } from '@steggy/tty';
@@ -21,17 +19,19 @@ import { MENU_ITEMS } from '../../includes';
 import { GroupCommandService } from '../groups/group-command.service';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
+import { PinnedItemService } from '../pinned-item.service';
 import { RoutineService } from '../routines';
 import { RoomStateService } from './room-state.service';
 
 const CACHE_KEY = 'MENU_LAST_ROOM';
 
-@Repl({
-  category: `Control`,
-  icon: ICONS.ROOMS,
-  keybind: 'r',
-  name: `Rooms`,
-})
+// @Repl({
+//   category: `Control`,
+//   icon: ICONS.ROOMS,
+//   keybind: 'r',
+//   name: `Rooms`,
+// })
+@Injectable()
 export class RoomCommandService {
   constructor(
     @InjectCache()

@@ -1,6 +1,7 @@
 import {
   forwardRef,
   Inject,
+  Injectable,
   InternalServerErrorException,
   NotImplementedException,
 } from '@nestjs/common';
@@ -16,13 +17,10 @@ import {
   ApplicationManagerService,
   DONE,
   ICONS,
-  iRepl,
   IsDone,
   KeyMap,
-  PinnedItemService,
   PromptEntry,
   PromptService,
-  Repl,
   SyncLoggerService,
   ToMenuEntry,
 } from '@steggy/tty';
@@ -40,6 +38,7 @@ import inquirer from 'inquirer';
 import { MENU_ITEMS } from '../../includes';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
+import { PinnedItemService } from '../pinned-item.service';
 import { FanGroupCommandService } from './fan-group-command.service';
 import { GroupStateService } from './group-state.service';
 import { LightGroupCommandService } from './light-group-command.service';
@@ -87,13 +86,14 @@ const GROUP_DOMAINS = new Map([
 ]);
 const CACHE_KEY = `MENU_LAST_GROUP`;
 
-@Repl({
-  category: `Control`,
-  icon: ICONS.GROUPS,
-  keybind: 'g',
-  name: `Groups`,
-})
-export class GroupCommandService implements iRepl {
+// @Repl({
+//   category: `Control`,
+//   icon: ICONS.GROUPS,
+//   keybind: 'g',
+//   name: `Groups`,
+// })
+@Injectable()
+export class GroupCommandService {
   constructor(
     @InjectCache()
     private readonly cache: CacheManagerService,

@@ -16,7 +16,6 @@ import {
   ApplicationManagerService,
   ICONS,
   IsDone,
-  PinnedItemService,
   PromptEntry,
   PromptService,
   ScreenService,
@@ -34,6 +33,7 @@ import { dump, load } from 'js-yaml';
 import { MENU_ITEMS } from '../../includes';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
+import { PinnedItemService } from '../pinned-item.service';
 import { GroupCommandService } from './group-command.service';
 
 type GService = GroupCommandService;

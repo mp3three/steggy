@@ -9,5 +9,9 @@
     "target": "ESNext"
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../../apps/home-cli/src/types/repl-options.dto.ts"
+  ]
 }

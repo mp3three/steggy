@@ -16,7 +16,6 @@ import {
   ApplicationManagerService,
   ICONS,
   IsDone,
-  PinnedItemService,
   PromptEntry,
   PromptService,
   ScreenService,
@@ -40,6 +39,7 @@ import { MENU_ITEMS } from '../../includes';
 import { GroupCommandService } from '../groups';
 import { EntityService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';
+import { PinnedItemService } from '../pinned-item.service';
 import { RoomCommandService } from './room-command.service';
 
 type RCService = RoomCommandService;
@@ -150,7 +150,7 @@ export class RoomStateService {
       case 'truncate':
         if (
           !(await this.promptService.confirm(
-            `This is a desctructive operation, are you sure?`,
+            `This is a destructive operation, are you sure?`,
           ))
         ) {
           return await this.process(room);

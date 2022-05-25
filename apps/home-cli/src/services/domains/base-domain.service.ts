@@ -18,7 +18,6 @@ import {
   IsDone,
   KeyMap,
   MDIIcons,
-  PinnedItemService,
   PromptEntry,
   PromptService,
   ScreenService,
@@ -75,7 +74,6 @@ export class BaseDomainService {
     protected readonly promptService: PromptService,
     protected readonly deviceService: DeviceService,
     private readonly history: EntityHistoryService,
-    private readonly pinnedItem: PinnedItemService<never>,
     @InjectConfig(REFRESH_SLEEP)
     protected readonly refreshSleep: number,
     @InjectConfig(MAX_GRAPH_WIDTH) private readonly maxGraphWidth: number,
@@ -184,7 +182,7 @@ export class BaseDomainService {
       );
     }
     const action = await this.promptService.menu({
-      keyMap: this.buildKeymap(id),
+      keyMap: this.buildKeymap(),
       leftHeader: 'Base options',
       right: ToMenuEntry(options),
       showHeaders: false,
@@ -221,9 +219,6 @@ export class BaseDomainService {
         return await this.processId(id, action);
       case 'history':
         await this.showHistory(id);
-        return await this.processId(id, action);
-      case 'pin':
-        await this.togglePin(id);
         return await this.processId(id, action);
     }
     return action;
@@ -268,14 +263,6 @@ export class BaseDomainService {
     await this.promptService.acknowledge();
   }
 
-  public togglePin(id: string): void {
-    this.pinnedItem.toggle({
-      friendlyName: id,
-      id,
-      script: 'entity',
-    });
-  }
-
   protected async baseHeader<T extends HassStateDTO = HassStateDTO>(
     id: string,
   ): Promise<T> {
@@ -311,14 +298,13 @@ export class BaseDomainService {
     return content;
   }
 
-  protected buildKeymap(id: string): KeyMap {
+  protected buildKeymap(): KeyMap {
     return {
       d: MENU_ITEMS.DONE,
       g: [`${ICONS.DOWN}Graphs`, 'graph'],
       h: MENU_ITEMS.HISTORY,
       i: [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
       n: [`${ICONS.RENAME}Change Friendly Name`, 'friendlyName'],
-      p: [this.pinnedItem.isPinned('entity', id) ? 'Unpin' : 'Pin', 'pin'],
       r: MENU_ITEMS.REFRESH,
       y: [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
     };

@@ -72,9 +72,9 @@ export class SwitchService extends BaseDomainService {
     });
   }
 
-  protected buildKeymap(id: string): KeyMap {
+  protected buildKeymap(): KeyMap {
     return {
-      ...super.buildKeymap(id),
+      ...super.buildKeymap(),
       e: [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
       f: [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
       t: [`${ICONS.TOGGLE_ON}Toggle`, 'toggle'],

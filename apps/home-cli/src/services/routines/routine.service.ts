@@ -2,10 +2,14 @@
 // Really don't care if a simple map function is duplicated
 /* eslint-disable radar/no-identical-functions */
 
-import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
 import {
-  RoomDTO,
   RoutineActivateOptionsDTO,
   RoutineDTO,
 } from '@steggy/controller-shared';
@@ -13,9 +17,7 @@ import {
   ApplicationManagerService,
   ICONS,
   IsDone,
-  PinnedItemService,
   PromptService,
-  Repl,
   ScreenService,
   StackService,
   TextRenderingService,
@@ -28,6 +30,7 @@ import Table from 'cli-table';
 
 import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
+import { PinnedItemService } from '../pinned-item.service';
 import { RoomCommandService } from '../rooms';
 import { RoutineCommandBuilderService } from './command';
 import { RoutineActivateService } from './routine-activate.service';
@@ -39,12 +42,13 @@ const MILLISECONDS = 1000;
 const SOLO = 1;
 const CACHE_KEY = `MENU_LAST_ROUTINE`;
 
-@Repl({
-  category: 'Control',
-  icon: ICONS.ROUTINE,
-  keybind: 't',
-  name: 'Routine',
-})
+// @Repl({
+//   category: 'Control',
+//   icon: ICONS.ROUTINE,
+//   keybind: 't',
+//   name: 'Routine',
+// })
+@Injectable()
 export class RoutineService {
   constructor(
     @InjectCache()
@@ -73,12 +77,11 @@ export class RoutineService {
     });
   }
 
-  public async create(room?: RoomDTO | string): Promise<RoutineDTO> {
+  public async create(): Promise<RoutineDTO> {
     const friendlyName = await this.promptService.friendlyName();
     return await this.fetchService.fetch<RoutineDTO, RoutineDTO>({
       body: {
         friendlyName,
-        // room: is.string(room) ? room : room?._id,
       },
       method: `post`,
       url: `/routine`,

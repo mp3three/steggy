@@ -1,5 +1,3 @@
-export const REPL_CONFIG = Symbol('REPL_CONFIG');
-
 export const TABLE_PARTS = {
   bottom: '─',
   bottom_left: '└',
