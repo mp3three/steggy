@@ -15,7 +15,6 @@ import {
 } from '@steggy/controller-shared';
 import {
   ApplicationManagerService,
-  ICONS,
   IsDone,
   PromptService,
   ScreenService,
@@ -28,6 +27,7 @@ import Table from 'cli-table';
 import { v4 as uuid } from 'uuid';
 
 import { MENU_ITEMS } from '../../includes';
+import { ICONS } from '../../types';
 import {
   KunamiBuilderService,
   ScheduleBuilderService,

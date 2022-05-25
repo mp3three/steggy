@@ -6,7 +6,7 @@ import { Question } from 'inquirer';
 import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
 
-import { ICONS, KeyDescriptor, tKeyMap } from '../contracts';
+import { KeyDescriptor, tKeyMap } from '../contracts';
 
 type tCallback<T = unknown> = (value?: T) => void;
 
@@ -51,10 +51,7 @@ export abstract class InquirerPrompt<
     // Sanity check to make sure all the methods actually exist
     map.forEach(key => {
       if (is.undefined(this[key as string])) {
-        console.log(
-          chalk.yellow
-            .inverse` ${ICONS.WARNING}MISSING CALLBACK {bold ${key}} `,
-        );
+        console.log(chalk.yellow.inverse` MISSING CALLBACK {bold ${key}} `);
       }
     });
   }

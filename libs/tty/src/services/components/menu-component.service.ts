@@ -18,7 +18,6 @@ import chalk from 'chalk';
 
 import {
   DirectCB,
-  ICONS,
   InquirerKeypressOptions,
   MainMenuEntry,
   MenuEntry,
@@ -577,7 +576,7 @@ export class MenuComponentService<VALUE = unknown>
       ) + ARRAY_OFFSET;
     if (is.empty(menu) && !this.opt.keyOnly) {
       out.push(
-        chalk.bold` ${ICONS.WARNING}{yellowBright.inverse  No ${this.opt.item} to select from }`,
+        chalk.bold` {yellowBright.inverse  No ${this.opt.item} to select from }`,
       );
     }
     menu.forEach(item => {

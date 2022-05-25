@@ -15,7 +15,6 @@ import {
 } from '@steggy/controller-shared';
 import {
   ApplicationManagerService,
-  ICONS,
   IsDone,
   PromptService,
   ScreenService,
@@ -29,6 +28,7 @@ import chalk from 'chalk';
 import Table from 'cli-table';
 
 import { MENU_ITEMS } from '../../includes';
+import { ICONS } from '../../types';
 import { HomeFetchService } from '../home-fetch.service';
 import { PinnedItemService } from '../pinned-item.service';
 import { RoomCommandService } from '../rooms';

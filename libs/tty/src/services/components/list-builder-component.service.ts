@@ -16,7 +16,7 @@ import {
 } from '@steggy/utilities';
 import chalk from 'chalk';
 
-import { ICONS, MenuEntry, tKeyMap } from '../../contracts';
+import { MenuEntry, tKeyMap } from '../../contracts';
 import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { KeyboardManagerService, ScreenService } from '../meta';
@@ -429,7 +429,7 @@ export class ListBuilderComponentService<VALUE = unknown>
     const maxLabel =
       ansiMaxLength(...menu.map(entry => entry[LABEL])) + ARRAY_OFFSET;
     if (is.empty(menu)) {
-      out.push(chalk.bold` ${ICONS.MANUAL}{gray.inverse  List is empty } `);
+      out.push(chalk.bold` {gray.inverse  List is empty } `);
     }
     menu.forEach(item => {
       const inverse = item[VALUE] === this.value;

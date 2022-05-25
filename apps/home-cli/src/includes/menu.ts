@@ -1,5 +1,7 @@
-import { DONE, ICONS, MenuEntry } from '@steggy/tty';
+import { DONE, MenuEntry } from '@steggy/tty';
 import chalk from 'chalk';
+
+import { ICONS } from '../types';
 
 const menu = {
   ACTIVATE: [`${ICONS.ACTIVATE}Manual Activate`, 'activate'],

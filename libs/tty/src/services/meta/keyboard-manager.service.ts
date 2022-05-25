@@ -6,7 +6,6 @@ import { fromEvent, takeUntil } from 'rxjs';
 import {
   ApplicationStackProvider,
   DirectCB,
-  ICONS,
   iStackProvider,
   KeyDescriptor,
   KeyModifiers,
@@ -59,8 +58,7 @@ export class KeyboardManagerService implements iStackProvider {
     map.forEach(key => {
       if (is.string(key) && !is.function(target[key])) {
         this.screenService.print(
-          chalk.yellow
-            .inverse` ${ICONS.WARNING}MISSING CALLBACK {bold ${key}} `,
+          chalk.yellow.inverse` MISSING CALLBACK {bold ${key}} `,
         );
       }
     });

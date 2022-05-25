@@ -14,7 +14,6 @@ import {
 } from '@steggy/controller-shared';
 import {
   ApplicationManagerService,
-  ICONS,
   IsDone,
   PromptEntry,
   PromptService,
@@ -31,6 +30,7 @@ import inquirer from 'inquirer';
 import { dump, load } from 'js-yaml';
 
 import { MENU_ITEMS } from '../../includes';
+import { ICONS } from '../../types';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { PinnedItemService } from '../pinned-item.service';

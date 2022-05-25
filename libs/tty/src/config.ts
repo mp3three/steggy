@@ -4,5 +4,3 @@ export const HEADER_COLOR = 'HEADER_COLOR';
 export const PAGE_SIZE = 'PAGE_SIZE';
 export const HELP = 'HELP';
 export const LIB_TTY = Symbol('tty');
-
-export const CONFIG_APPLICATION_TITLE = Symbol('CONFIG_APPLICATION_TITLE');

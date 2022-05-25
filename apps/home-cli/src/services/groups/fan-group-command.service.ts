@@ -4,7 +4,6 @@ import {
   RoutineCommandGroupActionDTO,
 } from '@steggy/controller-shared';
 import {
-  ICONS,
   KeyMap,
   PromptEntry,
   PromptService,
@@ -13,6 +12,7 @@ import {
 } from '@steggy/tty';
 import { is } from '@steggy/utilities';
 
+import { ICONS } from '../../types';
 import { HomeFetchService } from '../home-fetch.service';
 
 @Injectable()

@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ScheduleActivateDTO } from '@steggy/controller-shared';
-import { ICONS, PromptService, ToMenuEntry } from '@steggy/tty';
+import { PromptService, ToMenuEntry } from '@steggy/tty';
 import { CronExpression, is } from '@steggy/utilities';
+
+import { ICONS } from '../../../types';
 
 @Injectable()
 export class ScheduleBuilderService {

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
   ApplicationManagerService,
-  ICONS,
   IsDone,
   PromptService,
   ScreenService,
@@ -11,6 +10,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 
 import { MENU_ITEMS } from '../../includes';
+import { ICONS } from '../../types';
 import { HomeFetchService } from '../home-fetch.service';
 
 // @Repl({

@@ -18,7 +18,6 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import {
-  ICONS,
   IsDone,
   PromptEntry,
   PromptService,
@@ -31,6 +30,7 @@ import chalk from 'chalk';
 import { dump } from 'js-yaml';
 
 import { MENU_ITEMS } from '../../includes';
+import { ICONS } from '../../types';
 import { GroupCommandService } from '../groups';
 import { RoomCommandService } from '../rooms';
 import { RoutineService } from './routine.service';

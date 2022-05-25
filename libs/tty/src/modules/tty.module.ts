@@ -55,7 +55,8 @@ import {
     },
     [HELP]: {
       default: false,
-      description: 'Intended for consumption as cli switch (--help)',
+      description:
+        'Intended for consumption as cli switch (--help). Performs early abort and prints available cli switches to console',
       type: 'boolean',
     },
     [PAGE_SIZE]: {

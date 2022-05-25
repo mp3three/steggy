@@ -3,7 +3,6 @@ import { HomeAssistantServerLogItem } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
   EnvironmentService,
-  ICONS,
   IsDone,
   PromptService,
   SyncLoggerService,
@@ -14,6 +13,7 @@ import chalk from 'chalk';
 import dayjs from 'dayjs';
 
 import { MENU_ITEMS } from '../../includes';
+import { ICONS } from '../../types';
 import { HomeFetchService } from '../home-fetch.service';
 
 const LEVELS = new Map([

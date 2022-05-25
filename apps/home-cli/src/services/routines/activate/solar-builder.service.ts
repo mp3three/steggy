@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SolarActivateDTO } from '@steggy/controller-shared';
-import { ICONS, PromptEntry, PromptService, ToMenuEntry } from '@steggy/tty';
+import { PromptEntry, PromptService, ToMenuEntry } from '@steggy/tty';
 import { DOWN, TitleCase, UP } from '@steggy/utilities';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
@@ -51,7 +51,6 @@ export class SolarBuilderService {
       location.latitude,
       location.longitude,
     );
-    console.log(chalk.yellow` ${ICONS.WARNING} Times vary based on date`);
     const event = await this.promptService.pickOne(
       `Event`,
       ToMenuEntry(

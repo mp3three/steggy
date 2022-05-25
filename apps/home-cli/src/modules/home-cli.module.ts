@@ -1,10 +1,6 @@
 import { DiscoveryModule } from '@nestjs/core';
-import {
-  ApplicationModule,
-  BoilerplateModule,
-  InjectConfig,
-} from '@steggy/boilerplate';
-import { CONFIG_APPLICATION_TITLE, TTYModule } from '@steggy/tty';
+import { ApplicationModule, BoilerplateModule } from '@steggy/boilerplate';
+import { TTYModule } from '@steggy/tty';
 
 import {
   ADMIN_KEY,
@@ -77,13 +73,6 @@ import {
       type: 'number',
     },
   },
-  globals: [
-    {
-      inject: [InjectConfig.inject(APP_TITLE)],
-      provide: CONFIG_APPLICATION_TITLE,
-      useFactory: (title: string) => title,
-    },
-  ],
   imports: [DiscoveryModule, TTYModule, BoilerplateModule.forRoot()],
   providers: [
     ...[

@@ -5,7 +5,6 @@ import {
 } from '@steggy/home-assistant-shared';
 import {
   DONE,
-  ICONS,
   IsDone,
   PromptService,
   SyncLoggerService,
@@ -16,6 +15,7 @@ import chalk from 'chalk';
 import { encode } from 'ini';
 
 import { MENU_ITEMS } from '../../includes';
+import { ICONS } from '../../types';
 import { HomeFetchService } from '../home-fetch.service';
 import { EntityService } from './entity.service';
 

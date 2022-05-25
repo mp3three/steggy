@@ -1,16 +1,21 @@
-import { Inject, Injectable, Optional } from '@nestjs/common';
-import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
+import { Injectable } from '@nestjs/common';
+import {
+  CacheManagerService,
+  InjectCache,
+  InjectConfig,
+} from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
-  CONFIG_APPLICATION_TITLE,
+  KeyMap,
   MainMenuEntry,
   MenuEntry,
   PromptEntry,
   PromptService,
 } from '@steggy/tty';
 import { DOWN, is, UP, VALUE } from '@steggy/utilities';
-import { ReplOptions } from 'repl';
 
+import { APP_TITLE } from '../config';
+import { ICONS } from '../types';
 import { PinnedItemDTO, PinnedItemService } from './pinned-item.service';
 
 // Filter out non-sortable characters (like emoji)
@@ -26,9 +31,8 @@ export class MainCLIService {
     private readonly pinnedItem: PinnedItemService,
     @InjectCache()
     private readonly cacheService: CacheManagerService,
-    @Optional()
-    @Inject(CONFIG_APPLICATION_TITLE)
-    private readonly applicationTitle = 'Script List',
+    @InjectConfig(APP_TITLE)
+    private readonly applicationTitle,
   ) {}
   private last: ENTRY_TYPE;
 
@@ -88,7 +92,9 @@ export class MainCLIService {
 
   private async pickOne(): Promise<ENTRY_TYPE> {
     const types: Record<string, PromptEntry<ENTRY_TYPE>[]> = {};
-    const keyMap = {};
+    const keyMap: KeyMap = {
+      t: [`${ICONS.ROUTINE}`, 'routine'],
+    };
     // this.explorer.REGISTERED_APPS.forEach(
     //   (
     //     instance: iRepl,

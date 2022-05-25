@@ -4,7 +4,6 @@ import { GroupDTO, RoomDTO, RoomEntityDTO } from '@steggy/controller-shared';
 import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
-  ICONS,
   IsDone,
   PromptEntry,
   PromptService,
@@ -16,6 +15,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 
 import { MENU_ITEMS } from '../../includes';
+import { ICONS } from '../../types';
 import { GroupCommandService } from '../groups/group-command.service';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';

@@ -11,7 +11,6 @@ import {
 import {
   ApplicationManagerService,
   ColorsService,
-  ICONS,
   KeyMap,
   PromptEntry,
   PromptService,
@@ -24,6 +23,7 @@ import { DOWN, is, START, TitleCase, UP } from '@steggy/utilities';
 import { each } from 'async';
 import chalk from 'chalk';
 
+import { ICONS } from '../../types';
 import { LightService } from '../domains';
 import { HomeFetchService } from '../home-fetch.service';
 

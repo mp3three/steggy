@@ -14,7 +14,6 @@ import {
 import { domain, HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
-  ICONS,
   IsDone,
   PromptEntry,
   PromptService,
@@ -36,6 +35,7 @@ import chalk from 'chalk';
 import Table from 'cli-table';
 
 import { MENU_ITEMS } from '../../includes';
+import { ICONS } from '../../types';
 import { GroupCommandService } from '../groups';
 import { EntityService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';

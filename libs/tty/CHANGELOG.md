@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.11.5
+
+- Pulled non-generic code out of TTY into `home-cli`
+  - `PinnedItemService`
+  - `MainCLI`
+  - Emoji icon maps
+
 ## 0.11.4
 
 > **NOTE:** As of this tag, all `Inquirer` based prompts are considered deprecated, and will be replaced. `PromptService` methods that aren't general in scope (such as `brightness`) are set to be removed without replacements

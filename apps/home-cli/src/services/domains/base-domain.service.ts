@@ -14,7 +14,6 @@ import {
 import {
   ApplicationManagerService,
   ChartingService,
-  ICONS,
   IsDone,
   KeyMap,
   MDIIcons,
@@ -41,6 +40,7 @@ import Separator from 'inquirer/lib/objects/separator';
 
 import { MAX_GRAPH_WIDTH, REFRESH_SLEEP } from '../../config';
 import { MENU_ITEMS } from '../../includes';
+import { ICONS } from '../../types';
 import { DeviceService, EntityHistoryService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';
 

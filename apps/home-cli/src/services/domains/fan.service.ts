@@ -1,11 +1,12 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { FanAttributesDTO, FanStateDTO } from '@steggy/home-assistant-shared';
-import { ICONS, KeyMap, PromptEntry, ToMenuEntry } from '@steggy/tty';
+import { KeyMap, PromptEntry, ToMenuEntry } from '@steggy/tty';
 import { TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
+import { ICONS } from '../../types';
 import { SwitchService } from './switch.service';
 
 @Injectable()

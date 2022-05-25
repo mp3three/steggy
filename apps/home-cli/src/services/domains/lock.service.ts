@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
-import { ICONS, PromptEntry, ToMenuEntry } from '@steggy/tty';
+import { PromptEntry, ToMenuEntry } from '@steggy/tty';
 import inquirer from 'inquirer';
 
+import { ICONS } from '../../types';
 import { BaseDomainService } from './base-domain.service';
 
 @Injectable()

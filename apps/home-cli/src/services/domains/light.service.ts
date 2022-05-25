@@ -5,10 +5,11 @@ import {
   LightAttributesDTO,
   LightStateDTO,
 } from '@steggy/home-assistant-shared';
-import { ColorsService, ICONS, KeyMap, PromptEntry } from '@steggy/tty';
+import { ColorsService, KeyMap, PromptEntry } from '@steggy/tty';
 import { START } from '@steggy/utilities';
 import inquirer from 'inquirer';
 
+import { ICONS } from '../../types';
 import { SwitchService } from './switch.service';
 
 const OFF = 0;

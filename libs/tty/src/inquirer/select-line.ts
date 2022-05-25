@@ -1,11 +1,4 @@
-import {
-  ARRAY_OFFSET,
-  DOWN,
-  LABEL,
-  START,
-  UP,
-  VALUE,
-} from '@steggy/utilities';
+import { ARRAY_OFFSET, DOWN, LABEL, START, UP, VALUE } from '@steggy/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question, Separator } from 'inquirer';
@@ -13,7 +6,6 @@ import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
 import Paginator from 'inquirer/lib/utils/paginator';
 
-import { ICONS } from '../contracts';
 import { PromptEntry } from '../services';
 
 const OFF = 0;
@@ -38,7 +30,7 @@ export class SelectLinePrompt extends Base<
       suffix: '',
     };
     this.selected = this.moveIndex = this.opt.choices.findIndex(
-      (value) => Array.isArray(value) && value[VALUE] === this.opt.moveValue,
+      value => Array.isArray(value) && value[VALUE] === this.opt.moveValue,
     );
     const events = observe(rl);
 
@@ -122,12 +114,12 @@ export class SelectLinePrompt extends Base<
         message = chalk.bold.yellow`{blue.bold !} No change`;
       } else if (this.selected > this.moveIndex) {
         // Red go down
-        message = chalk.bold`${ICONS.DOWN}Moved {red ${
+        message = chalk.bold`Moved {red ${
           this.selected - this.moveIndex - ARRAY_OFFSET
         }} positions down`;
       } else {
         // Green go up
-        message = chalk.bold`${ICONS.UP}Moved {green ${
+        message = chalk.bold`Moved {green ${
           this.moveIndex - this.selected
         }} positions up`;
       }
