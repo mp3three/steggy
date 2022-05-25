@@ -45,10 +45,13 @@
   },
   "exclude": ["node_modules", "tmp"],
   "references": [
+    { "path": "./apps/build-pipeline/tsconfig.json" },
+    { "path": "./apps/config-builder/tsconfig.json" },
     { "path": "./apps/devtools/tsconfig.json" },
     { "path": "./apps/home-cli/tsconfig.json" },
     { "path": "./apps/home-configure/tsconfig.json" },
     { "path": "./apps/home-controller/tsconfig.json" },
+    { "path": "./apps/log-formatter/tsconfig.json" },
     { "path": "./apps/pico-relay/tsconfig.json" },
     { "path": "./libs/boilerplate/tsconfig.json" },
     { "path": "./libs/controller-sdk/tsconfig.json" },

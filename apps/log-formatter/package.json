@@ -1,0 +1,14 @@
+{
+  "bin": {
+    "log-formatter": "main.js"
+  },
+  "name": "@steggy/log-formatter",
+  "license": "MIT",
+  "main": "main.js",
+  "displayName": "Log Formatter",
+  "version": "0.11.5",
+  "homepage": "https://github.com/ccontour/steggy",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
