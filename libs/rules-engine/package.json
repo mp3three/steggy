@@ -7,7 +7,7 @@
   "name": "@steggy/rules-engine",
   "license": "MIT",
   "displayName": "Rules Engine",
-  "version": "0.11.3",
+  "version": "0.11.4",
   "homepage": "https://github.com/ccontour/steggy",
   "repository": {
     "type": "git",

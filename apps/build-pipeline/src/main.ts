@@ -1,5 +1,5 @@
 /* eslint-disable radar/no-duplicate-string */
-import { QuickScript } from '@steggy/boilerplate';
+import { InjectConfig, QuickScript } from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
   PromptService,
@@ -17,6 +17,7 @@ import { inc } from 'semver';
 
 type AffectedList = { apps: string[]; libs: string[] };
 type PACKAGE = { version: string };
+const NON_INTERACTIVE = 'NON_INTERACTIVE';
 
 /**
  * Basic build pipeline.
@@ -29,6 +30,13 @@ type PACKAGE = { version: string };
       libs: { boilerplate: { LOG_LEVEL: 'debug' } },
     },
   },
+  configuration: {
+    [NON_INTERACTIVE]: {
+      default: false,
+      description: 'If set, script will assume everything is getting published',
+      type: 'boolean',
+    },
+  },
   imports: [TTYModule],
 })
 export class BuildPipelineService {
@@ -37,6 +45,7 @@ export class BuildPipelineService {
     private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly screenService: ScreenService,
+    @InjectConfig('NON_INTERACTIVE') private readonly nonInteractive: boolean,
   ) {}
 
   private WORKSPACE = JSON.parse(readFileSync('workspace.json', 'utf8')) as {
@@ -66,13 +75,15 @@ export class BuildPipelineService {
       });
       this.screenService.down();
       this.screenService.print(chalk`Select applications to rebuild`);
-      apps = await this.promptService.listBuild({
-        current: affected.apps
-          .filter(app => this.hasPublish(app))
-          .map(i => [TitleCase(i), i]),
-        items: 'Applications',
-        source: [],
-      });
+      apps = this.nonInteractive
+        ? affected.apps
+        : await this.promptService.listBuild({
+            current: affected.apps
+              .filter(app => this.hasPublish(app))
+              .map(i => [TitleCase(i), i]),
+            items: 'Applications',
+            source: [],
+          });
     }
     if (!is.empty(affected.libs)) {
       await this.bumpLibraries(affected);
@@ -115,7 +126,7 @@ export class BuildPipelineService {
     }
     const { projects } = this.WORKSPACE;
     const libraries = Object.entries(projects)
-      .filter(([, path]) => path.startsWith('lib'))
+      .filter(([, path]) => path?.startsWith('lib'))
       .map(([library]) => library);
     libraries.forEach(library => {
       const file = join('libs', library, 'package.json');
@@ -143,11 +154,9 @@ export class BuildPipelineService {
       readFileSync('package.json', 'utf8'),
     ) as PACKAGE;
     const newVersion = inc(packageJSON.version, 'patch');
-    const proceed = await this.confirmActions(
-      affected,
-      newVersion,
-      packageJSON.version,
-    );
+    const proceed =
+      this.nonInteractive ||
+      (await this.confirmActions(affected, newVersion, packageJSON.version));
     packageJSON.version = newVersion;
     if (!proceed) {
       return ``;

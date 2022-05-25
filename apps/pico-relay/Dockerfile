@@ -20,7 +20,7 @@ RUN npx nx build pico-relay --configuration=production
 # Minify
 RUN npx terser dist/apps/pico-relay/main.js -c -m --keep-classnames --module > dist/apps/pico-relay/minified.js
 # Scan the config
-RUN node dist/scanner/pico-relay/main.js --scan-config > config.json
+RUN node dist/apps/pico-relay/main.js --config-scanner > config.json
 # </STAGE 1>
 
 # <STAGE 2>
@@ -58,12 +58,11 @@ LABEL org.label-schema.schema-version="1.0"
 ARG USER=node
 ARG HOME=/home/node
 RUN addgroup -S node
-RUN adduser --disabled-password --gecos "" --ingroup node \
-  --home $HOME $USER
+RUN adduser --disabled-password --gecos "" --ingroup node --home $HOME $USER
 
 # Add container deps
 ## More latest stuff.
-RUN sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories && apk add --upgrade nodejs npm curl
+RUN sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories && apk add --upgrade nodejs
 
 # Finalize
 USER node
