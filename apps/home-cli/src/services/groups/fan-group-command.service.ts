@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  GENERIC_COMMANDS,
   GroupDTO,
   RoutineCommandGroupActionDTO,
 } from '@steggy/controller-shared';
@@ -10,6 +9,7 @@ import {
   PromptEntry,
   PromptService,
   SyncLoggerService,
+  ToMenuEntry,
 } from '@steggy/tty';
 import { is } from '@steggy/utilities';
 
@@ -35,12 +35,12 @@ export class FanGroupCommandService {
   ): Promise<Omit<RoutineCommandGroupActionDTO, 'group'>> {
     const command = await this.promptService.pickOne(
       `Fan group action`,
-      [
+      ToMenuEntry([
         [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
         [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
         [`${ICONS.UP}Speed Up`, 'fanSpeedUp'],
         [`${ICONS.DOWN}Speed Down`, 'fanSpeedDown'],
-      ] as PromptEntry<GENERIC_COMMANDS>[],
+      ] as PromptEntry<string>[]),
       current,
     );
     return { command };

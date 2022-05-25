@@ -41,7 +41,7 @@ export class ServerControlService {
         new inquirer.Separator(chalk.white`YAML configuration reloading`),
         ['Location & Customizations', 'location'],
         ['Automations', 'automation'],
-        ['Input Booleans', 'input_boolean'],
+        ['Input Boolean', 'input_boolean'],
         ['Input Date Times', 'input_datetime'],
         ['Input Numbers', 'input_number'],
         ['Input Selects', 'input_select'],

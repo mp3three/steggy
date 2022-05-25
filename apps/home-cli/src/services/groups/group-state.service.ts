@@ -73,10 +73,13 @@ export class GroupStateService {
       ? current.friendlyName
       : await this.promptService.friendlyName(current.friendlyName);
     const states = [];
-    const action = await this.promptService.pickOne(`Edit style`, [
-      [`${ICONS.GUIDED}Guided`, `guided`],
-      [`${ICONS.MANUAL}Manual`, `manual`],
-    ]);
+    const action = await this.promptService.pickOne(
+      `Edit style`,
+      ToMenuEntry([
+        [`${ICONS.GUIDED}Guided`, `guided`],
+        [`${ICONS.MANUAL}Manual`, `manual`],
+      ]),
+    );
 
     if (action === `manual`) {
       const result = await this.promptService.editor(
@@ -129,12 +132,14 @@ export class GroupStateService {
     const allGroups = await this.groupService.list();
     const group = await this.promptService.pickOne(
       `Which group?`,
-      room
-        ? room.groups.map(id => {
-            const group = allGroups.find(({ _id }) => _id === id);
-            return [group?.friendlyName, group];
-          })
-        : allGroups.map(i => [i.friendlyName, i]),
+      ToMenuEntry(
+        room
+          ? room.groups.map(id => {
+              const group = allGroups.find(({ _id }) => _id === id);
+              return [group?.friendlyName, group];
+            })
+          : allGroups.map(i => [i.friendlyName, i]),
+      ),
       current.group,
     );
     return {
@@ -149,16 +154,18 @@ export class GroupStateService {
     });
     return await this.promptService.pickOne(
       `Pick a group`,
-      groups
-        .filter(group => !exclude.includes(group._id))
-        .map(group => [group.friendlyName, group]),
+      ToMenuEntry(
+        groups
+          .filter(group => !exclude.includes(group._id))
+          .map(group => [group.friendlyName, group]),
+      ),
     );
   }
 
   public async pickOne(group: GroupDTO): Promise<string> {
     const action = await this.promptService.pickOne<GroupSaveStateDTO | string>(
       `Which state?`,
-      [
+      ToMenuEntry([
         [`${ICONS.CREATE}Manual create`, 'create'],
         ...this.promptService.conditionalEntries(!is.empty(group.save_states), [
           new inquirer.Separator(chalk.white(`Current states`)),
@@ -167,7 +174,7 @@ export class GroupStateService {
             state,
           ]) as PromptEntry<GroupSaveStateDTO>[]),
         ]),
-      ],
+      ]),
     );
     if (action === 'create') {
       group = await this.build(group);

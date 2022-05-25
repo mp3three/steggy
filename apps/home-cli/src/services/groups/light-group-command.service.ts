@@ -1,7 +1,6 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import {
   GeneralSaveStateDTO,
-  GENERIC_COMMANDS,
   GroupDTO,
   RoutineCommandGroupActionDTO,
 } from '@steggy/controller-shared';
@@ -19,6 +18,7 @@ import {
   RGB,
   ScreenService,
   SyncLoggerService,
+  ToMenuEntry,
 } from '@steggy/tty';
 import { DOWN, is, START, TitleCase, UP } from '@steggy/utilities';
 import { each } from 'async';
@@ -40,14 +40,14 @@ const G_MULTIPLIER = 0.587;
 const B_MULTIPLIER = 0.114;
 const THRESHOLD = 127.5;
 
-const GENERIC_COMMANDS: PromptEntry<GENERIC_COMMANDS>[] = [
-  [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
-  [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
-  [`${ICONS.CIRCADIAN}Circadian On`, 'circadianOn'],
-  [`${ICONS.UP}Dim Up`, 'dimUp'],
-  [`${ICONS.DOWN}Dim Down`, 'dimDown'],
-  [`${ICONS.BRIGHTNESS}Set Brightness`, 'brightness'],
-];
+// const GENERIC_COMMANDS: PromptEntry<string>[] = [
+//   [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
+//   [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
+//   [`${ICONS.CIRCADIAN}Circadian On`, 'circadianOn'],
+//   [`${ICONS.UP}Dim Up`, 'dimUp'],
+//   [`${ICONS.DOWN}Dim Down`, 'dimDown'],
+//   [`${ICONS.BRIGHTNESS}Set Brightness`, 'brightness'],
+// ];
 
 @Injectable()
 export class LightGroupCommandService {
@@ -84,7 +84,7 @@ export class LightGroupCommandService {
   ): Promise<Omit<RoutineCommandGroupActionDTO, 'group'>> {
     const command = await this.promptService.pickOne(
       `Light group action`,
-      [
+      ToMenuEntry([
         [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
         [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
         [`${ICONS.UP}Dim Up`, `dimUp`],
@@ -92,7 +92,7 @@ export class LightGroupCommandService {
         [`${ICONS.BRIGHTNESS}Set Brightness`, `setBrightness`],
         [`${ICONS.CIRCADIAN}Circadian`, `circadianOn`],
         [`${ICONS.COLOR}Set Color`, 'color'],
-      ],
+      ]),
       current,
     );
     switch (command) {

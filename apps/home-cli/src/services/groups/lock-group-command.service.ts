@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  GENERIC_COMMANDS,
   GroupDTO,
   RoutineCommandGroupActionDTO,
 } from '@steggy/controller-shared';
@@ -10,6 +9,7 @@ import {
   PromptEntry,
   PromptService,
   SyncLoggerService,
+  ToMenuEntry,
 } from '@steggy/tty';
 import { is } from '@steggy/utilities';
 
@@ -33,10 +33,10 @@ export class LockGroupCommandService {
   ): Promise<Omit<RoutineCommandGroupActionDTO, 'group'>> {
     const command = await this.promptService.pickOne(
       `Light group action`,
-      [
+      ToMenuEntry([
         [`${ICONS.TURN_ON}Lock`, 'lock'],
         [`${ICONS.TURN_OFF}Unlock`, 'unlock'],
-      ] as PromptEntry<GENERIC_COMMANDS>[],
+      ] as PromptEntry<string>[]),
       current,
     );
     return { command };

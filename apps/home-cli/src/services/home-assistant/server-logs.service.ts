@@ -2,11 +2,11 @@ import { NotImplementedException } from '@nestjs/common';
 import { HomeAssistantServerLogItem } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
+  EnvironmentService,
   ICONS,
   IsDone,
   PromptService,
   Repl,
-  ScreenService,
   SyncLoggerService,
   ToMenuEntry,
 } from '@steggy/tty';
@@ -32,7 +32,7 @@ export class ServerLogsService {
     private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
-    private readonly screenService: ScreenService,
+    private readonly environmentService: EnvironmentService,
     private readonly applicationManager: ApplicationManagerService,
   ) {}
 
@@ -79,6 +79,7 @@ export class ServerLogsService {
       this.logger.info(`No recent logs`);
       return;
     }
+    const width = (await this.environmentService.getDimensions()).width;
     const item = await this.promptService.menu({
       keyMap: {
         d: MENU_ITEMS.DONE,
@@ -87,7 +88,7 @@ export class ServerLogsService {
         logs.map(i => [
           chalk.bold[LEVELS.get(i.level) ?? 'underline']`${i.message
             .join(chalk.cyan(' || '))
-            .slice(START, this.screenService.getWidth())}`,
+            .slice(START, width)}`,
           i,
         ]),
       ),

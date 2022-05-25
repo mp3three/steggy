@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
-import { ICONS, PromptEntry } from '@steggy/tty';
+import { ICONS, PromptEntry, ToMenuEntry } from '@steggy/tty';
 import inquirer from 'inquirer';
 
 import { BaseDomainService } from './base-domain.service';
@@ -13,10 +13,10 @@ export class LockService extends BaseDomainService {
   ): Promise<GeneralSaveStateDTO> {
     const state = await this.promptService.pickOne(
       `Set lock`,
-      [
+      ToMenuEntry([
         ['Lock', 'locked'],
         ['Unlock', 'unlocked'],
-      ],
+      ]),
       current?.state,
     );
     return {

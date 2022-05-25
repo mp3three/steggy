@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { RoutineCommandWebhookDTO } from '@steggy/controller-shared';
-import { PromptService } from '@steggy/tty';
+import { PromptService, ToMenuEntry } from '@steggy/tty';
 import { HTTP_METHODS, TitleCase } from '@steggy/utilities';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class WebhookService {
       headers: [],
       method: await this.promptService.pickOne(
         `Method`,
-        Object.values(HTTP_METHODS).map(i => [TitleCase(i), i]),
+        ToMenuEntry(Object.values(HTTP_METHODS).map(i => [TitleCase(i), i])),
       ),
       url: await this.promptService.string(`URL`, current.url),
     };

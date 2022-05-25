@@ -78,7 +78,7 @@ export class RoutineService {
     return await this.fetchService.fetch<RoutineDTO, RoutineDTO>({
       body: {
         friendlyName,
-        room: is.string(room) ? room : room?._id,
+        // room: is.string(room) ? room : room?._id,
       },
       method: `post`,
       url: `/routine`,
@@ -162,7 +162,7 @@ export class RoutineService {
     );
     return await this.promptService.pickOne(
       `Pick a routine`,
-      inList.map(i => [i.friendlyName, i]),
+      ToMenuEntry(inList.map(i => [i.friendlyName, i])),
     );
   }
 

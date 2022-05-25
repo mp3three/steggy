@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SolarActivateDTO } from '@steggy/controller-shared';
-import { ICONS, PromptEntry, PromptService } from '@steggy/tty';
+import { ICONS, PromptEntry, PromptService, ToMenuEntry } from '@steggy/tty';
 import { DOWN, TitleCase, UP } from '@steggy/utilities';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
@@ -54,15 +54,17 @@ export class SolarBuilderService {
     console.log(chalk.yellow` ${ICONS.WARNING} Times vary based on date`);
     const event = await this.promptService.pickOne(
       `Event`,
-      KEYS.map(key => [
-        chalk`{gray.bold ${dayjs(calc[key]).format('HH:mm:ss')}} ${TitleCase(
+      ToMenuEntry(
+        KEYS.map(key => [
+          chalk`{gray.bold ${dayjs(calc[key]).format('HH:mm:ss')}} ${TitleCase(
+            key,
+            false,
+          )}`,
           key,
-          false,
-        )}`,
-        key,
-      ]).sort(([a], [b]) => (a > b ? UP : DOWN)) as PromptEntry<
-        keyof SolarCalcType
-      >[],
+        ]).sort(([a], [b]) => (a > b ? UP : DOWN)) as PromptEntry<
+          keyof SolarCalcType
+        >[],
+      ),
       current.event,
     );
     return { event };

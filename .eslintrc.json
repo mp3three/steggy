@@ -182,6 +182,7 @@
               "scrypt",
               "sdk",
               "selectable",
+              "semver",
               "serializers",
               "sider",
               "ssl",

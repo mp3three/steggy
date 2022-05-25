@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { domain } from '@steggy/home-assistant-shared';
-import { ICONS, KeyMap, PromptEntry } from '@steggy/tty';
+import { ICONS, KeyMap, PromptEntry, ToMenuEntry } from '@steggy/tty';
 import { sleep, TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
@@ -16,11 +16,11 @@ export class SwitchService extends BaseDomainService {
   ): Promise<GeneralSaveStateDTO> {
     const state = await this.promptService.pickOne(
       entity_id,
-      [
+      ToMenuEntry([
         [`${ICONS.TURN_ON}Turn On`, 'on'],
         [`${ICONS.TURN_OFF}Turn Off`, 'off'],
         [`${ICONS.TOGGLE_ON}Toggle`, 'toggle'],
-      ],
+      ]),
       current?.state,
     );
     return {

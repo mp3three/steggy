@@ -118,13 +118,13 @@ export class RoomCommandService {
       : current;
     const room = await this.promptService.pickOne<RoomDTO | string>(
       `Pick a room`,
-      [
+      ToMenuEntry([
         [`${ICONS.CREATE}Create new`, `create`],
         ...this.promptService.conditionalEntries(
           !is.empty(rooms),
           rooms.map(room => [room.friendlyName, room]),
         ),
-      ],
+      ]),
       current,
     );
     if (room === `create`) {
@@ -288,11 +288,11 @@ export class RoomCommandService {
   private async groupBuilder(current: string[] = []): Promise<string[]> {
     const action = await this.promptService.pickOne(
       `Group actions`,
-      [
+      ToMenuEntry([
         [`${ICONS.GROUPS}Use existing`, 'existing'],
         [`${ICONS.CREATE}Create new`, 'create'],
         [`Done`, 'done'],
-      ],
+      ]),
       `Room groups`,
     );
     switch (action) {

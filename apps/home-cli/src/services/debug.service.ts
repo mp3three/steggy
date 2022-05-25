@@ -9,7 +9,6 @@ import {
 import { HassNotificationDTO } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
-  ConfigBuilderService,
   ICONS,
   IsDone,
   PromptService,
@@ -45,7 +44,6 @@ export class DebugService {
     private readonly promptService: PromptService,
     private readonly screenService: ScreenService,
     private readonly workspace: WorkspaceService,
-    private readonly configBuilder: ConfigBuilderService,
     private readonly applicationManager: ApplicationManagerService,
   ) {}
 
@@ -79,7 +77,6 @@ For loop example getting entity values in the weather domain:
       hideSearch: true,
       keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
-        [`Manage configuration`, 'configure'],
         [`Controller version`, 'version'],
         [`Light Manager Cache`, 'lightManagerCache'],
         [`Home Assistant Config`, 'hassConfig'],
@@ -102,11 +99,8 @@ For loop example getting entity values in the weather domain:
         this.screenService.print(`\n\n` + dump(version));
         await this.promptService.acknowledge();
         return await this.exec(action);
-      case 'configure':
-        await this.configBuilder.handleConfig();
-        return await this.exec(action);
       case 'notifications':
-        await this.persistentNotications();
+        await this.persistentNotifications();
         return await this.exec(action);
       case 'renderTemplate':
         await this.renderTemplate();
@@ -134,7 +128,7 @@ For loop example getting entity values in the weather domain:
     console.log(lights);
   }
 
-  private async persistentNotications(): Promise<void> {
+  private async persistentNotifications(): Promise<void> {
     const notifications = await this.fetchService.fetch<HassNotificationDTO[]>({
       url: `/debug/notifications`,
     });

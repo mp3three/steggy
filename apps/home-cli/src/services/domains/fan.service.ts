@@ -1,16 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
-import {
-  FanAttributesDTO,
-  FanSpeeds,
-  FanStateDTO,
-} from '@steggy/home-assistant-shared';
-import { ICONS, IsDone, KeyMap, PromptEntry, ToMenuEntry } from '@steggy/tty';
+import { FanAttributesDTO, FanStateDTO } from '@steggy/home-assistant-shared';
+import { ICONS, KeyMap, PromptEntry, ToMenuEntry } from '@steggy/tty';
 import { TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
-import { MENU_ITEMS } from '../../includes';
 import { SwitchService } from './switch.service';
 
 @Injectable()
@@ -25,7 +20,7 @@ export class FanService extends SwitchService {
     entity.attributes.speed_list ??= [];
     const speed = await this.promptService.pickOne(
       entity_id,
-      [
+      ToMenuEntry([
         new inquirer.Separator(chalk.white`Relative change`),
         [`${ICONS.UP}Speed Up`, 'fanSpeedUp'],
         [`${ICONS.DOWN}Speed Down`, 'fanSpeedDown'],
@@ -34,7 +29,7 @@ export class FanService extends SwitchService {
           TitleCase(speed, false),
           speed,
         ]),
-      ] as PromptEntry<FanSpeeds>[],
+      ] as PromptEntry<string>[]),
       current?.extra?.speed,
     );
     return {
@@ -42,7 +37,7 @@ export class FanService extends SwitchService {
         speed,
       },
       ref: entity_id,
-      state: speed === FanSpeeds.off ? 'off' : 'on',
+      state: speed === 'off' ? 'off' : 'on',
     };
   }
 
@@ -78,23 +73,24 @@ export class FanService extends SwitchService {
   }
 
   public async setSpeed(id: string): Promise<void> {
-    const speed = await this.promptService.menu({
-      keyMap: { d: MENU_ITEMS.DONE },
-      right: ToMenuEntry(
-        Object.keys(FanSpeeds)
-          .reverse()
-          .map(key => [TitleCase(key), key]),
-      ),
-      rightHeader: 'Fan speed',
-    });
-    if (IsDone(speed)) {
-      return;
-    }
-    await this.fetchService.fetch({
-      body: { speed },
-      method: 'put',
-      url: `/entity/command/${id}/setSpeed`,
-    });
+    throw new NotImplementedException();
+    // const speed = await this.promptService.menu({
+    //   keyMap: { d: MENU_ITEMS.DONE },
+    //   right: ToMenuEntry(
+    //     Object.keys(FanSpeeds)
+    //       .reverse()
+    //       .map(key => [TitleCase(key), key]),
+    //   ),
+    //   rightHeader: 'Fan speed',
+    // });
+    // if (IsDone(speed)) {
+    //   return;
+    // }
+    // await this.fetchService.fetch({
+    //   body: { speed },
+    //   method: 'put',
+    //   url: `/entity/command/${id}/setSpeed`,
+    // });
   }
 
   protected buildKeymap(id: string): KeyMap {

@@ -11,6 +11,6 @@ export class RoutineTriggerService {
     current: Partial<RoutineCommandTriggerRoutineDTO> = {},
   ): Promise<RoutineCommandTriggerRoutineDTO> {
     const routine = await this.routineService.pickOne(current.routine);
-    return { routine: routine._id };
+    return { force: false, routine: routine._id };
   }
 }

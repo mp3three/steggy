@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { KunamiCodeActivateDTO } from '@steggy/controller-shared';
+import { SequenceActivateDTO } from '@steggy/controller-shared';
 import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
-import { PromptService, SyncLoggerService } from '@steggy/tty';
+import { PromptService, SyncLoggerService, ToMenuEntry } from '@steggy/tty';
 import { is } from '@steggy/utilities';
 import chalk from 'chalk';
 
@@ -20,9 +20,9 @@ export class KunamiBuilderService {
   ) {}
 
   public async build(
-    current: Partial<KunamiCodeActivateDTO> = {},
+    current: Partial<SequenceActivateDTO> = {},
     sensorList: string[] = [],
-  ): Promise<KunamiCodeActivateDTO> {
+  ): Promise<SequenceActivateDTO> {
     current.sensor = !is.empty(sensorList)
       ? await this.entityService.pickOne(sensorList, current.sensor)
       : await this.entityService.pickInDomain(
@@ -30,13 +30,16 @@ export class KunamiBuilderService {
           [],
           current.sensor,
         );
-    const type = await this.promptService.pickOne(`How to enter values?`, [
-      ...this.promptService.conditionalEntries(!is.empty(current.match), [
-        ['Keep current states', 'keep'],
+    const type = await this.promptService.pickOne(
+      `How to enter values?`,
+      ToMenuEntry([
+        ...this.promptService.conditionalEntries(!is.empty(current.match), [
+          ['Keep current states', 'keep'],
+        ]),
+        ['Record state changes', 'record'],
+        ['Manual entry', 'manual'],
       ]),
-      ['Record state changes', 'record'],
-      ['Manual entry', 'manual'],
-    ]);
+    );
 
     const reset = await this.getReset(current.reset);
     if (reset !== 'none') {
@@ -48,7 +51,7 @@ export class KunamiBuilderService {
           ? await this.recordEvents(current.sensor)
           : await this.manualEntry(current.match);
     }
-    return current as KunamiCodeActivateDTO;
+    return current as SequenceActivateDTO;
   }
 
   private async getReset(
@@ -58,12 +61,12 @@ export class KunamiBuilderService {
       'self' | 'none' | 'sensor' | 'help'
     >(
       `Sequence reset`,
-      [
+      ToMenuEntry([
         ['None', 'none'],
         ['Self', 'self'],
         ['Sensor', 'sensor'],
         ['Help', 'help'],
-      ],
+      ]),
       reset,
     );
     if (out === 'help') {

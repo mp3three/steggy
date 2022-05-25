@@ -1,6 +1,6 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { StateChangeActivateDTO } from '@steggy/controller-shared';
-import { PromptEntry, PromptService } from '@steggy/tty';
+import { PromptEntry, PromptService, ToMenuEntry } from '@steggy/tty';
 import { FILTER_OPERATIONS, FilterValueType, is } from '@steggy/utilities';
 import { v4 as uuid } from 'uuid';
 
@@ -23,23 +23,26 @@ export class StateChangeBuilderService {
       undefined,
       current.entity,
     );
-    const operation = await this.promptService.pickOne(`Comparison type`, [
-      // Don't think this applies, and I can't think of a label
-      // ['elem', 'elem'],
-      // Basics
-      ['Equals', FILTER_OPERATIONS.eq],
-      ['Not Equals', FILTER_OPERATIONS.ne],
-      // Numeric
-      ['Less Than', FILTER_OPERATIONS.lt],
-      ['Less Than or Equals', FILTER_OPERATIONS.lte],
-      ['Greater Than', FILTER_OPERATIONS.gt],
-      ['Greater Than or Equals', FILTER_OPERATIONS.gte],
-      // Arrays
-      ['In List', FILTER_OPERATIONS.in],
-      ['Not In List', FILTER_OPERATIONS.nin],
-      // Misc
-      ['Regular Expression Match', FILTER_OPERATIONS.regex],
-    ] as PromptEntry<FILTER_OPERATIONS>[]);
+    const operation = await this.promptService.pickOne(
+      `Comparison type`,
+      ToMenuEntry([
+        // Don't think this applies, and I can't think of a label
+        // ['elem', 'elem'],
+        // Basics
+        ['Equals', FILTER_OPERATIONS.eq],
+        ['Not Equals', FILTER_OPERATIONS.ne],
+        // Numeric
+        ['Less Than', FILTER_OPERATIONS.lt],
+        ['Less Than or Equals', FILTER_OPERATIONS.lte],
+        ['Greater Than', FILTER_OPERATIONS.gt],
+        ['Greater Than or Equals', FILTER_OPERATIONS.gte],
+        // Arrays
+        ['In List', FILTER_OPERATIONS.in],
+        ['Not In List', FILTER_OPERATIONS.nin],
+        // Misc
+        ['Regular Expression Match', FILTER_OPERATIONS.regex],
+      ] as PromptEntry<FILTER_OPERATIONS>[]),
+    );
     const value = await this.getValue(operation, current.value);
     const latch = await this.promptService.boolean('Latch', current.latch);
 
@@ -92,12 +95,15 @@ export class StateChangeBuilderService {
   private async numericValue(
     current?: FilterValueType,
   ): Promise<FilterValueType> {
-    const type = await this.promptService.pickOne(`Value type`, [
-      ['Number', 'number'],
-      ['Date', 'date'],
-      ['Time', 'time'],
-      ['Timestamp', 'timestamp'],
-    ]);
+    const type = await this.promptService.pickOne(
+      `Value type`,
+      ToMenuEntry([
+        ['Number', 'number'],
+        ['Date', 'date'],
+        ['Time', 'time'],
+        ['Timestamp', 'timestamp'],
+      ]),
+    );
     switch (type) {
       case 'number':
         return await this.promptService.number(
@@ -125,8 +131,8 @@ export class StateChangeBuilderService {
 
   private async regexValue(current: string): Promise<string> {
     return await this.promptService.string(`Expression`, current, {
-      prefix: `/`,
-      suffix: `/gi`,
+      // prefix: `/`,
+      // suffix: `/gi`,
     });
   }
 }

@@ -147,7 +147,7 @@ export class GroupCommandService implements iRepl {
   ): Promise<GeneralSaveStateDTO> {
     let state = await this.promptService.pickOne<GroupSaveStateDTO | string>(
       `${chalk.magenta.bold(group.friendlyName)} save state`,
-      [
+      ToMenuEntry([
         [`${ICONS.CREATE}Create new state`, `create`],
         ...this.promptService.conditionalEntries(!is.empty(group.save_states), [
           new inquirer.Separator(chalk.white`Existing states`),
@@ -156,7 +156,7 @@ export class GroupCommandService implements iRepl {
             i,
           ]) as PromptEntry<GroupSaveStateDTO>[]),
         ]),
-      ],
+      ]),
       group.save_states.find(({ id }) => id === current.state),
     );
     if (state === 'create') {
@@ -261,9 +261,11 @@ export class GroupCommandService implements iRepl {
     }
     return await this.promptService.pickOne(
       `Pick a group`,
-      groups
-        .filter(group => inList.includes(group._id))
-        .map(group => [group.friendlyName, group]),
+      ToMenuEntry(
+        groups
+          .filter(group => inList.includes(group._id))
+          .map(group => [group.friendlyName, group]),
+      ),
       defaultValue,
     );
   }

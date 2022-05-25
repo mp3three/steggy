@@ -40,6 +40,7 @@ type RService = RoutineService;
 @Injectable()
 export class RoutineActivateService {
   constructor(
+    @Inject(forwardRef(() => KunamiBuilderService))
     private readonly kunamiActivate: KunamiBuilderService,
     private readonly stateActivate: StateChangeBuilderService,
     private readonly scheduleActivate: ScheduleBuilderService,
@@ -61,10 +62,12 @@ export class RoutineActivateService {
     );
     const type = await this.promptService.pickOne<ROUTINE_ACTIVATE_TYPE>(
       `Activation type`,
-      Object.values(ROUTINE_ACTIVATE_TYPE).map(value => [
-        TitleCase(value),
-        value,
-      ]),
+      ToMenuEntry(
+        Object.values(ROUTINE_ACTIVATE_TYPE).map(value => [
+          TitleCase(value),
+          value,
+        ]),
+      ),
       current.type,
     );
     switch (type) {
