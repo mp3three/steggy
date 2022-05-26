@@ -16,7 +16,7 @@ import {
 } from '@steggy/utilities';
 import chalk from 'chalk';
 
-import { MenuEntry, tKeyMap } from '../../contracts';
+import { InquirerKeypressOptions, MenuEntry, tKeyMap } from '../../contracts';
 import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { KeyboardManagerService, ScreenService } from '../meta';
@@ -30,15 +30,18 @@ export interface ListBuilderOptions<T = unknown> {
   source: MenuEntry<T | string>[];
 }
 
-const KEYMAP_FIND: tKeyMap = new Map([
-  [{ key: 'backspace' }, 'searchBack'],
-  [{ key: ['`', 'f4'] }, 'toggle selected'],
-  [{ key: 'left' }, 'onLeft'],
-  [{ key: 'tab' }, 'toggleFind'],
-  [{ key: 'right' }, 'onRight'],
-  [{}, 'searchAppend'],
+const KEYMAP_FIND: tKeyMap = new Map<InquirerKeypressOptions, string>([
+  [{ key: 'backspace', noHelp: true }, 'searchBack'],
+  [{ description: 'toggle selected', key: ['`', 'f4'] }, 'toggle'],
+  [{ description: 'current', key: 'left' }, 'onLeft'],
+  [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
+  [{ description: 'available', key: 'right' }, 'onRight'],
+  [{ noHelp: true }, 'searchAppend'],
   [
-    { key: ['up', 'down', 'home', 'pageup', 'end', 'pagedown'] },
+    {
+      description: 'navigate',
+      key: ['up', 'down', 'home', 'pageup', 'end', 'pagedown'],
+    },
     'navigateSearch',
   ],
 ]);

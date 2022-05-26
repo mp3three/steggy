@@ -301,12 +301,12 @@ export class BaseDomainService {
   protected buildKeymap(): KeyMap {
     return {
       d: MENU_ITEMS.DONE,
-      g: [`${ICONS.DOWN}Graphs`, 'graph'],
-      h: MENU_ITEMS.HISTORY,
+      // g: [`${ICONS.DOWN}Graphs`, 'graph'],
+      // h: MENU_ITEMS.HISTORY,
       i: [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
       n: [`${ICONS.RENAME}Change Friendly Name`, 'friendlyName'],
       r: MENU_ITEMS.REFRESH,
-      y: [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
+      // y: [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
     };
   }
 

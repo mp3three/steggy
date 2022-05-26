@@ -6,7 +6,7 @@ import { ICONS } from '../types';
 const menu = {
   ACTIVATE: [`${ICONS.ACTIVATE}Manual Activate`, 'activate'],
   ADD: [`${ICONS.CREATE}Add`, 'add'],
-  CREATE: [`${ICONS.CREATE}Create`, 'create'],
+  // CREATE: [`${ICONS.CREATE}Create`, 'create'],
   DELETE: [`${ICONS.DELETE}Delete`, 'delete'],
   DESCRIBE: [`${ICONS.DESCRIBE}Describe`, 'describe'],
   DONE: [chalk.bold`Done`, DONE],

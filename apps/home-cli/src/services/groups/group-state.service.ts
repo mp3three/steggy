@@ -55,11 +55,11 @@ export class GroupStateService {
 
   public async activate(
     group: GroupDTO,
-    state: GroupSaveStateDTO,
+    state: GroupSaveStateDTO | string,
   ): Promise<void> {
     await this.fetchService.fetch({
       method: 'post',
-      url: `/group/${group._id}/state/${state.id}`,
+      url: `/group/${group._id}/state/${is.string(state) ? state : state.id}`,
     });
   }
 

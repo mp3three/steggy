@@ -103,7 +103,6 @@ export class RoutineService {
     let action = await this.promptService.menu<RoutineDTO | string>({
       keyMap: {
         a: MENU_ITEMS.ACTIVATE,
-        c: MENU_ITEMS.CREATE,
         d: MENU_ITEMS.DONE,
         t: [
           all
@@ -174,7 +173,6 @@ export class RoutineService {
     defaultAction?: string,
   ): Promise<void> {
     await this.header(routine);
-
     const action = await this.promptService.menu({
       keyMap: {
         d: MENU_ITEMS.DONE,
@@ -184,12 +182,6 @@ export class RoutineService {
           'pin',
         ],
         r: MENU_ITEMS.RENAME,
-        s: [
-          routine.sync
-            ? `${ICONS.SWAP}Run commands in parallel`
-            : `${ICONS.SWAP}Run commands in series`,
-          `sync`,
-        ],
         x: [`${ICONS.DELETE}Delete`, 'delete'],
       },
       keyOnly: true,

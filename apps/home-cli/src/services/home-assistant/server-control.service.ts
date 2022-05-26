@@ -27,7 +27,7 @@ export class ServerControlService {
     private readonly screenService: ScreenService,
   ) {}
 
-  public async exec(defaultAction: string): Promise<void> {
+  public async exec(defaultAction?: string): Promise<void> {
     this.applicationManager.setHeader(`Hass Control`);
     const action = await this.promptService.menu({
       keyMap: {

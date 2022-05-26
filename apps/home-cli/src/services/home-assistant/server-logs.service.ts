@@ -36,7 +36,7 @@ export class ServerLogsService {
     private readonly applicationManager: ApplicationManagerService,
   ) {}
 
-  public async exec(defaultValue: string): Promise<void> {
+  public async exec(defaultValue?: string): Promise<void> {
     this.applicationManager.setHeader('Server Logs');
     const action = await this.promptService.menu({
       keyMap: {

@@ -59,10 +59,13 @@ export class RoomStateService {
     private readonly screenService: ScreenService,
   ) {}
 
-  public async activate(room: RoomDTO, state: RoomStateDTO): Promise<void> {
+  public async activate(
+    room: RoomDTO,
+    state: RoomStateDTO | string,
+  ): Promise<void> {
     await this.fetchService.fetch({
       method: `post`,
-      url: `/room/${room._id}/state/${state.id}`,
+      url: `/room/${room._id}/state/${is.string(state) ? state : state.id}`,
     });
   }
 
@@ -98,16 +101,11 @@ export class RoomStateService {
 
   public async pickOne(room: RoomDTO, current?: RoomStateDTO): Promise<string> {
     const action = await this.promptService.menu({
-      keyMap: { c: MENU_ITEMS.CREATE },
       right: ToMenuEntry(
         room.save_states.map(state => [state.friendlyName, state]),
       ),
       value: current,
     });
-    if (action === 'create') {
-      const state = await this.build(room);
-      return state.id;
-    }
     if (is.string(action)) {
       throw new NotImplementedException();
     }
@@ -119,7 +117,6 @@ export class RoomStateService {
     const action = await this.promptService.menu({
       keyMap: {
         a: MENU_ITEMS.ACTIVATE,
-        c: MENU_ITEMS.CREATE,
         d: MENU_ITEMS.DONE,
         f12: [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
       },
@@ -142,11 +139,8 @@ export class RoomStateService {
     if (IsDone(action)) {
       return room;
     }
+    // eslint-disable-next-line radar/no-small-switch
     switch (action) {
-      case 'create':
-        await this.build(room);
-        room = await this.roomService.get(room._id);
-        return await this.process(room);
       case 'truncate':
         if (
           !(await this.promptService.confirm(

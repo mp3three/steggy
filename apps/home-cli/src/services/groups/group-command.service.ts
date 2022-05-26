@@ -18,8 +18,10 @@ import {
   DONE,
   IsDone,
   KeyMap,
+  MainMenuEntry,
   PromptEntry,
   PromptService,
+  ScreenService,
   SyncLoggerService,
   ToMenuEntry,
 } from '@steggy/tty';
@@ -35,7 +37,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 
 import { MENU_ITEMS } from '../../includes';
-import { ICONS } from '../../types';
+import { ICONS, IS_PROBABLY_ID } from '../../types';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { PinnedItemService } from '../pinned-item.service';
@@ -107,39 +109,12 @@ export class GroupCommandService {
     private readonly fanGroup: FanGroupCommandService,
     private readonly lockGroup: LockGroupCommandService,
     private readonly pinnedItems: PinnedItemService,
+    private readonly screenService: ScreenService,
     private readonly applicationManager: ApplicationManagerService,
     private readonly switchGroup: SwitchGroupCommandService,
   ) {}
 
   private lastGroup: string;
-
-  public async create(): Promise<GroupDTO> {
-    const type = (await this.promptService.menu<GROUP_TYPES>({
-      keyMap: { d: MENU_ITEMS.DONE },
-      right: Object.values(GROUP_TYPES).map(type => ({
-        entry: [TitleCase(type, false), type],
-        helpText: GROUP_DEFINITIONS.get(type),
-      })),
-      showHeaders: false,
-    })) as GROUP_TYPES;
-    if (IsDone(type)) {
-      return;
-    }
-    const friendlyName = await this.promptService.friendlyName();
-    const entities = await this.entityService.buildList(
-      GROUP_DOMAINS.get(type),
-    );
-    const body: GroupDTO = {
-      entities,
-      friendlyName,
-      type,
-    };
-    return await this.fetchService.fetch<GroupDTO>({
-      body,
-      method: 'post',
-      url: `/group`,
-    });
-  }
 
   public async createSaveCommand(
     group: GroupDTO,
@@ -180,7 +155,7 @@ export class GroupCommandService {
     this.applicationManager.setHeader('All Groups');
     const groups = await this.list();
     const action = await this.promptService.menu<GroupDTO>({
-      keyMap: { c: MENU_ITEMS.CREATE, d: MENU_ITEMS.DONE },
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
         ...this.promptService.conditionalEntries(
           !is.empty(groups),
@@ -192,10 +167,6 @@ export class GroupCommandService {
         ? groups.find(({ _id }) => _id === this.lastGroup)
         : undefined,
     });
-    if (action === 'create') {
-      await this.create();
-      return await this.exec();
-    }
     if (IsDone(action)) {
       return;
     }
@@ -296,9 +267,6 @@ export class GroupCommandService {
         map = this.lockGroup.keyMap;
         break;
     }
-    const [state] = [
-      [`${ICONS.STATE_MANAGER}State Manager`, 'state'],
-    ] as PromptEntry[];
     const action = await this.promptService.menu<{ entity_id: string }>({
       keyMap: {
         a: [`Add entity`, 'add'],
@@ -309,16 +277,30 @@ export class GroupCommandService {
           'pin',
         ],
         r: MENU_ITEMS.RENAME,
-        s: state,
         x: MENU_ITEMS.DELETE,
         ...map,
       },
-      left: ToMenuEntry(
-        group.entities.map(entity_id => [entity_id, { entity_id }]),
-      ),
-      leftHeader: 'Group Entities',
-      right: ToMenuEntry(actions as PromptEntry[]),
-      rightHeader: `${TitleCase(group.type, false)} Commands`,
+      left: group.entities.map(entity_id => ({
+        entry: [entity_id, { entity_id }],
+        type: 'Entities',
+      })),
+      right: [
+        ...actions.map(
+          entry =>
+            ({
+              entry,
+              type: 'Actions',
+            } as MainMenuEntry<string>),
+        ),
+        ...group.save_states.map(
+          state =>
+            ({
+              entry: [state.friendlyName, state.id],
+              type: 'Save State',
+            } as MainMenuEntry<string>),
+        ),
+      ],
+      showHeaders: false,
       value: defaultValue,
     });
     if (IsDone(action)) {
@@ -346,17 +328,13 @@ export class GroupCommandService {
         group = await this.update(group);
         return this.process(group, list, action);
       case 'entities':
-        group.entities = await this.promptService.pickMany(
-          `Select entities to keep`,
-          group.entities.map(i => [i, i]),
-          { default: group.entities },
-        );
+        this.screenService.print(`Select entities to keep`);
+        group.entities = await this.promptService.listBuild({
+          current: group.entities.map(i => [i, i]),
+          source: [],
+        });
         group = await this.update(group);
         return this.process(group, list, action);
-      case 'state':
-        list = list ?? (await this.list());
-        await this.groupState.processState(group, list);
-        break;
       case DONE:
         return;
       // Capture state
@@ -393,6 +371,10 @@ export class GroupCommandService {
         });
         return;
       default:
+        if (IS_PROBABLY_ID(action)) {
+          this.groupState.activate(group, action);
+          break;
+        }
         switch (group.type) {
           case GROUP_TYPES.light:
             await this.lightGroup.processAction(group, action);

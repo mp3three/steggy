@@ -31,6 +31,7 @@ export const ICONS = {
   LOGS: '📋 ',
   MANUAL: '🔨 ',
   NAME: '💭 ',
+  PEOPLE: '🤖 ',
   PIN: '📌 ',
   REFRESH: '🔁 ',
   RENAME: '📑 ',

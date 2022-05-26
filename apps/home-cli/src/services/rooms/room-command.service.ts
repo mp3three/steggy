@@ -5,6 +5,7 @@ import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
   IsDone,
+  MainMenuEntry,
   PromptEntry,
   PromptService,
   SyncLoggerService,
@@ -12,7 +13,6 @@ import {
 } from '@steggy/tty';
 import { DOWN, FILTER_OPERATIONS, is, LABEL, UP } from '@steggy/utilities';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
 
 import { MENU_ITEMS } from '../../includes';
 import { ICONS } from '../../types';
@@ -20,7 +20,6 @@ import { GroupCommandService } from '../groups/group-command.service';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { PinnedItemService } from '../pinned-item.service';
-import { RoutineService } from '../routines';
 import { RoomStateService } from './room-state.service';
 
 const CACHE_KEY = 'MENU_LAST_ROOM';
@@ -43,7 +42,6 @@ export class RoomCommandService {
     private readonly entityService: EntityService,
     private readonly roomState: RoomStateService,
     private readonly pinnedItems: PinnedItemService,
-    private readonly routineService: RoutineService,
     private readonly applicationManager: ApplicationManagerService,
   ) {}
 
@@ -71,10 +69,7 @@ export class RoomCommandService {
   public async exec(): Promise<void> {
     const rooms = await this.list();
     let room = await this.promptService.menu<RoomDTO | string>({
-      keyMap: {
-        c: MENU_ITEMS.CREATE,
-        d: MENU_ITEMS.DONE,
-      },
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
         rooms
           .map(room => [room.friendlyName, room] as PromptEntry<RoomDTO>)
@@ -141,7 +136,6 @@ export class RoomCommandService {
     defaultAction?: string,
   ): Promise<void> {
     this.applicationManager.setHeader(room.friendlyName);
-
     const groups = is.empty(room.groups)
       ? []
       : await this.groupCommand.list({
@@ -167,29 +161,31 @@ export class RoomCommandService {
           'pin',
         ],
         r: MENU_ITEMS.RENAME,
-        s: MENU_ITEMS.STATE_MANAGER,
         x: MENU_ITEMS.DELETE,
       },
-      left: ToMenuEntry([
-        ...this.promptService.conditionalEntries(!is.empty(room.entities), [
-          new inquirer.Separator('Entities'),
-          ...(room.entities.map(({ entity_id }) => {
-            return [entity_id, { entity_id }];
-          }) as PromptEntry<{ entity_id: string }>[]),
-        ]),
-        ...this.promptService.conditionalEntries(!is.empty(groups), [
-          new inquirer.Separator('Groups'),
-          ...(groups.map(group => {
-            return [group.friendlyName, group];
-          }) as PromptEntry<GroupDTO>[]),
-        ]),
-      ] as PromptEntry[]),
-      right: ToMenuEntry([
-        MENU_ITEMS.ROUTINES,
-        MENU_ITEMS.STATE_MANAGER,
-        MENU_ITEMS.ENTITIES,
-        MENU_ITEMS.GROUPS,
-      ]),
+      left: [
+        ...(is.empty(room.entities)
+          ? []
+          : (room.entities.map(({ entity_id }) => {
+              return { entry: [entity_id, { entity_id }], type: 'Entity' };
+            }) as MainMenuEntry<{ entity_id: string }>[])),
+        ...(is.empty(groups)
+          ? []
+          : (groups.map(group => {
+              return { entry: [group.friendlyName, group], type: 'Group' };
+            }) as MainMenuEntry<GroupDTO>[])),
+      ],
+      right: [
+        { entry: MENU_ITEMS.ENTITIES, type: 'Manage' },
+        { entry: MENU_ITEMS.GROUPS, type: 'Manage' },
+        ...room.save_states.map(
+          state =>
+            ({
+              entry: [state.friendlyName, state.id],
+              type: 'Save States',
+            } as MainMenuEntry<string>),
+        ),
+      ],
       showHeaders: false,
       value: defaultAction,
     });
@@ -246,6 +242,9 @@ export class RoomCommandService {
         room.groups = added.map(({ _id }) => _id);
         room = await this.update(room);
         return await this.processRoom(room, action);
+      default:
+        await this.roomState.activate(room, action);
+        return await this.processRoom(room, action);
     }
   }
 
@@ -290,20 +289,11 @@ export class RoomCommandService {
       `Group actions`,
       ToMenuEntry([
         [`${ICONS.GROUPS}Use existing`, 'existing'],
-        [`${ICONS.CREATE}Create new`, 'create'],
         [`Done`, 'done'],
       ]),
       `Room groups`,
     );
     switch (action) {
-      //
-      case 'create':
-        const group = await this.groupCommand.create();
-        if (!group) {
-          return await this.groupBuilder(current);
-        }
-        current.push(group._id);
-        return await this.groupBuilder(current);
       // Eject!
       case 'done':
         return current;

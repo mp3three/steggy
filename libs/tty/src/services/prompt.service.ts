@@ -69,6 +69,9 @@ export class PromptService {
     })) as boolean;
   }
 
+  /**
+   * @deprecated
+   */
   public async brightness(
     current = MAX_BRIGHTNESS,
     message = 'Brightness',
@@ -113,6 +116,9 @@ export class PromptService {
     });
   }
 
+  /**
+   * @deprecated
+   */
   public async cron(value?: string): Promise<string> {
     const { result } = await inquirer.prompt([
       {
@@ -124,6 +130,9 @@ export class PromptService {
     return result;
   }
 
+  /**
+   * @deprecated
+   */
   public async date(
     prompt = `Date value`,
     defaultValue = new Date(),
@@ -155,6 +164,9 @@ export class PromptService {
     return { from, to };
   }
 
+  /**
+   * @deprecated
+   */
   public async editor(message: string, defaultValue?: string): Promise<string> {
     const { result } = await inquirer.prompt([
       {
@@ -167,6 +179,9 @@ export class PromptService {
     return result.trim();
   }
 
+  /**
+   * @deprecated
+   */
   public async expand<T extends unknown = string>(
     message: string,
     options: { key: string; name: string; value: T }[],
@@ -196,6 +211,9 @@ export class PromptService {
     return await this.string(`Friendly name`, current);
   }
 
+  /**
+   * @deprecated
+   */
   public async insertPosition<T extends unknown = string>(
     choices: PromptEntry<T>[],
     moveItem: T,
@@ -276,6 +294,9 @@ export class PromptService {
     return result;
   }
 
+  /**
+   * @deprecated
+   */
   public async password(
     message = `Password value`,
     defaultValue?: string,
@@ -291,6 +312,9 @@ export class PromptService {
     return result;
   }
 
+  /**
+   * @deprecated
+   */
   public async pickMany<T extends unknown = string>(
     message = `Pick many`,
     options: PromptEntry<T>[],
@@ -366,6 +390,9 @@ export class PromptService {
     } as StringEditorRenderOptions);
   }
 
+  /**
+   * @deprecated
+   */
   public async time(
     prompt = `Time value`,
     defaultValue = new Date(),
@@ -386,6 +413,9 @@ export class PromptService {
     return result;
   }
 
+  /**
+   * @deprecated
+   */
   public async timeout(prompt = 'Timeout duration'): Promise<number> {
     const { result } = await inquirer.prompt([
       {
@@ -398,6 +428,9 @@ export class PromptService {
     return result;
   }
 
+  /**
+   * @deprecated
+   */
   public async timestamp(
     prompt = `Timestamp`,
     defaultValue = new Date(),

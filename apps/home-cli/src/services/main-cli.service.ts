@@ -1,3 +1,4 @@
+/* eslint-disable radar/no-duplicate-string */
 import { Injectable } from '@nestjs/common';
 import {
   CacheManagerService,
@@ -11,12 +12,22 @@ import {
   MenuEntry,
   PromptEntry,
   PromptService,
+  ToMenuEntry,
 } from '@steggy/tty';
 import { DOWN, is, UP, VALUE } from '@steggy/utilities';
 
 import { APP_TITLE } from '../config';
 import { ICONS } from '../types';
+import { DebugService } from './debug.service';
+import { GroupCommandService } from './groups';
+import {
+  EntityService,
+  ServerControlService,
+  ServerLogsService,
+} from './home-assistant';
 import { PinnedItemDTO, PinnedItemService } from './pinned-item.service';
+import { RoomCommandService } from './rooms';
+import { RoutineService } from './routines';
 
 // Filter out non-sortable characters (like emoji)
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
@@ -26,6 +37,13 @@ type ENTRY_TYPE = string | PinnedItemDTO;
 @Injectable()
 export class MainCLIService {
   constructor(
+    private readonly debugService: DebugService,
+    private readonly entityService: EntityService,
+    private readonly groupService: GroupCommandService,
+    private readonly serverControl: ServerControlService,
+    private readonly serverLogs: ServerLogsService,
+    private readonly roomService: RoomCommandService,
+    private readonly routineService: RoutineService,
     private readonly applicationManager: ApplicationManagerService,
     private readonly promptService: PromptService,
     private readonly pinnedItem: PinnedItemService,
@@ -43,13 +61,29 @@ export class MainCLIService {
       await this.pinnedItem.exec(name as PinnedItemDTO);
       return this.exec();
     }
-    // let instance: iRepl;
-    // this.explorer.REGISTERED_APPS.forEach((i, options) => {
-    //   if (options.name === name) {
-    //     instance = i;
-    //   }
-    // });
-    // await instance.exec();
+    switch (name) {
+      case 'routines':
+        await this.routineService.exec();
+        break;
+      case 'rooms':
+        await this.roomService.exec();
+        break;
+      case 'groups':
+        await this.groupService.exec();
+        break;
+      case 'entities':
+        await this.entityService.exec();
+        break;
+      case 'server-logs':
+        await this.serverLogs.exec();
+        break;
+      case 'server-control':
+        await this.serverControl.exec();
+        break;
+      case 'debug':
+        await this.debugService.exec();
+        break;
+    }
     await this.exec();
   }
 
@@ -93,40 +127,47 @@ export class MainCLIService {
   private async pickOne(): Promise<ENTRY_TYPE> {
     const types: Record<string, PromptEntry<ENTRY_TYPE>[]> = {};
     const keyMap: KeyMap = {
-      t: [`${ICONS.ROUTINE}`, 'routine'],
+      f12: [`${ICONS.DEBUG}Debugger`, 'debug'],
+      g: [`${ICONS.GROUPS}Groups`, 'groups'],
+      r: [`${ICONS.ROOMS}Rooms`, 'rooms'],
+      t: [`${ICONS.ROUTINE}Routines`, 'routines'],
     };
-    // this.explorer.REGISTERED_APPS.forEach(
-    //   (
-    //     instance: iRepl,
-    //     { category: type, name, icon, keybind, keyOnly }: ReplOptions,
-    //   ) => {
-    //     if (name !== 'Main') {
-    //       if (keybind) {
-    //         keyMap[keybind] = [`${icon ?? ''}${name}`, name];
-    //         if (keyOnly) {
-    //           return;
-    //         }
-    //       }
-    //       types[type] ??= [];
-    //       types[type].push([`${icon ?? ''}${name}`, name]);
-    //     }
-    //   },
-    // );
+
     const right = this.getRight(types);
-    const left = this.getLeft();
-    if (is.object(this.last) && this.last !== null) {
-      this.last = left.find(i => {
-        return (
-          (i.entry[VALUE] as PinnedItemDTO).id ===
-          (this.last as PinnedItemDTO).id
-        );
-      })?.entry[VALUE];
-    }
+    // const left = this.getLeft();
+    // if (is.object(this.last) && this.last !== null) {
+    //   this.last = left.find(i => {
+    //     return (
+    //       (i.entry[VALUE] as PinnedItemDTO).id ===
+    //       (this.last as PinnedItemDTO).id
+    //     );
+    //   })?.entry[VALUE];
+    // }
     const result = await this.promptService.menu<ENTRY_TYPE>({
       keyMap,
-      left,
+      left: ToMenuEntry([
+        //
+        ['foo', 'bar'],
+      ]),
       leftHeader: 'Pinned Items',
-      right,
+      right: [
+        { entry: [`${ICONS.GROUPS}Groups`, 'groups'], type: 'Controller' },
+        { entry: [`${ICONS.PEOPLE}People`, 'people'], type: 'Controller' },
+        { entry: [`${ICONS.ROOMS}Rooms`, 'rooms'], type: 'Controller' },
+        { entry: [`${ICONS.ROUTINE}Routines`, 'routines'], type: 'Controller' },
+        // {
+        //   entry: [`${ICONS.ROUTINE}Server Logs`, 'server-logs'],
+        //   type: 'Home Assistant',
+        // },
+        // {
+        //   entry: [`${ICONS.ADMIN}Server Control`, 'server-control'],
+        //   type: 'Home Assistant',
+        // },
+        {
+          entry: [`${ICONS.ENTITIES}Entities`, 'entities'],
+          type: 'Home Assistant',
+        },
+      ],
       titleTypes: true,
       value: this.last,
     });
