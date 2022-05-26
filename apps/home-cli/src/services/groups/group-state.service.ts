@@ -2,7 +2,6 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  InternalServerErrorException,
   NotImplementedException,
 } from '@nestjs/common';
 import {
@@ -50,7 +49,7 @@ export class GroupStateService {
     private readonly textRender: TextRenderingService,
     private readonly applicationManager: ApplicationManagerService,
     private readonly screenService: ScreenService,
-    private readonly pinnedItems: PinnedItemService<{ group: string }>,
+    private readonly pinnedItems: PinnedItemService,
   ) {}
 
   public async activate(
@@ -260,13 +259,13 @@ export class GroupStateService {
   }
 
   protected onModuleInit(): void {
-    this.pinnedItems.loaders.set('group_state', async ({ id, data }) => {
-      const group = await this.groupService.get(data.group);
-      const state = group.save_states.find(i => i.id === id);
-      if (!state) {
-        throw new InternalServerErrorException();
-      }
-      await this.stateAction(state, group);
+    this.pinnedItems.loaders.set('group_state', async ({ target }) => {
+      // const group = await this.groupService.get(data.group);
+      // const state = group.save_states.find(i => i.id === id);
+      // if (!state) {
+      //   throw new InternalServerErrorException();
+      // }
+      // await this.stateAction(state, group);
     });
   }
 
@@ -356,10 +355,8 @@ export class GroupStateService {
         return this.groupService.get(group);
       case 'pin':
         this.pinnedItems.toggle({
-          data: { group: group._id },
-          friendlyName: state.friendlyName,
-          id: state.id,
-          script: 'group_state',
+          target: state.id,
+          type: 'group_state',
         });
         return await this.stateAction(state, group, action);
       case 'rename':

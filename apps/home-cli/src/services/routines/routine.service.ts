@@ -194,9 +194,8 @@ export class RoutineService {
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
-          friendlyName: routine.friendlyName,
-          id: routine._id,
-          script: 'routine',
+          target: routine._id,
+          type: 'routine',
         });
         return await this.processRoutine(routine, action);
       case 'sync':
@@ -303,8 +302,8 @@ export class RoutineService {
 
   protected async onModuleInit(): Promise<void> {
     this.lastRoutine = await this.cache.get(CACHE_KEY);
-    this.pinnedItems.loaders.set('routine', async ({ id }) => {
-      const routine = await this.get(id);
+    this.pinnedItems.loaders.set('routine', async ({ target }) => {
+      const routine = await this.get(target);
       await this.processRoutine(routine);
     });
   }

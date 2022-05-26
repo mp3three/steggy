@@ -211,7 +211,7 @@ export class EntityService {
   protected onModuleInit(): void {
     this.pinnedItems.loaders.set(
       'entity',
-      async ({ id }) => await this.process(id),
+      async ({ target }) => await this.process(target),
     );
   }
 }

@@ -1,65 +1,83 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { InjectConfig } from '@steggy/boilerplate';
+import { PersonDTO, PinnedItemDTO } from '@steggy/controller-shared';
 import { PromptEntry } from '@steggy/tty';
 import { is } from '@steggy/utilities';
 
-export class PinnedItemDTO<T = unknown> {
-  public data?: T;
-  public friendlyName: string;
-  public id: string;
-  public script: string;
-}
+import { USER_ID } from '../config';
+import { HomeFetchService } from './home-fetch.service';
 
 @Injectable()
-export class PinnedItemService<T = unknown> {
+export class PinnedItemService {
+  constructor(
+    @InjectConfig(USER_ID) private readonly userId: string,
+    private readonly fetchService: HomeFetchService,
+  ) {}
+
   public readonly loaders = new Map<
     string,
-    (data: PinnedItemDTO<T>) => Promise<void>
+    (data: PinnedItemDTO) => Promise<void>
   >();
-  private pinned: PinnedItemDTO<T>[] = [];
+  public person: PersonDTO;
+  private pinned: PinnedItemDTO[] = [];
 
-  public addPinned(item: PinnedItemDTO<T>): void {
+  public addPinned(item: PinnedItemDTO): void {
     this.pinned.push(item);
+    this.person.pinned_items.push(item);
     // this.configService.set([LIB_TTY, PINNED_ITEMS], this.pinned, true);
   }
 
-  public async exec(item: PinnedItemDTO<T>): Promise<void> {
-    const callback = this.loaders.get(item.script);
+  public async exec(item: PinnedItemDTO): Promise<void> {
+    const callback = this.loaders.get(item.type);
     if (!callback) {
       throw new InternalServerErrorException();
     }
     await callback(item);
   }
 
-  public findPin(script: string, id: string): PinnedItemDTO<T> {
-    return this.pinned.find(i => i.script === script && id === i.id);
+  public findPin(type: string, id: string): PinnedItemDTO {
+    return this.pinned.find(i => i.type === type && id === i.target);
   }
 
-  public getEntries(name?: string): PromptEntry<PinnedItemDTO<T>>[] {
+  public getEntries(name?: string): PromptEntry<PinnedItemDTO>[] {
     if (!name) {
       return this.pinned.map(i => {
-        return [i.friendlyName, i];
+        return [i.target, i];
       });
     }
     return [];
   }
 
-  public isPinned(script: string, id: string): boolean {
-    return !is.undefined(this.findPin(script, id));
+  public isPinned(type: string, target: string): boolean {
+    return !is.undefined(this.findPin(type, target));
   }
 
-  public removePinned(item: PinnedItemDTO<T>): void {
+  public removePinned(item: PinnedItemDTO): void {
     this.pinned = this.pinned.filter(i => i !== item);
     // this.configService.set([LIB_TTY, PINNED_ITEMS], this.pinned, true);
   }
 
-  public toggle(item: PinnedItemDTO<T>): void {
+  public toggle(item: PinnedItemDTO): void {
     const found = this.pinned.find(
-      ({ id, script }) => id === item.id && script === item.script,
+      ({ target, type }) => target === item.target && type === item.type,
     );
     if (!found) {
       this.addPinned(item);
       return;
     }
     this.removePinned(found);
+  }
+
+  protected async onApplicationBootstrap(): Promise<void> {
+    if (is.empty(this.userId)) {
+      return;
+    }
+    await this.refresh();
+  }
+
+  private async refresh(): Promise<void> {
+    this.person = await this.fetchService.fetch({
+      url: `/person/${this.userId}`,
+    });
   }
 }

@@ -40,7 +40,7 @@ import { GroupCommandService } from '../groups';
 import { EntityService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';
 import { PinnedItemService } from '../pinned-item.service';
-import { RoomCommandService } from './room-command.service';
+import { RoomCommandService } from './person-command.service';
 
 type RCService = RoomCommandService;
 @Injectable()

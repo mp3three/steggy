@@ -8,6 +8,7 @@ import {
   CONTROLLER_API,
   MAX_GRAPH_WIDTH,
   REFRESH_SLEEP,
+  USER_ID,
 } from '../config';
 import {
   BaseDomainService,
@@ -50,6 +51,7 @@ import {
   configuration: {
     [ADMIN_KEY]: {
       description: 'Admin key for the home controller',
+      required: true,
       type: 'string',
     },
     [APP_TITLE]: {
@@ -59,7 +61,7 @@ import {
     },
     [CONTROLLER_API]: {
       default: 'http://dev-controller.localhost',
-      description: 'API endpoint ',
+      description: 'API endpoint',
       type: 'string',
     },
     [MAX_GRAPH_WIDTH]: {
@@ -71,6 +73,10 @@ import {
       description:
         'Pause time after issuing commands before refreshing state information',
       type: 'number',
+    },
+    [USER_ID]: {
+      description: 'Person ID to pull pinned information from',
+      type: 'string',
     },
   },
   imports: [DiscoveryModule, TTYModule, BoilerplateModule.forRoot()],

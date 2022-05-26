@@ -311,10 +311,9 @@ export class GroupCommandService {
     }
     switch (action) {
       case 'pin':
-        this.pinnedItems.toggle({
-          friendlyName: group.friendlyName,
-          id: group._id,
-          script: 'group',
+        await this.pinnedItems.toggle({
+          target: group._id,
+          type: 'group',
         });
         return this.process(group, list, action);
       case 'add':
@@ -404,9 +403,9 @@ export class GroupCommandService {
 
   protected async onModuleInit(): Promise<void> {
     this.lastGroup = await this.cache.get(CACHE_KEY);
-    this.pinnedItems.loaders.set('group', async ({ id }) => {
+    this.pinnedItems.loaders.set('group', async ({ target }) => {
       const list = await this.list();
-      const group = list.find(({ _id }) => _id === id);
+      const group = list.find(({ _id }) => _id === target);
       if (!group) {
         throw new InternalServerErrorException();
       }

@@ -5,6 +5,7 @@ import {
   InjectCache,
   InjectConfig,
 } from '@steggy/boilerplate';
+import { PinnedItemDTO } from '@steggy/controller-shared';
 import {
   ApplicationManagerService,
   KeyMap,
@@ -25,7 +26,7 @@ import {
   ServerControlService,
   ServerLogsService,
 } from './home-assistant';
-import { PinnedItemDTO, PinnedItemService } from './pinned-item.service';
+import { PinnedItemService } from './pinned-item.service';
 import { RoomCommandService } from './rooms';
 import { RoutineService } from './routines';
 
@@ -95,7 +96,7 @@ export class MainCLIService {
     const entries = this.pinnedItem.getEntries();
     return entries.map(i => ({
       entry: i,
-      type: (i[VALUE] as PinnedItemDTO).script,
+      type: (i[VALUE] as PinnedItemDTO).target,
     })) as MainMenuEntry<ENTRY_TYPE>[];
   }
 
@@ -145,10 +146,12 @@ export class MainCLIService {
     // }
     const result = await this.promptService.menu<ENTRY_TYPE>({
       keyMap,
-      left: ToMenuEntry([
-        //
-        ['foo', 'bar'],
-      ]),
+      left: is.undefined(this.pinnedItem.person)
+        ? undefined
+        : ToMenuEntry([
+            //
+            ['foo', 'bar'],
+          ]),
       leftHeader: 'Pinned Items',
       right: [
         { entry: [`${ICONS.GROUPS}Groups`, 'groups'], type: 'Controller' },

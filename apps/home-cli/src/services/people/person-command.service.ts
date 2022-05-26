@@ -20,9 +20,9 @@ import { GroupCommandService } from '../groups/group-command.service';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { PinnedItemService } from '../pinned-item.service';
-import { RoomStateService } from './room-state.service';
+import { RoomStateService } from './person-state.service';
 
-const CACHE_KEY = 'MENU_LAST_ROOM';
+const CACHE_KEY = 'MENU_LAST_PERSON';
 
 // @Repl({
 //   category: `Control`,
@@ -31,7 +31,7 @@ const CACHE_KEY = 'MENU_LAST_ROOM';
 //   name: `Rooms`,
 // })
 @Injectable()
-export class RoomCommandService {
+export class PersonCommandService {
   constructor(
     @InjectCache()
     private readonly cache: CacheManagerService,
@@ -47,28 +47,28 @@ export class RoomCommandService {
 
   private lastRoom: string;
 
-  public async create(): Promise<RoomDTO> {
-    const friendlyName = await this.promptService.friendlyName();
-    const entities = (await this.promptService.confirm(`Add entities?`, true))
-      ? await this.buildEntityList()
-      : [];
-    const groups = (await this.promptService.confirm(`Add groups?`, true))
-      ? await this.groupBuilder()
-      : [];
-    return await this.fetchService.fetch({
-      body: {
-        entities,
-        friendlyName,
-        groups,
-      } as RoomDTO,
-      method: 'post',
-      url: `/room`,
-    });
-  }
+  // public async create(): Promise<RoomDTO> {
+  //   const friendlyName = await this.promptService.friendlyName();
+  //   const entities = (await this.promptService.confirm(`Add entities?`, true))
+  //     ? await this.buildEntityList()
+  //     : [];
+  //   const groups = (await this.promptService.confirm(`Add groups?`, true))
+  //     ? await this.groupBuilder()
+  //     : [];
+  //   return await this.fetchService.fetch({
+  //     body: {
+  //       entities,
+  //       friendlyName,
+  //       groups,
+  //     } as RoomDTO,
+  //     method: 'post',
+  //     url: `/room`,
+  //   });
+  // }
 
   public async exec(): Promise<void> {
     const rooms = await this.list();
-    let room = await this.promptService.menu<RoomDTO | string>({
+    const room = await this.promptService.menu<RoomDTO | string>({
       keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
         rooms
@@ -83,9 +83,9 @@ export class RoomCommandService {
     if (IsDone(room)) {
       return;
     }
-    if (room === 'create') {
-      room = await this.create();
-    }
+    // if (room === 'create') {
+    //   room = await this.create();
+    // }
     if (is.string(room)) {
       throw new NotImplementedException();
     }
@@ -114,7 +114,7 @@ export class RoomCommandService {
     const room = await this.promptService.pickOne<RoomDTO | string>(
       `Pick a room`,
       ToMenuEntry([
-        [`${ICONS.CREATE}Create new`, `create`],
+        // [`${ICONS.CREATE}Create new`, `create`],
         ...this.promptService.conditionalEntries(
           !is.empty(rooms),
           rooms.map(room => [room.friendlyName, room]),
@@ -122,9 +122,9 @@ export class RoomCommandService {
       ]),
       current,
     );
-    if (room === `create`) {
-      return await this.create();
-    }
+    // if (room === `create`) {
+    //   return await this.create();
+    // }
     if (is.string(room)) {
       throw new NotImplementedException();
     }
