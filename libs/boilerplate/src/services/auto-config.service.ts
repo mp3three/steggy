@@ -1,10 +1,10 @@
-/* eslint-disable radar/no-identical-functions, @typescript-eslint/no-magic-numbers */
+/* eslint-disable radar/no-identical-functions*/
 import {
   Inject,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { deepExtend, is } from '@steggy/utilities';
+import { deepExtend, is, LABEL, PAIR, SINGLE, VALUE } from '@steggy/utilities';
 import { writeFileSync } from 'fs';
 import { encode } from 'ini';
 import minimist from 'minimist';
@@ -34,20 +34,20 @@ export class AutoConfigService {
   public static NX_PROJECT?: string;
 
   constructor(
-    private readonly logger: AutoLogService,
-    @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
     /**
      * Override defaults provided by Bootstrap
      */
     @Inject(CONFIG_DEFAULTS)
     private readonly configDefaults: AbstractConfig,
+    @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
+    private readonly logger: AutoLogService,
     private readonly workspace: WorkspaceService,
   ) {
     AutoLogService.logger.level = this.get([LIB_BOILERPLATE, LOG_LEVEL]);
     // AutoConfig is one of the first services to initialize
     // Running it here will force load the configuration at the earliest possible time
     //
-    // Needs to happen ASAP in order to provide values for @InjectConfig, and any direct loading of this class to work right
+    // Needs to happen ASAP in order to provide values for @InjectConfig, and any direct loading of this class to work as intended
     //
     this.earlyInit();
   }
@@ -64,27 +64,17 @@ export class AutoConfigService {
 
   public get<T extends unknown = string>(path: string | [symbol, string]): T {
     if (Array.isArray(path)) {
-      path = ['libs', path[0].description, path[1]].join('.');
+      path = ['libs', path[LABEL].description, path[VALUE]].join('.');
     }
-
-    let value = get(this.config, path) ?? this.getConfiguration(path)?.default;
+    const value =
+      get(this.config, path) ?? this.getConfiguration(path)?.default;
     const config = this.getConfiguration(path);
     if (config.warnDefault && value === config.default) {
       this.logger.warn(
         `Configuration property {${path}} is using default value`,
       );
     }
-    switch (config.type) {
-      case 'number':
-        return Number(value) as T;
-      case 'boolean':
-        if (is.string(value)) {
-          value = ['false', 'n'].includes(value.toLowerCase());
-          return value as T;
-        }
-        return Boolean(value) as T;
-    }
-    return value as T;
+    return this.cast(value, config.type) as T;
   }
 
   public getDefault<T extends unknown = unknown>(path: string): T {
@@ -110,7 +100,7 @@ export class AutoConfigService {
     write = false,
   ): void {
     if (Array.isArray(path)) {
-      path = ['libs', path[0].description, path[1]].join('.');
+      path = ['libs', path[LABEL].description, path[VALUE]].join('.');
     }
     set(this.config, path, value);
     if (write) {
@@ -121,11 +111,9 @@ export class AutoConfigService {
   private cast(data: string, type: string): unknown {
     switch (type) {
       case 'boolean':
-        return (
-          data.toLowerCase() === 'true' ||
-          data.toLowerCase() === 'y' ||
-          data === '1'
-        );
+        return is.boolean(data)
+          ? data
+          : ['true', 'y', '1'].includes(data.toLowerCase());
       case 'number':
         return Number(data);
     }
@@ -165,16 +153,16 @@ export class AutoConfigService {
   private getConfiguration(path: string): ConfigItem {
     const { configs } = LibraryModule;
     const parts = path.split('.');
-    if (parts.length === 1) {
+    if (parts.length === SINGLE) {
       parts.unshift(this.appName);
     }
-    if (parts.length === 2) {
+    if (parts.length === PAIR) {
       const metadata = configs.get(this.appName);
-      const config = metadata.configuration[parts[1]];
+      const config = metadata.configuration[parts[VALUE]];
       if (!is.empty(Object.keys(config ?? {}))) {
         return config;
       }
-      const defaultValue = this.loadAppDefault(parts[1]) as string;
+      const defaultValue = this.loadAppDefault(parts[VALUE]) as string;
       return {
         // Applications can yolo a bit harder than libraries
         default: defaultValue,
@@ -249,13 +237,17 @@ export class AutoConfigService {
         ];
         const configPath = `${configPrefix}.${key}`;
         // Find an applicable switch
-        const flag = search.find(line => {
-          const match = new RegExp(
-            line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]'),
-            'gi',
-          );
-          return switchKeys.some(item => item.match(match));
-        });
+        const flag =
+          // Find an exact match (if available) first
+          search.find(line => switchKeys.includes(line)) ||
+          // Do case insensitive searches
+          search.find(line => {
+            const match = new RegExp(
+              line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]'),
+              'gi',
+            );
+            return switchKeys.some(item => item.match(match));
+          });
         if (flag) {
           const formattedFlag = switchKeys.find(key =>
             search.some(line =>
@@ -271,13 +263,17 @@ export class AutoConfigService {
           return;
         }
         // Find an environment variable
-        const environment = search.find(line => {
-          const match = new RegExp(
-            line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]'),
-            'gi',
-          );
-          return environmentKeys.some(item => item.match(match));
-        });
+        const environment =
+          // Find an exact match (if available) first
+          search.find(line => environmentKeys.includes(line)) ||
+          // Do case insensitive searches
+          search.find(line => {
+            const match = new RegExp(
+              line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]'),
+              'gi',
+            );
+            return environmentKeys.some(item => item.match(match));
+          });
         if (is.empty(environment)) {
           return;
         }

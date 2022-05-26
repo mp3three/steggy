@@ -26,6 +26,7 @@ import {
   ServerControlService,
   ServerLogsService,
 } from './home-assistant';
+import { PersonCommandService } from './people';
 import { PinnedItemService } from './pinned-item.service';
 import { RoomCommandService } from './rooms';
 import { RoutineService } from './routines';
@@ -38,16 +39,17 @@ type ENTRY_TYPE = string | PinnedItemDTO;
 @Injectable()
 export class MainCLIService {
   constructor(
+    private readonly applicationManager: ApplicationManagerService,
     private readonly debugService: DebugService,
     private readonly entityService: EntityService,
     private readonly groupService: GroupCommandService,
-    private readonly serverControl: ServerControlService,
-    private readonly serverLogs: ServerLogsService,
+    private readonly personService: PersonCommandService,
+    private readonly pinnedItem: PinnedItemService,
+    private readonly promptService: PromptService,
     private readonly roomService: RoomCommandService,
     private readonly routineService: RoutineService,
-    private readonly applicationManager: ApplicationManagerService,
-    private readonly promptService: PromptService,
-    private readonly pinnedItem: PinnedItemService,
+    private readonly serverControl: ServerControlService,
+    private readonly serverLogs: ServerLogsService,
     @InjectCache()
     private readonly cacheService: CacheManagerService,
     @InjectConfig(APP_TITLE)
@@ -83,6 +85,9 @@ export class MainCLIService {
         break;
       case 'debug':
         await this.debugService.exec();
+        break;
+      case 'people':
+        await this.personService.exec();
         break;
     }
     await this.exec();

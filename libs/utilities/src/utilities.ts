@@ -1,5 +1,6 @@
 //
 export const EVEN = 2;
+export const PAIR = 2;
 export const INVERT_VALUE = -1;
 // Sort
 export const UP = 1;

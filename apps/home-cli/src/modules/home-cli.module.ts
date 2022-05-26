@@ -30,6 +30,8 @@ import {
   LockService,
   MainCLIService,
   MediaService,
+  PersonCommandService,
+  PersonStateService,
   PinnedItemService,
   RoomCommandService,
   RoomStateService,
@@ -103,6 +105,8 @@ import {
       ],
       // rooms/*
       ...[RoomCommandService, RoomStateService],
+      // rooms/*
+      ...[PersonCommandService, PersonStateService],
       // routines/*
       ...[
         GroupActionService,

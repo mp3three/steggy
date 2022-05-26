@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.5
+
+- In case of multiple similar environment variables being passed (`BASE_URL` vs `base_url`), an exact match to the expected case will be prioritized
+
 ## 0.11.4
 
 - Config scanning functionality resurrected

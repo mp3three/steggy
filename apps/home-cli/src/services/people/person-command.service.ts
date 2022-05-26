@@ -1,6 +1,11 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
-import { GroupDTO, RoomDTO, RoomEntityDTO } from '@steggy/controller-shared';
+import {
+  GroupDTO,
+  PersonDTO,
+  RoomDTO,
+  RoomEntityDTO,
+} from '@steggy/controller-shared';
 import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
@@ -20,15 +25,20 @@ import { GroupCommandService } from '../groups/group-command.service';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { PinnedItemService } from '../pinned-item.service';
-import { RoomStateService } from './person-state.service';
+import { RoomCommandService } from '../rooms';
+import { PersonStateService } from './person-state.service';
 
 const CACHE_KEY = 'MENU_LAST_PERSON';
 
+type tGroup = { group: GroupDTO };
+type tRoom = { room: RoomDTO };
+type tEntity = { entity_id: string };
+
 // @Repl({
 //   category: `Control`,
-//   icon: ICONS.ROOMS,
+//   icon: ICONS.personS,
 //   keybind: 'r',
-//   name: `Rooms`,
+//   name: `persons`,
 // })
 @Injectable()
 export class PersonCommandService {
@@ -40,14 +50,15 @@ export class PersonCommandService {
     private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
     private readonly entityService: EntityService,
-    private readonly roomState: RoomStateService,
+    private readonly personState: PersonStateService,
+    private readonly roomService: RoomCommandService,
     private readonly pinnedItems: PinnedItemService,
     private readonly applicationManager: ApplicationManagerService,
   ) {}
 
-  private lastRoom: string;
+  private lastPerson: string;
 
-  // public async create(): Promise<RoomDTO> {
+  // public async create(): Promise<PersonDTO> {
   //   const friendlyName = await this.promptService.friendlyName();
   //   const entities = (await this.promptService.confirm(`Add entities?`, true))
   //     ? await this.buildEntityList()
@@ -60,125 +71,137 @@ export class PersonCommandService {
   //       entities,
   //       friendlyName,
   //       groups,
-  //     } as RoomDTO,
+  //     } as PersonDTO,
   //     method: 'post',
-  //     url: `/room`,
+  //     url: `/person`,
   //   });
   // }
 
   public async exec(): Promise<void> {
-    const rooms = await this.list();
-    const room = await this.promptService.menu<RoomDTO | string>({
+    const persons = await this.list();
+    const person = await this.promptService.menu<PersonDTO | string>({
       keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
-        rooms
-          .map(room => [room.friendlyName, room] as PromptEntry<RoomDTO>)
+        persons
+          .map(
+            person => [person.friendlyName, person] as PromptEntry<PersonDTO>,
+          )
           .sort((a, b) => (a[LABEL] > b[LABEL] ? UP : DOWN)),
       ),
-      rightHeader: `Pick room`,
-      value: this.lastRoom
-        ? rooms.find(({ _id }) => _id === this.lastRoom)
+      rightHeader: `Pick person`,
+      value: this.lastPerson
+        ? persons.find(({ _id }) => _id === this.lastPerson)
         : undefined,
     });
-    if (IsDone(room)) {
+    if (IsDone(person)) {
       return;
     }
-    // if (room === 'create') {
-    //   room = await this.create();
+    // if (person === 'create') {
+    //   person = await this.create();
     // }
-    if (is.string(room)) {
+    if (is.string(person)) {
       throw new NotImplementedException();
     }
-    await this.cache.set(CACHE_KEY, room._id);
-    this.lastRoom = room._id;
-    return await this.processRoom(room);
+    await this.cache.set(CACHE_KEY, person._id);
+    this.lastPerson = person._id;
+    return await this.processPerson(person);
   }
 
-  public async get(id: string): Promise<RoomDTO> {
+  public async get(id: string): Promise<PersonDTO> {
     return await this.fetchService.fetch({
-      url: `/room/${id}`,
+      url: `/person/${id}`,
     });
   }
 
-  public async list(): Promise<RoomDTO[]> {
+  public async list(): Promise<PersonDTO[]> {
     return await this.fetchService.fetch({
-      url: `/room`,
+      url: `/person`,
     });
   }
 
-  public async pickOne(current?: RoomDTO | string): Promise<RoomDTO> {
-    const rooms = await this.list();
+  public async pickOne(current?: PersonDTO | string): Promise<PersonDTO> {
+    const persons = await this.list();
     current = is.string(current)
-      ? rooms.find(({ _id }) => _id === current)
+      ? persons.find(({ _id }) => _id === current)
       : current;
-    const room = await this.promptService.pickOne<RoomDTO | string>(
-      `Pick a room`,
+    const person = await this.promptService.pickOne<PersonDTO | string>(
+      `Pick a person`,
       ToMenuEntry([
         // [`${ICONS.CREATE}Create new`, `create`],
         ...this.promptService.conditionalEntries(
-          !is.empty(rooms),
-          rooms.map(room => [room.friendlyName, room]),
+          !is.empty(persons),
+          persons.map(person => [person.friendlyName, person]),
         ),
       ]),
       current,
     );
-    // if (room === `create`) {
+    // if (person === `create`) {
     //   return await this.create();
     // }
-    if (is.string(room)) {
+    if (is.string(person)) {
       throw new NotImplementedException();
     }
-    return room;
+    return person;
   }
 
-  public async processRoom(
-    room: RoomDTO,
+  public async processPerson(
+    person: PersonDTO,
     defaultAction?: string,
   ): Promise<void> {
-    this.applicationManager.setHeader(room.friendlyName);
-    const groups = is.empty(room.groups)
+    this.applicationManager.setHeader(person.friendlyName);
+    const groups = is.empty(person.groups)
       ? []
       : await this.groupCommand.list({
           filters: new Set([
             {
               field: '_id',
               operation: FILTER_OPERATIONS.in,
-              value: room.groups.join(','),
+              value: person.groups.join(','),
             },
           ]),
         });
 
-    room.save_states ??= [];
-    const action = await this.promptService.menu<
-      GroupDTO | { entity_id: string }
-    >({
+    const rooms = is.empty(person.rooms)
+      ? []
+      : await this.groupCommand.list({
+          filters: new Set([
+            {
+              field: '_id',
+              operation: FILTER_OPERATIONS.in,
+              value: person.groups.join(','),
+            },
+          ]),
+        });
+
+    person.save_states ??= [];
+    const action = await this.promptService.menu<tRoom | tGroup | tEntity>({
       keyMap: {
         d: MENU_ITEMS.DONE,
         e: MENU_ITEMS.ENTITIES,
         g: MENU_ITEMS.GROUPS,
         p: [
-          this.pinnedItems.isPinned('room', room._id) ? 'Unpin' : 'pin',
+          this.pinnedItems.isPinned('person', person._id) ? 'Unpin' : 'pin',
           'pin',
         ],
         r: MENU_ITEMS.RENAME,
         x: MENU_ITEMS.DELETE,
       },
       left: [
-        ...(is.empty(room.entities)
+        ...(is.empty(person.entities)
           ? []
-          : (room.entities.map(({ entity_id }) => {
+          : (person.entities.map(({ entity_id }) => {
               return { entry: [entity_id, { entity_id }], type: 'Entity' };
-            }) as MainMenuEntry<{ entity_id: string }>[])),
+            }) as MainMenuEntry<tEntity>[])),
         ...(is.empty(groups)
           ? []
           : (groups.map(group => {
-              return { entry: [group.friendlyName, group], type: 'Group' };
-            }) as MainMenuEntry<GroupDTO>[])),
+              return { entry: [group.friendlyName, { group }], type: 'Group' };
+            }) as MainMenuEntry<tGroup>[])),
       ],
       right: [
         { entry: MENU_ITEMS.ENTITIES, type: 'Manage' },
         { entry: MENU_ITEMS.GROUPS, type: 'Manage' },
-        ...room.save_states.map(
+        ...person.save_states.map(
           state =>
             ({
               entry: [state.friendlyName, state.id],
@@ -193,73 +216,73 @@ export class PersonCommandService {
       return;
     }
     if (is.object(action)) {
-      if (GroupDTO.isGroup(action)) {
-        return await this.groupCommand.process(action);
+      if (!is.undefined((action as tGroup).group)) {
+        return await this.groupCommand.process((action as tGroup).group);
       }
-      return await this.entityService.process(action.entity_id);
+      return await this.entityService.process((action as tEntity).entity_id);
     }
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
-          target: room._id,
-          type: 'room',
+          target: person._id,
+          type: 'person',
         });
-        return await this.processRoom(room, action);
+        return await this.processPerson(person, action);
       case 'states':
-        room = await this.roomState.process(room);
-        return await this.processRoom(room, action);
+        person = await this.personState.process(person);
+        return await this.processPerson(person, action);
       case 'rename':
-        room.friendlyName = await this.promptService.string(
+        person.friendlyName = await this.promptService.string(
           `New name`,
-          room.friendlyName,
+          person.friendlyName,
         );
-        room = await this.update(room);
-        return await this.processRoom(room, action);
+        person = await this.update(person);
+        return await this.processPerson(person, action);
       case 'entities':
-        room.entities = await this.buildEntityList(
-          room.entities.map(item => item.entity_id),
+        person.entities = await this.buildEntityList(
+          person.entities.map(item => item.entity_id),
         );
-        room = await this.update(room);
-        return await this.processRoom(room, action);
+        person = await this.update(person);
+        return await this.processPerson(person, action);
       case 'delete':
         if (
           !(await this.promptService.confirm(
             `Are you sure you want to delete ${chalk.magenta.bold(
-              room.friendlyName,
+              person.friendlyName,
             )}`,
           ))
         ) {
-          return await this.processRoom(room, action);
+          return await this.processPerson(person, action);
         }
         await this.fetchService.fetch({
           method: 'delete',
-          url: `/room/${room._id}`,
+          url: `/person/${person._id}`,
         });
         return;
       case 'groups':
-        const added = await this.groupCommand.pickMany([], room.groups);
-        room.groups = added.map(({ _id }) => _id);
-        room = await this.update(room);
-        return await this.processRoom(room, action);
+        const added = await this.groupCommand.pickMany([], person.groups);
+        person.groups = added.map(({ _id }) => _id);
+        person = await this.update(person);
+        return await this.processPerson(person, action);
       default:
-        await this.roomState.activate(room, action);
-        return await this.processRoom(room, action);
+        await this.personState.activate(person, action);
+        return await this.processPerson(person, action);
     }
   }
 
-  public async update(body: RoomDTO): Promise<RoomDTO> {
+  public async update(body: PersonDTO): Promise<PersonDTO> {
     return await this.fetchService.fetch({
       body,
       method: 'put',
-      url: `/room/${body._id}`,
+      url: `/person/${body._id}`,
     });
   }
 
   protected async onModuleInit(): Promise<void> {
-    this.lastRoom = await this.cache.get(CACHE_KEY);
-    this.pinnedItems.loaders.set('room', async ({ target }) => {
-      const room = await this.get(target);
-      await this.processRoom(room);
+    this.lastPerson = await this.cache.get(CACHE_KEY);
+    this.pinnedItems.loaders.set('person', async ({ target }) => {
+      const person = await this.get(target);
+      await this.processPerson(person);
     });
   }
 
@@ -290,7 +313,7 @@ export class PersonCommandService {
         [`${ICONS.GROUPS}Use existing`, 'existing'],
         [`Done`, 'done'],
       ]),
-      `Room groups`,
+      `person groups`,
     );
     switch (action) {
       // Eject!
@@ -316,17 +339,19 @@ export class PersonCommandService {
     return current;
   }
 
-  private async removeEntities(room: RoomDTO): Promise<RoomDTO> {
+  private async removeEntities(person: PersonDTO): Promise<PersonDTO> {
     const entities = await this.promptService.pickMany(
       `Keep selected`,
-      room.entities
+      person.entities
         .map(({ entity_id }) => [entity_id, entity_id])
         .sort(([a], [b]) => (a > b ? UP : DOWN)) as PromptEntry[],
-      { default: room.entities.map(({ entity_id }) => entity_id) },
+      { default: person.entities.map(({ entity_id }) => entity_id) },
     );
     return await this.update({
-      ...room,
-      entities: room.entities.filter(item => entities.includes(item.entity_id)),
+      ...person,
+      entities: person.entities.filter(item =>
+        entities.includes(item.entity_id),
+      ),
     });
   }
 }
