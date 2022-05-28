@@ -1,4 +1,4 @@
-import { PersonDTO } from '@steggy/controller-shared';
+import { PersonDTO, PIN_TYPES } from '@steggy/controller-shared';
 import { Button, Switch } from 'antd';
 
 import { CurrentUserContext, FD_ICONS } from '../../types';
@@ -6,7 +6,7 @@ import { CurrentUserContext, FD_ICONS } from '../../types';
 export function ItemPin(props: {
   menuItem?: boolean;
   target: string;
-  type: string;
+  type: PIN_TYPES;
 }) {
   const isPinned = (person: PersonDTO) =>
     (person?.pinned_items ?? []).some(

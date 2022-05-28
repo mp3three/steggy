@@ -12,6 +12,8 @@ enum PinTypes {
   group_state = 'group_state',
   person_state = 'person_state',
   room_state = 'room_state',
+  room_metadata = 'room_metadata',
+  person_metadata = 'person_metadata',
 }
 
 export class PinnedItemDTO {

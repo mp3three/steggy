@@ -1,4 +1,4 @@
-import { PersonDTO } from '@steggy/controller-shared';
+import { PersonDTO, PIN_TYPES } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Layout, notification, Typography } from 'antd';
 import { useEffect, useState } from 'react';
@@ -70,7 +70,7 @@ export function App() {
   }, [baseUrl]);
 
   async function updatePin(
-    type: string,
+    type: PIN_TYPES,
     target: string,
     add: boolean,
   ): Promise<void> {
