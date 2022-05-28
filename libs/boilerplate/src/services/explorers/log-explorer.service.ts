@@ -2,8 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { is } from '@steggy/utilities';
 
+import { LOG_LEVEL } from '../../config';
 import { LOG_CONTEXT, LOGGER_LIBRARY } from '../../contracts/logger';
-import { mappedContexts } from '../../decorators/injectors';
+import { mappedContexts } from '../../decorators';
+import { InjectConfig } from '../../decorators/injectors/inject-config.decorator';
 
 // Don't remove LOG_LEVEL injection
 // Including it here forces it to appear in config builder
@@ -18,7 +20,15 @@ const SKIP_PROVIDERS = new Set(['ModuleRef', '', 'useFactory']);
  */
 @Injectable()
 export class LogExplorerService {
-  constructor(private readonly discoveryService: DiscoveryService) {}
+  constructor(
+    private readonly discoveryService: DiscoveryService,
+    /**
+     * Only injected here to make sure that config scanning can find it right
+     *
+     * This config property gets injected differently than the rest
+     */
+    @InjectConfig(LOG_LEVEL) private readonly logLevel: string,
+  ) {}
 
   public load(): void {
     const providers = [

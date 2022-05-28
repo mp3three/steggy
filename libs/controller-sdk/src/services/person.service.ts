@@ -8,7 +8,9 @@ import { AutoLogService } from '@steggy/boilerplate';
 import {
   CloneRoomDTO,
   GroupDTO,
+  InflatedPinDTO,
   PersonDTO,
+  PIN_TYPES,
   RoomDTO,
   RoomEntityDTO,
   RoomMetadataDTO,
@@ -20,6 +22,7 @@ import {
 import { EntityManagerService } from '@steggy/home-assistant';
 import { BaseSchemaDTO } from '@steggy/persistence';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
+import { eachLimit } from 'async';
 import EventEmitter from 'eventemitter3';
 import { v4 } from 'uuid';
 
@@ -30,6 +33,9 @@ import { PersonPersistenceService } from './persistence';
 import { RoomService } from './room.service';
 import { RoutineService } from './routine.service';
 import { SaveStateService } from './save-state.service';
+
+const A_BUNCH = 20;
+const SAVESTATE_ID = 'save_states.id';
 
 @Injectable()
 export class PersonService {
@@ -333,9 +339,131 @@ export class PersonService {
     return person;
   }
 
+  public async inflatePins(id: string): Promise<InflatedPinDTO[]> {
+    const person = await this.get(id);
+    const out: InflatedPinDTO[] = [];
+    // I don't feel like it
+    // eslint-disable-next-line radar/cognitive-complexity
+    await eachLimit(person.pinned_items, A_BUNCH, async pin => {
+      switch (pin.type) {
+        case 'person':
+          const person = await this.get(pin.target);
+          if (!person) {
+            this.logger.error(`Cannot find person {${pin.target}}`);
+            return;
+          }
+          out.push({
+            friendlyName: [person.friendlyName],
+            id: pin.target,
+            type: pin.type,
+          });
+          return;
+        case 'person_state':
+          const [foundPerson] = await this.list({
+            filters: new Set([{ field: SAVESTATE_ID, value: pin.target }]),
+          });
+          if (!foundPerson) {
+            this.logger.error(`Cannot find person_state {${pin.target}}`);
+            return;
+          }
+          out.push({
+            friendlyName: [
+              foundPerson.friendlyName,
+              foundPerson.save_states.find(({ id }) => id === pin.target)
+                .friendlyName,
+            ],
+            id: pin.target,
+            type: pin.type,
+          });
+          return;
+        case 'entity':
+          const entity = this.entityManager.ENTITIES.get(pin.target);
+          if (!entity) {
+            this.logger.error(`[${pin.target}] is pinned, but cannot be found`);
+            return;
+          }
+          out.push({
+            friendlyName: [entity?.attributes?.friendly_name ?? pin.target],
+            id: pin.target,
+            type: pin.type,
+          });
+          return;
+        case 'group':
+          const group = await this.groupService.get(pin.target);
+          if (!group) {
+            this.logger.error(`Cannot find group {${pin.target}}`);
+            return;
+          }
+          out.push({
+            friendlyName: [group.friendlyName],
+            id: pin.target,
+            type: pin.type,
+          });
+          return;
+        case 'group_state':
+          const [foundGroup] = await this.groupService.list({
+            filters: new Set([{ field: SAVESTATE_ID, value: pin.target }]),
+          });
+          if (!foundGroup) {
+            this.logger.error(`Cannot find group_state {${pin.target}}`);
+            return;
+          }
+          out.push({
+            friendlyName: [
+              foundGroup.friendlyName,
+              foundGroup.save_states.find(({ id }) => id === pin.target)
+                .friendlyName,
+            ],
+            id: pin.target,
+            type: pin.type,
+          });
+          return;
+        case 'room':
+          const room = await this.roomService.get(pin.target);
+          if (!room) {
+            this.logger.error(`Cannot find room {${pin.target}}`);
+            return;
+          }
+          out.push({
+            friendlyName: [room.friendlyName],
+            id: pin.target,
+            type: pin.type,
+          });
+          return;
+        case 'room_state':
+          const [foundRoom] = await this.roomService.list({
+            filters: new Set([{ field: SAVESTATE_ID, value: pin.target }]),
+          });
+          if (!foundRoom) {
+            this.logger.error(`Cannot find room_state {${pin.target}}`);
+            return;
+          }
+          out.push({
+            friendlyName: [
+              foundRoom.friendlyName,
+              foundRoom.save_states.find(({ id }) => id === pin.target)
+                .friendlyName,
+            ],
+            id: pin.target,
+            type: pin.type,
+          });
+          return;
+        case 'routine':
+          const routine = await this.routineService.get(pin.target);
+          out.push({
+            friendlyName: [routine.friendlyName],
+            id: pin.target,
+            type: pin.type,
+          });
+          return;
+      }
+    });
+    return out;
+  }
+
   public async itemPin(
     person: string | PersonDTO,
-    type: string,
+    type: PIN_TYPES,
     target: string,
   ): Promise<PersonDTO> {
     person = await this.get(person);

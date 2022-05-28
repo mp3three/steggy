@@ -17,7 +17,9 @@ import {
 import {
   CloneRoomDTO,
   GroupDTO,
+  InflatedPinDTO,
   PersonDTO,
+  PIN_TYPES,
   RoomDTO,
   RoomEntityDTO,
   RoomMetadataDTO,
@@ -280,13 +282,25 @@ export class PersonController {
     return out;
   }
 
+  @Get(`/:person/pin`)
+  @ApiResponse({ type: [InflatedPinDTO] })
+  @ApiOperation({
+    description: `List all the pinned items for a user, with some supplemental UI information`,
+  })
+  public async inflatePins(
+    @Param('person')
+    person: string,
+  ): Promise<InflatedPinDTO[]> {
+    return await this.personService.inflatePins(person);
+  }
+
   @Post(`/:person/pin/:type/:target`)
   @ApiResponse({ type: PersonDTO })
   public async itemPin(
     @Param('person')
     person: string,
     @Param('type')
-    type: string,
+    type: PIN_TYPES,
     @Param('target')
     target: string,
   ): Promise<PersonDTO> {

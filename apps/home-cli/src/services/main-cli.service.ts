@@ -5,7 +5,7 @@ import {
   InjectCache,
   InjectConfig,
 } from '@steggy/boilerplate';
-import { PinnedItemDTO } from '@steggy/controller-shared';
+import { InflatedPinDTO } from '@steggy/controller-shared';
 import {
   ApplicationManagerService,
   KeyMap,
@@ -13,7 +13,6 @@ import {
   MenuEntry,
   PromptEntry,
   PromptService,
-  ToMenuEntry,
 } from '@steggy/tty';
 import { DOWN, is, UP, VALUE } from '@steggy/utilities';
 
@@ -34,7 +33,7 @@ import { RoutineService } from './routines';
 // Filter out non-sortable characters (like emoji)
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
 const CACHE_KEY = 'MAIN-CLI:LAST_LABEL';
-type ENTRY_TYPE = string | PinnedItemDTO;
+type ENTRY_TYPE = string | InflatedPinDTO;
 
 @Injectable()
 export class MainCLIService {
@@ -61,7 +60,7 @@ export class MainCLIService {
     this.applicationManager.setHeader(this.applicationTitle);
     const name = await this.pickOne();
     if (!is.string(name)) {
-      await this.pinnedItem.exec(name as PinnedItemDTO);
+      await this.pinnedItem.exec(name as InflatedPinDTO);
       return this.exec();
     }
     switch (name) {
@@ -95,14 +94,6 @@ export class MainCLIService {
 
   protected async onModuleInit(): Promise<void> {
     this.last = await this.cacheService.get(CACHE_KEY);
-  }
-
-  private getLeft() {
-    const entries = this.pinnedItem.getEntries();
-    return entries.map(i => ({
-      entry: i,
-      type: (i[VALUE] as PinnedItemDTO).target,
-    })) as MainMenuEntry<ENTRY_TYPE>[];
   }
 
   private getRight(types: Record<string, PromptEntry<ENTRY_TYPE>[]>) {
@@ -139,24 +130,9 @@ export class MainCLIService {
       t: [`${ICONS.ROUTINE}Routines`, 'routines'],
     };
 
-    const right = this.getRight(types);
-    // const left = this.getLeft();
-    // if (is.object(this.last) && this.last !== null) {
-    //   this.last = left.find(i => {
-    //     return (
-    //       (i.entry[VALUE] as PinnedItemDTO).id ===
-    //       (this.last as PinnedItemDTO).id
-    //     );
-    //   })?.entry[VALUE];
-    // }
     const result = await this.promptService.menu<ENTRY_TYPE>({
       keyMap,
-      left: is.undefined(this.pinnedItem.person)
-        ? undefined
-        : ToMenuEntry([
-            //
-            ['foo', 'bar'],
-          ]),
+      left: this.pinnedItem.getEntries(),
       leftHeader: 'Pinned Items',
       right: [
         { entry: [`${ICONS.GROUPS}Groups`, 'groups'], type: 'Controller' },

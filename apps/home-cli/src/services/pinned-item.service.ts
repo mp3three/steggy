@@ -1,8 +1,13 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConfig } from '@steggy/boilerplate';
-import { PersonDTO, PinnedItemDTO } from '@steggy/controller-shared';
-import { PromptEntry } from '@steggy/tty';
-import { is } from '@steggy/utilities';
+import {
+  InflatedPinDTO,
+  PersonDTO,
+  PinnedItemDTO,
+} from '@steggy/controller-shared';
+import { ansiPadEnd, MainMenuEntry } from '@steggy/tty';
+import { is, TitleCase } from '@steggy/utilities';
+import chalk from 'chalk';
 
 import { USER_ID } from '../config';
 import { HomeFetchService } from './home-fetch.service';
@@ -19,46 +24,58 @@ export class PinnedItemService {
     (data: PinnedItemDTO) => Promise<void>
   >();
   public person: PersonDTO;
-  private pinned: PinnedItemDTO[] = [];
+  private pinned: InflatedPinDTO[] = [];
 
-  public addPinned(item: PinnedItemDTO): void {
-    this.pinned.push(item);
-    this.person.pinned_items.push(item);
-    // this.configService.set([LIB_TTY, PINNED_ITEMS], this.pinned, true);
+  public async addPinned(item: PinnedItemDTO): Promise<void> {
+    this.person = await this.fetchService.fetch({
+      method: 'post',
+      url: `/person/${this.userId}/pin/${item.type}/${item.target}`,
+    });
+    await this.refresh();
   }
 
-  public async exec(item: PinnedItemDTO): Promise<void> {
+  public async exec(item: InflatedPinDTO): Promise<void> {
     const callback = this.loaders.get(item.type);
     if (!callback) {
       throw new InternalServerErrorException();
     }
-    await callback(item);
+    await callback({
+      target: item.id,
+      type: item.type,
+    });
   }
 
-  public findPin(type: string, id: string): PinnedItemDTO {
-    return this.pinned.find(i => i.type === type && id === i.target);
+  public findPin(type: string, id: string): InflatedPinDTO {
+    return this.pinned.find(i => i.type === type && id === i.id);
   }
 
-  public getEntries(name?: string): PromptEntry<PinnedItemDTO>[] {
-    if (!name) {
-      return this.pinned.map(i => {
-        return [i.target, i];
-      });
-    }
-    return [];
+  public getEntries(): MainMenuEntry<InflatedPinDTO>[] {
+    const longestType = Math.max(...this.pinned.map(({ type }) => type.length));
+    return this.pinned.map(item => {
+      return {
+        entry: [
+          item.friendlyName.map(item => item).join(chalk.cyan` > `),
+          item,
+        ],
+        type: TitleCase(item.type),
+      };
+    });
   }
 
   public isPinned(type: string, target: string): boolean {
-    return !is.undefined(this.findPin(type, target));
+    return !!this.findPin(type, target);
   }
 
-  public removePinned(item: PinnedItemDTO): void {
-    this.pinned = this.pinned.filter(i => i !== item);
-    // this.configService.set([LIB_TTY, PINNED_ITEMS], this.pinned, true);
+  public async removePinned(item: PinnedItemDTO): Promise<void> {
+    this.person = await this.fetchService.fetch({
+      method: 'delete',
+      url: `/person/${this.userId}/pin/${item.type}/${item.target}`,
+    });
+    await this.refresh();
   }
 
   public toggle(item: PinnedItemDTO): void {
-    const found = this.pinned.find(
+    const found = this.person.pinned_items.find(
       ({ target, type }) => target === item.target && type === item.type,
     );
     if (!found) {
@@ -72,12 +89,15 @@ export class PinnedItemService {
     if (is.empty(this.userId)) {
       return;
     }
+    this.person = await this.fetchService.fetch({
+      url: `/person/${this.userId}`,
+    });
     await this.refresh();
   }
 
   private async refresh(): Promise<void> {
-    this.person = await this.fetchService.fetch({
-      url: `/person/${this.userId}`,
+    this.pinned = await this.fetchService.fetch({
+      url: `/person/${this.userId}/pin`,
     });
   }
 }

@@ -36,7 +36,7 @@ export const ICONS = {
   REFRESH: '🔁 ',
   RENAME: '📑 ',
   ROOMS: '🏡 ',
-  ROUTINE: '🛰 ',
+  ROUTINE: '🛰  ',
   SAVE: '💾 ',
   STATE_MANAGER: '🖼 ',
   SWAP: '🔁 ',

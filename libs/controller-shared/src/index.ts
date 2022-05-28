@@ -9,6 +9,7 @@ export * from './debug-report.dto';
 export * from './entity-history.dto';
 export * from './events';
 export * from './group-command.dto';
+export * from './inflated-pins.dto';
 export * from './pinned-item.dto';
 export * from './room-metadata';
 export * from './rooms';
