@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -25,12 +26,26 @@ import {
   Locals,
   ResponseLocals,
 } from '@steggy/server';
+import { is } from '@steggy/utilities';
 
 @Controller('/group')
 @ApiTags('group')
 @AuthStack()
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
+
+  @Post(`/state/:state`)
+  public async _activateState(
+    @Param('state') state: string,
+  ): Promise<GroupDTO> {
+    const [group] = await this.groupService.list({
+      filters: new Set([{ field: 'save_states.id', value: state }]),
+    });
+    if (is.undefined(group)) {
+      throw new NotFoundException();
+    }
+    return await this.activateState(group._id, state);
+  }
 
   @Put(`/:group/command/:command`)
   @ApiResponse({ type: GroupDTO })

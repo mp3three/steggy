@@ -43,13 +43,13 @@ export class AutoConfigService {
     private readonly logger: AutoLogService,
     private readonly workspace: WorkspaceService,
   ) {
-    AutoLogService.logger.level = this.get([LIB_BOILERPLATE, LOG_LEVEL]);
     // AutoConfig is one of the first services to initialize
     // Running it here will force load the configuration at the earliest possible time
     //
     // Needs to happen ASAP in order to provide values for @InjectConfig, and any direct loading of this class to work as intended
     //
     this.earlyInit();
+    AutoLogService.logger.level = this.get([LIB_BOILERPLATE, LOG_LEVEL]);
   }
 
   public configFiles: string[];

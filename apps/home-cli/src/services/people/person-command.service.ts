@@ -13,16 +13,14 @@ import {
   MainMenuEntry,
   PromptEntry,
   PromptService,
-  SyncLoggerService,
   ToMenuEntry,
 } from '@steggy/tty';
 import { DOWN, FILTER_OPERATIONS, is, LABEL, UP } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { MENU_ITEMS } from '../../includes';
-import { ICONS } from '../../types';
-import { GroupCommandService } from '../groups/group-command.service';
-import { EntityService } from '../home-assistant/entity.service';
+import { GroupCommandService } from '../groups';
+import { EntityService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';
 import { PinnedItemService } from '../pinned-item.service';
 import { RoomCommandService } from '../rooms';
@@ -34,18 +32,11 @@ type tGroup = { group: GroupDTO };
 type tRoom = { room: RoomDTO };
 type tEntity = { entity_id: string };
 
-// @Repl({
-//   category: `Control`,
-//   icon: ICONS.personS,
-//   keybind: 'r',
-//   name: `persons`,
-// })
 @Injectable()
 export class PersonCommandService {
   constructor(
     @InjectCache()
     private readonly cache: CacheManagerService,
-    private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
@@ -57,25 +48,6 @@ export class PersonCommandService {
   ) {}
 
   private lastPerson: string;
-
-  // public async create(): Promise<PersonDTO> {
-  //   const friendlyName = await this.promptService.friendlyName();
-  //   const entities = (await this.promptService.confirm(`Add entities?`, true))
-  //     ? await this.buildEntityList()
-  //     : [];
-  //   const groups = (await this.promptService.confirm(`Add groups?`, true))
-  //     ? await this.groupBuilder()
-  //     : [];
-  //   return await this.fetchService.fetch({
-  //     body: {
-  //       entities,
-  //       friendlyName,
-  //       groups,
-  //     } as PersonDTO,
-  //     method: 'post',
-  //     url: `/person`,
-  //   });
-  // }
 
   public async exec(): Promise<void> {
     const persons = await this.list();
@@ -163,7 +135,7 @@ export class PersonCommandService {
 
     const rooms = is.empty(person.rooms)
       ? []
-      : await this.groupCommand.list({
+      : await this.roomService.list({
           filters: new Set([
             {
               field: '_id',
@@ -179,11 +151,12 @@ export class PersonCommandService {
         d: MENU_ITEMS.DONE,
         e: MENU_ITEMS.ENTITIES,
         g: MENU_ITEMS.GROUPS,
+        n: MENU_ITEMS.RENAME,
         p: [
           this.pinnedItems.isPinned('person', person._id) ? 'Unpin' : 'pin',
           'pin',
         ],
-        r: MENU_ITEMS.RENAME,
+        r: MENU_ITEMS.ROOMS,
         x: MENU_ITEMS.DELETE,
       },
       left: [
@@ -197,10 +170,16 @@ export class PersonCommandService {
           : (groups.map(group => {
               return { entry: [group.friendlyName, { group }], type: 'Group' };
             }) as MainMenuEntry<tGroup>[])),
+        ...(is.empty(rooms)
+          ? []
+          : (rooms.map(room => {
+              return { entry: [room.friendlyName, { room }], type: 'Room' };
+            }) as MainMenuEntry<tRoom>[])),
       ],
       right: [
         { entry: MENU_ITEMS.ENTITIES, type: 'Manage' },
         { entry: MENU_ITEMS.GROUPS, type: 'Manage' },
+        { entry: MENU_ITEMS.ROOMS, type: 'Manage' },
         ...person.save_states.map(
           state =>
             ({
@@ -260,8 +239,13 @@ export class PersonCommandService {
         });
         return;
       case 'groups':
-        const added = await this.groupCommand.pickMany([], person.groups);
-        person.groups = added.map(({ _id }) => _id);
+        const addedGroups = await this.groupCommand.pickMany([], person.groups);
+        person.groups = addedGroups.map(({ _id }) => _id);
+        person = await this.update(person);
+        return await this.processPerson(person, action);
+      case 'person':
+        const addedRooms = await this.roomService.pickMany([], person.groups);
+        person.groups = addedRooms.map(({ _id }) => _id);
         person = await this.update(person);
         return await this.processPerson(person, action);
       default:
@@ -304,54 +288,5 @@ export class PersonCommandService {
     return ids.map(entity_id => ({
       entity_id,
     }));
-  }
-
-  private async groupBuilder(current: string[] = []): Promise<string[]> {
-    const action = await this.promptService.pickOne(
-      `Group actions`,
-      ToMenuEntry([
-        [`${ICONS.GROUPS}Use existing`, 'existing'],
-        [`Done`, 'done'],
-      ]),
-      `person groups`,
-    );
-    switch (action) {
-      // Eject!
-      case 'done':
-        return current;
-      //
-      case 'existing':
-        const groups = await this.groupCommand.list();
-        const selection = await this.promptService.pickMany(
-          `Groups to attach`,
-          groups
-            .filter(({ _id }) => !current.includes(_id))
-            .map(group => [group.friendlyName, group]),
-        );
-        if (is.empty(selection)) {
-          this.logger.warn(`No groups selected`);
-        } else {
-          current.push(...selection.map(item => item._id));
-        }
-        return current;
-    }
-    this.logger.error({ action }, `Not implemented`);
-    return current;
-  }
-
-  private async removeEntities(person: PersonDTO): Promise<PersonDTO> {
-    const entities = await this.promptService.pickMany(
-      `Keep selected`,
-      person.entities
-        .map(({ entity_id }) => [entity_id, entity_id])
-        .sort(([a], [b]) => (a > b ? UP : DOWN)) as PromptEntry[],
-      { default: person.entities.map(({ entity_id }) => entity_id) },
-    );
-    return await this.update({
-      ...person,
-      entities: person.entities.filter(item =>
-        entities.includes(item.entity_id),
-      ),
-    });
   }
 }

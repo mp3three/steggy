@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -30,7 +31,7 @@ import {
   Locals,
   ResponseLocals,
 } from '@steggy/server';
-import { each, eachSeries } from '@steggy/utilities';
+import { each, eachSeries, is } from '@steggy/utilities';
 
 @Controller('/person')
 @AuthStack()
@@ -41,6 +42,19 @@ export class PersonController {
     private readonly groupService: GroupService,
     private readonly personService: PersonService,
   ) {}
+
+  @Post(`/state/:state`)
+  public async _activateState(
+    @Param('state') state: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    const [person] = await this.personService.list({
+      filters: new Set([{ field: 'save_states.id', value: state }]),
+    });
+    if (is.undefined(person)) {
+      throw new NotFoundException();
+    }
+    return await this.activateState(person._id, state);
+  }
 
   @Post(`/:person/state/:state`)
   @ApiGenericResponse()

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -25,7 +26,7 @@ import {
   Locals,
   ResponseLocals,
 } from '@steggy/server';
-import { each, eachSeries } from '@steggy/utilities';
+import { each, eachSeries, is } from '@steggy/utilities';
 
 @Controller('/room')
 @AuthStack()
@@ -35,6 +36,20 @@ export class RoomController {
     private readonly roomService: RoomService,
     private readonly groupService: GroupService,
   ) {}
+
+  @Post(`/state/:state`)
+  public async _activateState(
+    @Param('state') state: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    const [room] = await this.roomService.list({
+      filters: new Set([{ field: 'save_states.id', value: state }]),
+    });
+    if (is.undefined(room)) {
+      throw new NotFoundException();
+    }
+    return await this.activateState(room._id, state);
+  }
+
   @Post(`/:room/state/:state`)
   @ApiGenericResponse()
   @ApiOperation({

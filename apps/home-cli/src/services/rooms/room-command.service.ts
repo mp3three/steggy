@@ -11,7 +11,14 @@ import {
   SyncLoggerService,
   ToMenuEntry,
 } from '@steggy/tty';
-import { DOWN, FILTER_OPERATIONS, is, LABEL, UP } from '@steggy/utilities';
+import {
+  DOWN,
+  FILTER_OPERATIONS,
+  is,
+  LABEL,
+  ResultControlDTO,
+  UP,
+} from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { MENU_ITEMS } from '../../includes';
@@ -100,9 +107,28 @@ export class RoomCommandService {
     });
   }
 
-  public async list(): Promise<RoomDTO[]> {
+  public async list(control?: ResultControlDTO): Promise<RoomDTO[]> {
     return await this.fetchService.fetch({
+      control,
       url: `/room`,
+    });
+  }
+
+  public async pickMany(
+    inList: string[] = [],
+    current: string[] = [],
+  ): Promise<RoomDTO[]> {
+    let rooms = await this.list();
+    if (!is.empty(inList)) {
+      rooms = rooms.filter(({ _id }) => inList.includes(_id));
+    }
+    return await this.promptService.listBuild({
+      current: rooms
+        .filter(({ _id }) => current.includes(_id))
+        .map(room => [room.friendlyName, room]),
+      source: rooms
+        .filter(({ _id }) => !current.includes(_id))
+        .map(room => [room.friendlyName, room]),
     });
   }
 

@@ -200,6 +200,7 @@ export class GroupCommandService {
       url: `/group`,
     });
   }
+
   public async pickMany(
     inList: string[] = [],
     current: string[] = [],
