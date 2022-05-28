@@ -5,11 +5,12 @@ import {
   PersonDTO,
   PinnedItemDTO,
 } from '@steggy/controller-shared';
-import { ansiPadEnd, MainMenuEntry } from '@steggy/tty';
+import { MainMenuEntry } from '@steggy/tty';
 import { is, TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { USER_ID } from '../config';
+import { ICONS } from '../types';
 import { HomeFetchService } from './home-fetch.service';
 
 @Injectable()
@@ -50,15 +51,16 @@ export class PinnedItemService {
   }
 
   public getEntries(): MainMenuEntry<InflatedPinDTO>[] {
-    const longestType = Math.max(...this.pinned.map(({ type }) => type.length));
     return this.pinned.map(item => {
+      const icon = item.type.includes('state') ? ICONS.ACTIVATE : '';
       return {
         entry: [
-          item.friendlyName.map(item => item).join(chalk.cyan` > `),
+          icon + item.friendlyName.map(item => item).join(chalk.cyan` > `),
           item,
         ],
+        helpText: item.description,
         type: TitleCase(item.type),
-      };
+      } as MainMenuEntry<InflatedPinDTO>;
     });
   }
 

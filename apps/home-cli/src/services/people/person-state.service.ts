@@ -258,12 +258,10 @@ export class PersonStateService {
 
   protected onModuleInit(): void {
     this.pinnedItems.loaders.set('person_state', async ({ target }) => {
-      // const person = await this.personService.get(data.person);
-      // const state = person.save_states.find(state => state.id === id);
-      // if (!state) {
-      //   throw new InternalServerErrorException();
-      // }
-      // await this.processState(person, state);
+      await this.fetchService.fetch({
+        method: 'post',
+        url: `/person/state/${target}`,
+      });
     });
   }
 

@@ -6,6 +6,9 @@ import { PIN_TYPES } from './pinned-item.dto';
 export class InflatedPinDTO {
   @ApiProperty()
   @IsString()
+  public description?: string;
+  @ApiProperty()
+  @IsString()
   public friendlyName: string[];
   @ApiProperty()
   @IsString()

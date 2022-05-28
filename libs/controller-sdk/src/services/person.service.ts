@@ -451,6 +451,7 @@ export class PersonService {
         case 'routine':
           const routine = await this.routineService.get(pin.target);
           out.push({
+            description: routine.description,
             friendlyName: [routine.friendlyName],
             id: pin.target,
             type: pin.type,

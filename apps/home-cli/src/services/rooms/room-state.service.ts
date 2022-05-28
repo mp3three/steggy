@@ -253,12 +253,10 @@ export class RoomStateService {
 
   protected onModuleInit(): void {
     this.pinnedItems.loaders.set('room_state', async ({ target }) => {
-      // const room = await this.roomService.get(data.room);
-      // const state = room.save_states.find(state => state.id === id);
-      // if (!state) {
-      //   throw new InternalServerErrorException();
-      // }
-      // await this.processState(room, state);
+      await this.fetchService.fetch({
+        method: 'post',
+        url: `/room/state/${target}`,
+      });
     });
   }
 

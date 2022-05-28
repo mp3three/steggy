@@ -260,12 +260,10 @@ export class GroupStateService {
 
   protected onModuleInit(): void {
     this.pinnedItems.loaders.set('group_state', async ({ target }) => {
-      // const group = await this.groupService.get(data.group);
-      // const state = group.save_states.find(i => i.id === id);
-      // if (!state) {
-      //   throw new InternalServerErrorException();
-      // }
-      // await this.stateAction(state, group);
+      await this.fetchService.fetch({
+        method: 'post',
+        url: `/group/state/${target}`,
+      });
     });
   }
 
