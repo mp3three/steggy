@@ -243,7 +243,7 @@ export class AutoConfigService {
           // Do case insensitive searches
           search.find(line => {
             const match = new RegExp(
-              line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]'),
+              `^${line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]')}$`,
               'gi',
             );
             return switchKeys.some(item => item.match(match));
@@ -253,7 +253,7 @@ export class AutoConfigService {
             search.some(line =>
               key.match(
                 new RegExp(
-                  line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]'),
+                  `^${line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]')}$`,
                   'gi',
                 ),
               ),
@@ -269,7 +269,7 @@ export class AutoConfigService {
           // Do case insensitive searches
           search.find(line => {
             const match = new RegExp(
-              line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]'),
+              `^${line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]')}$`,
               'gi',
             );
             return environmentKeys.some(item => item.match(match));
@@ -281,7 +281,7 @@ export class AutoConfigService {
           search.some(line =>
             key.match(
               new RegExp(
-                line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]'),
+                `^${line.replaceAll(new RegExp('[-_]', 'gi'), '[-_]')}$`,
                 'gi',
               ),
             ),
