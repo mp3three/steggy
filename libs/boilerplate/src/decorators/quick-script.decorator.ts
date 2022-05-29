@@ -6,7 +6,6 @@ import { argv, exit } from 'process';
 
 import { iSteggyProvider } from '../contracts';
 import { Bootstrap, BootstrapOptions, ScanConfig } from '../includes';
-import { AutoConfigService } from '../services';
 import {
   ApplicationModule,
   ApplicationModuleMetadata,
@@ -32,13 +31,17 @@ export interface iQuickScript extends iSteggyProvider {
  *
  * Intended for quick / minimal scripts, where it is preferable to keep all application code inside a single file
  */
+// eslint-disable-next-line radar/cognitive-complexity
 export function QuickScript({
-  NX_PROJECT,
   WAIT_TIME = WAIT_BOOTSTRAP * ADDITIONAL_WAIT,
   bootstrap,
+  PERSISTENT,
   ...options
 }: ApplicationModuleMetadata & {
-  NX_PROJECT?: string;
+  /**
+   * Keep the application open after `exec` finishes
+   */
+  PERSISTENT?: boolean;
   WAIT_TIME?: number;
   bootstrap?: BootstrapOptions;
 } = {}): ClassDecorator {
@@ -47,9 +50,6 @@ export function QuickScript({
   options.providers ??= [];
 
   // Corrective measures for loading metadata
-  if (!is.empty(NX_PROJECT)) {
-    AutoConfigService.NX_PROJECT = NX_PROJECT;
-  }
 
   LibraryModule.configs.set(options.application.description, {
     configuration: options.configuration ?? {},
@@ -65,16 +65,22 @@ export function QuickScript({
         noGlobalError: true,
         postInit: [
           app =>
-            setTimeout(() => {
+            setTimeout(async () => {
               const provider = app.get(target);
               if (is.function(provider.exec)) {
-                provider.exec();
+                await provider.exec();
+                if (!PERSISTENT) {
+                  await app.close();
+                  exit();
+                }
               }
             }, WAIT_TIME),
         ],
         prettyLog: true,
         ...bootstrap,
       };
+      // "Undocumented" (doesn't appear in any of the self reported config stuff) feature
+      // Hopefully nobody needs this exact variable name for use as a switch. That'd be awkward
       if (!is.undefined(minimist(argv)['config-scanner'])) {
         BOOTSTRAP_OPTIONS = {
           ...BOOTSTRAP_OPTIONS,

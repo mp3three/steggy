@@ -25,11 +25,6 @@ type PACKAGE = { version: string };
  */
 @QuickScript({
   application: Symbol('build-pipeline'),
-  bootstrap: {
-    config: {
-      libs: { boilerplate: { LOG_LEVEL: 'debug' } },
-    },
-  },
   imports: [TTYModule],
 })
 export class BuildPipelineService {
@@ -60,7 +55,9 @@ export class BuildPipelineService {
     const affected = await this.listAffected();
     let apps: string[] = [];
     if (!is.empty(affected.apps)) {
-      this.screenService.down(2);
+      if (!this.nonInteractive) {
+        this.screenService.down(2);
+      }
       this.screenService.print(chalk.bold.cyan`APPS`);
       affected.apps.forEach(line => {
         const file = join('apps', line, 'package.json');
@@ -77,8 +74,10 @@ export class BuildPipelineService {
           }${line}`,
         );
       });
-      this.screenService.down();
-      this.screenService.print(chalk`Select applications to rebuild`);
+      if (!this.nonInteractive) {
+        this.screenService.down();
+        this.screenService.print(chalk`Select applications to rebuild`);
+      }
       apps = this.nonInteractive
         ? affected.apps
         : await this.promptService.listBuild({
@@ -98,10 +97,6 @@ export class BuildPipelineService {
     this.logger.warn('DONE!');
   }
 
-  private async bumpAndQuit(affected: AffectedList): Promise<void> {
-    await this.bumpLibraries(affected);
-  }
-
   private async bumpApplications(apps: string[]): Promise<void> {
     apps.forEach(application => {
       const file = join('apps', application, 'package.json');
@@ -113,7 +108,7 @@ export class BuildPipelineService {
         return;
       }
       const update = inc(packageJSON.version, 'patch');
-      this.logger.debug(
+      this.logger.info(
         `[${application}] {${packageJSON.version}} => {${update}}`,
       );
       packageJSON.version = update;
@@ -141,7 +136,7 @@ export class BuildPipelineService {
     libraries.forEach(library => {
       const file = join('libs', library, 'package.json');
       const packageJSON = JSON.parse(readFileSync(file, 'utf8')) as PACKAGE;
-      this.logger.debug(`[${library}] {${packageJSON.version}} => {${root}}`);
+      this.logger.info(`[${library}] {${packageJSON.version}} => {${root}}`);
       packageJSON.version = root;
       writeFileSync(file, JSON.stringify(packageJSON, undefined, '  ') + `\n`);
     });

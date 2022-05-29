@@ -50,6 +50,7 @@ import {
   RoutinePersistenceService,
   RoutineService,
   SaveStateService,
+  ScheduleEnabledService,
   SecretsService,
   SolarCalcService,
   SwitchGroupService,
@@ -150,6 +151,7 @@ const providers = [
   providers: [
     ...providers,
     FlashAnimationService,
+    ScheduleEnabledService,
     // CustomCommandService
   ],
 })

@@ -1,5 +1,10 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { AutoLogService, InjectConfig, OnEvent } from '@steggy/boilerplate';
+import {
+  AutoLogService,
+  InjectConfig,
+  ModuleScannerService,
+  OnEvent,
+} from '@steggy/boilerplate';
 import {
   MetadataComparisonDTO,
   ROUTINE_UPDATE,
@@ -7,7 +12,6 @@ import {
   RoutineCommandDTO,
   RoutineCommandStopProcessingDTO,
   RoutineDTO,
-  RoutineRelativeDateComparisonDTO,
   RoutineStateComparisonDTO,
   STOP_PROCESSING_TYPE,
 } from '@steggy/controller-shared';
@@ -16,13 +20,16 @@ import {
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
 } from '@steggy/home-assistant-shared';
-import { each, INCREMENT, is, SECOND } from '@steggy/utilities';
-import dayjs from 'dayjs';
+import { each, is, SECOND } from '@steggy/utilities';
 
 import { StopProcessingCommandService } from '../commands';
 import { SAFE_MODE } from '../config';
+import {
+  iRoutineEnabled,
+  ROUTINE_ENABLED_PROVIDER,
+  RoutineEnabledOptions,
+} from '../decorators';
 import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../typings';
-import { ChronoService } from './misc';
 import { RoutinePersistenceService } from './persistence';
 import { RoutineService } from './routine.service';
 
@@ -44,16 +51,39 @@ export class RoutineEnabledService {
     private readonly routinePersistence: RoutinePersistenceService,
     @Inject(forwardRef(() => StopProcessingCommandService))
     private readonly stopProcessingService: StopProcessingCommandService,
-    private readonly chronoService: ChronoService,
+    private readonly moduleScanner: ModuleScannerService,
   ) {}
 
   public ACTIVE_ROUTINES = new Set<string>();
+  private ENABLED_PROVIDERS = new Map<
+    iRoutineEnabled<unknown>,
+    RoutineEnabledOptions
+  >();
   private ENABLE_WATCHERS = new Map<string, (() => void)[]>();
   private RAW_LIST = new Map<string, RoutineDTO>();
   private WATCH_ENTITIES = new Map<string, string[]>();
   private WATCH_METADATA = new Map<string, METADATA[]>();
   private ancestors = new Map<string, string[]>();
   private initialLoad = false;
+
+  public async onUpdate(routine: RoutineDTO): Promise<void> {
+    const state = await this.isActive(routine);
+    let updated = false;
+    if (this.ACTIVE_ROUTINES.has(routine._id) && !state) {
+      this.logger.debug(`[${routine.friendlyName}] unload`);
+      updated = true;
+      this.stop(routine);
+    }
+    if (!this.ACTIVE_ROUTINES.has(routine._id) && state) {
+      this.logger.debug(`[${routine.friendlyName}] load`);
+      updated = true;
+      this.start(routine);
+    }
+    if (!updated) {
+      return;
+    }
+    this.logger.debug(`[${routine.friendlyName}] changed state`);
+  }
 
   public async reload(): Promise<void> {
     this.logger.warn(`Performing full routine refresh`);
@@ -146,6 +176,13 @@ export class RoutineEnabledService {
     });
   }
 
+  protected onModuleInit() {
+    this.ENABLED_PROVIDERS = this.moduleScanner.findWithSymbol<
+      RoutineEnabledOptions,
+      iRoutineEnabled<unknown>
+    >(ROUTINE_ENABLED_PROVIDER);
+  }
+
   @OnEvent(ROUTINE_UPDATE)
   protected async remount(routine: RoutineDTO): Promise<void> {
     // Stop + GC
@@ -215,89 +252,6 @@ export class RoutineEnabledService {
     );
   }
 
-  private keepRange(
-    comparison: RoutineRelativeDateComparisonDTO,
-    routine: RoutineDTO,
-  ): void {
-    const watchers = this.ENABLE_WATCHERS.get(routine._id) || [];
-    const [parsed] = this.chronoService.parse<boolean>(
-      comparison.expression,
-      false,
-    );
-    if (is.boolean(parsed)) {
-      this.logger.error({ comparison }, `Expression failed parsing`);
-      return;
-    }
-    let timeouts = this.rangeTimeouts(comparison, routine);
-
-    const interval = setInterval(() => {
-      // If there are still upcoming events, do nothing
-      if (!is.empty(timeouts)) {
-        return;
-      }
-      // re-parse the expression
-      const [start] = this.chronoService.parse<Date>(comparison.expression);
-      const now = dayjs();
-      if (now.isAfter(start)) {
-        return;
-      }
-      timeouts = this.rangeTimeouts(comparison, routine);
-    }, SECOND);
-
-    watchers.push(() => {
-      timeouts.forEach(t => clearTimeout(t));
-      clearInterval(interval);
-    });
-    this.ENABLE_WATCHERS.set(routine._id, watchers);
-  }
-
-  private async onUpdate(routine: RoutineDTO): Promise<void> {
-    const state = await this.isActive(routine);
-    let updated = false;
-    if (this.ACTIVE_ROUTINES.has(routine._id) && !state) {
-      this.logger.debug(`[${routine.friendlyName}] unload`);
-      updated = true;
-      this.stop(routine);
-    }
-    if (!this.ACTIVE_ROUTINES.has(routine._id) && state) {
-      this.logger.debug(`[${routine.friendlyName}] load`);
-      updated = true;
-      this.start(routine);
-    }
-    if (!updated) {
-      return;
-    }
-    this.logger.debug(`[${routine.friendlyName}] changed state`);
-  }
-
-  private rangeTimeouts(
-    comparison: RoutineRelativeDateComparisonDTO,
-    routine: RoutineDTO,
-  ) {
-    const [start, end] = this.chronoService.parse(comparison.expression, false);
-    const now = Date.now();
-    if (is.boolean(start)) {
-      this.logger.error({ comparison }, `Expression failed parsing`);
-      return;
-    }
-    const timeouts: ReturnType<typeof setTimeout>[] = [];
-    timeouts.push(
-      setTimeout(async () => {
-        await this.onUpdate(routine);
-        timeouts.shift();
-      }, start.getTime() - now + INCREMENT),
-    );
-    if (end) {
-      timeouts.push(
-        setTimeout(async () => {
-          await this.onUpdate(routine);
-          timeouts.shift();
-        }, end.getTime() - now + INCREMENT),
-      );
-    }
-    return timeouts;
-  }
-
   private start(routine: RoutineDTO): void {
     this.ACTIVE_ROUTINES.add(routine._id);
     if (is.empty(routine.command)) {
@@ -339,6 +293,8 @@ export class RoutineEnabledService {
     return built;
   }
 
+  // FIXME: This will sort itself out after the switch statement gets removed
+  // eslint-disable-next-line radar/cognitive-complexity
   private watch(routine: RoutineDTO): void {
     let poll = false;
     const entities: string[] = [];
@@ -350,6 +306,27 @@ export class RoutineEnabledService {
     }
     routine.enable.comparisons ??= [];
     routine.enable.comparisons.forEach(comparison => {
+      let found = false;
+      this.ENABLED_PROVIDERS.forEach(({ type }, provider) => {
+        if (!type.includes(comparison.type)) {
+          return;
+        }
+        found = true;
+        const result = provider.watch(comparison.comparison, routine);
+        if (!is.function(result)) {
+          this.logger.error(
+            `[${type}] routine enabled provider did not return a watch disable callback`,
+          );
+          return;
+        }
+        const watchers = this.ENABLE_WATCHERS.get(routine._id) ?? [];
+        watchers.push(result);
+        this.ENABLE_WATCHERS.set(routine._id, watchers);
+      });
+      if (found) {
+        return;
+      }
+      // Module scanning is the way of the future here
       switch (comparison.type) {
         case STOP_PROCESSING_TYPE.webhook:
         case STOP_PROCESSING_TYPE.template:
@@ -363,12 +340,6 @@ export class RoutineEnabledService {
                 | RoutineStateComparisonDTO
                 | RoutineAttributeComparisonDTO
             ).entity_id,
-          );
-          break;
-        case STOP_PROCESSING_TYPE.date:
-          this.keepRange(
-            comparison.comparison as RoutineRelativeDateComparisonDTO,
-            routine,
           );
           break;
         case STOP_PROCESSING_TYPE.metadata:

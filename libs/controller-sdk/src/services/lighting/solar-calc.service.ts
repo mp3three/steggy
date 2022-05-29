@@ -3,12 +3,12 @@ import { AutoLogService, OnEvent } from '@steggy/boilerplate';
 import { LOCATION_UPDATED } from '@steggy/controller-shared';
 import { HASocketAPIService } from '@steggy/home-assistant';
 import { HA_SOCKET_READY } from '@steggy/home-assistant-shared';
-import { is, sleep } from '@steggy/utilities';
+import { HALF, is, MINUTE, sleep } from '@steggy/utilities';
 import EventEmitter from 'eventemitter3';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 
-const CALC_EXPIRE = 30_000;
+const CALC_EXPIRE = HALF * MINUTE;
 
 @Injectable()
 export class SolarCalcService {
@@ -57,13 +57,7 @@ export class SolarCalcService {
     const config = await this.socketService.getConfig();
     this.latitude = config.latitude;
     this.longitude = config.longitude;
-    this.logger.debug(
-      // {
-      //   latitude: config.latitude,
-      //   longitude: config.longitude,
-      // },
-      `Updated location`,
-    );
+    this.logger.debug(`Updated location`);
     this.eventEmitter.emit(LOCATION_UPDATED);
   }
 }

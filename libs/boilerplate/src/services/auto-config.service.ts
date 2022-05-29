@@ -31,9 +31,6 @@ import { WorkspaceService } from './workspace.service';
  */
 @Injectable()
 export class AutoConfigService {
-  public static DEFAULTS = new Map<string, Record<string, unknown>>();
-  public static NX_PROJECT?: string;
-
   constructor(
     /**
      * Override defaults provided by Bootstrap
@@ -297,6 +294,8 @@ export class AutoConfigService {
     configs.forEach(({ configuration }, project) => {
       configuration ??= {};
       Object.entries(configuration).forEach(([name, definition]) => {
+        // It's fine that this symbol isn't the same as the real one
+        // Just going to get turned back into a string anyways
         const value = this.get([Symbol.for(project), name]);
         if (definition.warnDefault) {
           if (value === definition.default) {

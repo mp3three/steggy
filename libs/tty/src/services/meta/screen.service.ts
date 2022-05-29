@@ -67,11 +67,9 @@ export class ScreenService {
    * A shotgun attempt at returning the terminal to a normal state
    */
   public done() {
-    this.clear();
     this.rl.output.unmute();
     this.rl.setPrompt('');
     console.log(ansiEscapes.cursorShow);
-    console.log('\n');
   }
 
   /**
