@@ -1,4 +1,5 @@
 import { BootstrapOptions, ScanConfig } from '@steggy/boilerplate';
+import { exit } from 'process';
 
 export const BOOTSTRAP_OPTIONS: BootstrapOptions = {
   config: { libs: { boilerplate: { LOG_LEVEL: 'silent' } } },
@@ -6,7 +7,7 @@ export const BOOTSTRAP_OPTIONS: BootstrapOptions = {
   preInit: [
     app => {
       console.log(JSON.stringify(ScanConfig(app)));
-      process.exit();
+      exit();
     },
   ],
 };

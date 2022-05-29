@@ -45,6 +45,7 @@
     "enums": "constant",
     "event-emitter": "event",
     "executors": "custom",
+    "enabled": "functions",
     "explorers": "context",
     "external": "shared",
     "fetch-proxy": "public",

@@ -7,6 +7,7 @@ import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
 } from '@steggy/server';
+import { nextTick } from 'process';
 
 @Controller(`/animation`)
 @AuthStack()
@@ -19,7 +20,7 @@ export class AnimationController {
   public flash(
     @Body() animation: FlashAnimationDTO,
   ): typeof GENERIC_SUCCESS_RESPONSE {
-    process.nextTick(async () => {
+    nextTick(async () => {
       await this.animationService.flash(animation);
     });
     return GENERIC_SUCCESS_RESPONSE;

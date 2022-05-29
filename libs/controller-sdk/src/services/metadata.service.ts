@@ -2,6 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { MetadataDTO, RoomMetadataDTO } from '@steggy/controller-shared';
 import { is, SINGLE } from '@steggy/utilities';
+import { nextTick } from 'async';
 import { isDateString, isNumberString } from 'class-validator';
 import EventEmitter from 'eventemitter3';
 
@@ -156,9 +157,7 @@ export class MetadataService {
     metadata: MetadataDTO<EntityMetadata>,
   ): Promise<MetadataDTO<EntityMetadata>> {
     const out = await this.metadataPersistence.save<EntityMetadata>(metadata);
-    process.nextTick(() =>
-      this.eventEmitter.emit(ENTITY_METADATA_UPDATED(flag)),
-    );
+    nextTick(() => this.eventEmitter.emit(ENTITY_METADATA_UPDATED(flag)));
     return out;
   }
 }

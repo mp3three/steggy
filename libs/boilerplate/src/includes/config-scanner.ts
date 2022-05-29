@@ -11,7 +11,7 @@ import {
   CONSUMES_CONFIG,
 } from '../contracts/config';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
-import { LibraryModule } from '../decorators';
+import { LibraryModule, MESSY_INJECTED_CONFIGS } from '../decorators';
 import { ModuleScannerService } from '../services';
 
 export function ScanConfig(
@@ -36,7 +36,8 @@ export function ScanConfig(
       used.add(joined);
 
       const { configuration } = configs.get(target);
-      const metadata = configuration[property];
+      const metadata =
+        configuration[property] ?? MESSY_INJECTED_CONFIGS.get(property);
       out.push({
         library,
         metadata,

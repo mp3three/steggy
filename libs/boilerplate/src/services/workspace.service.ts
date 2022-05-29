@@ -6,7 +6,7 @@ import { decode } from 'ini';
 import { load } from 'js-yaml';
 import { homedir } from 'os';
 import { join } from 'path';
-import { cwd } from 'process';
+import { cwd, platform } from 'process';
 
 import {
   AbstractConfig,
@@ -38,7 +38,7 @@ export class WorkspaceService {
    */
   public PACKAGES = new Map<string, PackageJsonDTO>();
 
-  private isWindows = process.platform === 'win32';
+  private isWindows = platform === 'win32';
   private loaded = false;
 
   /**

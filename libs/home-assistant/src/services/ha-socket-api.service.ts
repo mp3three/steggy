@@ -24,6 +24,7 @@ import {
 } from '@steggy/home-assistant-shared';
 import { CronExpression, is, SECOND, sleep, START } from '@steggy/utilities';
 import EventEmitter from 'eventemitter3';
+import { exit } from 'process';
 import WS from 'ws';
 
 import {
@@ -266,8 +267,7 @@ export class HASocketAPIService {
       this.logger.fatal(
         `FATAL ERROR: Exceeded {CRASH_REQUESTS_PER_MIN} threshold.`,
       );
-      // eslint-disable-next-line unicorn/no-process-exit
-      process.exit();
+      exit();
     }
     if (count > this.WARN_REQUESTS) {
       this.logger.warn(

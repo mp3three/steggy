@@ -30,13 +30,11 @@ import { MiddlewareService, RouteInjector, SwaggerService } from '../services';
 @LibraryModule({
   configuration: {
     [ADMIN_KEY]: {
-      careful: true,
       description:
         'Leave blank to disable. If this value is provided via x-admin-key header, the request will be authorized as an admin',
       type: 'string',
     },
     [AUTH_BYPASS]: {
-      careful: true,
       default: false,
       description: 'Ignore all authentication, and just let requests through',
       type: 'boolean',
@@ -72,7 +70,6 @@ import { MiddlewareService, RouteInjector, SwaggerService } from '../services';
       type: 'boolean',
     },
     [GLOBAL_PREFIX]: {
-      careful: true,
       description:
         "Ex: 'api' http://localhost:7000/normal/route/path => http://localhost:7000/api/normal/route/path",
       type: 'string',

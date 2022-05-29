@@ -3,6 +3,7 @@ import { AutoLogService } from '@steggy/boilerplate';
 import { FlashAnimationService, GroupService } from '@steggy/controller-sdk';
 import { RoutineCommandLightFlashDTO } from '@steggy/controller-shared';
 import { each } from '@steggy/utilities';
+import { nextTick } from 'async';
 
 @Injectable()
 export class LightFlashCommandService {
@@ -17,7 +18,7 @@ export class LightFlashCommandService {
     command: RoutineCommandLightFlashDTO,
     waitForChange = false,
   ): Promise<void> {
-    await process.nextTick(async () => {
+    await nextTick(async () => {
       if (command.type === 'group') {
         return await this.activateGroup(command, waitForChange);
       }

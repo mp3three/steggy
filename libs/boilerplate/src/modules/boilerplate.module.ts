@@ -42,7 +42,6 @@ import {
       type: 'string',
     },
     [REDIS_DEFAULT_TTL]: {
-      careful: true,
       default: 86_400,
       description: 'Configuration property for redis connection',
       type: 'number',

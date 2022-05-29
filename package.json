@@ -10,6 +10,7 @@
   },
   "scripts": {
     "dev-controller": "npx nx serve home-controller & npx nx serve home-configure",
+    "dirty-bump": "node tools/scripts/pipeline.js --non-interactive --bump-only",
     "pipeline": "node tools/scripts/pipeline.js",
     "lint": "npx nx run-many --all --target=lint --fix",
     "nx": "npx nx",

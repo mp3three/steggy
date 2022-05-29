@@ -1,3 +1,4 @@
+import { nextTick } from 'async';
 import EventEmitter from 'eventemitter3';
 
 interface EmitAfterOptions {
@@ -16,7 +17,7 @@ export function EmitAfter(
     const original = descriptor.value;
     descriptor.value = function (...parameters) {
       const out = Reflect.apply(original, this, parameters);
-      process.nextTick(async () => {
+      nextTick(async () => {
         const result = await out;
         let data: unknown;
         if (onlyTruthyResults && !result) {

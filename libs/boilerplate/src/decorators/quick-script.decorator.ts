@@ -2,6 +2,7 @@ import { Injectable, Provider } from '@nestjs/common';
 import { is } from '@steggy/utilities';
 import { ClassConstructor } from 'class-transformer';
 import minimist from 'minimist';
+import { argv, exit } from 'process';
 
 import { iSteggyProvider } from '../contracts';
 import { Bootstrap, BootstrapOptions, ScanConfig } from '../includes';
@@ -74,7 +75,7 @@ export function QuickScript({
         prettyLog: true,
         ...bootstrap,
       };
-      if (!is.undefined(minimist(process.argv)['config-scanner'])) {
+      if (!is.undefined(minimist(argv)['config-scanner'])) {
         BOOTSTRAP_OPTIONS = {
           ...BOOTSTRAP_OPTIONS,
           config: { libs: { boilerplate: { LOG_LEVEL: 'silent' } } },
@@ -85,8 +86,7 @@ export function QuickScript({
               console.log(
                 JSON.stringify(ScanConfig(app, BOOTSTRAP_OPTIONS.config)),
               );
-              // eslint-disable-next-line unicorn/no-process-exit
-              process.exit();
+              exit();
             },
           ],
         };

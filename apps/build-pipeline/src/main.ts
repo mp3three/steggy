@@ -13,11 +13,11 @@ import JSON from 'comment-json';
 import execa from 'execa';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { exit, stdout } from 'process';
 import { inc } from 'semver';
 
 type AffectedList = { apps: string[]; libs: string[] };
 type PACKAGE = { version: string };
-const NON_INTERACTIVE = 'NON_INTERACTIVE';
 
 /**
  * Basic build pipeline.
@@ -30,13 +30,6 @@ const NON_INTERACTIVE = 'NON_INTERACTIVE';
       libs: { boilerplate: { LOG_LEVEL: 'debug' } },
     },
   },
-  configuration: {
-    [NON_INTERACTIVE]: {
-      default: false,
-      description: 'If set, script will assume everything is getting published',
-      type: 'boolean',
-    },
-  },
   imports: [TTYModule],
 })
 export class BuildPipelineService {
@@ -45,7 +38,18 @@ export class BuildPipelineService {
     private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly screenService: ScreenService,
-    @InjectConfig('NON_INTERACTIVE') private readonly nonInteractive: boolean,
+    @InjectConfig('NON_INTERACTIVE', {
+      default: false,
+      description: 'Process without user interactions',
+      type: 'boolean',
+    })
+    private readonly nonInteractive: boolean,
+    @InjectConfig('BUMP_ONLY', {
+      default: false,
+      description: 'Bump versions, do not publish',
+      type: 'boolean',
+    })
+    private readonly bumpOnly: boolean,
   ) {}
 
   private WORKSPACE = JSON.parse(readFileSync('workspace.json', 'utf8')) as {
@@ -94,6 +98,10 @@ export class BuildPipelineService {
     this.logger.warn('DONE!');
   }
 
+  private async bumpAndQuit(affected: AffectedList): Promise<void> {
+    await this.bumpLibraries(affected);
+  }
+
   private async bumpApplications(apps: string[]): Promise<void> {
     apps.forEach(application => {
       const file = join('apps', application, 'package.json');
@@ -111,12 +119,14 @@ export class BuildPipelineService {
       packageJSON.version = update;
       writeFileSync(file, JSON.stringify(packageJSON, undefined, '  ') + `\n`);
     });
-    await eachSeries(apps, async app => {
-      this.logger.info(`[${app}] publishing`);
-      const buildDocker = execa(`npx`, [`nx`, `publish`, app]);
-      buildDocker.stdout.pipe(process.stdout);
-      await buildDocker;
-    });
+    if (!this.bumpOnly) {
+      await eachSeries(apps, async app => {
+        this.logger.info(`[${app}] publishing`);
+        const buildDocker = execa(`npx`, [`nx`, `publish`, app]);
+        buildDocker.stdout.pipe(stdout);
+        await buildDocker;
+      });
+    }
   }
 
   private async bumpLibraries(list: AffectedList) {
@@ -135,20 +145,20 @@ export class BuildPipelineService {
       packageJSON.version = root;
       writeFileSync(file, JSON.stringify(packageJSON, undefined, '  ') + `\n`);
     });
-    await eachSeries(libraries, async library => {
-      this.logger.info(`[${library}] publishing`);
-      try {
-        const publish = execa(`npx`, [`nx`, `publish`, library]);
-        publish.stdout.pipe(process.stdout);
-        await publish;
-      } catch (error) {
-        this.logger.error(error.stderr);
-        // eslint-disable-next-line unicorn/no-process-exit
-        process.exit();
-      }
-    });
+    if (!this.bumpOnly) {
+      await eachSeries(libraries, async library => {
+        this.logger.info(`[${library}] publishing`);
+        try {
+          const publish = execa(`npx`, [`nx`, `publish`, library]);
+          publish.stdout.pipe(stdout);
+          await publish;
+        } catch (error) {
+          this.logger.error(error.stderr);
+          exit();
+        }
+      });
+    }
   }
-
   private async bumpRoot(affected: AffectedList): Promise<string> {
     const packageJSON = JSON.parse(
       readFileSync('package.json', 'utf8'),

@@ -41,6 +41,7 @@ import {
   ResponseLocals,
 } from '@steggy/server';
 import { NOT_FOUND } from '@steggy/utilities';
+import { nextTick } from 'process';
 import { v4 as uuid } from 'uuid';
 
 @Controller(`/routine`)
@@ -73,7 +74,7 @@ export class RoutineController {
     // if( options.force === 'false') {
     // options
     // }
-    process.nextTick(
+    nextTick(
       async () => await this.routineService.activateRoutine(routine, options),
     );
     return GENERIC_SUCCESS_RESPONSE;

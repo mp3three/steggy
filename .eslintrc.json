@@ -55,6 +55,7 @@
               "aws",
               "bashrc",
               "bcc",
+              "tsdoc",
               "bg",
               "bson",
               "cachable",
@@ -429,13 +430,6 @@
       "rules": {
         "radar/no-duplicate-string": "off",
         "unicorn/no-useless-spread": "off"
-      }
-    },
-    {
-      "files": ["*environment.ts"],
-      "rules": {
-        "no-console": "off",
-        "unicorn/no-process-exit": "off"
       }
     }
   ]

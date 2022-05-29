@@ -1,11 +1,12 @@
 import { INestApplication } from '@nestjs/common';
 import { FIRST, START } from '@steggy/utilities';
 import chalk from 'chalk';
+import { exit } from 'process';
 
 import { AutoLogService } from '../services';
 import { BootstrapOptions } from './bootstrap';
 
-/* eslint-disable no-console, unicorn/no-process-exit */
+/* eslint-disable no-console */
 
 let logger: AutoLogService;
 let prettyLog: boolean;
@@ -16,7 +17,7 @@ const basicError = (error: Error) => {
   console.error(error.name);
   console.error(error.message);
   console.error(error.stack);
-  process.exit();
+  exit();
 };
 // eslint-disable-next-line radar/cognitive-complexity
 const prettyError = (error: Error) => {
@@ -94,7 +95,7 @@ const prettyError = (error: Error) => {
         .join(`\n`),
     ),
   );
-  process.exit();
+  exit();
 };
 
 process.on('uncaughtException', function (error) {

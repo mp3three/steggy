@@ -7,6 +7,7 @@ import {
 } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { CronJob } from 'cron';
+import { nextTick } from 'process';
 
 import { ScheduleWatcher } from '../../typings';
 
@@ -42,7 +43,7 @@ export class ScheduleActivateService
     { activate }: RoutineActivateDTO<ScheduleActivateDTO>,
     callback: () => Promise<void>,
   ): void {
-    process.nextTick(() => {
+    nextTick(() => {
       if (is.empty(activate?.schedule)) {
         this.logger.error(
           { activate },

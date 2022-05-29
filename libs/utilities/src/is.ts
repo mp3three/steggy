@@ -39,6 +39,9 @@ export const is = {
   string(test: unknown): test is string {
     return typeof test === 'string';
   },
+  symbol(test: unknown): test is symbol {
+    return typeof test === 'symbol';
+  },
   undefined(test: unknown): test is undefined {
     return typeof test === 'undefined';
   },

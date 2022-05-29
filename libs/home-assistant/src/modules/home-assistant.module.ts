@@ -99,7 +99,6 @@ const services: Provider[] = [
       type: 'number',
     },
     [WEBSOCKET_URL]: {
-      careful: true,
       description: `Override calculated value if it's breaking or you want something custom. Make sure to use "ws[s]://" scheme.`,
       type: 'string',
     },

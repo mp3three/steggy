@@ -3,7 +3,6 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  InternalServerErrorException,
   NotImplementedException,
 } from '@nestjs/common';
 import {
@@ -33,6 +32,7 @@ import {
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
+import { nextTick } from 'process';
 
 import { MENU_ITEMS } from '../../includes';
 import { ICONS } from '../../types';
@@ -186,7 +186,7 @@ export class RoomStateService {
         if (action !== MENU_ITEMS.ACTIVATE[VALUE]) {
           return true;
         }
-        process.nextTick(async () => {
+        nextTick(async () => {
           await this.activate(room, state);
         });
         return chalk.magenta.bold(MENU_ITEMS.ACTIVATE[LABEL]);

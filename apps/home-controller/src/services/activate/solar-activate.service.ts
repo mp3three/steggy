@@ -10,6 +10,7 @@ import {
   SolarActivateDTO,
 } from '@steggy/controller-shared';
 import { CronExpression, TitleCase } from '@steggy/utilities';
+import { nextTick } from 'async';
 import { CronJob } from 'cron';
 
 import { SolarWatcher } from '../../typings';
@@ -56,7 +57,7 @@ export class SolarActivateService
      * This function cannot block until coords arrive.
      * Gets called during the init process, but is one of the last items to complete in the startup logs
      */
-    process.nextTick(async () => {
+    nextTick(async () => {
       const c = await this.solarCalc.getCalc();
       const calc = c[activate.event] as Date;
       const cron = new CronJob(calc, async () => {

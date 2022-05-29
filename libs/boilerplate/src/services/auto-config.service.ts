@@ -10,6 +10,7 @@ import { encode } from 'ini';
 import minimist from 'minimist';
 import { get, set } from 'object-path';
 import { resolve } from 'path';
+import { argv, env, exit } from 'process';
 
 import { LIB_BOILERPLATE, LOG_LEVEL } from '../config';
 import {
@@ -18,7 +19,7 @@ import {
   CONFIG_DEFAULTS,
   ConfigItem,
 } from '../contracts';
-import { LibraryModule } from '../decorators';
+import { LibraryModule, MESSY_INJECTED_CONFIGS } from '../decorators';
 import { AutoLogService } from './auto-log.service';
 import { WorkspaceService } from './workspace.service';
 
@@ -56,7 +57,7 @@ export class AutoConfigService {
   public loadedConfigFiles: string[];
   private config: AbstractConfig = {};
   private loadedConfigPath: string;
-  private switches = minimist(process.argv);
+  private switches = minimist(argv);
 
   private get appName(): string {
     return this.APPLICATION.description;
@@ -64,16 +65,15 @@ export class AutoConfigService {
 
   public get<T extends unknown = string>(path: string | [symbol, string]): T {
     if (Array.isArray(path)) {
-      path = ['libs', path[LABEL].description, path[VALUE]].join('.');
+      path =
+        path[LABEL].description === this.APPLICATION.description
+          ? ['application', path[VALUE]].join('.')
+          : ['libs', path[LABEL].description, path[VALUE]].join('.');
     }
     const value =
       get(this.config, path) ?? this.getConfiguration(path)?.default;
     const config = this.getConfiguration(path);
-    if (config.warnDefault && value === config.default) {
-      this.logger.warn(
-        `Configuration property {${path}} is using default value`,
-      );
-    }
+
     return this.cast(value, config.type) as T;
   }
 
@@ -88,8 +88,7 @@ export class AutoConfigService {
         { path },
         `Unknown configuration. Double check {project.json} assets + make sure property is included in metadata`,
       );
-      // eslint-disable-next-line unicorn/no-process-exit
-      process.exit();
+      exit();
     }
     return configuration.default as T;
   }
@@ -148,6 +147,7 @@ export class AutoConfigService {
     fileConfig.forEach((config, path) =>
       this.logger.debug(`Loaded configuration from {${path}}`),
     );
+    this.sanityCheck();
   }
 
   private getConfiguration(path: string): ConfigItem {
@@ -158,7 +158,9 @@ export class AutoConfigService {
     }
     if (parts.length === PAIR) {
       const metadata = configs.get(this.appName);
-      const config = metadata.configuration[parts[VALUE]];
+      const config =
+        metadata.configuration[parts[VALUE]] ??
+        MESSY_INJECTED_CONFIGS.get(parts[VALUE]);
       if (!is.empty(Object.keys(config ?? {}))) {
         return config;
       }
@@ -181,7 +183,6 @@ export class AutoConfigService {
   }
 
   private loadAppDefault(property: string): unknown {
-    const { env } = process;
     const result =
       env[property] ??
       env[property.toLowerCase()] ??
@@ -212,7 +213,6 @@ export class AutoConfigService {
    * Pulling switches from argv operates on similar rules
    */
   private loadFromEnv(): void {
-    const { env } = process;
     const environmentKeys = Object.keys(env);
     const switchKeys = Object.keys(this.switches);
     const configs = LibraryModule.configs;
@@ -288,6 +288,31 @@ export class AutoConfigService {
           ),
         );
         set(this.config, configPath, env[environmentName]);
+      });
+    });
+  }
+
+  private sanityCheck(): void {
+    const configs = LibraryModule.configs;
+    configs.forEach(({ configuration }, project) => {
+      configuration ??= {};
+      Object.entries(configuration).forEach(([name, definition]) => {
+        const value = this.get([Symbol.for(project), name]);
+        if (definition.warnDefault) {
+          if (value === definition.default) {
+            this.logger.warn(
+              `[${project}] configuration {${name}} is using using the default value. This value should be overridden for best practices.`,
+            );
+          }
+          return;
+        }
+        if (definition.required && is.undefined(value)) {
+          this.logger.fatal(
+            { ...definition },
+            `Project [${project}] requires {${name}} to be provided`,
+          );
+          exit();
+        }
       });
     });
   }

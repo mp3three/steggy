@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.11.6
+
+- Config metadata can now be provided inline with the @InjectConfig for applications now
+  - `@InjectConfig('PROPERTY', { description: 'lorem ipsum' }) ...`
+- Config sanity check is performed at boot now
+  - Warnings are emitted for `warnDefault`
+  - Application will emit fatal log message + exit on `required` properties not being provided
+
 ## 0.11.5
 
 - In case of multiple similar environment variables being passed (`BASE_URL` vs `base_url`), an exact match to the expected case will be prioritized

@@ -6,6 +6,7 @@
   - `PinnedItemService`
   - `MainCLI`
   - Emoji icon maps
+- Added new editor type: `date`
 
 ## 0.11.4
 

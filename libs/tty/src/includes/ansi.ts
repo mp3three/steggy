@@ -9,6 +9,7 @@ import {
   UP,
 } from '@steggy/utilities';
 import chalk from 'chalk';
+import { cwd, env, platform } from 'process';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 const ELLIPSES = '...';
@@ -78,13 +79,13 @@ const ESC = '\u001B[';
 const OSC = '\u001B]';
 const BEL = '\u0007';
 const SEP = ';';
-const isTerminalApp = process.env.TERM_PROGRAM === 'Apple_Terminal';
+const isTerminalApp = env.TERM_PROGRAM === 'Apple_Terminal';
 const eraseScreen = ESC + '2J';
 export const ansiEscapes = {
   beep: BEL,
   clearScreen: '\u001Bc',
   clearTerminal:
-    process.platform === 'win32'
+    platform === 'win32'
       ? `${eraseScreen}${ESC}0f`
       : // 1. Erases the screen (Only done in case `2` is not supported)
         // 2. Erases the whole screen including scrollback buffer
@@ -193,7 +194,8 @@ export const ansiEscapes = {
 
       return returnValue + BEL;
     },
-    setCwd: (cwd = process.cwd()) => `${OSC}50;CurrentDir=${cwd}${BEL}`,
+    setCwd: (workingDirectory = cwd()) =>
+      `${OSC}50;CurrentDir=${workingDirectory}${BEL}`,
   },
 
   image(

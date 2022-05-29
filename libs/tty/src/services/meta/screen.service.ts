@@ -11,6 +11,7 @@ import {
 import chalk from 'chalk';
 import { ReadStream } from 'fs';
 import MuteStream from 'mute-stream';
+import { stdin, stdout } from 'process';
 import { createInterface, Interface } from 'readline';
 
 import { ansiEscapes, ansiMaxLength } from '../../includes';
@@ -22,7 +23,7 @@ const PADDING = 2;
 const height = content => content.split('\n').length + PADDING;
 
 const output = new MuteStream();
-output.pipe(process.stdout);
+output.pipe(stdout);
 
 @Injectable()
 export class ScreenService {
@@ -35,7 +36,7 @@ export class ScreenService {
   ) {}
 
   public rl = createInterface({
-    input: process.stdin,
+    input: stdin,
     output,
     terminal: true,
   }) as Interface & { input: ReadStream; output: MuteStream };

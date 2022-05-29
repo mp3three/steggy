@@ -14,7 +14,7 @@ import { encode } from 'ini';
 import inquirer from 'inquirer';
 import { homedir } from 'os';
 import { join, resolve } from 'path';
-import { cwd } from 'process';
+import { cwd, env } from 'process';
 import { inc } from 'semver';
 
 import { NXAffected } from '../contracts';
@@ -152,7 +152,7 @@ export class SystemService {
    * Ask the user if they wish to change the default if one is not set
    */
   public async verifyEditor(): Promise<void> {
-    if (process.env.EDITOR || process.env.VISUAL) {
+    if (env.EDITOR || env.VISUAL) {
       // Something is already set!
       return;
     }
@@ -169,7 +169,7 @@ export class SystemService {
       return;
     }
     // const { stdout } = await execa(`which`, [editor]);
-    process.env.EDITOR = editor;
+    env.EDITOR = editor;
 
     const { exportDestination } = await inquirer.prompt([
       {
