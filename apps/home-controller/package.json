@@ -3,7 +3,7 @@
   "license": "MIT",
   "displayName": "Home Controller",
   "description": "[Visit the wiki](https://github.com/ccontour/steggy/wiki) for more information",
-  "version": "0.11.4",
+  "version": "0.11.5",
   "engines": {
     "node": ">=16.0.0"
   }

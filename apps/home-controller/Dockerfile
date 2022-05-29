@@ -27,7 +27,7 @@ RUN npx terser dist/apps/home-controller/main.js -c -m --keep-classnames --modul
 
 # <STAGE 1.5> - Same layer, different work
 RUN npx figlet-cli -f Pagga Analyzing Configs
-RUN npx nx build home-controller --configuration=scanner
+RUN npx nx build home-controller --configuration=scan-config
 RUN node dist/scanner/home-controller/main.js > config.json
 # </STAGE 1.5>
 
