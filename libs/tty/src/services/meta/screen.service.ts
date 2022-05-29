@@ -1,5 +1,13 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { EMPTY, INCREMENT, is, SINGLE, START } from '@steggy/utilities';
+import {
+  EMPTY,
+  INCREMENT,
+  is,
+  LABEL,
+  SINGLE,
+  START,
+  VALUE,
+} from '@steggy/utilities';
 import chalk from 'chalk';
 import { ReadStream } from 'fs';
 import MuteStream from 'mute-stream';
@@ -125,6 +133,13 @@ export class ScreenService {
    * so that the content can be redrawn in place clearing out the previous render.
    */
   public async render(content?: string, ...extra: string[]): Promise<void> {
+    if (
+      !is.empty(this.lastContent) &&
+      this.lastContent[LABEL] === content &&
+      this.lastContent[VALUE].every((item, index) => extra[index] === item)
+    ) {
+      return;
+    }
     this.lastContent = [content, extra];
 
     // footerWrap means new content is rendered below previous

@@ -277,7 +277,7 @@ export class RoomController {
   public async updateMetadata(
     @Param('room') room: string,
     @Param('metadata') metadata: string,
-    @Body() data: RoomMetadataDTO,
+    @Body() data: Partial<RoomMetadataDTO>,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.updateMetadata(room, metadata, data);

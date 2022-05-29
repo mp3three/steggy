@@ -124,7 +124,10 @@ export class TableBuilderComponentService<VALUE = unknown>
       let value: unknown;
       switch (column.type) {
         case 'date':
-          value = await this.promptService.date(column.name, new Date(current));
+          value = await this.promptService.date({
+            current,
+            label: column.name,
+          });
           break;
         case 'number':
           value = await this.promptService.number(column.name, current);

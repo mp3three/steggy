@@ -18,6 +18,7 @@ import {
   ToMenuEntry,
 } from './components';
 import {
+  DateEditorEditorOptions,
   NumberEditorRenderOptions,
   StringEditorRenderOptions,
 } from './editors';
@@ -130,29 +131,22 @@ export class PromptService {
     return result;
   }
 
+  public async date({
+    current,
+    label,
+    ...options
+  }: DateEditorEditorOptions): Promise<Date> {
+    return await this.applicationManager.activateEditor('date', {
+      current,
+      label,
+      width: DEFAULT_WIDTH,
+      ...options,
+    } as DateEditorEditorOptions);
+  }
+
   /**
    * @deprecated
    */
-  public async date(
-    prompt = `Date value`,
-    defaultValue = new Date(),
-  ): Promise<Date> {
-    const { result } = await inquirer.prompt([
-      {
-        default: defaultValue,
-        format: {
-          hour: undefined,
-          minute: undefined,
-          month: 'short',
-        },
-        message: prompt,
-        name,
-        type: 'date',
-      },
-    ]);
-    return result;
-  }
-
   public async dateRange(
     defaultOffset = FROM_OFFSET,
   ): Promise<{ from: Date; to: Date }> {

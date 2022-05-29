@@ -61,7 +61,7 @@ export class StringEditorService
   public render(): void {
     if (this.complete) {
       this.screenService.render(
-        chalk`{green ? } {bold ${this.config.label}} ${this.value}`,
+        chalk`{green ? } {bold ${this.config.label}} {gray ${this.value}}`,
       );
       return;
     }

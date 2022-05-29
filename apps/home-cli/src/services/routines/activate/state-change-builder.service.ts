@@ -111,10 +111,7 @@ export class StateChangeBuilderService {
           is.number(current) ? current : undefined,
         );
       case 'date':
-        return this.promptService.date(
-          undefined,
-          current instanceof Date ? current : undefined,
-        );
+        return this.promptService.date({ current: current as string });
       case 'time':
         return this.promptService.time(
           undefined,

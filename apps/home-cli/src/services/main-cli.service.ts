@@ -122,7 +122,6 @@ export class MainCLIService {
   }
 
   private async pickOne(): Promise<ENTRY_TYPE> {
-    const types: Record<string, PromptEntry<ENTRY_TYPE>[]> = {};
     const keyMap: KeyMap = {
       f12: [`${ICONS.DEBUG}Debugger`, 'debug'],
       g: [`${ICONS.GROUPS}Groups`, 'groups'],
