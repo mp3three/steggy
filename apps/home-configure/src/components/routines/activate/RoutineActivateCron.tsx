@@ -35,7 +35,7 @@ export function RoutineActivateCron(props: {
         >
           {Object.keys(CronExpression).map(key => (
             <Select.Option key={key} value={CronExpression[key]}>
-              {TitleCase(key.toLowerCase(), false)}
+              {TitleCase(key.toLowerCase())}
             </Select.Option>
           ))}
         </Select>

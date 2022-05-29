@@ -138,7 +138,6 @@ export class BaseDomainService {
       this.screenService.print(
         chalk`    {${GRAPH_COLORS[index % GRAPH_COLORS.length]} ${TitleCase(
           key,
-          false,
         )}}`,
       ),
     );
@@ -177,7 +176,7 @@ export class BaseDomainService {
     if (!(options[HEADER_SEPARATOR] as Separator)?.line) {
       options.unshift(
         new inquirer.Separator(
-          chalk.white(`${TitleCase(domain(id), false)} commands`),
+          chalk.white(`${TitleCase(domain(id))} commands`),
         ),
       );
     }
@@ -398,7 +397,7 @@ export class BaseDomainService {
     } else {
       value = chalk.green(item);
     }
-    return chalk` {blue.dim |} {white.bold ${TitleCase(key, false).padStart(
+    return chalk` {blue.dim |} {white.bold ${TitleCase(key).padStart(
       max,
       ' ',
     )}}  ${value}`;

@@ -72,7 +72,7 @@ export class SolarActivateService
       });
       if (calc.getTime() < Date.now()) {
         this.logger.debug(
-          `{${TitleCase(activate.event, false)}} already fired for today`,
+          `{${TitleCase(activate.event)}} already fired for today`,
         );
         return;
       }

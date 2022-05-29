@@ -57,7 +57,6 @@ export class SolarBuilderService {
         KEYS.map(key => [
           chalk`{gray.bold ${dayjs(calc[key]).format('HH:mm:ss')}} ${TitleCase(
             key,
-            false,
           )}`,
           key,
         ]).sort(([a], [b]) => (a > b ? UP : DOWN)) as PromptEntry<

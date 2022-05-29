@@ -426,9 +426,7 @@ export class GroupCommandService {
       .sort((a, b) => (a > b ? UP : DOWN))
       .forEach(key => {
         out.push(
-          new inquirer.Separator(
-            chalk.white(`${TitleCase(key, false)} Groups`),
-          ),
+          new inquirer.Separator(chalk.white(`${TitleCase(key)} Groups`)),
         );
         map
           .get(key)

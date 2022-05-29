@@ -26,10 +26,7 @@ export class FanService extends SwitchService {
         [`${ICONS.UP}Speed Up`, 'fanSpeedUp'],
         [`${ICONS.DOWN}Speed Down`, 'fanSpeedDown'],
         new inquirer.Separator(chalk.white`Absolute speeds`),
-        ...entity.attributes.speed_list.map(speed => [
-          TitleCase(speed, false),
-          speed,
-        ]),
+        ...entity.attributes.speed_list.map(speed => [TitleCase(speed), speed]),
       ] as PromptEntry<string>[]),
       current?.extra?.speed,
     );
