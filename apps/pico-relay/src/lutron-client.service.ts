@@ -10,8 +10,8 @@ import {
   LUTRON_PORT,
   LUTRON_USERNAME,
   RECONNECT_INTERVAL,
-} from '../config';
-import { LUTRON_EVENT } from '../types';
+} from './config';
+import { LUTRON_EVENT } from './types';
 
 @Injectable()
 export class LutronClientService {
