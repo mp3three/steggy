@@ -23,6 +23,9 @@ export type ActivateTypes =
 export enum ROUTINE_ACTIVATE_TYPE {
   attribute = 'attribute',
   device_trigger = 'device_trigger',
+  /**
+   * aka "sequence"
+   */
   kunami = 'kunami',
   internal_event = 'internal_event',
   metadata = 'metadata',

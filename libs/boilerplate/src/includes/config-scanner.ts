@@ -39,7 +39,7 @@ export function ScanConfig(
       const metadata =
         configuration[property] ?? MESSY_INJECTED_CONFIGS.get(property);
       out.push({
-        library,
+        library: from ? from.description : library,
         metadata,
         property,
       });

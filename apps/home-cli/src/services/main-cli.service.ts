@@ -8,6 +8,7 @@ import {
 import { InflatedPinDTO } from '@steggy/controller-shared';
 import {
   ApplicationManagerService,
+  IsDone,
   KeyMap,
   MainMenuEntry,
   MenuEntry,
@@ -17,6 +18,7 @@ import {
 import { DOWN, is, UP, VALUE } from '@steggy/utilities';
 
 import { APP_TITLE } from '../config';
+import { MENU_ITEMS } from '../includes';
 import { ICONS } from '../types';
 import { DebugService } from './debug.service';
 import { GroupCommandService } from './groups';
@@ -59,6 +61,9 @@ export class MainCLIService {
   public async exec(): Promise<void> {
     this.applicationManager.setHeader(this.applicationTitle);
     const name = await this.pickOne();
+    if (IsDone(name)) {
+      return;
+    }
     if (!is.string(name)) {
       await this.pinnedItem.exec(name as InflatedPinDTO);
       return this.exec();
@@ -123,6 +128,7 @@ export class MainCLIService {
 
   private async pickOne(): Promise<ENTRY_TYPE> {
     const keyMap: KeyMap = {
+      d: MENU_ITEMS.DONE,
       f12: [`${ICONS.DEBUG}Debugger`, 'debug'],
       g: [`${ICONS.GROUPS}Groups`, 'groups'],
       r: [`${ICONS.ROOMS}Rooms`, 'rooms'],
@@ -155,7 +161,9 @@ export class MainCLIService {
       value: this.last,
     });
     this.last = result;
-    await this.cacheService.set(CACHE_KEY, result);
+    if (!IsDone(result)) {
+      await this.cacheService.set(CACHE_KEY, result);
+    }
     return result;
   }
 }

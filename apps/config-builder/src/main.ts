@@ -90,11 +90,14 @@ export class ConfigScanner implements iQuickScript {
     }
     const action = await this.promptService.menu({
       hideSearch: true,
+      keyMap: { d: ['Done', 'done'] },
       right: entries,
       sort: false,
       value: defaultValue,
     });
     switch (action) {
+      case 'done':
+        return;
       case 'print':
         this.screenService.print(this.config);
         await this.promptService.acknowledge();

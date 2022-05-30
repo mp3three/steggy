@@ -47,7 +47,7 @@
       },
       "outputs": ["{options.outputFile}"]
     },
-    "publish": {
+    "local-publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "parallel": false,
@@ -71,6 +71,18 @@
           {
             "command": "cp dist/apps/config-builder/main.js tools/scripts/config-builder.js",
             "description": "Cache locally"
+          }
+        ]
+      }
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx local-publish config-builder",
+            "description": "Build locally"
           },
           {
             "command": "npx yarn publish --cwd dist/apps/config-builder --non-interactive",

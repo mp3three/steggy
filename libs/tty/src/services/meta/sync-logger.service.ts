@@ -137,6 +137,17 @@ export class SyncLoggerService {
     this.log('warn', ...arguments_);
   }
 
+  private formatData({ time, ...data }: Record<string, unknown>): string {
+    if (is.empty(Object.keys(data))) {
+      if (time && !is.number(time)) {
+        data.time = time;
+      } else {
+        return ``;
+      }
+    }
+    return ``;
+  }
+
   private getContext(): string {
     if (this.#context) {
       return this.#context;
@@ -163,10 +174,15 @@ export class SyncLoggerService {
     const message = prettyFormatMessage(
       is.string(parameters[START]) ? (parameters.shift() as string) : ``,
     );
+    const timestamp: number =
+      is.object(parameters[START]) &&
+      is.number((parameters[START] as Record<string, number>).time)
+        ? (parameters[START] as Record<string, number>).time
+        : undefined;
     this.screenService.print(
-      `[${dayjs().format('ddd HH:mm:ss.SSS')}]: ${context} ${chalk.cyan(
-        message,
-      )} ${data}`,
+      `[${dayjs(timestamp).format(
+        'ddd HH:mm:ss.SSS',
+      )}]: ${context} ${chalk.cyan(message)} ${data}`,
     );
   }
 }

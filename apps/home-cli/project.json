@@ -59,7 +59,7 @@
       },
       "outputs": ["{options.outputFile}"]
     },
-    "publish2": {
+    "publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "parallel": false,

@@ -67,7 +67,7 @@ const APPLICATION = Symbol('home-controller');
     [SEQUENCE_TIMEOUT]: {
       default: 1500,
       description:
-        'When tracking state changes for a kunami event, another change must happen inside this time window',
+        'When tracking state changes for a sequence event, another change must happen inside this time window',
       type: 'number',
     },
   },
