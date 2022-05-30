@@ -18,7 +18,7 @@
         "assets": [],
         "outputPath": "dist/apps/pico-relay",
         "generatePackageJson": true,
-        "main": "apps/pico-relay/src/entrypoints/main.ts",
+        "main": "apps/pico-relay/src/main.ts",
         "tsConfig": "apps/pico-relay/tsconfig.app.json"
       },
       "configurations": {

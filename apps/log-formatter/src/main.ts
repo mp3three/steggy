@@ -28,7 +28,8 @@ const rl = createInterface({
   terminal: false,
 });
 const BOOT_MESSAGES: string[] = [];
-const BOOT_CAPTURE = rl.on('line', line => BOOT_MESSAGES.push(line));
+let print: (line: string) => void = line => BOOT_MESSAGES.push(line);
+rl.on('line', line => print(line));
 
 @QuickScript({
   application: Symbol('log-formatter'),
@@ -41,9 +42,8 @@ export class ConfigScanner implements iQuickScript {
   constructor(private readonly syncLogger: SyncLoggerService) {}
 
   public exec() {
-    BOOT_CAPTURE.close();
     BOOT_MESSAGES.forEach(line => this.printLine(line));
-    rl.on('line', line => this.printLine(line));
+    print = line => this.printLine(line);
   }
 
   private printLine(line: string) {
