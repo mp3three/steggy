@@ -6,6 +6,7 @@ export const BOOTSTRAP_OPTIONS: BootstrapOptions = {
   nestNoopLogger: true,
   preInit: [
     app => {
+      // eslint-disable-next-line no-console
       console.log(JSON.stringify(ScanConfig(app)));
       exit();
     },

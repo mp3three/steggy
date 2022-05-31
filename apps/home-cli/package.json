@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "main.js",
   "displayName": "Home CLI",
-  "version": "0.11.4",
+  "version": "0.11.5",
   "homepage": "https://github.com/ccontour/steggy",
   "engines": {
     "node": ">=16.0.0"

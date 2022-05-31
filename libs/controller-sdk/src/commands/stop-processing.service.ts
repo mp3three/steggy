@@ -97,7 +97,7 @@ export class StopProcessingCommandService
     return (mode === 'all' && results.every(Boolean)) || results.some(Boolean);
   }
 
-  private attributeComparison(
+  public attributeComparison(
     comparison: RoutineAttributeComparisonDTO,
   ): boolean {
     const entity = this.entityManager.getEntity(comparison.entity_id);
@@ -108,9 +108,7 @@ export class StopProcessingCommandService
     );
   }
 
-  private dateComparison(
-    comparison: RoutineRelativeDateComparisonDTO,
-  ): boolean {
+  public dateComparison(comparison: RoutineRelativeDateComparisonDTO): boolean {
     const [start, end] = this.chronoService.parse<boolean>(
       comparison.expression,
       false,
@@ -141,7 +139,7 @@ export class StopProcessingCommandService
     return false;
   }
 
-  private async roomMetadata(
+  public async roomMetadata(
     comparison: MetadataComparisonDTO,
   ): Promise<boolean> {
     const room = await this.roomService.get(comparison.room);
@@ -159,7 +157,7 @@ export class StopProcessingCommandService
     );
   }
 
-  private stateComparison(comparison: RoutineStateComparisonDTO): boolean {
+  public stateComparison(comparison: RoutineStateComparisonDTO): boolean {
     const entity = this.entityManager.getEntity(comparison.entity_id);
     if (is.undefined(entity)) {
       this.logger.error(
@@ -173,7 +171,7 @@ export class StopProcessingCommandService
     );
   }
 
-  private async templateComparison(
+  public async templateComparison(
     comparison: RoutineTemplateComparisonDTO,
   ): Promise<boolean> {
     const value = await this.socketService.renderTemplate(comparison.template);
@@ -183,7 +181,7 @@ export class StopProcessingCommandService
     );
   }
 
-  private async webhookCompare({
+  public async webhookCompare({
     webhook,
     handleAs,
     property,
