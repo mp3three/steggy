@@ -1,4 +1,5 @@
-// This is purely so that builds include it in the package.json output
+// This is purely so that builds include `reflect-metadata` in the package.json output
+// ? Peer dependency might make more sense
 import 'reflect-metadata';
 
 export * from './config';

@@ -72,7 +72,6 @@ const translation = new Map([
       description: 'Authentication username',
       type: 'string',
     },
-
     [PICO_MAPPINGS]: {
       default: {},
       description:

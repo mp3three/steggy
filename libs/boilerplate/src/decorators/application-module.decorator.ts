@@ -12,6 +12,7 @@ import {
 } from '../contracts';
 import { RegisterCache } from '../includes';
 import { BoilerplateModule } from '../modules';
+import { MESSY_INJECTED_CONFIGS } from './injectors';
 import { LibraryModule } from './library-module.decorator';
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
@@ -111,10 +112,12 @@ function FindUnregisteredConfigurations(
         }
         return;
       }
-      metadata.configuration[path] ??= {
-        description: 'No description provided',
-        type: 'string',
-      } as ConfigItem<StringConfig>;
+      metadata.configuration[path] ??=
+        MESSY_INJECTED_CONFIGS.get(path) ??
+        ({
+          description: 'No description provided',
+          type: 'string',
+        } as ConfigItem<StringConfig>);
     });
   });
 }
