@@ -8,7 +8,7 @@ import {
   START,
 } from '@steggy/utilities';
 import chalk from 'chalk';
-import { parseDate } from 'chrono-node';
+import { parse, parseDate } from 'chrono-node';
 import dayjs from 'dayjs';
 
 import {
@@ -278,17 +278,30 @@ export class DateEditorService
       value = value.replace(stripped, update);
       length = update.length;
     }
-    const parsed = parseDate(this.chronoText || DEFAULT_PLACEHOLDER);
+    const [result] = parse(this.chronoText.trim() || DEFAULT_PLACEHOLDER);
     out.push(
       chalk` {cyan >} {bold Input value}`,
       chalk[is.empty(this.chronoText) ? 'bgBlue' : 'bgWhite'].black(
         ansiPadEnd(INTERNAL_PADDING + value + INTERNAL_PADDING, PADDING),
       ),
-      chalk`\n {cyan >} {bold Resolved value}`,
-      parsed
-        ? parsed.toLocaleString()
-        : chalk.bgYellow.black(`  Cannot parse  `),
     );
+    if (result) {
+      const { start, end } = result;
+      out.push(
+        chalk`\n {cyan >} {bold Resolved value}`,
+        (end ? chalk.bold('Start: ') : '') + start.date().toLocaleString(),
+      );
+      if (end) {
+        out.push(
+          chalk`  {bold End:} ${end ? end.date().toLocaleString() : ''}`,
+        );
+      }
+    } else {
+      out.push(
+        '',
+        chalk` {cyan >} {bold.red Resolved value}\n{bgYellow.black CANNOT PARSE}`,
+      );
+    }
     const message = this.textRendering.pad(out.join(`\n`));
 
     this.screenService.render(

@@ -36,7 +36,7 @@ export class ChronoService {
     expression: string,
     defaultValue?: T,
   ): [Date | T] | [Date, Date] {
-    const [parsed] = this.parser.parse(expression);
+    const [parsed] = this.parser.parse(expression, new Date());
     if (!parsed) {
       this.logger.error({ expression }, `Expression failed parsing`);
       // 🤷

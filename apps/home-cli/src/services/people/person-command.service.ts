@@ -19,6 +19,7 @@ import { DOWN, FILTER_OPERATIONS, is, LABEL, UP } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { MENU_ITEMS } from '../../includes';
+import { ICONS } from '../../types';
 import { GroupCommandService } from '../groups';
 import { EntityService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';
@@ -140,7 +141,7 @@ export class PersonCommandService {
             {
               field: '_id',
               operation: FILTER_OPERATIONS.in,
-              value: person.groups.join(','),
+              value: person.rooms.join(','),
             },
           ]),
         });
@@ -173,7 +174,7 @@ export class PersonCommandService {
         ...(is.empty(rooms)
           ? []
           : (rooms.map(room => {
-              return { entry: [room.friendlyName, { room }], type: 'Room' };
+              return { entry: [room.friendlyName, { room }], type: 'Rooms' };
             }) as MainMenuEntry<tRoom>[])),
       ],
       right: [
@@ -183,7 +184,7 @@ export class PersonCommandService {
         ...person.save_states.map(
           state =>
             ({
-              entry: [state.friendlyName, state.id],
+              entry: [`${ICONS.ACTIVATE}${state.friendlyName}`, state.id],
               type: 'Save States',
             } as MainMenuEntry<string>),
         ),
@@ -219,7 +220,7 @@ export class PersonCommandService {
         return await this.processPerson(person, action);
       case 'entities':
         person.entities = await this.buildEntityList(
-          person.entities.map(item => item.entity_id),
+          person.entities.map(({ entity_id }) => entity_id),
         );
         person = await this.update(person);
         return await this.processPerson(person, action);
@@ -243,9 +244,9 @@ export class PersonCommandService {
         person.groups = addedGroups.map(({ _id }) => _id);
         person = await this.update(person);
         return await this.processPerson(person, action);
-      case 'person':
-        const addedRooms = await this.roomService.pickMany([], person.groups);
-        person.groups = addedRooms.map(({ _id }) => _id);
+      case 'rooms':
+        const addedRooms = await this.roomService.pickMany([], person.rooms);
+        person.rooms = addedRooms.map(({ _id }) => _id);
         person = await this.update(person);
         return await this.processPerson(person, action);
       default:

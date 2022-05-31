@@ -46,7 +46,7 @@ export class ScheduleEnabledService
       // Just announce something changed. It'll figure it out
       this.routineEnabled.onUpdate(routine);
       // Just messing around with times
-    }, HALF * MINUTE * (Math.random() * SECOND));
+    }, HALF * MINUTE + Math.random() * SECOND);
 
     return () => {
       clearInterval(interval);

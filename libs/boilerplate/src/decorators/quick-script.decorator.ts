@@ -48,6 +48,7 @@ export function QuickScript({
   // Add in the MainCLI module to enable TTY functionality
   options.imports ??= [];
   options.providers ??= [];
+  options.application ??= Symbol('steggy-quick-script');
 
   // Corrective measures for loading metadata
 

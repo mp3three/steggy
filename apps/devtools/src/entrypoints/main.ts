@@ -3,3 +3,4 @@
 
 // import './imgur-album-download.service';
 // import './font-sampler.service';
+import './chrono-tester.service';
