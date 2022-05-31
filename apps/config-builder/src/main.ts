@@ -188,7 +188,10 @@ export class ConfigScanner implements iQuickScript {
         item,
       ],
       helpText,
-      type: TitleCase(item.library),
+      type:
+        item.library === this.loadedApplication
+          ? chalk.blue('* ') + TitleCase(item.library)
+          : TitleCase(item.library),
     };
   }
 

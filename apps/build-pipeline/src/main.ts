@@ -33,9 +33,15 @@ export class BuildPipelineService {
     private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly screenService: ScreenService,
+    @InjectConfig('RUN_AFTER', {
+      description:
+        'Target script to execute after the pipeline finishes. Kick off deployment scripts or whatever is needed',
+      type: 'string',
+    })
+    private readonly runAfter: string,
     @InjectConfig('NON_INTERACTIVE', {
       default: false,
-      description: 'Process without user interactions',
+      description: 'Process without user interactions (say yes to everything)',
       type: 'boolean',
     })
     private readonly nonInteractive: boolean,
@@ -55,38 +61,7 @@ export class BuildPipelineService {
     const affected = await this.listAffected();
     let apps: string[] = [];
     if (!is.empty(affected.apps)) {
-      if (!this.nonInteractive) {
-        this.screenService.down(2);
-      }
-      this.screenService.print(chalk.bold.cyan`APPS`);
-      affected.apps.forEach(line => {
-        const file = join('apps', line, 'package.json');
-        if (!existsSync(file)) {
-          this.screenService.print(chalk` {yellow - } ${line}`);
-          return;
-        }
-        const { version } = JSON.parse(
-          readFileSync(join('apps', line, 'package.json'), 'utf8'),
-        ) as PACKAGE;
-        this.screenService.print(
-          chalk` {yellow - } ${
-            version ? chalk` {gray ${version}} ` : ''
-          }${line}`,
-        );
-      });
-      if (!this.nonInteractive) {
-        this.screenService.down();
-        this.screenService.print(chalk`Select applications to rebuild`);
-      }
-      apps = this.nonInteractive
-        ? affected.apps
-        : await this.promptService.listBuild({
-            current: affected.apps
-              .filter(app => this.hasPublish(app))
-              .map(i => [TitleCase(i), i]),
-            items: 'Applications',
-            source: [],
-          });
+      apps = await this.build(affected);
     }
     if (!is.empty(affected.libs)) {
       await this.bumpLibraries(affected);
@@ -94,7 +69,45 @@ export class BuildPipelineService {
     if (!is.empty(apps)) {
       await this.bumpApplications(apps);
     }
+    if (!is.empty(this.runAfter)) {
+      const result = execa(this.runAfter);
+      result.stdout.pipe(stdout);
+      await result;
+    }
     this.logger.warn('DONE!');
+  }
+
+  private async build(affected: AffectedList): Promise<string[]> {
+    if (!this.nonInteractive) {
+      this.screenService.down(2);
+    }
+    this.screenService.print(chalk.bold.cyan`APPS`);
+    affected.apps.forEach(line => {
+      const file = join('apps', line, 'package.json');
+      if (!existsSync(file)) {
+        this.screenService.print(chalk` {yellow - } ${line}`);
+        return;
+      }
+      const { version } = JSON.parse(
+        readFileSync(join('apps', line, 'package.json'), 'utf8'),
+      ) as PACKAGE;
+      this.screenService.print(
+        chalk` {yellow - } ${version ? chalk` {gray ${version}} ` : ''}${line}`,
+      );
+    });
+    if (!this.nonInteractive) {
+      this.screenService.down();
+      this.screenService.print(chalk`Select applications to rebuild`);
+    }
+    return this.nonInteractive
+      ? affected.apps
+      : await this.promptService.listBuild({
+          current: affected.apps
+            .filter(app => this.hasPublish(app))
+            .map(i => [TitleCase(i), i]),
+          items: 'Applications',
+          source: [],
+        });
   }
 
   private async bumpApplications(apps: string[]): Promise<void> {

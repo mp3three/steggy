@@ -76,6 +76,7 @@
     },
     "files.associations": {
       ".pino-prettyrc": "json",
+      "build-pipeline": "ini",
       "home-controller": "ini",
       "home-cli": "ini",
       "pico-relay": "ini",
