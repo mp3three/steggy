@@ -71,8 +71,7 @@
       "**/node_modules": true,
       "**/bower_components": true,
       "**/*.code-search": true,
-      // Built scripts (`tools/scripts`) clutter results
-      "**/*.js": true
+      "**/tools": true
     },
     "files.associations": {
       ".pino-prettyrc": "json",
