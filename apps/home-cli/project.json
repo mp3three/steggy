@@ -102,6 +102,18 @@
           }
         ]
       }
+    },
+    "local-install": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "apps/home-cli/scripts/dev-install.sh",
+            "description": "All logic there"
+          }
+        ]
+      }
     }
   },
   "tags": ["terminal"]

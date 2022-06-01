@@ -2,12 +2,14 @@
 
 ## Description
 
-The Home CLI is a tool for issuing commands to the Controller using the rest api. It is installed indpendently from the controller, using npm.
-This app doesn't run any background logic, and is intended to leave running in the background as a quick-access tool.
+Home CLI is a command / control tool for the Home Controller, with interactions provided by the TTY library.
+It is not intended for configuration, but as a tool for consuming the existing configuration via the terminal.
+It can activate save states, work with pinned items, trigger routines, and more.
 
 ## Install
 
-To install the `home-cli` bash command.
+The `home-cli` bash command can be installed through NPM, or by building the command from the repository source.
+Yarn is the recommended install method if available.
 
 ### Yarn
 
@@ -24,15 +26,26 @@ yarn global upgrade @steggy/home-cli
 npm install -g @steggy/home-cli
 ```
 
+### From source
+
+```bash
+npx nx local-install home-cli
+```
+
 ## Configuration
 
-Pinned items are added to configuration file
+The most straightforward way of configuring `home-cli` is to use the provided `config-builder` app. This is usable by running this command from the repository root:
 
-### Recommended basic setup
+```bash
+yarn configure:home-cli
+```
 
-> Using Redis as the cache provider allows for elements such as initial menu position to be temporarily persisted
->
-> Completely optional feature
+This command will present all available configuration options, and is capable of writing a correctly formatted config file in a location the cli can find it.
+
+### Quick setup
+
+Home CLI will respect environment variables and command line switches, but ini file based configuration is the recommended way.
+This represents the minimum configuration, which can be placed at `~/.config/home-cli`
 
 ```ini
 [application]
@@ -40,69 +53,27 @@ Pinned items are added to configuration file
 
   ADMIN_KEY=super secret password
 
-[libs.boilerplate]
-  CACHE_PROVIDER=redis
+  ; To load items pinned on the home-controller frontend:
+  ; Uncomment, and add the identifier of a person
+  ; USER_ID=
 ```
 
-### All Options
+Home CLI can be enhanced redis cache if one is available.
+Redis allows the app to keep track of last selected menu entries between loads
 
-```ini
-[application]
+## Run in development mode
 
-  ; HTTP API target for the home controller
-  CONTROLLER_API=http://localhost:7000
+> All commands run from the repository root
 
-  ; Admin key for the home controller
-  ADMIN_KEY=
+**Note:** development server DOES NOT respond exactly the same way as production builds.
+This is partly a result of the webpack dev server getting involved.
+The app may not quit / cleanup the console as effectively as the production build does as a reuslt.
 
-  ; Magic sleep timer for headers
-  REFRESH_SLEEP=100
-
-  ; Max width for ascii charts
-  MAX_GRAPH_WIDTH=150
-
-  ; Default title for app
-  APP_TITLE=Home CLI
-
-[libs.boilerplate]
-  ; default = info
-  LOG_LEVEL=info | warn | debug
-
-  ; default = memory
-  CACHE_PROVIDER=redis | memory
-
-  ; only used with redis cache provider
-  REDIS_HOST=localhost
-
-  REDIS_PORT=6379
-
-  REDIS_DEFAULT_TTL=86400
-
-[libs.tty]
-  ; Automatically managed by application
-  PINNED_ITEMS=
-
-  ; Maxmimum number of items displayed in pickMany prompts
-  PAGE_SIZE=20
-
-  ; Color for primary header text + dividing line. Color must make sense to chalk
-  HEADER_COLOR=bgBlue.black
-
-  ; Figlet font
-  DEFAULT_HEADER_FONT=DOS Rebel
-
-  ; Figlet font
-  SECONDARY_HEADER_FONT=Pagga
+```bash
+# Install all dependencies
+yarn install
+# Update the configuration for the app
+yarn configure:home-cli
+# Start the home-cli development server
+npx nx serve home-cli
 ```
-
-## Application
-
-| Description | Image |
-| --- | --- |
-| Climate Entity | [![Climate entity](docs/images/climate.entity.png)](docs/images/climate.entity.png) |
-| Group List | [![Group List](docs/images/group.list.png)](docs/images/group.list.png) |
-| Light Group | [![Light Group](docs/images/light.group.png)](docs/images/light.group.png) |
-| Room | [![Room](docs/images/room.png)](docs/images/room.png) |
-| Room States | [![Room States](docs/images/room.states.png)](docs/images/room.states.png) |
-| Routine | [![Routine](docs/images/routine.png)](docs/images/routine.png) |
-| Server Control | [![Server Control](docs/images/server-control.png)](docs/images/server-control.png) |
