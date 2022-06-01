@@ -47,7 +47,7 @@ export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
   });
   return out;
 }
-export type KeyMap = Record<string, PromptEntry>;
+export type KeyMap<VALUE = string> = Record<string, PromptEntry<VALUE>>;
 
 /**
  * - true to terminate menu
@@ -68,7 +68,7 @@ export interface MenuComponentOptions<T = unknown> {
   headerPadding?: number;
   hideSearch?: boolean;
   item?: string;
-  keyMap?: KeyMap;
+  keyMap?: KeyMap<T>;
   /**
    * Only run against keyMap activations
    *
@@ -515,7 +515,7 @@ export class MenuComponentService<VALUE = unknown>
     }
     message += out.map(i => `  ${i}`).join(`\n`);
     const selectedItem = this.getSelected();
-    if (is.string(selectedItem?.helpText)) {
+    if (!is.empty(selectedItem?.helpText)) {
       message += chalk`\n \n {blue ?} ${selectedItem.helpText
         .split(`\n`)
         .map(line => line.replace(new RegExp('^ -'), chalk.cyan('   -')))
@@ -634,10 +634,14 @@ export class MenuComponentService<VALUE = unknown>
     return out;
   }
 
-  private selectedEntry() {
-    return [...this.side('right'), ...this.side('left')].find(
-      item => item.entry[VALUE] === this.value,
-    );
+  private selectedEntry(): MainMenuEntry {
+    return [
+      ...this.side('right'),
+      ...this.side('left'),
+      ...Object.values(this.opt.keyMap).map((entry: MenuEntry<VALUE>) => ({
+        entry,
+      })),
+    ].find(item => item.entry[VALUE] === this.value);
   }
 
   private setKeymap(): void {

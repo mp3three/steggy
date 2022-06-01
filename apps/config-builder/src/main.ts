@@ -78,8 +78,7 @@ export class ConfigScanner implements iQuickScript {
       },
       {
         entry: ['Output environment variables', 'environment'],
-        helpText:
-          'Output config as environment variables suitable for docker containers',
+        helpText: 'Output config as key/value pairs',
       },
     ] as MainMenuEntry[];
     if (!is.empty(this.outputFile)) {

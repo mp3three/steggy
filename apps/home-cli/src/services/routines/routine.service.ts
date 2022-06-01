@@ -16,13 +16,21 @@ import {
 import {
   ApplicationManagerService,
   IsDone,
+  MainMenuEntry,
   PromptService,
   ScreenService,
   StackService,
   TextRenderingService,
   ToMenuEntry,
 } from '@steggy/tty';
-import { is, LABEL, ResultControlDTO, TitleCase } from '@steggy/utilities';
+import {
+  DOWN,
+  is,
+  LABEL,
+  ResultControlDTO,
+  TitleCase,
+  UP,
+} from '@steggy/utilities';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
@@ -41,6 +49,7 @@ type RService = RoutineCommandService;
 const MILLISECONDS = 1000;
 const SOLO = 1;
 const CACHE_KEY = `MENU_LAST_ROUTINE`;
+const ROOT = 'ROOT';
 
 // @Repl({
 //   category: 'Control',
@@ -88,28 +97,11 @@ export class RoutineService {
     });
   }
 
-  public async exec(all = false): Promise<void> {
-    // List routines that are not attached to rooms
-    const list = await this.list({
-      filters: all
-        ? undefined
-        : new Set([
-            {
-              field: 'room',
-              value: null,
-            },
-          ]),
-    });
+  public async exec(): Promise<void> {
     let action = await this.promptService.menu<RoutineDTO | string>({
       keyMap: {
         a: MENU_ITEMS.ACTIVATE,
         d: MENU_ITEMS.DONE,
-        t: [
-          all
-            ? chalk.dim.magenta('Show detached routines')
-            : chalk.dim.blue('Show all routines'),
-          'all',
-        ],
       },
       keyMapCallback: async (action, [label, routine]) => {
         if (action === 'activate') {
@@ -118,14 +110,11 @@ export class RoutineService {
         }
         return true;
       },
-      right: ToMenuEntry(list.map(i => [i.friendlyName, i])),
+      right: await this.menuList(),
       value: this.lastRoutine,
     });
     if (IsDone(action)) {
       return;
-    }
-    if (action === 'all') {
-      return await this.exec(!all);
     }
     if (action === 'create') {
       action = await this.create();
@@ -175,6 +164,7 @@ export class RoutineService {
     await this.header(routine);
     const action = await this.promptService.menu({
       keyMap: {
+        '?': ['Change Description', 'description'],
         d: MENU_ITEMS.DONE,
         m: MENU_ITEMS.ACTIVATE,
         p: [
@@ -192,6 +182,21 @@ export class RoutineService {
       return;
     }
     switch (action) {
+      case 'description':
+        routine = await this.fetchService.fetch({
+          body: {
+            ...routine,
+            description: await this.promptService.string(
+              'Routine Description',
+              routine.description,
+              { placeholder: 'Justify my existence or something 🤷' },
+            ),
+          },
+          method: `put`,
+          url: `/routine/${routine._id}`,
+        });
+        return await this.processRoutine(routine, action);
+        return await this.processRoutine(routine, action);
       case 'pin':
         this.pinnedItems.toggle({
           target: routine._id,
@@ -312,6 +317,11 @@ export class RoutineService {
     this.applicationManager.setHeader(`Routine`, routine.friendlyName);
     const url = this.fetchService.getUrl(`/routine/${routine._id}`);
     this.screenService.print(chalk`${ICONS.LINK} {bold.magenta POST} ${url}`);
+    if (!is.empty(routine.description)) {
+      this.screenService.print(
+        chalk`${ICONS.DESCRIBE} {bold.blue ?} ${routine.description}`,
+      );
+    }
     this.screenService.print();
     if (!is.empty(routine.activate)) {
       this.screenService.print(chalk`  {blue.bold Activation Events}`);
@@ -350,5 +360,39 @@ export class RoutineService {
     });
     this.screenService.print(table.toString());
     this.screenService.print();
+  }
+
+  private async menuList(): Promise<MainMenuEntry<RoutineDTO>[]> {
+    const routines = await this.list();
+    const ancestors = new Map<string, RoutineDTO[]>();
+    const map = new Map<string, RoutineDTO>();
+    const name = (routine: RoutineDTO): string[] => [
+      routine.friendlyName,
+      ...(routine.parent ? name(map.get(routine.parent)) : []),
+    ];
+    routines.forEach(routine => {
+      map.set(routine._id, routine);
+      const parent = routine.parent || ROOT;
+      const list = ancestors.get(parent) ?? [];
+      list.push(routine);
+      ancestors.set(parent, list);
+    });
+    return routines
+      .map(
+        routine =>
+          ({
+            entry: [
+              name(routine)
+                .filter(i => !is.empty(i))
+                .reverse()
+                .join(chalk.cyan(` > `)),
+              routine,
+            ],
+            helpText: routine.description,
+          } as MainMenuEntry<RoutineDTO>),
+      )
+      .sort((a, b) => {
+        return a.entry[LABEL] > b.entry[LABEL] ? UP : DOWN;
+      }) as MainMenuEntry<RoutineDTO>[];
   }
 }
