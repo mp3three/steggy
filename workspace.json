@@ -6,7 +6,6 @@
     "config-builder": "apps/config-builder",
     "controller-shared": "libs/controller-shared",
     "controller-sdk": "libs/controller-sdk",
-    "devtools": "apps/devtools",
     "formio": "libs/formio",
     "home-assistant-shared": "libs/home-assistant-shared",
     "home-assistant": "libs/home-assistant",

@@ -1,46 +1,28 @@
-# Lutron Relay
+# Build Pipeline
 
-Example Config
+This code manages the build and publish workflow for this repository.
+The app itself isn't published anywhere, but cached locally in `tools/scripts`.
 
-```ini
-[application]
-  LUTRON_HOST=10.0.0.27
-  HOMEASSISTANT_URL=http://homeassistant.some-domain
-  HOMEASSISTANT_TOKEN=<LONG LIVED ACCESS TOKEN>
+## Workflow
 
-[application.PICO_MAPPINGS]
-; {sensor id} = {entity_id to use in home assistant}
-  13=sensor.test_remote_1
+The build pipeline will scan through all apps first, looking for apps that were
+affected by changes that have not been pushed to `origin/master` yet.
 
-; Uncomment to show all events in debug logs
-; Can be used to retrieve id for something by referencing debug logs and pushing buttons on the device
-; [libs.boilerplate]
-;   LOG_LEVEL=debug
+Any apps that are affected (and have a publish target for nx) will be presented as options to
+version bump + republish.
+
+If any libraries are affected, then a confirmation prompt to bump libraries will be shown.
+If accepted, the root repository version will be bumped, and that version is transferred to all libraries.
+All libraries will then be published using the updated + synchronized version (regardless if there is actually a change).
+
+After all libraries are published, then the selected applications will receive version bumps, and also get published.
+
+## Config options
+
+```bash
+yarn configure:build-pipeline
 ```
 
-## Deploy
-
-### Docker
-
-docker-compose.yaml
-
-```yaml
----
-version: "2.1"
-
-services:
-  pico-relay:
-    image: mp3three/pico-relay:latest
-    container_name: pico-relay
-    volumes:
-      - /path/to/config_file:/.pico-relayrc
-    restart: unless-stopped
-```
-
-### Finding Sensor IDs
-
-Example debug log line:
-
-> {"action":"~DEVICE","button":"4","direction":"4","id":"13"}
-
-The ID property ("13" in this example) is the value that can be used in the PICO_MAPPINGS config.
+- `NON_INTERACTIVE` Rebuild all libraries (if they were affected at all), and all affected apps. Do not prompt for user input
+- `BUMP_ONLY` Just bump the `package.json` version. Do not build / publish
+- `RUN_AFTER` Path to a bash script to run after pipeline finishes. Intended to kick off local deployment workflows

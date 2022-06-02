@@ -138,13 +138,19 @@ export class ConfigScanner implements iQuickScript {
     this.configDefinition = JSON.parse(
       readFileSync(this.definitionFile, 'utf8'),
     );
-
-    const [configs] = this.workspaceService.loadMergedConfig(
-      this.workspaceService.configFilePaths(this.loadedApplication),
-    );
+    let configMap = new Map<string, AbstractConfig>();
+    if (!is.empty(this.outputFile)) {
+      this.workspaceService.loadConfigFromFile(configMap, this.outputFile);
+      return;
+    } else {
+      const [configs] = this.workspaceService.loadMergedConfig(
+        this.workspaceService.configFilePaths(this.loadedApplication),
+      );
+      configMap = configs;
+    }
     const mergedConfig: AbstractConfig = {};
-    configs.forEach(config => deepExtend(mergedConfig, config));
-    this.loadedFiles = [...configs.keys()];
+    configMap.forEach(config => deepExtend(mergedConfig, config));
+    this.loadedFiles = [...configMap.keys()];
     this.config = mergedConfig;
   }
 

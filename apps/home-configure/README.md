@@ -1,58 +1,25 @@
 # Home Configuration
 
 Note: This project is **NOT** inteded to be a dashboard. There is no persistent connection open from the UI to the backend, nor to Home Assistant. The UI may not always match actual entity state.
+It serves as the frontend to the `home-controller` application, providing a webui to manage the way the controller works.
 
-## Grouping
+## Usage
 
-### [Groups](docs/groups.md)
+### Deployed
 
-Groups take a collection of entitites, and provides tools to allow them to act in a coordinated fashion. All group types have the ability to create save states, which contain state / attribute information to set. Some groups, such as *light groups* also expose specialized actions such as dimming.
+When deploying `home-controller` as a docker container, no additional work needs to be done. This app comes with the image, and will be automatically served as the web interface
 
-Entities may be shared in multiple groups.
+### Development
 
-### [Rooms](docs/room.md)
+During development, the webpack dev server is run separately from the controller.
+The development build of the controller is set up to proxy requests through to this webpack server, acting the same as the production builds.
 
-Rooms are collections of groups and entities.
+```bash
+# Start the dev server
+npx nx serve home-configure
+```
 
-## [Routines](docs/routine.md)
+### Standalone UI, targeting a different controller
 
-Routines takes a list of activation events, and trigger actions.
-
-### [Activation Events](docs/routines-activate.md)
-
-All routines can be activated via POST request to `/api/routine/{routine._id}`.
-
-Current activation events:
-
-- Entity State Sequence
-- Cron
-- Solar State
-- Entity State Comparison
-
-WIP:
-
-- Calendar Based
-
-### [Commands](docs/routine-command.md)
-
-Commands can be processed in either in series, or parallel.
-
-- While processing in series, commands can be sorted, processed in order, and flow control tools such as stop processing can be used.
-  - When setting entity states, confirmation must be received from Home Assistant prior to continuing.
-- While processing in parallel, all commands are executed simultaniously.
-  - Entity state changes are processed in a "fire and forget" method.
-
-Current activation events:
-
-- Set entity state
-- Activate group state
-- Run group action
-- Activate room state
-- Send notification via home assistant
-- Trigger routine
-- Webhook
-- Set room metadata
-- Stop processing
-  - Series only
-- Sleep
-  - Series only
+The development webpack dev server can have the pages loaded directly.
+Under the settings panel, there is an option attached to the same section as the admin key, which can be used to point the UI to a custom base url

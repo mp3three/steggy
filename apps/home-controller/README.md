@@ -7,155 +7,53 @@ The Home Configure project acts as the primary user interface, and is delivered 
 
 ## Server Configuration
 
-### Recommended basic setup
+### Recommended basic manual setup
 
 ```ini
-[libs.persistence]
-  MONGO_URI=mongodb://mongo:27017/home-controller
+[application]
+; Want to use the node red integration?
+
+  ; NODE_RED_URL=http://node-red.localhost
 
 [libs.boilerplate]
-  CACHE_PROVIDER=redis
+; Redis is preferred, but optional
+  ; REDIS_HOST=localhost
+  ; CACHE_PROVIDER=redis
 
-  REDIS_HOST=redis
-
-  LOG_LEVEL=debug
+; Additional logs available if desired
+  ; LOG_LEVEL=debug
 
 [libs.home-assistant]
-  BASE_URL=https://homeassistant.your.domain
+  TOKEN=<long lived access token>
+  BASE_URL=http://your.homeassistant.server
 
-  TOKEN=
+[libs.persistence]
+  MONGO_URI=mongodb://localhost:27017/steggy
+
 
 [libs.server]
   ADMIN_KEY=super secret password
 ```
 
-### All Options
+### Development Configuration
 
-```ini
-[application]
-  ; modify the internal timing of the sequence activation event
-  SEQUENCE_TIMEOUT=1500
+If running the development server, the canned configuration script will place files in the correct location.
 
-  ; light temperature (kelvin) at solar noon
-  CIRCADIAN_MAX_TEMP=5500
+```bash
+yarn configure:home-controller
+```
 
-  ; light temperature (kelvin) at night
-  CIRCADIAN_MIN_TEMP=2000
+### Config builder + docker containers
 
-  ; minimum brightness amount for dimmer operations
-  MIN_BRIGHTNESS=5
+If you have `config-builder` installed locally, you can use a pre-computed scan that ships with the docker image.
 
-[libs.boilerplate]
-  ; default = info
-  LOG_LEVEL=info | warn | debug
-
-  ; default = memory
-  CACHE_PROVIDER=redis | memory
-
-  ; only used with redis cache provider
-  REDIS_HOST=localhost
-
-  REDIS_PORT=6379
-
-  REDIS_DEFAULT_TTL=86400
-
-[libs.home-assistant]
-  ; long lived access token
-  TOKEN=
-
-  BASE_URL=http://localhost:8123
-
-  ; optional override, manually specify ws[s]:// target to connect to
-  WEBSOCKET_URL=
-
-  ; emit warnings if controller attempts to send more than this many commands
-  ; via websocket in under a second
-  WARN_REQUESTS_PER_SEC=300
-
-  ; self terminate if controller attempts to send more than this many commands
-  ; via websocket in under a second.
-  ;
-  ; likely to have some sort of infinite loop situation that (if left unattended)
-  ; might also take down home assistant
-  CRASH_REQUESTS_PER_SEC=500
-
-  ; maximum time to wait for template rendering requests
-  RENDER_TIMEOUT=3
-
-  ; retry interval for dropped home assistant socket connections
-  RETRY_INTERVAL=5000
-
-[libs.server]
-  ; Prefix routes with value
-  ; ex: http://localhost:7000/normal/route/path => http://localhost:7000/api/normal/route/path
-  ;
-  ; Note: this only affects the server side, and may cause issues for some ui layer code
-  GLOBAL_PREFIX=/api
-
-  ; cors origin
-  CORS=*
-
-  ; enable csrf middleware
-  ; https://github.com/pillarjs/understanding-csrf
-  CSURF=true
-
-  ; rollover point for http request id tracking
-  MAX_REQUEST_ID=1000000000
-
-  ; max http body size
-  BODY_SIZE=100kb
-
-  ; gzip responses before sending
-  COMPRESSION=true
-
-  ; not recommended to change for dockerized deployments
-  PORT=7000
-
-  ; endpoint to access swagger documentation at
-  ; does not need to be same as GLOBAL_PREFIX
-  SWAGGER_PATH=/api
-
-  ; blank to disable, value is compared against `x-admin-key` header to authenticate
-  ADMIN_KEY=
-
-  ; http requests authenticate by default
-  AUTH_BYPASS=false
-
-  ; /version endpoint will return 404
-  HIDE_VERSION=false
-
-  ; enable direct https connections to server
-  SSL_PORT=
-
-  ; file path; required if SSL_PORT is set
-  SSL_KEY=
-
-  ; file path; required if SSL_PORT is set
-  SSL_CERT=
-
-[libs.persistence]
-  ; data storage location
-  MONGO_URI=mongodb://localhost:27017/steggy
-
-  ; file path; optional / used with ssl connections to mongo
-  MONGO_CERT=
-
-  ; file path; optional / used with ssl connections to mongo
-  MONGO_KEY=
-
-  ; file path; optional / used with ssl connections to mongo
-  MONGO_CA=
-
-  ; file path; optional / used with ssl connections to mongo
-  MONGO_CRL=
+```bash
 
 ```
 
 ## Deployments
 
 ### Docker Compose
-
-A MongoDB compatible database is required. Redis is recommended, but optional
 
 ```yaml
 ---

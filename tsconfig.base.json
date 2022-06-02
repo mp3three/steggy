@@ -47,7 +47,6 @@
   "references": [
     { "path": "./apps/build-pipeline/tsconfig.json" },
     { "path": "./apps/config-builder/tsconfig.json" },
-    { "path": "./apps/devtools/tsconfig.json" },
     { "path": "./apps/home-cli/tsconfig.json" },
     { "path": "./apps/home-configure/tsconfig.json" },
     { "path": "./apps/home-controller/tsconfig.json" },
