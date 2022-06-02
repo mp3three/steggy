@@ -104,6 +104,10 @@ export class AutoConfigService {
     }
   }
 
+  protected onPreInit(): void {
+    this.sanityCheck();
+  }
+
   private cast(data: string, type: string): unknown {
     switch (type) {
       case 'boolean':
@@ -144,7 +148,6 @@ export class AutoConfigService {
     fileConfig.forEach((config, path) =>
       this.logger.debug(`Loaded configuration from {${path}}`),
     );
-    this.sanityCheck();
   }
 
   private getConfiguration(path: string): ConfigItem {

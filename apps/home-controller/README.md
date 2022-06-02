@@ -111,23 +111,3 @@ To start the development server:
 To enable the ui:
 
 - `npx nx serve home-configure`
-
-While in develoment environments, the server will attempt to proxy UI requests to port `4200`, where the home-configure server is expected to attach.
-This allows the controller to act as the primary server like what happens in dockerized deployments.
-
-### Bare Metal
-
-Bare metal installs are not an officially supported use case. A non-dockerized production optimized build can be launched through the following commands run from the repository root
-
-```bash
-# Build backend code
-npx nx build home-controller --configuration=production
-# Build ui
-npx nx build home-configure --configuration=production
-# Make ui assets available for backend to serve
-mv dist/apps/home-configure dist/apps/home-controller/ui
-# Launch server
-node dist/apps/home-controller/main.js
-```
-
-Note: production builds output json logs
