@@ -3,7 +3,7 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { DOWN, is, UP } from '@steggy/utilities';
-import { Checkbox, Divider, Empty, Space, Tooltip } from 'antd';
+import { Checkbox, Divider, Empty, Radio, Space, Tooltip } from 'antd';
 import Tree, { DataNode } from 'antd/lib/tree';
 import { useEffect, useState } from 'react';
 
@@ -92,17 +92,31 @@ export function TriggerRoutineCommand(props: {
     <Empty />
   ) : (
     <Space direction="vertical" style={{ width: '100%' }}>
-      <Tree
-        treeData={treeData.sort((a, b) => sortChildren(a, b, routineMap))}
-        className="draggable-tree"
-        onSelect={([routine]: string[]) => onUpdate(routine)}
-        showIcon
-        blockNode
-        selectedKeys={selected}
-        defaultExpandedKeys={getDefaultExpandedKeys(
-          routines.find(({ _id }) => _id === props.command?.routine),
-        )}
-      />
+      <Radio.Group
+        buttonStyle="solid"
+        value={!!props?.command?.runChildren}
+        onChange={({ target }) => props.onUpdate({ runChildren: target.value })}
+      >
+        <Radio.Button value={true}>Run child routines</Radio.Button>
+        <Radio.Button value={false}>Run specific routine</Radio.Button>
+      </Radio.Group>
+      {props.command?.runChildren ? undefined : (
+        <>
+          <Divider />
+          <Tree
+            disabled={props.command?.runChildren}
+            treeData={treeData.sort((a, b) => sortChildren(a, b, routineMap))}
+            className="draggable-tree"
+            onSelect={([routine]: string[]) => onUpdate(routine)}
+            showIcon
+            blockNode
+            selectedKeys={selected}
+            defaultExpandedKeys={getDefaultExpandedKeys(
+              routines.find(({ _id }) => _id === props.command?.routine),
+            )}
+          />
+        </>
+      )}
       <Divider orientation="left">Flags</Divider>
       <Tooltip title="Ignore the disabled + repeat activation states to forcibly run the routine.">
         <Checkbox

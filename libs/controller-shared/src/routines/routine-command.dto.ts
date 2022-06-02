@@ -79,7 +79,11 @@ export class RoutineCommandTriggerRoutineDTO {
   public force: boolean;
   @ApiProperty()
   @IsString()
-  public routine: string;
+  public routine?: string;
+  @IsOptional()
+  @ApiProperty()
+  @IsBoolean()
+  public runChildren?: boolean;
 }
 
 enum LightFlashType {

@@ -1,8 +1,4 @@
-import {
-  FILTER_OPERATIONS,
-  is,
-  ResultControlDTO,
-} from '@steggy/utilities';
+import { FILTER_OPERATIONS, is, ResultControlDTO } from '@steggy/utilities';
 import { Document, Query, Types } from 'mongoose';
 
 import { filtersToMongoQuery } from '../includes';

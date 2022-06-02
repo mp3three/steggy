@@ -1,4 +1,9 @@
-import { forwardRef, Inject, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   iRoutineCommand,
@@ -10,6 +15,7 @@ import {
   RoutineCommandTriggerRoutineDTO,
   RoutineDTO,
 } from '@steggy/controller-shared';
+import { each, eachSeries, is } from '@steggy/utilities';
 
 @RoutineCommand({
   description: 'Trigger another routine',
@@ -26,7 +32,7 @@ export class RoutineTriggerService
   ) {}
 
   public async activate({
-    command,
+    command: { command },
     routine,
     waitForChange,
   }: {
@@ -35,7 +41,14 @@ export class RoutineTriggerService
     runId: string;
     waitForChange: boolean;
   }): Promise<void> {
-    const target = await this.routineService.get(command.command.routine);
+    if (command.runChildren) {
+      return await this.activateChildren(command, routine, waitForChange);
+    }
+    if (is.empty(command.routine)) {
+      this.logger.error({ command, routine });
+      throw new InternalServerErrorException(`Empty routine trigger target`);
+    }
+    const target = await this.routineService.get(command.routine);
     if (!target) {
       throw new NotFoundException(`Could not find routine`);
     }
@@ -43,10 +56,40 @@ export class RoutineTriggerService
     await this.routineService.activateRoutine(
       target,
       {
-        force: command.command.force,
+        force: command.force,
         source: routine.friendlyName,
       },
       waitForChange,
     );
+  }
+
+  private async activateChildren(
+    { force }: RoutineCommandTriggerRoutineDTO,
+    { _id, friendlyName }: RoutineDTO,
+    waitForChange: boolean,
+  ): Promise<void> {
+    const children = await this.routineService.list({
+      filters: new Set([{ field: 'parent', value: _id }]),
+    });
+    if (is.empty(children)) {
+      this.logger.warn(`[${friendlyName}] 🚫👶 Has no children to activate`);
+      return;
+    }
+    const trigger = async routine => {
+      this.logger.debug(`Routine trigger {${routine.friendlyName}}`);
+      await this.routineService.activateRoutine(
+        routine,
+        {
+          force: force,
+          source: friendlyName,
+        },
+        waitForChange,
+      );
+    };
+    if (waitForChange) {
+      await eachSeries(children, trigger);
+      return;
+    }
+    await each(children, trigger);
   }
 }
