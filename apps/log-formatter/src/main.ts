@@ -32,6 +32,7 @@ let print: (line: string) => void = line => BOOT_MESSAGES.push(line);
 rl.on('line', line => print(line));
 
 @QuickScript({
+  PERSISTENT: true,
   application: Symbol('log-formatter'),
   // Show all log messages
   bootstrap: { config: { libs: { boilerplate: { LOG_LEVEL: 'trace' } } } },
