@@ -6,7 +6,7 @@ import {
   QuickScript,
 } from '@steggy/boilerplate';
 import { SyncLoggerService, TTYModule } from '@steggy/tty';
-import { is } from '@steggy/utilities';
+import { is, START } from '@steggy/utilities';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 import { Level } from 'pino';
@@ -48,6 +48,11 @@ export class ConfigScanner implements iQuickScript {
   }
 
   private printLine(line: string) {
+    // Coming from something that isn't a json logger
+    if (line.charAt(START) !== '{') {
+      console.log(line);
+      return;
+    }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { level, pid, hostname, time, context, msg, ...data } =
       JSON.parse(line);

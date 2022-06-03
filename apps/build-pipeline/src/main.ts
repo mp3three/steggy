@@ -71,7 +71,9 @@ export class BuildPipelineService {
     }
     try {
       if (!is.empty(this.runAfter)) {
-        const result = execa(this.runAfter);
+        // It's expected that prettyified content is being sent through
+        // Without env var, all formatting gets removed
+        const result = execa(this.runAfter, { env: { FORCE_COLOR: 'true' } });
         result.stdout.pipe(stdout);
         await result;
       }
@@ -220,8 +222,12 @@ export class BuildPipelineService {
   private async listAffected(): Promise<AffectedList> {
     const rawApps = await execa(`npx`, ['nx', 'affected:apps', '--plain']);
     const rawLibs = await execa(`npx`, ['nx', 'affected:libs', '--plain']);
-    const libs: string[] = rawLibs.stdout.split(' ');
-    const apps: string[] = rawApps.stdout.split(' ');
+    const libs: string[] = rawLibs.stdout
+      .split(' ')
+      .filter(line => !is.empty(line.trim()));
+    const apps: string[] = rawApps.stdout
+      .split(' ')
+      .filter(line => !is.empty(line.trim()));
     return { apps, libs };
   }
 }
