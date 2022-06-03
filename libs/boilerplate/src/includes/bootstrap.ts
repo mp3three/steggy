@@ -19,6 +19,7 @@ import {
   LIB_BOILERPLATE,
   LifecycleService,
   NEST_NOOP_LOGGER,
+  NO_USER_CONFIG,
   UsePrettyLogger,
 } from '@steggy/boilerplate';
 import { eachSeries, is } from '@steggy/utilities';
@@ -27,23 +28,59 @@ import { ClassConstructor } from 'class-transformer';
 import express, { Express } from 'express';
 
 export interface BootstrapOptions extends Pick<ModuleMetadata, 'imports'> {
+  /**
+   * Provide alternate default values for configurations.
+   * Takes priority over definitions from `@InjectConfig` and modules.
+   * Overridden by all user values.
+   */
   config?: AbstractConfig;
+  /**
+   * Insert additional modules.
+   * Used for environment specific modules, 99% of the time these should be placed in the application module instead
+   */
   extraModules?: DynamicModule[];
+  /**
+   * Insert additional providers with a global scope.
+   */
   globals?: Provider[];
+  /**
+   * Attach express to the nestjs app.
+   * `ServerModule` from `@steggy/server` needs to be imported to actually listen for requests
+   */
   http?: boolean;
+  /**
+   * Disable nestjs log messages
+   */
   nestNoopLogger?: boolean;
   noGlobalError?: boolean;
+  /**
+   * Additional functions to run postInit.
+   * Run before those in providers
+   */
   postInit?: ((
     app: INestApplication,
     expressServer: Express,
     bootOptions: BootstrapOptions,
   ) => Promise<void> | void | unknown | Promise<unknown>)[];
+  /**
+   * Additional functions to run preInit.
+   * Run before those in providers
+   */
   preInit?: ((
     app: INestApplication,
     expressServer: Express,
     bootOptions: BootstrapOptions,
   ) => Promise<void> | void)[];
+  /**
+   * Output logs using the pretty logger formatter instead of standard json logs.
+   * Use with development environments only
+   */
   prettyLog?: boolean;
+  /**
+   * Ignore user provided configuration values.
+   * Only use defaults / bootstrap provided config
+   */
+  skipConfigLoad?: boolean;
 }
 
 /**
@@ -53,6 +90,7 @@ export async function Bootstrap(
   module: ClassConstructor<unknown>,
   bootOptions: BootstrapOptions,
 ): Promise<void> {
+  bootOptions.globals ??= [];
   // Environment files can append extra modules
   const current = Reflect.getMetadata('imports', module) ?? [];
   if (!is.empty(bootOptions.imports)) {
@@ -68,11 +106,18 @@ export async function Bootstrap(
     );
     return;
   }
-  const append = [...(bootOptions.globals ?? [])];
+  if (bootOptions.skipConfigLoad) {
+    bootOptions.globals.push({
+      provide: NO_USER_CONFIG,
+      useValue: true,
+    });
+  }
+  const append = [...bootOptions.globals];
   append.push({
     provide: CONFIG_DEFAULTS,
     useValue: bootOptions.config ?? {},
   });
+
   globals.exports.push(...append);
   globals.providers.push(...append);
 

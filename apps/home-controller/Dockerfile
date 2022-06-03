@@ -1,6 +1,8 @@
 # <STAGE 1>
 # Bring repo into intermediate container
-FROM node:16-alpine AS build
+# Using node:16 over node:16-alpine because it has support for memory mongo
+# It's needed for doing config scanning
+FROM node:16 AS build
 WORKDIR /app
 RUN apk add git curl; npm install -g npm@8.7.0
 

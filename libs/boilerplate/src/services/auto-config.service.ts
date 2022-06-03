@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Optional,
 } from '@nestjs/common';
 import { deepExtend, is, LABEL, PAIR, SINGLE, VALUE } from '@steggy/utilities';
 import { writeFileSync } from 'fs';
@@ -18,6 +19,7 @@ import {
   ACTIVE_APPLICATION,
   CONFIG_DEFAULTS,
   ConfigItem,
+  NO_USER_CONFIG,
 } from '../contracts';
 import { LibraryModule, MESSY_INJECTED_CONFIGS } from '../decorators';
 import { AutoLogService } from './auto-log.service';
@@ -38,6 +40,9 @@ export class AutoConfigService {
     @Inject(CONFIG_DEFAULTS)
     private readonly configDefaults: AbstractConfig,
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
+    @Optional()
+    @Inject(NO_USER_CONFIG)
+    private readonly noUserConfig: boolean,
     private readonly logger: AutoLogService,
     private readonly workspace: WorkspaceService,
   ) {
@@ -133,18 +138,22 @@ export class AutoConfigService {
   private earlyInit(): void {
     this.config = {};
     this.setDefaults();
+    deepExtend(this.config, this.configDefaults ?? {});
+    this.logger.setContext(LIB_BOILERPLATE, AutoConfigService);
+    this.logger[
+      'context'
+    ] = `${LIB_BOILERPLATE.description}:${AutoConfigService.name}`;
+    if (this.noUserConfig) {
+      this.configFiles = [];
+      return;
+    }
     const [fileConfig, files] = this.workspace.loadMergedConfig([
       ...this.workspace.configFilePaths(this.appName),
       ...(this.switches['config'] ? [resolve(this.switches['config'])] : []),
     ]);
     this.configFiles = files;
     fileConfig.forEach(config => deepExtend(this.config, config));
-    deepExtend(this.config, this.configDefaults ?? {});
     this.loadFromEnv();
-    this.logger.setContext(LIB_BOILERPLATE, AutoConfigService);
-    this.logger[
-      'context'
-    ] = `${LIB_BOILERPLATE.description}:${AutoConfigService.name}`;
     fileConfig.forEach((config, path) =>
       this.logger.debug(`Loaded configuration from {${path}}`),
     );

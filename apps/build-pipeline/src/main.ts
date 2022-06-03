@@ -69,10 +69,14 @@ export class BuildPipelineService {
     if (!is.empty(apps)) {
       await this.bumpApplications(apps);
     }
-    if (!is.empty(this.runAfter)) {
-      const result = execa(this.runAfter);
-      result.stdout.pipe(stdout);
-      await result;
+    try {
+      if (!is.empty(this.runAfter)) {
+        const result = execa(this.runAfter);
+        result.stdout.pipe(stdout);
+        await result;
+      }
+    } catch (error) {
+      this.logger.error(error.shortMessage ?? 'Command failed');
     }
     this.logger.warn('DONE!');
   }
@@ -167,6 +171,7 @@ export class BuildPipelineService {
       });
     }
   }
+
   private async bumpRoot(affected: AffectedList): Promise<string> {
     const packageJSON = JSON.parse(
       readFileSync('package.json', 'utf8'),

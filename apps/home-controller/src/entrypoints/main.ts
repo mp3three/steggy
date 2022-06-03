@@ -3,4 +3,4 @@ import { Bootstrap } from '@steggy/boilerplate';
 import { BOOTSTRAP_OPTIONS } from '../environments/environment';
 import { HomeControllerModule } from '../modules';
 
-Bootstrap(HomeControllerModule, BOOTSTRAP_OPTIONS);
+(async () => Bootstrap(HomeControllerModule, await BOOTSTRAP_OPTIONS()))();

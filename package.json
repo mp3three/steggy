@@ -1,7 +1,7 @@
 {
   "name": "steggy",
   "publisher": "mp3three",
-  "version": "0.11.12",
+  "version": "0.11.13",
   "license": "MIT",
   "author": {
     "email": "git@programmable.work",
@@ -70,6 +70,7 @@
     "minimist": ">=1.2.5",
     "moment": "^2.29.3",
     "mongodb": "^4.6.0",
+    "mongodb-memory-server": "^8.6.0",
     "mongoose": "^6.3.4",
     "mqtt": "^4.3.7",
     "mute-stream": "^0.0.8",
