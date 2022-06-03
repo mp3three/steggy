@@ -2,6 +2,37 @@
 
 ## Applications
 
+### [Home Controller](apps/home-controller) (backend) + [Home Configure](apps/home-configure) (frontend)
+
+Standalone automation driver with integrations for Home Assistant, Node Red, and more.
+
+![example](./apps/home-configure/docs/images/main.png)
+
+### [Node Red Contrib](libs/node-red-contrib-steggy)
+
+<!-- 🙊 shh, it's an app in disguise. 🙊 -->
+
+Node Red integration for [Home Controller](apps/home-controller).
+
+![example](./libs/node-red-contrib-steggy/docs/main.png)
+
+### [Home CLI](apps/home-cli)
+
+Standalone terminal app to issue commands against [Home Controller](apps/home-controller)
+
+![example](./apps/home-cli/docs/images/example.png)
+
+### [Config Builder](apps/config-builder)
+
+A script to manage file based configurations for applications based off `@steggy/boilerplate`.
+
+![example](./apps/config-builder/docs/example.png)
+
+### [Log Formatter](apps/log-formatter)
+
+Pipe JSON logs in via stdin, get pretty/readable logs out.
+Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), but using the `SyncLogger` formatter from this repo.
+
 ### [Build Pipeline](apps/build-pipeline)
 
 > (internal tool)
@@ -10,29 +41,6 @@ The code used to create and publish builds when code changes.
 Not publicly published, but available as the `yarn pipeline` command.
 
 ![example](./apps/build-pipeline/docs/example.png)
-
-### [Config Builder](apps/config-builder)
-
-A script to manage file based configurations for applications based off `@steggy/boilerplate`.
-
-![example](./apps/config-builder/docs/example.png)
-
-### [Home CLI](apps/home-cli)
-
-Standalone terminal app to issue commands against [Home Controller](apps/home-controller)
-
-![example](./apps/home-cli/docs/images/example.png)
-
-### [Home Controller](apps/home-controller) (backend) + [Home Configure](apps/home-configure) (frontend)
-
-Standalone automation driver with integrations for Home Assistant, Node Red, and more.
-
-![example](./apps/home-configure/docs/images/main.png)
-
-### [Log Formatter](apps/log-formatter)
-
-Pipe JSON logs in via stdin, get pretty logs out.
-Fills same role as [pino-pretty](https://www.npmjs.com/package/pino-pretty), but using the `SyncLogger` formatter from this repo
 
 ### [Pico Relay](apps/pico-relay)
 
@@ -61,10 +69,6 @@ Home Assistant websocket and traffic management, http api wrapper, and general c
 ### [Home Assistant Shared](libs/home-assistant-shared)
 
 Shared type definitions related to the [Home Assistant](libs/home-assistant) library
-
-### [node red contrib](libs/node-red-contrib-steggy)
-
-Node Red integration for [Home Controller](apps/home-controller)
 
 ### [Persistence](libs/persistence)
 
