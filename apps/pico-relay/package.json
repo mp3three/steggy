@@ -3,7 +3,7 @@
   "license": "MIT",
   "description": "",
   "main": "main.js",
-  "version": "0.11.10",
+  "version": "0.11.11",
   "displayName": "Pico Relay",
   "author": {
     "email": "git@programmable.work",

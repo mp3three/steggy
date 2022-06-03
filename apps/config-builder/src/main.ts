@@ -83,7 +83,7 @@ export class ConfigScanner implements iQuickScript {
     ] as MainMenuEntry[];
     if (!is.empty(this.outputFile)) {
       entries.push({
-        entry: ['Write to config file', 'write-config'],
+        entry: [chalk`{cyan **} Write to config file`, 'write-config'],
         helpText: chalk`Write to file {bold.cyan ${this.outputFile}}`,
       });
     }
@@ -141,14 +141,17 @@ export class ConfigScanner implements iQuickScript {
     let configMap = new Map<string, AbstractConfig>();
     if (!is.empty(this.outputFile)) {
       this.workspaceService.loadConfigFromFile(configMap, this.outputFile);
-      return;
     } else {
       const [configs] = this.workspaceService.loadMergedConfig(
         this.workspaceService.configFilePaths(this.loadedApplication),
       );
       configMap = configs;
     }
-    const mergedConfig: AbstractConfig = {};
+    const mergedConfig: AbstractConfig = is.undefined(
+      this.configDefinition.bootstrapOverrides,
+    )
+      ? {}
+      : JSON.parse(JSON.stringify(this.configDefinition.bootstrapOverrides));
     configMap.forEach(config => deepExtend(mergedConfig, config));
     this.loadedFiles = [...configMap.keys()];
     this.config = mergedConfig;
@@ -159,28 +162,29 @@ export class ConfigScanner implements iQuickScript {
     currentValue: unknown,
   ): MainMenuEntry<ConfigTypeDTO> {
     let helpText = item.metadata.description;
-    if (item.metadata.default) {
+    const defaultValue = this.getDefaultValue(item);
+    if (defaultValue) {
       const color =
         {
           boolean: 'green',
           internal: 'magenta',
           number: 'yellow',
         }[item.metadata.type] ?? 'white';
-      const defaultValue = is.object(item.metadata.default)
-        ? JSON.stringify(item.metadata.default, undefined, '  ')
-        : item.metadata.default;
+      const formatted = is.object(defaultValue)
+        ? JSON.stringify(defaultValue, undefined, '  ')
+        : defaultValue;
       helpText = [
-        chalk`{blue Default Value:} {${color} ${defaultValue}}`,
+        chalk`{blue Default Value:} {${color} ${formatted}}`,
         // ...item
         chalk` {cyan.bold > }${helpText}`,
       ].join(`\n`);
     }
-    let color = [item.metadata.default, undefined].includes(currentValue)
+    let color = [defaultValue, undefined].includes(currentValue)
       ? 'white'
       : 'green.bold';
     let warnDefault = '';
     let required = '';
-    if (item.metadata.warnDefault && item.metadata.default === currentValue) {
+    if (item.metadata.warnDefault && defaultValue === currentValue) {
       color = 'yellow.bold';
       warnDefault = FontAwesomeIcons.warning + ' ';
     }
@@ -202,7 +206,7 @@ export class ConfigScanner implements iQuickScript {
 
   private async editConfig(config: ConfigTypeDTO): Promise<void> {
     const path = this.path(config);
-    let current = get(this.config, path, config?.metadata?.default);
+    let current = get(this.config, path, this.getDefaultValue(config));
     let result: unknown;
     switch (config.metadata.type) {
       case 'boolean':
@@ -265,6 +269,14 @@ export class ConfigScanner implements iQuickScript {
     }
   }
 
+  private getDefaultValue(config: ConfigTypeDTO) {
+    return get(
+      this.configDefinition.bootstrapOverrides,
+      this.path(config),
+      config?.metadata?.default,
+    );
+  }
+
   private listConfigFiles(): void {
     if (is.empty(this.loadedApplication)) {
       this.logger.error(`[APPLICATION] not provided`);
@@ -315,7 +327,7 @@ export class ConfigScanner implements iQuickScript {
     this.configDefinition.config.forEach(config => {
       const path = this.path(config);
       let value: unknown = get(this.config, path, NO_VALUE);
-      if (value === NO_VALUE || value === config.metadata.default) {
+      if (value === NO_VALUE || value === this.getDefaultValue(config)) {
         return;
       }
       if (!is.string(value)) {
@@ -381,7 +393,7 @@ export class ConfigScanner implements iQuickScript {
     this.configDefinition.config.forEach(config => {
       const path = this.path(config);
       const value: unknown = get(this.config, path, NO_VALUE);
-      if (value === NO_VALUE || value === config.metadata.default) {
+      if (value === NO_VALUE || value === this.getDefaultValue(config)) {
         return;
       }
       set(environment, this.path(config), value);

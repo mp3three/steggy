@@ -34,13 +34,27 @@ npx nx local-install home-cli
 
 ## Configuration
 
-The most straightforward way of configuring `home-cli` is to use the provided `config-builder` app. This is usable by running this command from the repository root:
+The [config-builder](../config-builder/README.md) app is the best way to manage the configuration for this app.
+
+### Normal install
+
+`home-cli` is compatible with the [config-builder](../config-builder/README.md) configuration tool, which must be installed separately.
+Below is an example of how to launch the config builder.
+The **Write to local file** option should be used to out the configuration to a location / format compatible with this script.
+
+```bash
+home-cli --scan-config > config.json
+config-builder --definition_file ./config.json
+```
+
+### From inside the repository
+
+If inside the repository, the above 2 commands can be executed in 1 step.
+This version performs a configuration scan against the source code, instead of the built code
 
 ```bash
 yarn configure:home-cli
 ```
-
-This command will present all available configuration options, and is capable of writing a correctly formatted config file in a location the cli can find it.
 
 ### Quick setup
 

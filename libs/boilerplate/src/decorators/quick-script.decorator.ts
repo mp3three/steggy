@@ -31,7 +31,6 @@ export interface iQuickScript extends iSteggyProvider {
  *
  * Intended for quick / minimal scripts, where it is preferable to keep all application code inside a single file
  */
-// eslint-disable-next-line radar/cognitive-complexity
 export function QuickScript({
   WAIT_TIME = WAIT_BOOTSTRAP * ADDITIONAL_WAIT,
   bootstrap,
@@ -93,12 +92,14 @@ export function QuickScript({
               console.log(
                 JSON.stringify(ScanConfig(app, BOOTSTRAP_OPTIONS.config)),
               );
+              // Don't do `app.close()`, what it is meant to clean up in this context doesn't exist
+              //
+              // Doing a close here just causes extra text to be sent to console, breaking the json
               exit();
             },
           ],
         };
       }
-
       Bootstrap(CREATE_BOOT_MODULE(options), BOOTSTRAP_OPTIONS);
     }, WAIT_BOOTSTRAP);
     options.providers.push(target as unknown as Provider);

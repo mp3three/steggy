@@ -4,6 +4,15 @@ Config builder is a companion script for other applications inside this reposito
 It can take metadata output by an application, present a series of prompts to allow a user to configure the app,
 then write it in a location / format that the app can read from.
 
+## Install
+
+```bash
+# install
+yarn global install @steggy/config-builder
+# upgrade
+yarn global upgrade @steggy/config-builder
+```
+
 ## General Theory
 
 Through the `@InjectConfig` injection mechanism provided by `@steggy/boilerplate`, a list of possible configuration options can be assembled.

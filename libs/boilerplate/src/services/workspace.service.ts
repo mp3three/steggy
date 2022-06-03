@@ -109,7 +109,7 @@ export class WorkspaceService {
     filePath: string,
   ) {
     if (!existsSync(filePath)) {
-      return undefined;
+      return out;
     }
     const fileContent = readFileSync(filePath, 'utf8').trim();
     const hasExtension = extensions.some(extension => {

@@ -1,23 +1,24 @@
 /* eslint-disable radar/no-duplicate-string */
-import { Injectable } from '@nestjs/common';
+import { INestApplication, Inject, Injectable } from '@nestjs/common';
 import {
+  AbstractConfig,
   CacheManagerService,
+  CONFIG_DEFAULTS,
   InjectCache,
   InjectConfig,
+  ScanConfig,
 } from '@steggy/boilerplate';
 import { InflatedPinDTO } from '@steggy/controller-shared';
 import {
   ApplicationManagerService,
   IsDone,
   KeyMap,
-  MainMenuEntry,
-  MenuEntry,
-  PromptEntry,
   PromptService,
 } from '@steggy/tty';
-import { DOWN, is, UP, VALUE } from '@steggy/utilities';
+import { is } from '@steggy/utilities';
+import { exit } from 'process';
 
-import { APP_TITLE } from '../config';
+import { APP_TITLE, CONFIG_SCANNER } from '../config';
 import { MENU_ITEMS } from '../includes';
 import { ICONS } from '../types';
 import { DebugService } from './debug.service';
@@ -33,7 +34,6 @@ import { RoomCommandService } from './rooms';
 import { RoutineService } from './routines';
 
 // Filter out non-sortable characters (like emoji)
-const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
 const CACHE_KEY = 'MAIN-CLI:LAST_LABEL';
 type ENTRY_TYPE = string | InflatedPinDTO;
 
@@ -55,6 +55,8 @@ export class MainCLIService {
     private readonly cacheService: CacheManagerService,
     @InjectConfig(APP_TITLE)
     private readonly applicationTitle,
+    @Inject(CONFIG_DEFAULTS) private readonly defaultConfig: AbstractConfig,
+    @InjectConfig(CONFIG_SCANNER) private readonly configScanner: boolean,
   ) {}
   private last: ENTRY_TYPE;
 
@@ -101,29 +103,13 @@ export class MainCLIService {
     this.last = await this.cacheService.get(CACHE_KEY);
   }
 
-  private getRight(types: Record<string, PromptEntry<ENTRY_TYPE>[]>) {
-    const right: MainMenuEntry<ENTRY_TYPE>[] = [];
-    Object.keys(types).forEach(type => {
-      types[type]
-        .sort((a, b) => {
-          if (!Array.isArray(a) || !Array.isArray(b)) {
-            return DOWN;
-          }
-          const a1 = String(a[VALUE]).replace(unsortable, '');
-          const b1 = String(b[VALUE]).replace(unsortable, '');
-          if (a1 > b1) {
-            return UP;
-          }
-          return DOWN;
-        })
-        .forEach(i => {
-          right.push({
-            entry: i as MenuEntry,
-            type: type,
-          });
-        });
-    });
-    return right;
+  protected onPreInit(app: INestApplication): void {
+    if (!this.configScanner) {
+      return;
+    }
+    // Match the functionality provided by `@QuickScript`
+    console.log(JSON.stringify(ScanConfig(app, this.defaultConfig)));
+    exit();
   }
 
   private async pickOne(): Promise<ENTRY_TYPE> {

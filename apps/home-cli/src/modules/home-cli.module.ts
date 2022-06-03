@@ -5,6 +5,7 @@ import { TTYModule } from '@steggy/tty';
 import {
   ADMIN_KEY,
   APP_TITLE,
+  CONFIG_SCANNER,
   CONTROLLER_API,
   MAX_GRAPH_WIDTH,
   REFRESH_SLEEP,
@@ -60,6 +61,12 @@ import {
       default: 'Home CLI',
       description: 'Header text for when the script first starts',
       type: 'string',
+    },
+    [CONFIG_SCANNER]: {
+      default: false,
+      description:
+        'Scan and output the configuration instead of running the CLI',
+      type: 'boolean',
     },
     [CONTROLLER_API]: {
       default: 'http://dev-controller.localhost',

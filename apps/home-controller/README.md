@@ -45,10 +45,11 @@ yarn configure:home-controller
 
 ### Config builder + docker containers
 
-If you have `config-builder` installed locally, you can use a pre-computed scan that ships with the docker image.
+If you have [config-builder](../config-builder/README.md) installed locally, you can use a pre-computed scan that ships with the docker image.
 
 ```bash
-
+docker run --rm -it mp3three/home-controller:latest cat config.json > config.json
+config-builder --definition_file ./config.json --config_file ./config
 ```
 
 ## Deployments
@@ -89,7 +90,6 @@ services:
     restart: unless-stopped
     volumes:
       - mongo:/data/db
-
 ```
 
 ### Development
