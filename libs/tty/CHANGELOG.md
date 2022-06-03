@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.11.7
+
+- Sync logger can now take in a timestamp to present instead of only showing now
+- Date editor can now show date ranges
+
 ## 0.11.5
 
 - Pulled non-generic code out of TTY into `home-cli`

@@ -46,7 +46,7 @@ Not publicly published, but available as the `yarn pipeline` command.
 
 Microservice to watch a Lutron Hub for events coming from Pico remotes.
 Events are relayed to Home Assistant as sensor updates.
-Used together with logic inside [Home Controller](apps/home-controller) to drive logic
+Used together with logic inside [Home Controller](apps/home-controller) to drive logic.
 
 ## Libraries
 
@@ -56,7 +56,8 @@ NestJS application bootstrapping functions and general purpose tools.
 
 ### [Controller SDK](libs/controller-sdk)
 
-Logical providers for use in [Home Controller](apps/home-controller)
+Basic functionality for use in [Home Controller](apps/home-controller).
+Separated out for future development.
 
 ### [Controller Shared](libs/controller-shared)
 
@@ -78,7 +79,7 @@ Quickly form connections, and create complex queries
 ### [Server](libs/server)
 
 Enables web server functionality for [@steggy/boilerplate](libs/boilerplate).
-Performs generic middleware tools like `cors` and automatic request logging
+Provides generic middleware tools like `cors` and automatic request logging
 
 ### [TTY](libs/tty)
 
@@ -103,7 +104,7 @@ General purpose utilities and constants for `@steggy`
 > - `0.9.x` Focus on quality of life and platform stability updates
 > - `0.8.x` Build out of metadata, which enales virtual states that can be set / watched
 > - `0.7.x` Buildout of dynamic enabling of routines, which allows routines to decide if they should allow activation requests
-> - `<=0.6.x`: Proof of concept + prepping repo to be open sourced
+> - `<= 0.6.x`: Proof of concept + prepping repo to be open sourced
 
 <!-- - [MQTT](libs/mqtt) -->
 <!-- - [Rules Engine](libs/rules-engine) -->

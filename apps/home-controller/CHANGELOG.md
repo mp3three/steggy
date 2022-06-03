@@ -1,6 +1,15 @@
 # Changelog
 
-## 0.11.x
+## 0.11.13
+
+- Added endpoint to `people`, `groups`, & `rooms` to activate save states by id
+  - Without providing the item that id is stored on
+- Working on the routine activations by schedule
+  - Schedules occasionally got "stuck".
+  - Now works via rechecking on 30 sec interval
+    - If the next update is <30 seconds, a special delay for +100ms after that point is performed before performing an additional recheck
+- `config.json` now properly povided in docker images
+- Added ability for routine trigger commands to trigger all direct descendant routines
 
 ### 0.11.4
 

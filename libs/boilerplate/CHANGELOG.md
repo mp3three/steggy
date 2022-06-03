@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.11.13
+
+- `@QuickScript` application symbol is now optional
+- Added `reflect-metadata` as a dependency
+  - It existed before, but wasn't declared anywhere
+- Updated `@InjectConfig` to be able to take in metadata inline
+- Added internal flag to disable loading user configs
+
 ## 0.11.6
 
 - Config metadata can now be provided inline with the @InjectConfig for applications now

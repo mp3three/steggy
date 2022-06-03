@@ -1,6 +1,13 @@
 # Changelog
 
-## 0.11.x
+## 0.11.13
+
+- Providing a `CONFIG_FILE` will make the script ignore any other configuration files that are on the system when loading data
+- Added extra cosmetic detail to the "write to cofig file" option
+
+## 0.11.9
+
+- Added marker to indicate which project is the application (vs all the supporting libraries)
 
 ### 0.11.3
 

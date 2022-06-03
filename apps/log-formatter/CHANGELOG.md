@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.11.x
+## 0.11.13
+
+- **Bugfix**: Fixed early exit issue
 
 ### 0.11.4
 
