@@ -1,4 +1,9 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
 import { GroupDTO, RoomDTO, RoomEntityDTO } from '@steggy/controller-shared';
 import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
@@ -26,6 +31,7 @@ import { ICONS } from '../../types';
 import { GroupCommandService } from '../groups/group-command.service';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
+import { MetadataService } from '../metadata.service';
 import { PinnedItemService } from '../pinned-item.service';
 import { RoomStateService } from './room-state.service';
 
@@ -40,16 +46,18 @@ const CACHE_KEY = 'MENU_LAST_ROOM';
 @Injectable()
 export class RoomCommandService {
   constructor(
+    private readonly applicationManager: ApplicationManagerService,
     @InjectCache()
     private readonly cache: CacheManagerService,
-    private readonly logger: SyncLoggerService,
-    private readonly promptService: PromptService,
+    private readonly entityService: EntityService,
     private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
-    private readonly entityService: EntityService,
-    private readonly roomState: RoomStateService,
+    private readonly logger: SyncLoggerService,
+    @Inject(forwardRef(() => MetadataService))
+    private readonly metadataService: MetadataService<RoomDTO>,
     private readonly pinnedItems: PinnedItemService,
-    private readonly applicationManager: ApplicationManagerService,
+    private readonly promptService: PromptService,
+    private readonly roomState: RoomStateService,
   ) {}
 
   private lastRoom: string;
@@ -174,6 +182,7 @@ export class RoomCommandService {
           ]),
         });
 
+    room.metadata ??= [];
     room.save_states ??= [];
     const action = await this.promptService.menu<
       GroupDTO | { entity_id: string }
@@ -209,6 +218,19 @@ export class RoomCommandService {
             ({
               entry: [state.friendlyName, state.id],
               type: 'Save States',
+            } as MainMenuEntry<string>),
+        ),
+        ...room.metadata.map(
+          metadata =>
+            ({
+              entry: [
+                chalk`{gray (${metadata.type})} ${metadata.name}`,
+                metadata.id,
+              ],
+              helpText: chalk`{green.bold Current Value}: ${metadata.value}${
+                metadata.description ? `\n${metadata.description}` : ''
+              }`,
+              type: 'Metadata',
             } as MainMenuEntry<string>),
         ),
       ],
@@ -268,6 +290,11 @@ export class RoomCommandService {
         room = await this.update(room);
         return await this.processRoom(room, action);
       default:
+        const isMetadata = room.metadata.find(({ id }) => id === action);
+        if (isMetadata) {
+          room = await this.metadataService.setValue(room, 'room', action);
+          return await this.processRoom(room, action);
+        }
         await this.roomState.activate(room, action);
         return await this.processRoom(room, action);
     }
@@ -340,19 +367,5 @@ export class RoomCommandService {
     }
     this.logger.error({ action }, `Not implemented`);
     return current;
-  }
-
-  private async removeEntities(room: RoomDTO): Promise<RoomDTO> {
-    const entities = await this.promptService.pickMany(
-      `Keep selected`,
-      room.entities
-        .map(({ entity_id }) => [entity_id, entity_id])
-        .sort(([a], [b]) => (a > b ? UP : DOWN)) as PromptEntry[],
-      { default: room.entities.map(({ entity_id }) => entity_id) },
-    );
-    return await this.update({
-      ...room,
-      entities: room.entities.filter(item => entities.includes(item.entity_id)),
-    });
   }
 }

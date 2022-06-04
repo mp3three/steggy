@@ -1,5 +1,4 @@
-import { DiscoveryModule } from '@nestjs/core';
-import { ApplicationModule, BoilerplateModule } from '@steggy/boilerplate';
+import { ApplicationModule } from '@steggy/boilerplate';
 import { TTYModule } from '@steggy/tty';
 
 import {
@@ -31,6 +30,7 @@ import {
   LockService,
   MainCLIService,
   MediaService,
+  MetadataService,
   PersonCommandService,
   PersonStateService,
   PinnedItemService,
@@ -88,55 +88,44 @@ import {
       type: 'string',
     },
   },
-  imports: [DiscoveryModule, TTYModule, BoilerplateModule.forRoot()],
+  imports: [TTYModule],
   providers: [
-    ...[
-      // domains/*
-      ...[
-        BaseDomainService,
-        ClimateService,
-        FanService,
-        LightService,
-        LockService,
-        MediaService,
-        SwitchService,
-      ],
-      // groups/*
-      ...[
-        FanGroupCommandService,
-        GroupCommandService,
-        GroupStateService,
-        LightGroupCommandService,
-        LockGroupCommandService,
-        SwitchGroupCommandService,
-      ],
-      // rooms/*
-      ...[RoomCommandService, RoomStateService],
-      // rooms/*
-      ...[PersonCommandService, PersonStateService],
-      // routines/*
-      ...[
-        GroupActionService,
-        RoutineActivateService,
-        RoutineCommandService,
-        RoutineService,
-      ],
-      // /*
-      ServerControlService,
-      ServerLogsService,
-      KunamiBuilderService,
-      StateChangeBuilderService,
-      ScheduleBuilderService,
-      RoutineCommandBuilderService,
-      SolarBuilderService,
-      DebugService,
-      MainCLIService,
-      PinnedItemService,
-      DeviceService,
-      EntityHistoryService,
-      EntityService,
-      HomeFetchService,
-    ],
+    BaseDomainService,
+    ClimateService,
+    DebugService,
+    DeviceService,
+    EntityHistoryService,
+    EntityService,
+    FanGroupCommandService,
+    FanService,
+    GroupActionService,
+    GroupCommandService,
+    GroupStateService,
+    HomeFetchService,
+    KunamiBuilderService,
+    LightGroupCommandService,
+    LightService,
+    LockGroupCommandService,
+    LockService,
+    MainCLIService,
+    MediaService,
+    MetadataService,
+    PersonCommandService,
+    PersonStateService,
+    PinnedItemService,
+    RoomCommandService,
+    RoomStateService,
+    RoutineActivateService,
+    RoutineCommandBuilderService,
+    RoutineCommandService,
+    RoutineService,
+    ScheduleBuilderService,
+    ServerControlService,
+    ServerLogsService,
+    SolarBuilderService,
+    StateChangeBuilderService,
+    SwitchGroupCommandService,
+    SwitchService,
   ],
 })
 export class HomeCLIModule {}

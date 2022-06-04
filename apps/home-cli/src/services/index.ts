@@ -4,6 +4,7 @@ export * from './groups';
 export * from './home-assistant';
 export * from './home-fetch.service';
 export * from './main-cli.service';
+export * from './metadata.service';
 export * from './people';
 export * from './pinned-item.service';
 export * from './rooms';

@@ -3,24 +3,22 @@ import { PersonDTO, RoomDTO, RoomMetadataDTO } from '@steggy/controller-shared';
 import { PromptService } from '@steggy/tty';
 
 import { HomeFetchService } from './home-fetch.service';
-import { PersonCommandService } from './people';
-import { RoomCommandService } from './rooms';
 
 @Injectable()
-export class MetadataService {
+export class MetadataService<TYPE extends RoomDTO | PersonDTO> {
   constructor(
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
-    private readonly roomService: RoomCommandService,
-    private readonly personService: PersonCommandService,
   ) {}
 
   public async setValue(
-    target: RoomDTO | PersonDTO,
+    target: TYPE,
     type: 'room' | 'person',
     property: string,
-  ): Promise<void> {
-    const metadata = target.metadata.find(({ name }) => name === property);
+  ): Promise<TYPE> {
+    const metadata = target.metadata.find(({ name, id }) =>
+      [name, id].includes(property),
+    );
     const value = metadata.value;
     switch (metadata.type) {
       case 'date':
@@ -42,10 +40,11 @@ export class MetadataService {
           type,
           target._id,
           metadata.id,
-          await this.promptService.menu({
-            right: metadata.options.map(line => ({ entry: [line, line] })),
-            value: value as string,
-          }),
+          await this.promptService.pickOne(
+            'Pick a value',
+            metadata.options.map(line => ({ entry: [line, line] })),
+            value as string,
+          ),
         );
       case 'number':
         return await this.sendUpdate(
@@ -77,8 +76,8 @@ export class MetadataService {
     target: string,
     id: string,
     value: string | number | boolean,
-  ): Promise<void> {
-    await this.fetchService.fetch({
+  ): Promise<TYPE> {
+    return await this.fetchService.fetch({
       body: { value },
       method: 'put',
       url: `/${type}/${target}/metadata/${id}`,

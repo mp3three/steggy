@@ -71,8 +71,10 @@ export class KeymapService {
       .map(([config, target]): keyItem => {
         const active = Object.entries({ ...config.modifiers })
           .filter(([, state]) => state)
-          .map(([name]) => name);
-        const modifiers = is.empty(active) ? '' : active.join('/') + '-';
+          .map(([name]) => chalk.magenta(name));
+        const modifiers = is.empty(active)
+          ? ''
+          : active.join('/') + chalk.cyan('+');
         const activate = config.catchAll
           ? chalk.yellow('default')
           : (Array.isArray(config.key)

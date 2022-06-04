@@ -105,7 +105,7 @@ export class KeyboardManagerService implements iStackProvider {
         if (!keys.includes(mixed)) {
           return;
         }
-        const allMatch = Object.entries(modifiers).every(
+        const allMatch = Object.entries(options.modifiers ?? {}).every(
           ([modifier, value]) => modifiers[modifier] === value,
         );
         if (!allMatch) {

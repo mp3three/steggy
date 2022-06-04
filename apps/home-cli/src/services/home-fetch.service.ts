@@ -29,7 +29,7 @@ export class HomeFetchService {
       fetch.url = `${PREFIX}${fetch.url}`;
     }
     const result = await this.fetchService.fetch<OUTPUT>(fetch);
-    if (is.string(result) || result === '') {
+    if (fetch.process !== 'text' && (is.string(result) || result === '')) {
       counter++;
       console.log(chalk.bold` {blue !} Could not connect to controller`);
       await sleep();

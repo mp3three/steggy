@@ -49,7 +49,8 @@ export class AdminController {
     description: `Home assistant logs`,
   })
   public async getLogs(): Promise<HomeAssistantServerLogItem[]> {
-    return await this.fetchService.getLogs();
+    const out = await this.fetchService.getLogs();
+    return out;
   }
 
   @Post('/server/restart')

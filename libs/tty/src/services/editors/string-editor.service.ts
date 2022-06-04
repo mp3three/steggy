@@ -29,6 +29,7 @@ const KEYMAP: tKeyMap = new Map<InquirerKeypressOptions, string>([
   [{ catchAll: true, noHelp: true }, 'onKeyPress'],
   [{ description: 'done', key: 'enter' }, 'onEnd'],
   [{ key: 'escape' }, 'reset'],
+  [{ key: 'f3' }, 'clear'],
 ]);
 
 @Editor({ type: 'string' })
@@ -71,6 +72,10 @@ export class StringEditorService
     return this.renderBox('bgWhite');
   }
 
+  protected clear(): void {
+    this.value = ``;
+  }
+
   protected onEnd() {
     this.complete = true;
     this.render();
@@ -80,6 +85,10 @@ export class StringEditorService
 
   protected onKeyPress(key: string, { shift }: KeyModifiers) {
     if (key === 'backspace') {
+      if (shift) {
+        // this.value = ``;
+        return;
+      }
       this.value = this.value.slice(START, INVERT_VALUE);
       return;
     }

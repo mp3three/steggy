@@ -15,7 +15,7 @@ import {
   KeyMap,
   PromptService,
 } from '@steggy/tty';
-import { is } from '@steggy/utilities';
+import { is, VALUE } from '@steggy/utilities';
 import { exit } from 'process';
 
 import { APP_TITLE, CONFIG_SCANNER } from '../config';
@@ -23,11 +23,7 @@ import { MENU_ITEMS } from '../includes';
 import { ICONS } from '../types';
 import { DebugService } from './debug.service';
 import { GroupCommandService } from './groups';
-import {
-  EntityService,
-  ServerControlService,
-  ServerLogsService,
-} from './home-assistant';
+import { EntityService, ServerControlService } from './home-assistant';
 import { PersonCommandService } from './people';
 import { PinnedItemService } from './pinned-item.service';
 import { RoomCommandService } from './rooms';
@@ -50,7 +46,6 @@ export class MainCLIService {
     private readonly roomService: RoomCommandService,
     private readonly routineService: RoutineService,
     private readonly serverControl: ServerControlService,
-    private readonly serverLogs: ServerLogsService,
     @InjectCache()
     private readonly cacheService: CacheManagerService,
     @InjectConfig(APP_TITLE)
@@ -82,9 +77,6 @@ export class MainCLIService {
         break;
       case 'entities':
         await this.entityService.exec();
-        break;
-      case 'server-logs':
-        await this.serverLogs.exec();
         break;
       case 'server-control':
         await this.serverControl.exec();
@@ -120,24 +112,29 @@ export class MainCLIService {
       r: [`${ICONS.ROOMS}Rooms`, 'rooms'],
       t: [`${ICONS.ROUTINE}Routines`, 'routines'],
     };
+    const left = this.pinnedItem.getEntries();
+    if (this.last) {
+      const found = left.find(({ entry: [, value] }) =>
+        is.string(this.last)
+          ? false
+          : value.id === (this.last as InflatedPinDTO).id,
+      );
+      this.last = found.entry[VALUE];
+    }
 
     const result = await this.promptService.menu<ENTRY_TYPE>({
       keyMap,
-      left: this.pinnedItem.getEntries(),
+      left,
       leftHeader: 'Pinned Items',
       right: [
         { entry: [`${ICONS.GROUPS}Groups`, 'groups'], type: 'Controller' },
         { entry: [`${ICONS.PEOPLE}People`, 'people'], type: 'Controller' },
         { entry: [`${ICONS.ROOMS}Rooms`, 'rooms'], type: 'Controller' },
         { entry: [`${ICONS.ROUTINE}Routines`, 'routines'], type: 'Controller' },
-        // {
-        //   entry: [`${ICONS.ROUTINE}Server Logs`, 'server-logs'],
-        //   type: 'Home Assistant',
-        // },
-        // {
-        //   entry: [`${ICONS.ADMIN}Server Control`, 'server-control'],
-        //   type: 'Home Assistant',
-        // },
+        {
+          entry: [`${ICONS.ADMIN}Server Control`, 'server-control'],
+          type: 'Home Assistant',
+        },
         {
           entry: [`${ICONS.ENTITIES}Entities`, 'entities'],
           type: 'Home Assistant',

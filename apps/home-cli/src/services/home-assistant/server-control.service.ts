@@ -18,7 +18,7 @@ import { HomeFetchService } from '../home-fetch.service';
 //   icon: ICONS.ADMIN,
 //   name: `Server Control`,
 // })
-Injectable();
+@Injectable()
 export class ServerControlService {
   constructor(
     private readonly fetchService: HomeFetchService,
