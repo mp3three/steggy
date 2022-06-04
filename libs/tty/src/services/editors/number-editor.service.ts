@@ -25,6 +25,7 @@ const KEYMAP: tKeyMap = new Map<InquirerKeypressOptions, string>([
   [{ catchAll: true, noHelp: true }, 'onKeyPress'],
   [{ description: 'done', key: 'enter' }, 'onEnd'],
   [{ key: 'escape' }, 'reset'],
+  [{ key: 'f4' }, 'cancel'],
   [{ key: 'up' }, 'increment'],
   [{ key: 'down' }, 'decrement'],
 ]);
@@ -71,6 +72,11 @@ export class NumberEditorService
     return this.renderBox('bgWhite');
   }
 
+  protected cancel(): void {
+    this.reset();
+    this.onEnd();
+  }
+
   protected decrement(): void {
     this.value = (Number(this.value) - INCREMENT).toString();
   }
@@ -101,7 +107,9 @@ export class NumberEditorService
   }
 
   protected reset(): void {
-    this.value = (this.config.current ?? EMPTY).toString();
+    this.value = (
+      is.number(this.config.current) ? this.config.current : EMPTY
+    ).toString();
   }
 
   private renderBox(bgColor: string): void {

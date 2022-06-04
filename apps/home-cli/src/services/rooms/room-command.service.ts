@@ -227,9 +227,9 @@ export class RoomCommandService {
                 chalk`{gray (${metadata.type})} ${metadata.name}`,
                 metadata.id,
               ],
-              helpText: chalk`{green.bold Current Value}: ${metadata.value}${
-                metadata.description ? `\n${metadata.description}` : ''
-              }`,
+              helpText: chalk`{green.bold Current Value}: ${this.metadataService.formatValue(
+                metadata,
+              )}${metadata.description ? `\n${metadata.description}` : ''}`,
               type: 'Metadata',
             } as MainMenuEntry<string>),
         ),

@@ -119,9 +119,8 @@ export class MainCLIService {
           ? false
           : value.id === (this.last as InflatedPinDTO).id,
       );
-      this.last = found.entry[VALUE];
+      this.last = found?.entry[VALUE] ?? this.last;
     }
-
     const result = await this.promptService.menu<ENTRY_TYPE>({
       keyMap,
       left,

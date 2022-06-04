@@ -136,12 +136,15 @@ export class PromptService {
     label,
     ...options
   }: DateEditorEditorOptions): Promise<Date> {
-    return await this.applicationManager.activateEditor('date', {
+    const result = await this.applicationManager.activateEditor<
+      DateEditorEditorOptions,
+      string
+    >('date', {
       current,
       label,
-      width: DEFAULT_WIDTH,
       ...options,
-    } as DateEditorEditorOptions);
+    });
+    return new Date(result);
   }
 
   /**
@@ -352,11 +355,17 @@ export class PromptService {
       this.logger.warn(`No choices to pick from`);
       return undefined;
     }
-    return (await this.menu({
+    const cancel = Symbol();
+    const result = (await this.menu({
+      keyMap: { f4: ['Cancel', cancel as T] },
       right: options,
       rightHeader: message,
       value: defaultValue,
     })) as T;
+    if (result === cancel) {
+      return defaultValue as T;
+    }
+    return result;
   }
 
   public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {

@@ -30,6 +30,7 @@ const KEYMAP: tKeyMap = new Map<InquirerKeypressOptions, string>([
   [{ description: 'done', key: 'enter' }, 'onEnd'],
   [{ key: 'escape' }, 'reset'],
   [{ key: 'f3' }, 'clear'],
+  [{ key: 'f4' }, 'cancel'],
 ]);
 
 @Editor({ type: 'string' })
@@ -70,6 +71,11 @@ export class StringEditorService
       return this.renderBox('bgBlue');
     }
     return this.renderBox('bgWhite');
+  }
+
+  protected cancel(): void {
+    this.value = this.config.current;
+    this.onEnd();
   }
 
   protected clear(): void {

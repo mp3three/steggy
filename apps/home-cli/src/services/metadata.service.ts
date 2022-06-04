@@ -11,6 +11,21 @@ export class MetadataService<TYPE extends RoomDTO | PersonDTO> {
     private readonly promptService: PromptService,
   ) {}
 
+  public formatValue(metadata: RoomMetadataDTO): string {
+    switch (metadata.type) {
+      case 'string':
+      case 'enum':
+        return metadata.value as string;
+      case 'number':
+        return Number(metadata.value).toLocaleString();
+      case 'date':
+        return new Date(metadata.value as string).toLocaleString();
+      case 'boolean':
+        return metadata.value ? 'true' : 'false';
+    }
+    return JSON.stringify(metadata.value);
+  }
+
   public async setValue(
     target: TYPE,
     type: 'room' | 'person',
