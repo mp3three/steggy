@@ -40,8 +40,6 @@ Fills same idea as [pino-pretty](https://www.npmjs.com/package/pino-pretty), but
 The code used to create and publish builds when code changes.
 Not publicly published, but available as the `yarn pipeline` command.
 
-![example](./apps/build-pipeline/docs/example.png)
-
 ### [Pico Relay](apps/pico-relay)
 
 Microservice to watch a Lutron Hub for events coming from Pico remotes.
