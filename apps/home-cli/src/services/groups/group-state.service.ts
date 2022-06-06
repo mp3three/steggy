@@ -1,3 +1,4 @@
+/* eslint-disable radar/no-duplicate-string */
 import {
   forwardRef,
   Inject,
@@ -70,22 +71,22 @@ export class GroupStateService {
     // Use the dedicated rename action
     const friendlyName = current.id
       ? current.friendlyName
-      : await this.promptService.friendlyName(current.friendlyName);
+      : await this.promptService.string('Friendly Name', current.friendlyName);
     const states = [];
     const action = await this.promptService.pickOne(
       `Edit style`,
       ToMenuEntry([
         [`${ICONS.GUIDED}Guided`, `guided`],
-        [`${ICONS.MANUAL}Manual`, `manual`],
+        // [`${ICONS.MANUAL}Manual`, `manual`],
       ]),
     );
 
     if (action === `manual`) {
-      const result = await this.promptService.editor(
-        `Enter save state data in yaml format`,
-        dump(current.states),
-      );
-      states.push(...(load(result) as GeneralSaveStateDTO[]));
+      // const result = await this.promptService.editor(
+      //   `Enter save state data in yaml format`,
+      //   dump(current.states),
+      // );
+      // states.push(...(load(result) as GeneralSaveStateDTO[]));
     } else if (action === 'guided') {
       let lastState: GeneralSaveStateDTO;
       await eachSeries(
@@ -305,7 +306,8 @@ export class GroupStateService {
       await this.sendSaveState(state, group);
       return;
     }
-    const friendlyName = await this.promptService.friendlyName(
+    const friendlyName = await this.promptService.string(
+      'Friendly Name',
       state.friendlyName,
     );
     await this.fetchService.fetch({
@@ -358,7 +360,8 @@ export class GroupStateService {
         });
         return await this.stateAction(state, group, action);
       case 'rename':
-        state.friendlyName = await this.promptService.friendlyName(
+        state.friendlyName = await this.promptService.string(
+          'Friendly Name',
           state.friendlyName,
         );
         group = await this.groupService.update(group);

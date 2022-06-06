@@ -21,6 +21,7 @@ import { ansiPadEnd, ansiStrip } from '../../includes';
 import { KeyboardManagerService, ScreenService } from '../meta';
 import { KeymapService, TextRenderingService } from '../render';
 
+type tDateType = 'datetime' | 'date' | 'time';
 export interface DateEditorEditorOptions {
   current?: string;
   /**
@@ -28,6 +29,7 @@ export interface DateEditorEditorOptions {
    */
   fuzzy?: 'always' | 'never' | 'user';
   label?: string;
+  type?: tDateType;
 }
 
 const MONTH_MAX = new Map([
@@ -83,6 +85,7 @@ export class DateEditorService
   private minute: string;
   private month: string;
   private second: string;
+  private type: tDateType;
   private value: dayjs.Dayjs;
   private year: string;
 
@@ -93,9 +96,10 @@ export class DateEditorService
     this.chronoText = '';
     this.config = config;
     config.fuzzy ??= 'user';
+    this.type = config.type ?? 'datetime';
     // default off
     // ? Make that @InjectConfig controlled?
-    this.fuzzy = config.fuzzy === 'always';
+    this.fuzzy = this.type === 'datetime' ? config.fuzzy === 'always' : false;
     this.complete = false;
     this.localDirty = false;
     this.value = dayjs(this.config.current);
@@ -114,7 +118,7 @@ export class DateEditorService
       );
       return;
     }
-    if (this.fuzzy) {
+    if (this.type === 'datetime' && this.fuzzy) {
       this.renderChronoBox();
       return;
     }
@@ -409,7 +413,7 @@ export class DateEditorService
       [{ description: 'cursor right', key: 'right' }, 'onRight'],
       // Other common keys, feels excessive to report them to the user
       [{ key: [':', '-', 'space', 'tab'], noHelp: true }, 'onRight'],
-      ...(this.config.fuzzy === 'user'
+      ...(this.type === 'datetime' && this.config.fuzzy === 'user'
         ? [
             [{ description: 'natural parser', key: 'f3' }, 'toggleChrono'] as [
               InquirerKeypressOptions,

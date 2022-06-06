@@ -45,7 +45,7 @@ export class ServerLogsService {
       right: ToMenuEntry([
         [`${ICONS.LOGS}Show logs`, 'logs'],
         [`${ICONS.DELETE}Clear logs`, 'clear'],
-        [`${ICONS.ANIMATION}Raw`, 'raw'],
+        // [`${ICONS.ANIMATION}Raw`, 'raw'],
       ]),
       rightHeader: `Log commands`,
       showHeaders: false,
@@ -64,9 +64,9 @@ export class ServerLogsService {
       case 'logs':
         await this.getLogs();
         return await this.exec(action);
-      case 'raw':
-        await this.rawLogs();
-        return await this.exec(action);
+      // case 'raw':
+      //   await this.rawLogs();
+      //   return await this.exec(action);
     }
     throw new NotImplementedException();
   }
@@ -121,11 +121,11 @@ export class ServerLogsService {
     await this.promptService.acknowledge();
   }
 
-  private async rawLogs(): Promise<void> {
-    const logs = await this.fetchService.fetch<string>({
-      process: 'text',
-      url: `/admin/server/raw-logs`,
-    });
-    await this.promptService.editor(`(READONLY) View logs in editor`, logs);
-  }
+  // private async rawLogs(): Promise<void> {
+  //   const logs = await this.fetchService.fetch<string>({
+  //     process: 'text',
+  //     url: `/admin/server/raw-logs`,
+  //   });
+  //   // await this.promptService.editor(`(READONLY) View logs in editor`, logs);
+  // }
 }

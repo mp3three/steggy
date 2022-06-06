@@ -90,11 +90,11 @@ export class KunamiBuilderService {
   }
 
   private async manualEntry(current: string[]): Promise<string[]> {
-    const out = await this.promptService.editor(
-      `Newline separated list of states`,
-      current.join(`\n`),
+    const out = await this.promptService.string(
+      `Comma separated list of states`,
+      current.join(`,`),
     );
-    return out.split(`\n`);
+    return out.split(`,`);
   }
 
   private async recordEvents(sensor: string): Promise<string[]> {

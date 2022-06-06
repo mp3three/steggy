@@ -32,7 +32,7 @@ export class ScheduleBuilderService {
       schedule:
         schedule !== 'custom'
           ? schedule
-          : await this.promptService.cron(current.schedule),
+          : await this.promptService.string(current.schedule),
     };
   }
 }

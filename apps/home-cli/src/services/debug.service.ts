@@ -10,7 +10,6 @@ import {
 } from '@steggy/tty';
 import { is } from '@steggy/utilities';
 import { dump } from 'js-yaml';
-import { Response } from 'node-fetch';
 
 import { MENU_ITEMS } from '../includes';
 import { HomeFetchService } from './home-fetch.service';
@@ -66,8 +65,8 @@ For loop example getting entity values in the weather domain:
         [`Controller version`, 'version'],
         [`Light Manager Cache`, 'lightManagerCache'],
         [`Home Assistant Config`, 'hassConfig'],
-        [`Render template`, 'renderTemplate'],
-        [`Send template notification`, 'sendNotification'],
+        // [`Render template`, 'renderTemplate'],
+        // [`Send template notification`, 'sendNotification'],
         [`Persistent notifications`, 'notifications'],
       ]),
       value: defaultAction,
@@ -84,9 +83,9 @@ For loop example getting entity values in the weather domain:
       case 'notifications':
         await this.persistentNotifications();
         return await this.exec(action);
-      case 'renderTemplate':
-        await this.renderTemplate();
-        return await this.exec(action);
+      // case 'renderTemplate':
+      //   await this.renderTemplate();
+      //   return await this.exec(action);
       case 'hassConfig':
         const result = await this.fetchService.fetch({
           url: `/debug/hass-config`,
@@ -97,9 +96,9 @@ For loop example getting entity values in the weather domain:
       case 'lightManagerCache':
         await this.lightManagerCache();
         return await this.exec(action);
-      case 'sendNotification':
-        await this.sendNotification();
-        return await this.exec(action);
+      // case 'sendNotification':
+      //   await this.sendNotification();
+      //   return await this.exec(action);
     }
   }
 
@@ -133,27 +132,27 @@ For loop example getting entity values in the weather domain:
     });
   }
 
-  private async renderTemplate(): Promise<void> {
-    this.LAST_TEMPLATE = await this.promptService.editor(
-      `Enter template string`,
-      this.LAST_TEMPLATE,
-    );
-    const rendered: Response = (await this.fetchService.fetch({
-      body: { template: this.LAST_TEMPLATE },
-      method: 'post',
-      process: false,
-      url: `/debug/render-template`,
-    })) as Response;
-    const text = await rendered.text();
-    this.screenService.print(text);
-  }
+  // private async renderTemplate(): Promise<void> {
+  //   this.LAST_TEMPLATE = await this.promptService.editor(
+  //     `Enter template string`,
+  //     this.LAST_TEMPLATE,
+  //   );
+  //   const rendered: Response = (await this.fetchService.fetch({
+  //     body: { template: this.LAST_TEMPLATE },
+  //     method: 'post',
+  //     process: false,
+  //     url: `/debug/render-template`,
+  //   })) as Response;
+  //   const text = await rendered.text();
+  //   this.screenService.print(text);
+  // }
 
-  private async sendNotification(): Promise<void> {
-    const template = await this.promptService.editor(`Enter template string`);
-    await this.fetchService.fetch({
-      body: { template },
-      method: 'post',
-      url: `/debug/send-notification`,
-    });
-  }
+  // private async sendNotification(): Promise<void> {
+  //   const template = await this.promptService.editor(`Enter template string`);
+  //   await this.fetchService.fetch({
+  //     body: { template },
+  //     method: 'post',
+  //     url: `/debug/send-notification`,
+  //   });
+  // }
 }

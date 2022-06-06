@@ -87,7 +87,7 @@ export class RoutineService {
   }
 
   public async create(): Promise<RoutineDTO> {
-    const friendlyName = await this.promptService.friendlyName();
+    const friendlyName = await this.promptService.string('Friendly Name');
     return await this.fetchService.fetch<RoutineDTO, RoutineDTO>({
       body: {
         friendlyName,
@@ -229,7 +229,8 @@ export class RoutineService {
         routine = await this.fetchService.fetch({
           body: {
             ...routine,
-            friendlyName: await this.promptService.friendlyName(
+            friendlyName: await this.promptService.string(
+              'Friendly Name',
               routine.friendlyName,
             ),
           },
@@ -273,7 +274,8 @@ export class RoutineService {
         );
         await this.fetchService.fetch({
           body: {
-            timeout: (await this.promptService.timeout()) * MILLISECONDS,
+            timeout:
+              (await this.promptService.number('Seconds')) * MILLISECONDS,
           } as RoutineActivateOptionsDTO,
           method: 'post',
           url: `/routine/${routine._id}`,
@@ -286,7 +288,7 @@ export class RoutineService {
         await this.fetchService.fetch({
           body: {
             timestamp: await (
-              await this.promptService.timestamp(`Activation time`)
+              await this.promptService.date({ label: 'Activation Time' })
             ).toISOString(),
           } as RoutineActivateOptionsDTO,
           method: 'post',

@@ -63,7 +63,7 @@ export class RoomCommandService {
   private lastRoom: string;
 
   public async create(): Promise<RoomDTO> {
-    const friendlyName = await this.promptService.friendlyName();
+    const friendlyName = await this.promptService.string('Friendly Name');
     const entities = (await this.promptService.confirm(`Add entities?`, true))
       ? await this.buildEntityList()
       : [];
@@ -352,12 +352,11 @@ export class RoomCommandService {
       //
       case 'existing':
         const groups = await this.groupCommand.list();
-        const selection = await this.promptService.pickMany(
-          `Groups to attach`,
-          groups
+        const selection = await this.promptService.listBuild({
+          source: groups
             .filter(({ _id }) => !current.includes(_id))
             .map(group => [group.friendlyName, group]),
-        );
+        });
         if (is.empty(selection)) {
           this.logger.warn(`No groups selected`);
         } else {

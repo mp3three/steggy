@@ -114,9 +114,9 @@ export class LightGroupCommandService {
         return {
           command,
           extra: {
-            brightness: await this.promptService.brightness(
-              extra?.brightness,
+            brightness: await this.promptService.number(
               `Set brightness`,
+              extra?.brightness,
             ),
           },
         };
@@ -125,9 +125,9 @@ export class LightGroupCommandService {
         return {
           command,
           extra: {
-            brightness: await this.promptService.brightness(
-              extra?.brightness,
+            brightness: await this.promptService.number(
               `Change amount`,
+              extra?.brightness,
             ),
           },
         };

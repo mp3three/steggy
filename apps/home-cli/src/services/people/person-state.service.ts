@@ -75,7 +75,7 @@ export class PersonStateService {
   ): Promise<RoomStateDTO> {
     current.friendlyName =
       current.friendlyName ??
-      (await this.promptService.friendlyName(current.friendlyName));
+      (await this.promptService.string('Friendly Name', current.friendlyName));
     current.states ??= [];
     const states: GeneralSaveStateDTO[] = [
       ...(await this.buildEntities(person, current)),
@@ -209,7 +209,8 @@ export class PersonStateService {
         await this.header(person, state);
         return await this.processState(person, state, action);
       case 'rename':
-        state.friendlyName = await this.promptService.friendlyName(
+        state.friendlyName = await this.promptService.string(
+          'Friendly Name',
           state.friendlyName,
         );
         await this.update(state, person);

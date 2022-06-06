@@ -85,11 +85,11 @@ export class StateChangeBuilderService {
   private async listValue(
     current: FilterValueType[],
   ): Promise<FilterValueType[]> {
-    const values = await this.promptService.editor(
-      `Newline separated values`,
-      current.join(`\n`),
+    const values = await this.promptService.string(
+      `Comma separated values`,
+      current.join(`,`),
     );
-    return values.split(`\n`);
+    return values.split(`,`).map(i => i.trim());
   }
 
   private async numericValue(
@@ -118,10 +118,9 @@ export class StateChangeBuilderService {
           current instanceof Date ? current : undefined,
         );
       case 'timestamp':
-        return this.promptService.timestamp(
-          undefined,
-          current instanceof Date ? current : undefined,
-        );
+        return this.promptService.date({
+          current: current instanceof Date ? current.toISOString() : undefined,
+        });
     }
     throw new NotImplementedException();
   }

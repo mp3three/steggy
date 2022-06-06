@@ -7,7 +7,6 @@ import {
 import {
   GeneralSaveStateDTO,
   GroupDTO,
-  RoomCommandDTO,
   RoomDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
@@ -19,18 +18,16 @@ import {
 } from '@steggy/controller-shared';
 import {
   IsDone,
-  PromptEntry,
   PromptService,
   ScreenService,
   TextRenderingService,
   ToMenuEntry,
 } from '@steggy/tty';
-import { is, START, TitleCase } from '@steggy/utilities';
+import { is, TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
 import { dump } from 'js-yaml';
 
 import { MENU_ITEMS } from '../../includes';
-import { ICONS } from '../../types';
 import { GroupCommandService } from '../groups';
 import { RoomCommandService } from '../rooms';
 import { RoutineService } from './routine.service';
@@ -171,7 +168,7 @@ export class RoutineCommandService {
       item: 'commands',
       keyMap: {
         d: MENU_ITEMS.DONE,
-        s: [`${ICONS.SWAP}Sort`, 'sort'],
+        // s: [`${ICONS.SWAP}Sort`, 'sort'],
       },
       right: ToMenuEntry(
         routine.command.map(activate => [activate.friendlyName, activate]),
@@ -181,10 +178,10 @@ export class RoutineCommandService {
     if (IsDone(action)) {
       return routine;
     }
-    if (action === 'sort') {
-      routine = await this.sort(routine);
-      return await this.processRoutine(routine);
-    }
+    // if (action === 'sort') {
+    //   routine = await this.sort(routine);
+    //   return await this.processRoutine(routine);
+    // }
     if (is.string(action)) {
       throw new NotImplementedException();
     }
@@ -192,21 +189,21 @@ export class RoutineCommandService {
     return await this.processRoutine(routine);
   }
 
-  private async sort(routine: RoutineDTO): Promise<RoutineDTO> {
-    const entries = routine.command.map(i => [
-      i.friendlyName,
-      i,
-    ]) as PromptEntry<RoomCommandDTO>[];
-    const move = await this.promptService.pickOne(
-      `Pick item to move`,
-      ToMenuEntry(entries),
-    );
-    const position = await this.promptService.insertPosition(entries, move);
-    const before = routine.command
-      .slice(START, position)
-      .filter(i => i !== move);
-    const after = routine.command.slice(position).filter(i => i !== move);
-    routine.command = [...before, move, ...after] as RoutineCommandDTO[];
-    return await this.routineCommand.update(routine);
-  }
+  // private async sort(routine: RoutineDTO): Promise<RoutineDTO> {
+  //   const entries = routine.command.map(i => [
+  //     i.friendlyName,
+  //     i,
+  //   ]) as PromptEntry<RoomCommandDTO>[];
+  //   const move = await this.promptService.pickOne(
+  //     `Pick item to move`,
+  //     ToMenuEntry(entries),
+  //   );
+  //   const position = await this.promptService.insertPosition(entries, move);
+  //   const before = routine.command
+  //     .slice(START, position)
+  //     .filter(i => i !== move);
+  //   const after = routine.command.slice(position).filter(i => i !== move);
+  //   routine.command = [...before, move, ...after] as RoutineCommandDTO[];
+  //   return await this.routineCommand.update(routine);
+  // }
 }

@@ -10,7 +10,7 @@ export class SendNotificationService {
     current: Partial<RoutineCommandSendNotificationDTO> = {},
   ): Promise<RoutineCommandSendNotificationDTO> {
     return {
-      template: await this.promptService.editor(
+      template: await this.promptService.string(
         `Enter template string`,
         current.template,
       ),

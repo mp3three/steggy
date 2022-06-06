@@ -321,7 +321,8 @@ export class BaseDomainService {
 
   protected async friendlyName(id: string): Promise<void> {
     const state = await this.getState(id);
-    const name = await this.promptService.friendlyName(
+    const name = await this.promptService.string(
+      'Friendly Name',
       state.attributes.friendly_name,
     );
     await this.fetchService.fetch({

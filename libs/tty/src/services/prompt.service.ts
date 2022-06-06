@@ -1,12 +1,8 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { InjectConfig } from '@steggy/boilerplate';
 import { DOWN, is, LABEL, UP, VALUE } from '@steggy/utilities';
 import chalk from 'chalk';
-import dayjs from 'dayjs';
-import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
-import { PAGE_SIZE } from '../config';
 import {
   MainMenuEntry,
   PromptMenuItems,
@@ -24,23 +20,16 @@ import {
 } from './editors';
 import { ApplicationManagerService, SyncLoggerService } from './meta';
 
-const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
 export type PromptEntry<T = string> =
   | [string | PROMPT_WITH_SHORT, string | T]
   | Separator;
-const NO = 0;
-const OFF_BRIGHTNESS = 0;
-const MIN_BRIGHTNESS = 1;
-const MAX_BRIGHTNESS = 255;
-const FROM_OFFSET = 1;
 const DEFAULT_WIDTH = 50;
 
 @Injectable()
 export class PromptService {
   constructor(
     private readonly logger: SyncLoggerService,
-    @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
   ) {}
@@ -71,27 +60,6 @@ export class PromptService {
   }
 
   /**
-   * @deprecated
-   */
-  public async brightness(
-    current = MAX_BRIGHTNESS,
-    message = 'Brightness',
-  ): Promise<number> {
-    const { result } = await inquirer.prompt([
-      {
-        default: current,
-        message: `${message} (1-255)`,
-        name,
-        type: 'number',
-        validate(input = OFF_BRIGHTNESS) {
-          return input >= MIN_BRIGHTNESS && input <= MAX_BRIGHTNESS;
-        },
-      },
-    ]);
-    return result;
-  }
-
-  /**
    * For solving ternary spread casting madness more easily
    *
    * More for helping code read top to bottom more easily than solving a problem
@@ -117,20 +85,6 @@ export class PromptService {
     });
   }
 
-  /**
-   * @deprecated
-   */
-  public async cron(value?: string): Promise<string> {
-    const { result } = await inquirer.prompt([
-      {
-        name,
-        type: 'cron',
-        value,
-      },
-    ]);
-    return result;
-  }
-
   public async date({
     current,
     label,
@@ -150,82 +104,31 @@ export class PromptService {
   /**
    * @deprecated
    */
-  public async dateRange(
-    defaultOffset = FROM_OFFSET,
-  ): Promise<{ from: Date; to: Date }> {
-    const from = await this.timestamp(
-      `From date`,
-      dayjs().subtract(defaultOffset, 'day').toDate(),
-    );
-    const to = await this.timestamp('End date');
+  public async dateRange(): Promise<{ from: Date; to: Date }> {
+    //
+    const result = await this.date({
+      fuzzy: 'always',
+      label: 'Date range',
+    });
+    const from = new Date();
+    const to = new Date();
     return { from, to };
   }
 
-  /**
-   * @deprecated
-   */
-  public async editor(message: string, defaultValue?: string): Promise<string> {
-    const { result } = await inquirer.prompt([
-      {
-        default: defaultValue,
-        message,
-        name,
-        type: 'editor',
-      },
-    ]);
-    return result.trim();
-  }
-
-  /**
-   * @deprecated
-   */
-  public async expand<T extends unknown = string>(
-    message: string,
-    options: { key: string; name: string; value: T }[],
-    defaultValue?: string,
-  ): Promise<T> {
-    if (is.empty(options)) {
-      this.logger.warn(`No choices to pick from`);
-      return undefined;
-    }
-    const { result } = await inquirer.prompt([
-      {
-        choices: options,
-        default: defaultValue,
-        message,
-        name,
-        pageSize: this.pageSize,
-        type: 'expand',
-      },
-    ]);
-    return result;
-  }
-
-  /**
-   * Canned question, gets asked so often
-   */
-  public async friendlyName(current?: string): Promise<string> {
-    return await this.string(`Friendly name`, current);
-  }
-
-  /**
-   * @deprecated
-   */
-  public async insertPosition<T extends unknown = string>(
-    choices: PromptEntry<T>[],
-    moveItem: T,
-  ): Promise<number> {
-    const { result } = await inquirer.prompt([
-      {
-        choices,
-        message: 'Where add line?',
-        moveValue: moveItem,
-        name,
-        type: 'selectLine',
-      },
-    ]);
-    return result;
-  }
+  // /**
+  //  * @deprecated
+  //  */
+  // public async editor(message: string, defaultValue?: string): Promise<string> {
+  //   const { result } = await inquirer.prompt([
+  //     {
+  //       default: defaultValue,
+  //       message,
+  //       name,
+  //       type: 'editor',
+  //     },
+  //   ]);
+  //   return result.trim();
+  // }
 
   public itemsFromEntries<T extends unknown = string>(
     items: PromptEntry<T>[],
@@ -295,55 +198,21 @@ export class PromptService {
    * @deprecated
    */
   public async password(
-    message = `Password value`,
+    label = `Password value`,
     defaultValue?: string,
   ): Promise<string> {
-    const { result } = await inquirer.prompt([
-      {
-        default: defaultValue,
-        message,
-        name,
-        type: 'password',
-      },
-    ]);
-    return result;
-  }
-
-  /**
-   * @deprecated
-   */
-  public async pickMany<T extends unknown = string>(
-    message = `Pick many`,
-    options: PromptEntry<T>[],
-    {
-      min,
-      max,
-      ...extra
-    }: { default?: (string | T)[]; max?: number; min?: number } = {},
-  ): Promise<T[]> {
-    if (is.empty(options)) {
-      this.logger.warn(`No choices to pick from`);
-      return [];
-    }
-    const { result } = (await inquirer.prompt([
-      {
-        choices: this.itemsFromEntries(options),
-        ...extra,
-        message,
-        name,
-        pageSize: this.pageSize,
-        type: 'checkbox',
-      },
-    ])) as { result: T[] };
-    if (min && result.length < min) {
-      this.logger.error(`${min} items are required, ${result.length} provided`);
-      return await this.pickMany(message, options, { max, min, ...extra });
-    }
-    if (max && result.length > max) {
-      this.logger.error(`limit ${max} items, ${result.length} provided`);
-      return await this.pickMany(message, options, { max, min, ...extra });
-    }
-    return result;
+    // const { result } = await inquirer.prompt([
+    //   {
+    //     default: defaultValue,
+    //     message,
+    //     name,
+    //     type: 'password',
+    //   },
+    // ]);
+    // return result;
+    return await this.string(label, defaultValue, {
+      //
+    });
   }
 
   public async pickOne<T extends unknown = string>(
@@ -370,11 +239,8 @@ export class PromptService {
 
   public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {
     return entries.sort((a, b) => {
-      if (!Array.isArray(a)) {
-        return NO;
-      }
-      if (!Array.isArray(b)) {
-        return NO;
+      if (!Array.isArray(a) || !Array.isArray(b)) {
+        return DOWN;
       }
       return a[LABEL] > b[LABEL] ? UP : DOWN;
     });
@@ -397,55 +263,13 @@ export class PromptService {
    * @deprecated
    */
   public async time(
-    prompt = `Time value`,
+    label = `Time value`,
     defaultValue = new Date(),
   ): Promise<Date> {
-    const { result } = await inquirer.prompt([
-      {
-        default: defaultValue,
-        format: {
-          day: undefined,
-          month: undefined,
-          year: undefined,
-        },
-        message: prompt,
-        name,
-        type: 'date',
-      },
-    ]);
-    return result;
-  }
-
-  /**
-   * @deprecated
-   */
-  public async timeout(prompt = 'Timeout duration'): Promise<number> {
-    const { result } = await inquirer.prompt([
-      {
-        // default: defaultValue,
-        message: prompt,
-        name,
-        type: 'timeout',
-      },
-    ]);
-    return result;
-  }
-
-  /**
-   * @deprecated
-   */
-  public async timestamp(
-    prompt = `Timestamp`,
-    defaultValue = new Date(),
-  ): Promise<Date> {
-    const { result } = await inquirer.prompt([
-      {
-        default: defaultValue,
-        message: prompt,
-        name,
-        type: 'date',
-      },
-    ]);
-    return result;
+    return await this.date({
+      current: defaultValue.toISOString(),
+      label,
+      type: 'time',
+    });
   }
 }

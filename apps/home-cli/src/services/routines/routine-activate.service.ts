@@ -57,7 +57,8 @@ export class RoutineActivateService {
     routine: RoutineDTO,
     current: Partial<RoutineActivateDTO> = {},
   ): Promise<RoutineActivateDTO> {
-    const friendlyName = await this.promptService.friendlyName(
+    const friendlyName = await this.promptService.string(
+      'Friendly Name',
       current.friendlyName,
     );
     const type = await this.promptService.pickOne<ROUTINE_ACTIVATE_TYPE>(
