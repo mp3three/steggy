@@ -58,10 +58,6 @@ export class MainCLIService {
 
   public async exec(): Promise<void> {
     this.applicationManager.setHeader(this.applicationTitle);
-    await this.promptService.date({
-      type: 'time',
-    });
-    return;
     const name = await this.pickOne();
     if (IsDone(name)) {
       return;

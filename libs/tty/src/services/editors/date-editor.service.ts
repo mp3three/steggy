@@ -147,14 +147,7 @@ export class DateEditorService
 
   public render(): void {
     if (this.complete) {
-      if (Array.isArray(this.value)) {
-        return;
-      }
-      this.screenService.render(
-        chalk`{green ? } {bold ${this.config.label}} {gray ${this.value
-          .toDate()
-          .toLocaleString()}}`,
-      );
+      this.renderComplete();
       return;
     }
     if (['datetime', 'range'].includes(this.type) && this.fuzzy) {
@@ -226,36 +219,35 @@ export class DateEditorService
   }
 
   protected onEnd() {
-    if (this.fuzzy) {
-      if (is.empty(this.chronoText)) {
-        this.error = chalk`{red Enter a value}`;
-        this.render();
-        return;
-      }
-      if (this.type === 'range') {
-        const [result] = parse(this.chronoText);
-        if (!result.end) {
-          this.error = chalk`{red Value must result in a date range}`;
-          this.render();
-          return;
-        }
-        return;
-      }
-      return;
+    if (this.type == 'range') {
+      return this.onEndRange();
     }
-    this.complete = true;
+    if (this.fuzzy && is.empty(this.chronoText)) {
+      this.error = chalk.red`Enter a value`;
+      this.render();
+      return false;
+    }
+    if (this.fuzzy) {
+      const [result] = parse(this.chronoText);
+      if (result.end) {
+        this.error = chalk.red`Expression cannot result in a date range`;
+        this.render();
+        return false;
+      }
+    }
     this.value = dayjs(
       this.fuzzy
         ? parseDate(this.chronoText)
         : new Date(
             Number(this.year),
-            Number(this.month),
+            Number(this.month) - ARRAY_OFFSET,
             Number(this.day),
             Number(this.hour),
             Number(this.minute),
             Number(this.second),
           ),
     );
+    this.complete = true;
     this.render();
     this.done(this.value.toISOString());
     return false;
@@ -388,6 +380,50 @@ export class DateEditorService
     this.end = !this.end;
   }
 
+  private onEndRange(): boolean {
+    if (this.fuzzy) {
+      if (is.empty(this.chronoText)) {
+        this.error = chalk`{red Enter a value}`;
+        this.render();
+        return;
+      }
+      const [result] = parse(this.chronoText);
+      if (!result.end) {
+        this.error = chalk`{red Value must result in a date range}`;
+        this.render();
+        return;
+      }
+      this.value = [dayjs(result.start.date()), dayjs(result.end.date())];
+    } else {
+      this.value = [
+        dayjs(
+          new Date(
+            Number(this.year),
+            Number(this.month) - ARRAY_OFFSET,
+            Number(this.day),
+            Number(this.hour),
+            Number(this.minute),
+            Number(this.second),
+          ),
+        ),
+        dayjs(
+          new Date(
+            Number(this.endYear),
+            Number(this.endMonth) - ARRAY_OFFSET,
+            Number(this.endDay),
+            Number(this.endHour),
+            Number(this.endMinute),
+            Number(this.endSecond),
+          ),
+        ),
+      ];
+    }
+    this.complete = true;
+    this.render();
+    this.done(this.value.map(i => i.toISOString()));
+    return false;
+  }
+
   // eslint-disable-next-line radar/cognitive-complexity
   private renderChronoBox(): void {
     const placeholder =
@@ -440,6 +476,32 @@ export class DateEditorService
     );
   }
 
+  private renderComplete(): void {
+    let message = ``;
+    if (Array.isArray(this.value)) {
+      const [from, to] = this.value;
+      message += [
+        ``,
+        chalk`{bold From:} ${from.toDate().toLocaleString()}`,
+        chalk`{bold   To:} ${to.toDate().toLocaleString()}`,
+      ].join(`\n`);
+    } else {
+      const label = this.config.label || this.type === 'time' ? 'Time' : 'Date';
+      message += chalk`{green ? } {bold ${label}: }`;
+      switch (this.type) {
+        case 'time':
+          message += this.value.toDate().toLocaleTimeString();
+          break;
+        case 'date':
+          message += this.value.toDate().toLocaleDateString();
+          break;
+        default:
+          message += this.value.toDate().toLocaleString();
+      }
+    }
+    this.screenService.render(message);
+  }
+
   /**
    * TODO: refactor these render sections methods into something more sane
    * This is super ugly
@@ -450,7 +512,7 @@ export class DateEditorService
       this.config.label ?? chalk.bold`Enter date range`
     }  \n{bold From:} `;
     // From
-    if (['range', 'date', 'datetime'].includes(this.config.type)) {
+    if (['range', 'date', 'datetime'].includes(this.type)) {
       message +=
         this.edit === 'year' && !this.end
           ? chalk[is.empty(this.year) ? 'bgBlue' : 'bgWhite'].black(
@@ -473,7 +535,7 @@ export class DateEditorService
           : this.day.padEnd(2, ' ');
       message += ` `;
     }
-    if (['range', 'time', 'datetime'].includes(this.config.type)) {
+    if (['range', 'time', 'datetime'].includes(this.type)) {
       message +=
         this.edit === 'hour' && !this.end
           ? chalk[is.empty(this.hour) ? 'bgBlue' : 'bgWhite'].black(
@@ -497,7 +559,7 @@ export class DateEditorService
     }
     message += chalk`\n  {bold To:} `;
     // To
-    if (['range', 'date', 'datetime'].includes(this.config.type)) {
+    if (['range', 'date', 'datetime'].includes(this.type)) {
       message +=
         this.edit === 'year' && this.end
           ? chalk[is.empty(this.endYear) ? 'bgBlue' : 'bgWhite'].black(
@@ -520,7 +582,7 @@ export class DateEditorService
           : this.endDay.padEnd(2, ' ');
       message += ` `;
     }
-    if (['range', 'time', 'datetime'].includes(this.config.type)) {
+    if (['range', 'time', 'datetime'].includes(this.type)) {
       message +=
         this.edit === 'hour' && this.end
           ? chalk[is.empty(this.endHour) ? 'bgBlue' : 'bgWhite'].black(
@@ -556,7 +618,7 @@ export class DateEditorService
     let message = chalk`  {green ? } ${
       this.config.label ?? (this.type === 'time' ? 'Enter time' : 'Enter date')
     }  `;
-    if (['range', 'date', 'datetime'].includes(this.config.type)) {
+    if (['range', 'date', 'datetime'].includes(this.type)) {
       message +=
         this.edit === 'year'
           ? chalk[is.empty(this.year) ? 'bgBlue' : 'bgWhite'].black(
@@ -579,7 +641,7 @@ export class DateEditorService
           : this.day.padEnd(2, ' ');
       message += ` `;
     }
-    if (['range', 'time', 'datetime'].includes(this.config.type)) {
+    if (['range', 'time', 'datetime'].includes(this.type)) {
       message +=
         this.edit === 'hour'
           ? chalk[is.empty(this.hour) ? 'bgBlue' : 'bgWhite'].black(

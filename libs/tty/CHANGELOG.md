@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.11.16
+
+- Added extra qol keybinds to editors
+- Date editor overhaul
+  - modes: range, date, time, datetime
+- Removed methods from `PromptService` that were only there for `home-cli`
+  - canned questions and such
+
 ## 0.11.7
 
 - Sync logger can now take in a timestamp to present instead of only showing now
