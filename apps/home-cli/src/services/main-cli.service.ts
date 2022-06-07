@@ -48,15 +48,20 @@ export class MainCLIService {
     private readonly serverControl: ServerControlService,
     @InjectCache()
     private readonly cacheService: CacheManagerService,
+    @Inject(CONFIG_DEFAULTS) private readonly defaultConfig: AbstractConfig,
     @InjectConfig(APP_TITLE)
     private readonly applicationTitle,
-    @Inject(CONFIG_DEFAULTS) private readonly defaultConfig: AbstractConfig,
     @InjectConfig(CONFIG_SCANNER) private readonly configScanner: boolean,
   ) {}
+
   private last: ENTRY_TYPE;
 
   public async exec(): Promise<void> {
     this.applicationManager.setHeader(this.applicationTitle);
+    await this.promptService.date({
+      type: 'time',
+    });
+    return;
     const name = await this.pickOne();
     if (IsDone(name)) {
       return;

@@ -109,6 +109,7 @@ export class PromptService {
     const result = await this.date({
       fuzzy: 'always',
       label: 'Date range',
+      type: 'range',
     });
     const from = new Date();
     const to = new Date();

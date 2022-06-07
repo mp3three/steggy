@@ -6,6 +6,7 @@ import {
   is,
   SINGLE,
   START,
+  VALUE,
 } from '@steggy/utilities';
 import chalk from 'chalk';
 import { parse, parseDate } from 'chrono-node';
@@ -21,7 +22,7 @@ import { ansiPadEnd, ansiStrip } from '../../includes';
 import { KeyboardManagerService, ScreenService } from '../meta';
 import { KeymapService, TextRenderingService } from '../render';
 
-type tDateType = 'datetime' | 'date' | 'time';
+type tDateType = 'datetime' | 'date' | 'time' | 'range';
 export interface DateEditorEditorOptions {
   current?: string;
   /**
@@ -34,7 +35,7 @@ export interface DateEditorEditorOptions {
 
 const MONTH_MAX = new Map([
   [1, 31],
-  // Don't care about leap years beyond this
+  // TODO: Caring about leap years
   [2, 29],
   [3, 31],
   [4, 30],
@@ -48,6 +49,7 @@ const MONTH_MAX = new Map([
   [12, 31],
 ]);
 const DEFAULT_PLACEHOLDER = 'tomorrow at noon';
+const DEFAULT_RANGE_PLACEHOLDER = 'tomorrow at noon to next friday';
 const ELLIPSES = '...';
 const INTERNAL_PADDING = ' ';
 const PADDING = 46; // 50-4
@@ -77,8 +79,16 @@ export class DateEditorService
   private complete = false;
   private config: DateEditorEditorOptions;
   private day: string;
-  private done: (type: string) => void;
+  private done: (type: string | string[]) => void;
   private edit: DATE_TYPES = 'year';
+  private end: boolean;
+  private endDay: string;
+  private endHour: string;
+  private endMinute: string;
+  private endMonth: string;
+  private endSecond: string;
+  private endYear: string;
+  private error = '';
   private fuzzy: boolean;
   private hour: string;
   private localDirty: boolean;
@@ -86,31 +96,60 @@ export class DateEditorService
   private month: string;
   private second: string;
   private type: tDateType;
-  private value: dayjs.Dayjs;
+  private value: dayjs.Dayjs | dayjs.Dayjs[];
   private year: string;
+
+  private get editField(): string {
+    if (this.end) {
+      const property =
+        this.edit.charAt(START).toUpperCase() + this.edit.slice(SINGLE);
+      return `end${property}`;
+    }
+    return this.edit;
+  }
 
   public configure(
     config: DateEditorEditorOptions,
     done: (type: unknown) => void,
   ): void {
+    this.error = '';
     this.chronoText = '';
     this.config = config;
     config.fuzzy ??= 'user';
     this.type = config.type ?? 'datetime';
     // default off
     // ? Make that @InjectConfig controlled?
-    this.fuzzy = this.type === 'datetime' ? config.fuzzy === 'always' : false;
+    this.fuzzy =
+      (['datetime', 'range'] as tDateType[]).includes(this.type) &&
+      config.fuzzy === 'always';
     this.complete = false;
     this.localDirty = false;
     this.value = dayjs(this.config.current);
     this.done = done;
     this.setKeymap();
+    const start = Array.isArray(this.value) ? this.value[START] : this.value;
+    this.edit = this.type === 'time' ? 'hour' : 'year';
+    const end = Array.isArray(this.value)
+      ? this.value[VALUE] ?? this.value[START]
+      : this.value;
     [this.year, this.month, this.day, this.hour, this.minute, this.second] =
-      this.value.format('YYYY-MM-DD-HH-mm-ss').split('-');
+      start.format('YYYY-MM-DD-HH-mm-ss').split('-');
+
+    [
+      this.endYear,
+      this.endMonth,
+      this.endDay,
+      this.endHour,
+      this.endMinute,
+      this.endSecond,
+    ] = end.format('YYYY-MM-DD-HH-mm-ss').split('-');
   }
 
   public render(): void {
     if (this.complete) {
+      if (Array.isArray(this.value)) {
+        return;
+      }
       this.screenService.render(
         chalk`{green ? } {bold ${this.config.label}} {gray ${this.value
           .toDate()
@@ -118,16 +157,22 @@ export class DateEditorService
       );
       return;
     }
-    if (this.type === 'datetime' && this.fuzzy) {
+    if (['datetime', 'range'].includes(this.type) && this.fuzzy) {
       this.renderChronoBox();
+      return;
+    }
+    if (this.type === 'range') {
+      this.renderRangeSections();
       return;
     }
     this.renderSections();
   }
 
   protected editType(key: string) {
+    this.error = '';
+    const field = this.editField;
     if (key === 'backspace') {
-      this[this.edit] = this[this.edit].slice(START, INVERT_VALUE);
+      this[field] = this[field].slice(START, SINGLE * INVERT_VALUE);
       this.localDirty = true;
       return;
     }
@@ -136,7 +181,7 @@ export class DateEditorService
     }
     const MAX_LENGTH = this.edit === 'year' ? 4 : 2;
     // If it's dirty + at max length, move cursor over first
-    if (this.localDirty && this[this.edit].length === MAX_LENGTH) {
+    if (this.localDirty && this[field].length === MAX_LENGTH) {
       const index = SORTED.indexOf(this.edit);
       // No place to move it over. Give up
       if (index === SORTED.length - ARRAY_OFFSET) {
@@ -145,40 +190,59 @@ export class DateEditorService
       this.onRight();
     }
     if (!this.localDirty) {
-      this[this.edit] = key;
+      this[field] = key;
       this.localDirty = true;
       return;
     }
     if (!this.sanityCheck(this[this.edit] + key)) {
       return;
     }
-    this[this.edit] += key;
+    this[field] += key;
     if (this.edit === 'month') {
       this.updateMonth();
     }
-    if (this[this.edit].length === MAX_LENGTH) {
+    if (this[field].length === MAX_LENGTH) {
       this.onRight();
     }
   }
 
   protected onDown() {
-    const current = Number(this[this.edit] || '0');
+    this.error = '';
+    const current = Number(this[this.editField] || '0');
     if (current === 0) {
       return;
     }
     const previous = (current - INCREMENT)
       .toString()
+      // lol 420
       .padStart(this.edit === 'year' ? 4 : 2, '0');
     if (!this.sanityCheck(previous)) {
       return;
     }
-    this[this.edit] = previous;
+    this[this.editField] = previous;
     if (this.edit === 'month') {
       this.updateMonth();
     }
   }
 
   protected onEnd() {
+    if (this.fuzzy) {
+      if (is.empty(this.chronoText)) {
+        this.error = chalk`{red Enter a value}`;
+        this.render();
+        return;
+      }
+      if (this.type === 'range') {
+        const [result] = parse(this.chronoText);
+        if (!result.end) {
+          this.error = chalk`{red Value must result in a date range}`;
+          this.render();
+          return;
+        }
+        return;
+      }
+      return;
+    }
     this.complete = true;
     this.value = dayjs(
       this.fuzzy
@@ -198,6 +262,7 @@ export class DateEditorService
   }
 
   protected onKeyPress(key: string, { shift }: KeyModifiers) {
+    this.error = '';
     if (key === 'backspace') {
       this.chronoText = this.chronoText.slice(START, INVERT_VALUE);
       return;
@@ -216,25 +281,26 @@ export class DateEditorService
   }
 
   protected onLeft(): void {
+    this.error = '';
     const index = SORTED.indexOf(this.edit);
-    if (index === START) {
+    if (index === START || (this.type == 'time' && this.edit === 'hour')) {
       return;
     }
-    this[this.edit] = this[this.edit].padStart(
+    this[this.editField] = this[this.editField].padStart(
       this.edit === 'year' ? 4 : 2,
       '0',
     );
-
     this.edit = SORTED[index - INCREMENT];
     this.localDirty = false;
   }
 
   protected onRight(): void {
+    this.error = '';
     const index = SORTED.indexOf(this.edit);
     if (index === SORTED.length - ARRAY_OFFSET) {
       return;
     }
-    this[this.edit] = this[this.edit].padStart(
+    this[this.editField] = this[this.editField].padStart(
       this.edit === 'year' ? 4 : 2,
       '0',
     );
@@ -243,13 +309,14 @@ export class DateEditorService
   }
 
   protected onUp(): void {
-    const next = (Number(this[this.edit] || '0') + INCREMENT)
+    this.error = '';
+    const next = (Number(this[this.editField] || '0') + INCREMENT)
       .toString()
       .padStart(this.edit === 'year' ? 4 : 2, '0');
     if (!this.sanityCheck(next)) {
       return;
     }
-    this[this.edit] = next;
+    this[this.editField] = next;
     this.localDirty = true;
     if (this.edit === 'month') {
       this.updateMonth();
@@ -257,18 +324,75 @@ export class DateEditorService
   }
 
   protected reset(): void {
+    this.localDirty = false;
     this.chronoText = '';
   }
 
+  protected setEnd(): void {
+    this.edit = 'second';
+    this.localDirty = false;
+  }
+
+  protected setHome(): void {
+    this.edit = this.type === 'time' ? 'hour' : 'year';
+    this.localDirty = false;
+  }
+
+  protected setMax(): void {
+    this.localDirty = true;
+    switch (this.edit) {
+      // year omitted on purpose
+      // Not sure what values would make sense to use
+      case 'month':
+        this[this.editField] = '12';
+        return;
+      case 'day':
+        this[this.editField] = MONTH_MAX.get(
+          Number(this.end ? this.endMonth || '1' : this.month),
+        ).toString();
+        return;
+      case 'hour':
+        this[this.editField] = '23';
+        return;
+      case 'minute':
+      case 'second':
+        this[this.editField] = '59';
+        return;
+    }
+  }
+
+  protected setMin(): void {
+    this.localDirty = true;
+    switch (this.edit) {
+      // year omitted on purpose
+      // Not sure what values would make sense to use
+      case 'month':
+      case 'day':
+        this[this.editField] = '01';
+        return;
+      case 'hour':
+      case 'minute':
+      case 'second':
+        this[this.editField] = '00';
+        return;
+    }
+  }
+
   protected toggleChrono(): void {
+    this.error = '';
     this.fuzzy = !this.fuzzy;
     this.setKeymap();
   }
 
+  protected toggleRangeSide(): void {
+    this.end = !this.end;
+  }
+
+  // eslint-disable-next-line radar/cognitive-complexity
   private renderChronoBox(): void {
-    let value = is.empty(this.chronoText)
-      ? DEFAULT_PLACEHOLDER
-      : this.chronoText;
+    const placeholder =
+      this.type === 'range' ? DEFAULT_RANGE_PLACEHOLDER : DEFAULT_PLACEHOLDER;
+    let value = is.empty(this.chronoText) ? placeholder : this.chronoText;
     const out: string[] = [];
     if (this.config.label) {
       out.push(chalk`{green ? } ${this.config.label}`);
@@ -282,7 +406,7 @@ export class DateEditorService
       value = value.replace(stripped, update);
       length = update.length;
     }
-    const [result] = parse(this.chronoText.trim() || DEFAULT_PLACEHOLDER);
+    const [result] = parse(this.chronoText.trim() || placeholder);
     out.push(
       chalk` {cyan >} {bold Input value}`,
       chalk[is.empty(this.chronoText) ? 'bgBlue' : 'bgWhite'].black(
@@ -307,64 +431,182 @@ export class DateEditorService
       );
     }
     const message = this.textRendering.pad(out.join(`\n`));
-
     this.screenService.render(
       message,
-      this.keymap.keymapHelp({
-        message,
-      }),
+      (!is.empty(this.error) ? chalk`\n{red.bold ! }${this.error}\n` : '') +
+        this.keymap.keymapHelp({
+          message,
+        }),
+    );
+  }
+
+  /**
+   * TODO: refactor these render sections methods into something more sane
+   * This is super ugly
+   */
+  // eslint-disable-next-line radar/cognitive-complexity
+  private renderRangeSections(): void {
+    let message = chalk`  {green ? } ${
+      this.config.label ?? chalk.bold`Enter date range`
+    }  \n{bold From:} `;
+    // From
+    if (['range', 'date', 'datetime'].includes(this.config.type)) {
+      message +=
+        this.edit === 'year' && !this.end
+          ? chalk[is.empty(this.year) ? 'bgBlue' : 'bgWhite'].black(
+              this.year.padEnd(4, ' '),
+            )
+          : this.year.padEnd(4, ' ');
+      message += `-`;
+      message +=
+        this.edit === 'month' && !this.end
+          ? chalk[is.empty(this.month) ? 'bgBlue' : 'bgWhite'].black(
+              this.month.padEnd(2, ' '),
+            )
+          : this.month.padEnd(2, ' ');
+      message += `-`;
+      message +=
+        this.edit === 'day' && !this.end
+          ? chalk[is.empty(this.day) ? 'bgBlue' : 'bgWhite'].black(
+              this.day.padEnd(2, ' '),
+            )
+          : this.day.padEnd(2, ' ');
+      message += ` `;
+    }
+    if (['range', 'time', 'datetime'].includes(this.config.type)) {
+      message +=
+        this.edit === 'hour' && !this.end
+          ? chalk[is.empty(this.hour) ? 'bgBlue' : 'bgWhite'].black(
+              this.hour.padEnd(2, ' '),
+            )
+          : this.hour.padEnd(2, ' ');
+      message += `:`;
+      message +=
+        this.edit === 'minute' && !this.end
+          ? chalk[is.empty(this.minute) ? 'bgBlue' : 'bgWhite'].black(
+              this.minute.padEnd(2, ' '),
+            )
+          : this.minute.padEnd(2, ' ');
+      message += `:`;
+      message +=
+        this.edit === 'second' && !this.end
+          ? chalk[is.empty(this.second) ? 'bgBlue' : 'bgWhite'].black(
+              this.second.padEnd(2, ' '),
+            )
+          : this.second.padEnd(2, ' ');
+    }
+    message += chalk`\n  {bold To:} `;
+    // To
+    if (['range', 'date', 'datetime'].includes(this.config.type)) {
+      message +=
+        this.edit === 'year' && this.end
+          ? chalk[is.empty(this.endYear) ? 'bgBlue' : 'bgWhite'].black(
+              this.endYear.padEnd(4, ' '),
+            )
+          : this.endYear.padEnd(4, ' ');
+      message += `-`;
+      message +=
+        this.edit === 'month' && this.end
+          ? chalk[is.empty(this.endMonth) ? 'bgBlue' : 'bgWhite'].black(
+              this.endMonth.padEnd(2, ' '),
+            )
+          : this.endMonth.padEnd(2, ' ');
+      message += `-`;
+      message +=
+        this.edit === 'day' && this.end
+          ? chalk[is.empty(this.endDay) ? 'bgBlue' : 'bgWhite'].black(
+              this.endDay.padEnd(2, ' '),
+            )
+          : this.endDay.padEnd(2, ' ');
+      message += ` `;
+    }
+    if (['range', 'time', 'datetime'].includes(this.config.type)) {
+      message +=
+        this.edit === 'hour' && this.end
+          ? chalk[is.empty(this.endHour) ? 'bgBlue' : 'bgWhite'].black(
+              this.endHour.padEnd(2, ' '),
+            )
+          : this.endHour.padEnd(2, ' ');
+      message += `:`;
+      message +=
+        this.edit === 'minute' && this.end
+          ? chalk[is.empty(this.endMinute) ? 'bgBlue' : 'bgWhite'].black(
+              this.endMinute.padEnd(2, ' '),
+            )
+          : this.endMinute.padEnd(2, ' ');
+      message += `:`;
+      message +=
+        this.edit === 'second' && this.end
+          ? chalk[is.empty(this.endSecond) ? 'bgBlue' : 'bgWhite'].black(
+              this.endSecond.padEnd(2, ' '),
+            )
+          : this.endSecond.padEnd(2, ' ');
+    }
+    this.screenService.render(
+      message,
+      (!is.empty(this.error) ? chalk`\n{red.bold ! }${this.error}\n` : '') +
+        this.keymap.keymapHelp({
+          message,
+        }),
     );
   }
 
   // eslint-disable-next-line radar/cognitive-complexity
   private renderSections(): void {
-    let message = chalk`  {green ? } ${this.config.label ?? 'Enter date'}  `;
-    message +=
-      this.edit === 'year'
-        ? chalk[is.empty(this.year) ? 'bgBlue' : 'bgWhite'].black(
-            this.year.padEnd(4, ' '),
-          )
-        : this.year.padEnd(4, ' ');
-    message += `-`;
-    message +=
-      this.edit === 'month'
-        ? chalk[is.empty(this.month) ? 'bgBlue' : 'bgWhite'].black(
-            this.month.padEnd(2, ' '),
-          )
-        : this.month.padEnd(2, ' ');
-    message += `-`;
-    message +=
-      this.edit === 'day'
-        ? chalk[is.empty(this.day) ? 'bgBlue' : 'bgWhite'].black(
-            this.day.padEnd(2, ' '),
-          )
-        : this.day.padEnd(2, ' ');
-    message += ` `;
-    message +=
-      this.edit === 'hour'
-        ? chalk[is.empty(this.hour) ? 'bgBlue' : 'bgWhite'].black(
-            this.hour.padEnd(2, ' '),
-          )
-        : this.hour.padEnd(2, ' ');
-    message += `:`;
-    message +=
-      this.edit === 'minute'
-        ? chalk[is.empty(this.minute) ? 'bgBlue' : 'bgWhite'].black(
-            this.minute.padEnd(2, ' '),
-          )
-        : this.minute.padEnd(2, ' ');
-    message += `:`;
-    message +=
-      this.edit === 'second'
-        ? chalk[is.empty(this.second) ? 'bgBlue' : 'bgWhite'].black(
-            this.second.padEnd(2, ' '),
-          )
-        : this.second.padEnd(2, ' ');
+    let message = chalk`  {green ? } ${
+      this.config.label ?? (this.type === 'time' ? 'Enter time' : 'Enter date')
+    }  `;
+    if (['range', 'date', 'datetime'].includes(this.config.type)) {
+      message +=
+        this.edit === 'year'
+          ? chalk[is.empty(this.year) ? 'bgBlue' : 'bgWhite'].black(
+              this.year.padEnd(4, ' '),
+            )
+          : this.year.padEnd(4, ' ');
+      message += `-`;
+      message +=
+        this.edit === 'month'
+          ? chalk[is.empty(this.month) ? 'bgBlue' : 'bgWhite'].black(
+              this.month.padEnd(2, ' '),
+            )
+          : this.month.padEnd(2, ' ');
+      message += `-`;
+      message +=
+        this.edit === 'day'
+          ? chalk[is.empty(this.day) ? 'bgBlue' : 'bgWhite'].black(
+              this.day.padEnd(2, ' '),
+            )
+          : this.day.padEnd(2, ' ');
+      message += ` `;
+    }
+    if (['range', 'time', 'datetime'].includes(this.config.type)) {
+      message +=
+        this.edit === 'hour'
+          ? chalk[is.empty(this.hour) ? 'bgBlue' : 'bgWhite'].black(
+              this.hour.padEnd(2, ' '),
+            )
+          : this.hour.padEnd(2, ' ');
+      message += `:`;
+      message +=
+        this.edit === 'minute'
+          ? chalk[is.empty(this.minute) ? 'bgBlue' : 'bgWhite'].black(
+              this.minute.padEnd(2, ' '),
+            )
+          : this.minute.padEnd(2, ' ');
+      message += `:`;
+      message +=
+        this.edit === 'second'
+          ? chalk[is.empty(this.second) ? 'bgBlue' : 'bgWhite'].black(
+              this.second.padEnd(2, ' '),
+            )
+          : this.second.padEnd(2, ' ');
+    }
     this.screenService.render(
       message,
-      this.keymap.keymapHelp({
-        message,
-      }),
+      (!is.empty(this.error) ? chalk`\n{red.bold ! }${this.error}\n` : '') +
+        this.keymap.keymapHelp({
+          message,
+        }),
     );
   }
 
@@ -412,8 +654,9 @@ export class DateEditorService
       [{ description: 'cursor left', key: 'left' }, 'onLeft'],
       [{ description: 'cursor right', key: 'right' }, 'onRight'],
       // Other common keys, feels excessive to report them to the user
-      [{ key: [':', '-', 'space', 'tab'], noHelp: true }, 'onRight'],
-      ...(this.type === 'datetime' && this.config.fuzzy === 'user'
+      [{ key: [':', '-', 'space'], noHelp: true }, 'onRight'],
+      ...(['datetime', 'range'].includes(this.type) &&
+      this.config.fuzzy === 'user'
         ? [
             [{ description: 'natural parser', key: 'f3' }, 'toggleChrono'] as [
               InquirerKeypressOptions,
@@ -421,6 +664,20 @@ export class DateEditorService
             ],
           ]
         : []),
+      ...(this.type === 'range'
+        ? [
+            [
+              { description: 'toggle from / to', key: 'tab' },
+              'toggleRangeSide',
+            ] as [InquirerKeypressOptions, string],
+          ]
+        : []),
+      // "power user features"
+      // aka: stuff I'm keeping off the help menu because it's getting cluttered
+      [{ key: 'home', noHelp: true }, 'setHome'],
+      [{ key: 'end', noHelp: true }, 'setEnd'],
+      [{ key: 'pageup', noHelp: true }, 'setMax'],
+      [{ key: 'pagedown', noHelp: true }, 'setMin'],
     ]);
 
     this.keyboardService.setKeyMap(
