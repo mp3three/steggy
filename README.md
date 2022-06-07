@@ -97,7 +97,7 @@ General purpose utilities and constants for `@steggy`
 
 ## Development goals by minor revision
 
-> - `0.11.x` Configuration management & TTY overhaul
+> - `0.11.x` Configuration management & TTY upgrades
 > - `0.10.x` Buildout of people, additional focus on UI completeness / consistency
 > - `0.9.x` Focus on quality of life and platform stability updates
 > - `0.8.x` Build out of metadata, which enales virtual states that can be set / watched
