@@ -6,7 +6,7 @@ export class RoutineEnabledOptions {
   public type: string[];
 }
 export interface iRoutineEnabled<COMPARISON> {
-  watch(comparison: COMPARISON, routine: RoutineDTO): void;
+  watch(comparison: COMPARISON, routine: RoutineDTO): () => void;
 }
 
 export function RoutineEnabled(options: RoutineEnabledOptions): ClassDecorator {

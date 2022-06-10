@@ -121,8 +121,8 @@ export class RoutineComparisonDTO<
 export class RoutineCommandStopProcessingDTO<T = STOP_PROCESSING_DEFINITIONS> {
   @ValidateNested()
   @ApiProperty()
-  public comparisons: RoutineComparisonDTO<T>[];
+  public comparisons?: RoutineComparisonDTO<T>[];
   @IsEnum(['all', 'any'])
   @ApiProperty()
-  public mode: 'all' | 'any';
+  public mode?: 'all' | 'any';
 }

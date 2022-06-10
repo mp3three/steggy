@@ -4,7 +4,6 @@
 # It's needed for doing config scanning
 FROM node:16 AS build
 WORKDIR /app
-RUN apk add git curl; npm install -g npm@8.7.0
 
 # Build dev environment
 # Only copy necessary stuff for install up front to cache better

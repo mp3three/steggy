@@ -29,7 +29,11 @@ import {
   ROUTINE_ENABLED_PROVIDER,
   RoutineEnabledOptions,
 } from '../decorators';
-import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../typings';
+import {
+  MetadataUpdate,
+  PERSON_METADATA_UPDATED,
+  ROOM_METADATA_UPDATED,
+} from '../typings';
 import { RoutinePersistenceService } from './persistence';
 import { RoutineService } from './routine.service';
 
@@ -38,8 +42,37 @@ type METADATA = {
   room: string;
   routines: string[];
 };
+type tPartialRoutine = Pick<
+  RoutineDTO,
+  '_id' | 'friendlyName' | 'enable' | 'command' | 'parent'
+>;
 const ROOT = 'root';
 
+/**
+ * ## Description
+ *
+ * This provider is for managing the "is this currently enabled" state for all routines that are in the database.
+ *
+ * At boot, it will load all routines, and evaluate all the rules required to determine if it should default to an enabled state.
+ * If applicable, watchers / polling intervals will be set up.
+ * When the routine gets updated, this class will watch for those changes (via `eventemitter`),
+ *  and will reload local data as needed to properly keep the enabled state in line with the configuration of the routine.
+ *
+ * Some logic is currently provided inside this file for the enabled types.
+ * These will be refactored out into standalone providers as time goes on, utilizing the module scanner to find + load.
+ *
+ * ## Configuration
+ *
+ * ### Safe Mode
+ *
+ * If `SAFE_MODE` is provided, then this service will not pass through routine mount requests.
+ * This allows the service to continue to keep track of if the routine **SHOULD** be enabled, but not actually making it so.
+ * The goal of the setting in this context is to allow the UI to maintain accuracy with it's "is it currently enabled?" state labels,
+ * but not to actually process anything.
+ *
+ * **Note:** This is semi-safe, as polling watchers for templates and webhooks will still be set up and performed.
+ * There isn't currently a "do absolutely nothing at all" setting
+ */
 @Injectable()
 export class RoutineEnabledService {
   constructor(
@@ -47,26 +80,62 @@ export class RoutineEnabledService {
     private readonly safeMode: boolean,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineService: RoutineService,
-    private readonly logger: AutoLogService,
-    private readonly routinePersistence: RoutinePersistenceService,
     @Inject(forwardRef(() => StopProcessingCommandService))
     private readonly stopProcessingService: StopProcessingCommandService,
+    private readonly logger: AutoLogService,
     private readonly moduleScanner: ModuleScannerService,
+    private readonly routinePersistence: RoutinePersistenceService,
   ) {}
 
+  /**
+   * Set of routine ids that list which routines are currently active
+   */
   public ACTIVE_ROUTINES = new Set<string>();
+
+  /**
+   * Extra providers of "is this currently enabled?" logic
+   */
   private ENABLED_PROVIDERS = new Map<
     iRoutineEnabled<unknown>,
     RoutineEnabledOptions
   >();
+
+  /**
+   * Indexed by routine id, contains an array of callbacks which will tear down
+   * any persistent logic that is managing any "is this enabled" logic.
+   */
   private ENABLE_WATCHERS = new Map<string, (() => void)[]>();
-  private RAW_LIST = new Map<string, RoutineDTO>();
+
+  /**
+   * Full indexed list of all routines
+   */
+  private RAW_LIST = new Map<string, tPartialRoutine>();
+
+  /**
+   * A listing of routine ids that are relevant to the enabled state
+   */
   private WATCH_ENTITIES = new Map<string, string[]>();
+
+  /**
+   * A listing of metadata information that is relevant to the enabled state
+   */
   private WATCH_METADATA = new Map<string, METADATA[]>();
+
+  /**
+   * Routine ancestry information. Used to create prettier log messages
+   */
   private ancestors = new Map<string, string[]>();
+
+  /**
+   * Because I don't feel like doing things right
+   */
   private initialLoad = false;
 
-  public async onUpdate(routine: RoutineDTO): Promise<void> {
+  /**
+   * Forcing string ids to be passed to manually refresh the routine info.
+   */
+  public async onUpdate(id: string): Promise<void> {
+    const routine = await this.routineService.get(id);
     const state = await this.isActive(routine);
     let updated = false;
     if (this.ACTIVE_ROUTINES.has(routine._id) && !state) {
@@ -80,11 +149,19 @@ export class RoutineEnabledService {
       this.start(routine);
     }
     if (!updated) {
+      this.logger.error(
+        `[${routine.friendlyName}] onUpdate called with no changes`,
+      );
       return;
     }
     this.logger.debug(`[${routine.friendlyName}] changed state`);
   }
 
+  /**
+   * 💣 Go nuclear on it. Drop ALL info, and perform a full reload
+   *
+   * As close as can be had as restarting the server from this point of view
+   */
   public async reload(): Promise<void> {
     this.logger.warn(`Performing full routine refresh`);
 
@@ -100,17 +177,40 @@ export class RoutineEnabledService {
     this.WATCH_METADATA = new Map();
     this.ancestors = new Map();
 
-    // Loading as if fresh
     this.initialLoad = false;
     await this.onApplicationBootstrap();
     await this.onApplicationReady();
   }
 
+  /**
+   * Create an excessively readable label that shows full ancestors
+   *
+   * ```text
+   * 🧓 Grandparent Routine > 🧑 Parent Routine > "👶 I'm doing a thing!"
+   * ```
+   */
+  public superFriendlyName(id: string, built = ''): string {
+    const routine = this.RAW_LIST.get(id);
+    built = is.empty(built) ? '' : ` > ${built}`;
+    built = `[${routine.friendlyName}]${built}`;
+    if (routine.parent) {
+      return this.superFriendlyName(routine.parent, built);
+    }
+    return built;
+  }
+
+  /**
+   * Load all routines, and cache the data locally
+   */
   protected async onApplicationBootstrap(): Promise<void> {
     if (this.safeMode) {
+      // Leave a note in the logs just in case it was forgotten
       this.logger.warn(`[SAFE_MODE] set, routines will not mount`);
     }
-    const list = await this.routinePersistence.findMany();
+    const list = await this.routinePersistence.findMany({
+      // Trim down as much as possible
+      select: ['friendlyName', 'enabled', 'parent', 'command.id'],
+    });
     list.forEach(routine => this.RAW_LIST.set(routine._id, routine));
   }
 
@@ -124,7 +224,7 @@ export class RoutineEnabledService {
       this.logger.debug(
         `Recheck {${checkRoutines.length}} routines for entity updates`,
       );
-      each(checkRoutines, async routine => await this.onUpdate(routine));
+      each(checkRoutines, async routine => await this.onUpdate(routine._id));
       return;
     }
     this.initialLoad = true;
@@ -146,6 +246,10 @@ export class RoutineEnabledService {
     await each(root, async routine => await this.remount(routine));
   }
 
+  /**
+   * Subscribe to entity updates.
+   * If they are relevant to any routines, then update those
+   */
   @OnEvent(HA_EVENT_STATE_CHANGE)
   protected onEntityUpdate({ data }: HassEventDTO): void {
     const checkRoutines: RoutineDTO[] = [];
@@ -154,10 +258,14 @@ export class RoutineEnabledService {
         checkRoutines.push(this.RAW_LIST.get(routine));
       }
     });
-    each(checkRoutines, async routine => await this.onUpdate(routine));
+    each(checkRoutines, async routine => await this.onUpdate(routine._id));
   }
 
-  @OnEvent(ROOM_METADATA_UPDATED)
+  /**
+   * Subscribe to metadata updates,
+   * If they are relevant to any routines, then update those
+   */
+  @OnEvent([ROOM_METADATA_UPDATED, PERSON_METADATA_UPDATED])
   protected onMetadataUpdate({ room, name }: MetadataUpdate): void {
     this.WATCH_METADATA.forEach(async metadata => {
       const caught = metadata.some(i => {
@@ -171,7 +279,7 @@ export class RoutineEnabledService {
       }
       await each(
         is.unique(metadata.flatMap(i => i.routines)),
-        async routine => await this.onUpdate(this.RAW_LIST.get(routine)),
+        async routine => await this.onUpdate(this.RAW_LIST.get(routine)._id),
       );
     });
   }
@@ -183,21 +291,40 @@ export class RoutineEnabledService {
     >(ROUTINE_ENABLED_PROVIDER);
   }
 
+  /**
+   * When a routine is updated:
+   *
+   * - stop (if currently running)
+   * - tear down enable watchers
+   * - update local data
+   * - watch it again
+   * - attempt to activate again (if enabled)
+   * - repeat process child routines
+   */
   @OnEvent(ROUTINE_UPDATE)
   protected async remount(routine: RoutineDTO): Promise<void> {
     // Stop + GC
     this.stop(routine);
+    const watchers = this.ENABLE_WATCHERS.get(routine._id) ?? [];
+    watchers.forEach(callback => callback());
+    this.ENABLE_WATCHERS.delete(routine._id);
     if (routine.deleted) {
       // Clean up more if deleted
+      // Don't need to worry about descendant routines, separate events will be emitted for those
       this.RAW_LIST.delete(routine._id);
       return;
     }
-    // If newly created, start watching
-    if (!this.RAW_LIST.has(routine._id)) {
-      this.watch(routine);
-    }
-    this.RAW_LIST.set(routine._id, routine);
-    await this.onUpdate(routine);
+    this.RAW_LIST.set(routine._id, {
+      _id: routine._id,
+      command: routine.command.map(
+        ({ id }) => ({ id } as RoutineCommandDTO<unknown>),
+      ),
+      enable: routine.enable,
+      friendlyName: routine.friendlyName,
+      parent: routine.parent,
+    });
+    this.watch(this.RAW_LIST.get(routine._id));
+    await this.onUpdate(routine._id);
     const list: RoutineDTO[] = [];
     this.RAW_LIST.forEach(child => {
       if (child.parent !== routine._id) {
@@ -208,6 +335,11 @@ export class RoutineEnabledService {
     await each(list, async child => await this.remount(child));
   }
 
+  /**
+   * Some types of enabling requires polling to keep up to date.
+   *
+   * Ex: evaluate a template on a schedule
+   */
   private initPolling(routine: RoutineDTO): void {
     if (!is.number(routine.enable.poll)) {
       this.logger.error(
@@ -216,7 +348,7 @@ export class RoutineEnabledService {
       return;
     }
     const interval = setInterval(
-      async () => await this.onUpdate(routine),
+      async () => await this.onUpdate(routine._id),
       routine.enable.poll * SECOND,
     );
     const watchers = this.ENABLE_WATCHERS.get(routine._id) || [];
@@ -224,16 +356,18 @@ export class RoutineEnabledService {
     this.ENABLE_WATCHERS.set(routine._id, watchers);
   }
 
+  /**
+   * Perform a a check to see if the routine is currently enabled according to the rules
+   */
   private async isActive({
     enable,
     parent,
   }: Pick<RoutineDTO, 'enable' | 'parent'> = {}): Promise<boolean> {
+    // If the parent isn't active, then this one isn't also
     if (!is.empty(parent) && !this.ACTIVE_ROUTINES.has(parent)) {
       return false;
     }
-    if (!is.object(enable)) {
-      return true;
-    }
+    enable ??= { type: 'enable' };
     const type = enable.type ?? 'enable';
     if (type === 'enable') {
       return true;
@@ -252,6 +386,9 @@ export class RoutineEnabledService {
     );
   }
 
+  /**
+   * Switch a routine from not enabled to enabled
+   */
   private start(routine: RoutineDTO): void {
     this.ACTIVE_ROUTINES.add(routine._id);
     if (is.empty(routine.command)) {
@@ -262,12 +399,18 @@ export class RoutineEnabledService {
       this.logger.debug(`[${routine.friendlyName}] false start (no activate)`);
       return;
     }
-    this.logger.info(`${this.superFriendlyName(routine)} start`);
+    this.logger.info(`${this.superFriendlyName(routine._id)} start`);
     if (!this.safeMode) {
       this.routineService.mount(routine);
     }
   }
 
+  /**
+   * Fully stop a routine.
+   *
+   * - Remove from active routines
+   * - Unmount it
+   */
   private stop(routine: RoutineDTO): void {
     if (!this.ACTIVE_ROUTINES.has(routine._id)) {
       return;
@@ -275,22 +418,6 @@ export class RoutineEnabledService {
     this.logger.info(`${routine.friendlyName} stop`);
     this.routineService.unmount(routine);
     this.ACTIVE_ROUTINES.delete(routine._id);
-    this.ENABLE_WATCHERS.forEach((disable, watched) => {
-      if (watched !== routine._id) {
-        return;
-      }
-      disable.forEach(callback => callback());
-    });
-    this.ENABLE_WATCHERS.delete(routine._id);
-  }
-
-  private superFriendlyName(routine: RoutineDTO, built = ''): string {
-    built = is.empty(built) ? '' : ` > ${built}`;
-    built = `[${routine.friendlyName}]${built}`;
-    if (routine.parent) {
-      return this.superFriendlyName(this.RAW_LIST.get(routine.parent), built);
-    }
-    return built;
   }
 
   // FIXME: This will sort itself out after the switch statement gets removed
@@ -364,6 +491,9 @@ export class RoutineEnabledService {
     this.ENABLE_WATCHERS.set(routine._id, watchers);
   }
 
+  /**
+   * TODO: Refactor into separate file
+   */
   private watchMetadata(
     compare: MetadataComparisonDTO,
     { _id }: RoutineDTO,

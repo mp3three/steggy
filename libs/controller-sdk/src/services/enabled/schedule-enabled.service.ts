@@ -13,7 +13,6 @@ import { iRoutineEnabled, RoutineEnabled } from '../../decorators';
 import { ChronoService } from '../misc';
 import { RoutineEnabledService } from '../routine-enabled.service';
 
-const A_LITTLE_EXTRA = 10;
 @RoutineEnabled({ type: [STOP_PROCESSING_TYPE.date] })
 export class ScheduleEnabledService
   implements iRoutineEnabled<RoutineRelativeDateComparisonDTO>
@@ -35,7 +34,12 @@ export class ScheduleEnabledService
       false,
     );
     if (is.boolean(parsed)) {
-      this.logger.error({ comparison }, `Expression failed parsing`);
+      this.logger.error(
+        { comparison },
+        `[${this.routineEnabled.superFriendlyName(
+          routine._id,
+        )}] Expression failed parsing`,
+      );
       return;
     }
     const interval = this.poll(comparison, routine);
@@ -50,33 +54,34 @@ export class ScheduleEnabledService
     currentState: boolean,
   ): Promise<boolean> {
     const result = this.stopProcessing.dateComparison(comparison);
-    if (result === currentState) {
-      const [startDate, endDate] = this.chronoService.parse<boolean>(
-        comparison.expression,
-        false,
+
+    if (result !== currentState) {
+      this.logger.info(
+        `[${this.routineEnabled.superFriendlyName(routine._id)}] State changed`,
       );
-      if (is.date(startDate)) {
-        const start = dayjs(startDate);
-        if (
-          start.isAfter(startDate) &&
-          start.isBefore(dayjs().add(HALF, 'minute'))
-        ) {
-          await sleep(startDate.getTime() - Date.now() + A_LITTLE_EXTRA);
-          return await this.check(comparison, routine, currentState);
-        }
-      }
-      if (is.date(endDate)) {
-        const end = dayjs(endDate);
-        if (end.isAfter(endDate) && end.isBefore(dayjs().add(HALF, 'minute'))) {
-          await sleep(endDate.getTime() - Date.now() + A_LITTLE_EXTRA);
-          return await this.check(comparison, routine, currentState);
-        }
-      }
       return result;
     }
-    currentState = result;
-    // Just announce something changed. It'll figure it out
-    this.routineEnabled.onUpdate(routine);
+    const [startDate, endDate] = this.chronoService.parse<boolean>(
+      comparison.expression,
+      false,
+    );
+    if (is.date(startDate)) {
+      const start = dayjs(startDate);
+      if (
+        start.isAfter(startDate) &&
+        start.isBefore(dayjs().add(HALF, 'minute'))
+      ) {
+        await sleep(startDate.getTime() - Date.now());
+        return await this.check(comparison, routine, currentState);
+      }
+    }
+    if (is.date(endDate)) {
+      const end = dayjs(endDate);
+      if (end.isAfter(endDate) && end.isBefore(dayjs().add(HALF, 'minute'))) {
+        await sleep(endDate.getTime() - Date.now());
+        return await this.check(comparison, routine, currentState);
+      }
+    }
     return result;
   }
 
@@ -84,10 +89,13 @@ export class ScheduleEnabledService
     comparison: RoutineRelativeDateComparisonDTO,
     routine: RoutineDTO,
   ) {
-    let currentState = false;
+    let currentState = this.stopProcessing.dateComparison(comparison);
     return setInterval(async () => {
+      const last = currentState;
       currentState = await this.check(comparison, routine, currentState);
-      // Just messing around with times
+      if (currentState !== last) {
+        this.routineEnabled.onUpdate(routine._id);
+      }
     }, HALF * MINUTE);
   }
 }

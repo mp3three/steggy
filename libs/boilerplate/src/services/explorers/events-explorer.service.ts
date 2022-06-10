@@ -66,8 +66,10 @@ export class EventsExplorerService {
     this.logger.debug(
       `${context}#${key} event subscribe {${JSON.stringify(event)}}`,
     );
-    this.eventEmitter.on(event, (...parameters: unknown[]) =>
-      instance[key].call(instance, ...parameters),
+    (Array.isArray(event) ? event : [event]).forEach(event =>
+      this.eventEmitter.on(event, (...parameters: unknown[]) =>
+        instance[key].call(instance, ...parameters),
+      ),
     );
   }
 }
