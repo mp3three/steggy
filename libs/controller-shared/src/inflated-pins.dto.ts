@@ -9,7 +9,7 @@ export class InflatedPinDTO {
   public description?: string;
   @ApiProperty()
   @IsString()
-  public extraHelp?: string[];
+  public extraContext?: string[];
   @ApiProperty()
   @IsString({ each: true })
   public friendlyName: string[];

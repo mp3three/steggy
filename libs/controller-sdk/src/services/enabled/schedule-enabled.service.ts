@@ -43,9 +43,7 @@ export class ScheduleEnabledService
       return;
     }
     const interval = this.poll(comparison, routine);
-    return () => {
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }
 
   private async check(
@@ -54,7 +52,6 @@ export class ScheduleEnabledService
     currentState: boolean,
   ): Promise<boolean> {
     const result = this.stopProcessing.dateComparison(comparison);
-
     if (result !== currentState) {
       this.logger.info(
         `[${this.routineEnabled.superFriendlyName(routine._id)}] State changed`,
@@ -93,6 +90,10 @@ export class ScheduleEnabledService
     return setInterval(async () => {
       const last = currentState;
       currentState = await this.check(comparison, routine, currentState);
+      this.logger.debug(
+        { currentState, last },
+        `${this.routineEnabled.superFriendlyName(routine._id)}`,
+      );
       if (currentState !== last) {
         this.routineEnabled.onUpdate(routine._id);
       }

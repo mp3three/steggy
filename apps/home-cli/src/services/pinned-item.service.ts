@@ -58,8 +58,8 @@ export class PinnedItemService {
       let helpText = is.empty(icon)
         ? item.description || NO_DESCRIPTION
         : item.description || 'Activate state';
-      if (!is.empty(item.extraHelp)) {
-        helpText += chalk`\n{magenta **} ${item.extraHelp.join(
+      if (!is.empty(item.extraContext)) {
+        helpText += chalk`\n{magenta **} ${item.extraContext.join(
           chalk.blue` > `,
         )}`;
       } else if (helpText === NO_DESCRIPTION) {

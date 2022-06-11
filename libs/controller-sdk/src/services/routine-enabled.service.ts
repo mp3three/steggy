@@ -196,7 +196,7 @@ export class RoutineEnabledService {
     }
     const list = await this.routinePersistence.findMany({
       // Trim down as much as possible
-      select: ['friendlyName', 'enabled', 'parent', 'command.id'],
+      select: ['friendlyName', 'enable', 'parent', 'command.id'],
     });
     list.forEach(routine => this.RAW_LIST.set(routine._id, routine));
   }

@@ -452,7 +452,7 @@ export class PersonService {
           const routine = await this.routineService.get(pin.target);
           out.push({
             description: routine.description,
-            extraHelp: this.routineService.superFriendlyName(pin.target),
+            extraContext: this.routineService.superFriendlyName(pin.target),
             friendlyName: [routine.friendlyName],
             id: pin.target,
             type: pin.type,
