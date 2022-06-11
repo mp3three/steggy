@@ -90,10 +90,6 @@ export class ScheduleEnabledService
     return setInterval(async () => {
       const last = currentState;
       currentState = await this.check(comparison, routine, currentState);
-      this.logger.debug(
-        { currentState, last },
-        `${this.routineEnabled.superFriendlyName(routine._id)}`,
-      );
       if (currentState !== last) {
         this.routineEnabled.onUpdate(routine._id);
       }

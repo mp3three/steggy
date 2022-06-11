@@ -53,7 +53,6 @@
     "filters": "other",
     "footer": "react-components",
     "form": "components",
-    "formio": "api",
     "google": "api",
     "groups": "context",
     "home-assistant-shared": "components",
