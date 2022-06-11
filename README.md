@@ -105,4 +105,3 @@ General purpose utilities and constants for `@steggy`
 > - `<= 0.6.x`: Proof of concept + prepping repo to be open sourced
 
 <!-- - [MQTT](libs/mqtt) -->
-<!-- - [Rules Engine](libs/rules-engine) -->

@@ -35,7 +35,6 @@
       ],
       "@steggy/mqtt": ["libs/mqtt/src/index.ts"],
       "@steggy/persistence": ["libs/persistence/src/index.ts"],
-      "@steggy/rules-engine": ["libs/rules-engine/src/index.ts"],
       "@steggy/server": ["libs/server/src/index.ts"],
       "@steggy/terminal": ["libs/terminal/src/index.ts"],
       "@steggy/tty": ["libs/tty/src/index.ts"],
@@ -59,7 +58,6 @@
     { "path": "./libs/mqtt/tsconfig.json" },
     { "path": "./libs/node-red-contrib-steggy/tsconfig.json" },
     { "path": "./libs/persistence/tsconfig.json" },
-    { "path": "./libs/rules-engine/tsconfig.json" },
     { "path": "./libs/server/tsconfig.json" },
     { "path": "./libs/tty/tsconfig.json" },
     { "path": "./libs/utilities/tsconfig.json" }

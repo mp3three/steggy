@@ -90,7 +90,6 @@
     "response": "dist",
     "rooms": "packages",
     "routines": "animation",
-    "rules-engine": "rules",
     "select": "import",
     "selfhosted": "container",
     "sensors": "stack",

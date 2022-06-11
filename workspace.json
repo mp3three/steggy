@@ -16,7 +16,6 @@
     "mqtt": "libs/mqtt",
     "node-red-contrib-steggy": "libs/node-red-contrib-steggy",
     "persistence": "libs/persistence",
-    "rules-engine": "libs/rules-engine",
     "server": "libs/server",
     "tty": "libs/tty",
     "utilities": "libs/utilities"
