@@ -13,6 +13,8 @@ import { USER_ID } from '../config';
 import { ICONS } from '../types';
 import { HomeFetchService } from './home-fetch.service';
 
+const NO_DESCRIPTION = chalk.gray(`No description`);
+
 @Injectable()
 export class PinnedItemService {
   constructor(
@@ -53,12 +55,22 @@ export class PinnedItemService {
   public getEntries(): MainMenuEntry<InflatedPinDTO>[] {
     return this.pinned.map(item => {
       const icon = item.type.includes('state') ? ICONS.ACTIVATE : '';
+      let helpText = is.empty(icon)
+        ? item.description || NO_DESCRIPTION
+        : item.description || 'Activate state';
+      if (!is.empty(item.extraHelp)) {
+        helpText += chalk`\n{magenta **} ${item.extraHelp.join(
+          chalk.blue` > `,
+        )}`;
+      } else if (helpText === NO_DESCRIPTION) {
+        helpText = undefined;
+      }
       return {
         entry: [
           icon + item.friendlyName.map(item => item).join(chalk.cyan` > `),
           item,
         ],
-        helpText: item.description,
+        helpText,
         type: TitleCase(item.type),
       } as MainMenuEntry<InflatedPinDTO>;
     });

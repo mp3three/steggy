@@ -452,6 +452,7 @@ export class PersonService {
           const routine = await this.routineService.get(pin.target);
           out.push({
             description: routine.description,
+            extraHelp: this.routineService.superFriendlyName(pin.target),
             friendlyName: [routine.friendlyName],
             id: pin.target,
             type: pin.type,
@@ -504,7 +505,9 @@ export class PersonService {
   ): Promise<PersonDTO> {
     const person = await this.load(target);
     person.metadata ??= [];
-    const metadata = person.metadata.find(item => item.id === id);
+    const metadata = person.metadata.find(item =>
+      [item.id, item.name].includes(id),
+    );
     if (is.undefined(metadata)) {
       this.logger.error(
         `[${person.friendlyName}] cannot find metadata {${id}}`,
@@ -513,7 +516,7 @@ export class PersonService {
     }
     if (!is.undefined(update.value)) {
       update.value = this.metadataService.resolveValue(
-        person.metadata.find(metadata => metadata.id === id),
+        person.metadata.find(item => [item.id, item.name].includes(id)),
         update.value,
       );
     }
@@ -521,10 +524,10 @@ export class PersonService {
       i.id === id ? { ...i, ...update, id } : i,
     );
     const out = await this.update(person, person._id);
-    update = person.metadata.find(item => item.id === id);
+    update = person.metadata.find(item => [item.id, item.name].includes(id));
     this.eventEmitter.emit(PERSON_METADATA_UPDATED, {
       name: update.name,
-      person: person._id,
+      room: person._id,
       value: update.value,
     } as MetadataUpdate);
     return out;

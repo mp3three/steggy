@@ -249,6 +249,22 @@ export class RoutineService {
     });
   }
 
+  /**
+   * Create an excessively readable label that shows full ancestors.
+   *
+   * ```text
+   * 🧓 Grandparent Routine > 🧑 Parent Routine > "👶 I'm doing a thing!"
+   * ```
+   */
+  public superFriendlyName(id: string, built = []): string[] {
+    const routine = this.routineEnabled.RAW_LIST.get(id);
+    built.unshift(routine.friendlyName);
+    if (routine.parent) {
+      return this.superFriendlyName(routine.parent, built);
+    }
+    return built;
+  }
+
   public unmount(routine: RoutineDTO): void {
     if (is.empty(routine.activate)) {
       return;

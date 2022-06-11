@@ -5,12 +5,16 @@ export const CurrentUserContext = React.createContext<{
   load: (person: string) => void;
   person: PersonDTO;
   togglePin: (type: PIN_TYPES, target: string, add: boolean) => void;
+  update: (person: PersonDTO) => void;
 }>({
   load: () => {
     return;
   },
   person: undefined,
   togglePin: () => {
+    return;
+  },
+  update: () => {
     return;
   },
 });

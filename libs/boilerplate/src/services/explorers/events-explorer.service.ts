@@ -63,9 +63,8 @@ export class EventsExplorerService {
     }
     const { event } = eventListenerMetadata;
     const context = instance.constructor[LOG_CONTEXT];
-    this.logger.debug(
-      `${context}#${key} event subscribe {${JSON.stringify(event)}}`,
-    );
+    const list = Array.isArray(event) ? event : [event];
+    this.logger.debug(`${context}#${key} event subscribe {${list.join(', ')}}`);
     (Array.isArray(event) ? event : [event]).forEach(event =>
       this.eventEmitter.on(event, (...parameters: unknown[]) =>
         instance[key].call(instance, ...parameters),

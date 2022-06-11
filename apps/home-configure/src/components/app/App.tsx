@@ -114,6 +114,7 @@ export function App() {
           load: id => setProfileId(id),
           person: profile,
           togglePin: (type, target, add) => updatePin(type, target, add),
+          update: person => setProfile(person),
         }}
       >
         <Provider store={store}>

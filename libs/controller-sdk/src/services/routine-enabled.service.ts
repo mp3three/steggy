@@ -93,6 +93,11 @@ export class RoutineEnabledService {
   public ACTIVE_ROUTINES = new Set<string>();
 
   /**
+   * Full indexed list of all routines
+   */
+  public RAW_LIST = new Map<string, tPartialRoutine>();
+
+  /**
    * Extra providers of "is this currently enabled?" logic
    */
   private ENABLED_PROVIDERS = new Map<
@@ -105,11 +110,6 @@ export class RoutineEnabledService {
    * any persistent logic that is managing any "is this enabled" logic.
    */
   private ENABLE_WATCHERS = new Map<string, (() => void)[]>();
-
-  /**
-   * Full indexed list of all routines
-   */
-  private RAW_LIST = new Map<string, tPartialRoutine>();
 
   /**
    * A listing of routine ids that are relevant to the enabled state
@@ -136,25 +136,24 @@ export class RoutineEnabledService {
    */
   public async onUpdate(id: string): Promise<void> {
     const routine = await this.routineService.get(id);
+    const name = this.superFriendlyName(id);
     const state = await this.isActive(routine);
     let updated = false;
     if (this.ACTIVE_ROUTINES.has(routine._id) && !state) {
-      this.logger.debug(`[${routine.friendlyName}] unload`);
+      this.logger.debug(`${name} unload`);
       updated = true;
       this.stop(routine);
     }
     if (!this.ACTIVE_ROUTINES.has(routine._id) && state) {
-      this.logger.debug(`[${routine.friendlyName}] load`);
+      this.logger.debug(`${name} load`);
       updated = true;
       this.start(routine);
     }
     if (!updated) {
-      this.logger.error(
-        `[${routine.friendlyName}] onUpdate called with no changes`,
-      );
+      this.logger.debug(`${name} {#onUpdate} called with no changes`);
       return;
     }
-    this.logger.debug(`[${routine.friendlyName}] changed state`);
+    this.logger.debug(`${name} changed state`);
   }
 
   /**
@@ -182,21 +181,9 @@ export class RoutineEnabledService {
     await this.onApplicationReady();
   }
 
-  /**
-   * Create an excessively readable label that shows full ancestors
-   *
-   * ```text
-   * 🧓 Grandparent Routine > 🧑 Parent Routine > "👶 I'm doing a thing!"
-   * ```
-   */
-  public superFriendlyName(id: string, built = ''): string {
-    const routine = this.RAW_LIST.get(id);
-    built = is.empty(built) ? '' : ` > ${built}`;
-    built = `[${routine.friendlyName}]${built}`;
-    if (routine.parent) {
-      return this.superFriendlyName(routine.parent, built);
-    }
-    return built;
+  public superFriendlyName(id: string): string {
+    const parts = this.routineService.superFriendlyName(id);
+    return parts.map(i => `[${i}]`).join(' > ');
   }
 
   /**

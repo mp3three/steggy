@@ -303,14 +303,16 @@ export class RoomService {
   ): Promise<RoomDTO> {
     const room = await this.load(target);
     room.metadata ??= [];
-    const metadata = room.metadata.find(item => item.id === id);
+    const metadata = room.metadata.find(item =>
+      [item.id, item.name].includes(id),
+    );
     if (is.undefined(metadata)) {
       this.logger.error(`[${room.friendlyName}] cannot find metadata {${id}}`);
       return room;
     }
     if (!is.undefined(update.value)) {
       update.value = this.metadataService.resolveValue(
-        room.metadata.find(metadata => metadata.id === id),
+        room.metadata.find(item => [item.id, item.name].includes(id)),
         update.value,
       );
     }
@@ -318,7 +320,7 @@ export class RoomService {
       i.id === id ? { ...i, ...update, id } : i,
     );
     const out = await this.update(room, room._id);
-    update = room.metadata.find(item => item.id === id);
+    update = room.metadata.find(item => [item.id, item.name].includes(id));
     this.eventEmitter.emit(ROOM_METADATA_UPDATED, {
       name: update.name,
       room: room._id,

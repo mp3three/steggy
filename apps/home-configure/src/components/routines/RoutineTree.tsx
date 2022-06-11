@@ -3,10 +3,12 @@ import { DOWN, is, UP } from '@steggy/utilities';
 import {
   Button,
   Card,
+  Descriptions,
   Empty,
   Form,
   Input,
   Popconfirm,
+  Popover,
   Tooltip,
   Tree,
   Typography,
@@ -37,6 +39,8 @@ export function RoutineTree(props: {
 }) {
   const [routineMap, setRoutineMap] = useState<tRoutineMap>(new Map());
   const [treeData, setTreeData] = useState<DataNode[]>([]);
+  const [pureFolders, setPureFolders] = useState<number>(0);
+  const [conditionalFolders, setConditionalFolders] = useState<string[]>([]);
   const [friendlyName, setFriendlyName] = useState('');
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
@@ -120,7 +124,22 @@ export function RoutineTree(props: {
       { item: DataNode; routine: RoutineDTO }
     >();
     const treeData: DataNode[] = [];
-    routines.forEach(routine =>
+    let pureFolder = 0;
+    const conditionalFolder: string[] = [];
+    routines.forEach(routine => {
+      routine.enable ??= {};
+      routine.enable.type ??= 'enable';
+      const isFolder =
+        is.empty(routine.activate) &&
+        is.empty(routine.command) &&
+        routines.some(({ parent }) => parent === routine._id);
+      if (isFolder) {
+        if (['enable', 'disable'].includes(routine.enable.type)) {
+          pureFolder++;
+        } else {
+          conditionalFolder.push(routine._id);
+        }
+      }
       routineMap.set(routine._id, {
         item: {
           children: [],
@@ -128,8 +147,10 @@ export function RoutineTree(props: {
           title: routine.friendlyName,
         },
         routine,
-      }),
-    );
+      });
+    });
+    setPureFolders(pureFolder);
+    setConditionalFolders(conditionalFolder);
     routineMap.forEach(({ item, routine }) => {
       if (is.empty(routine.parent)) {
         treeData.push(item);
@@ -193,15 +214,29 @@ export function RoutineTree(props: {
           <Typography.Text type="secondary">
             ({props.routines?.length ?? 0})
           </Typography.Text>
-          <Tooltip
-            title={
-              <Typography.Text type="success">
-                {props.enabled.length ?? 0} enabled
-              </Typography.Text>
+          <Popover
+            content={
+              <Descriptions bordered>
+                <Descriptions.Item span={3} label="Enabled">
+                  {props.enabled.length ?? 0}
+                </Descriptions.Item>
+                <Descriptions.Item span={3} label="Pure folders">
+                  {pureFolders}
+                </Descriptions.Item>
+                <Descriptions.Item span={2} label="Conditional folders">
+                  {conditionalFolders.length}
+                </Descriptions.Item>
+                <Descriptions.Item span={1} label="Enabled">
+                  {
+                    conditionalFolders.filter(i => props.enabled.includes(i))
+                      .length
+                  }
+                </Descriptions.Item>
+              </Descriptions>
             }
           >
             <Typography.Text strong> Routines</Typography.Text>
-          </Tooltip>
+          </Popover>
         </>
       }
       extra={
