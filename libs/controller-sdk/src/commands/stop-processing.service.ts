@@ -116,10 +116,11 @@ export class StopProcessingCommandService
     if (is.boolean(start)) {
       return false;
     }
+
     const now = dayjs();
     // Believe it or not, the docs were written first
     // The logic looks weird in code form
-    switch (comparison.dateType) {
+    switch (comparison.dateType || (end ? 'in_range' : 'after')) {
       case 'in_range':
         if (end) {
           return now.isAfter(start) && now.isBefore(end);
