@@ -18,8 +18,8 @@ import { DEFAULT_CONFIG } from './default-config';
  *
  * **NOTE:** This STILL requires access to a mongodb binary.
  * The memory server automatically installs one for *most* situations.
- * `alpine` based images don't work though (ex: `node:16-alpine`).
- * Moving over to a different base can fix pipelines though (ex: `node:16`)
+ * `alpine` based images don't work though (ex: `node:18-alpine`).
+ * Moving over to a different base can fix pipelines though (ex: `node:18`)
  */
 export const BOOTSTRAP_OPTIONS = async (): Promise<BootstrapOptions> => {
   const mongod = await MongoMemoryServer.create();

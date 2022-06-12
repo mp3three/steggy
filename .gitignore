@@ -39,6 +39,7 @@ testem.log
 
 # System Files
 .DS_Store
+.npmrc
 Thumbs.db
 globalConfig.json
 report.*.json

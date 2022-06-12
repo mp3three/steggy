@@ -1,7 +1,8 @@
 export class PackageJsonDTO {
-  description: string;
-  displayName: string;
-  name: string;
-  version: string;
+  public bin?: Record<string, string>;
+  public description?: string;
+  public displayName?: string;
+  public name?: string;
+  public version?: string;
 }
 export const PACKAGE_FILE = `package.json`;

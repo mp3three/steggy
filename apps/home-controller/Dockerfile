@@ -1,8 +1,8 @@
 # <STAGE 1>
 # Bring repo into intermediate container
-# Using node:16 over node:16-alpine because it has support for memory mongo
+# Using node:18 over node:18-alpine because it has support for memory mongo
 # It's needed for doing config scanning
-FROM node:16 AS build
+FROM node:18 AS build
 WORKDIR /app
 
 # Build dev environment
@@ -35,10 +35,10 @@ RUN node dist/scanner/home-controller/main.js > config.json
 
 # <STAGE 2>
 # Build node_modules for final container
-FROM node:16-alpine AS node_modules
+FROM node:18-alpine AS node_modules
 WORKDIR /app
 COPY --from=build --chown=node:node /app/dist/apps/home-controller .
-RUN yarn install --production
+RUN yarn install --production --non-interactive --no-progress
 # </STAGE 2>
 
 # <STAGE 3>: FINAL

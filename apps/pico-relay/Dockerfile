@@ -1,6 +1,6 @@
 # <STAGE 1>
 # Bring repo into intermediate container
-FROM node:16-alpine AS build
+FROM node:18-alpine AS build
 WORKDIR /app
 RUN apk add git curl; npm install -g npm@8.7.0
 
@@ -25,7 +25,7 @@ RUN node dist/apps/pico-relay/main.js --config-scanner > config.json
 
 # <STAGE 2>
 # Build node_modules for final container
-FROM node:16-alpine AS node_modules
+FROM node:18-alpine AS node_modules
 WORKDIR /app
 COPY --from=build --chown=node:node /app/dist/apps/pico-relay .
 RUN yarn install --production
