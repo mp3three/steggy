@@ -46,7 +46,7 @@ export class RoomGroupService extends BaseGroupService {
     stateId: string,
     waitForChange?: boolean,
   ): Promise<void> {
-    const item = await this.groupService.get(group);
+    const item = await this.groupService.getWithStates(group);
     if (!item) {
       this.logger.error({ group }, `Cannot find group`);
       return;

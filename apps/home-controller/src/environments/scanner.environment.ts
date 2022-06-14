@@ -23,7 +23,6 @@ import { DEFAULT_CONFIG } from './default-config';
  */
 export const BOOTSTRAP_OPTIONS = async (): Promise<BootstrapOptions> => {
   const mongod = await MongoMemoryServer.create();
-  await mongod.start();
   const MONGO_URI = mongod.getUri();
   return {
     config: {

@@ -55,8 +55,8 @@ export class SetMetadataService
   }): Promise<void> {
     const room =
       command.command.type === 'person'
-        ? await this.personService.get(command.command.room)
-        : await this.roomService.get(command.command.room);
+        ? await this.personService.getWithStates(command.command.room)
+        : await this.roomService.getWithStates(command.command.room);
     room.metadata ??= [];
     const entry = room.metadata.find(
       ({ name }) => name === command.command.name,

@@ -30,7 +30,7 @@ export class CaptureCommandService {
     command.group ??= [];
     const states: Record<string, GeneralSaveStateDTO[]> = {};
     await each(command.group, async id => {
-      const group = await this.groupService.get(id);
+      const group = await this.groupService.getWithStates(id);
       const type = this.groupService.getBaseGroup(group.type);
       states[id] = await type.getState(group);
     });

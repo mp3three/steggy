@@ -143,7 +143,7 @@ export class StopProcessingCommandService
   public async roomMetadata(
     comparison: MetadataComparisonDTO,
   ): Promise<boolean> {
-    const room = await this.roomService.get(comparison.room);
+    const room = await this.roomService.getWithStates(comparison.room);
     if (!room) {
       this.logger.error({ comparison }, `Could not find room`);
       return false;

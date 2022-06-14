@@ -69,6 +69,10 @@ export class GroupService {
     waitForChange = false,
   ): Promise<void> {
     const group = await this.load(command.group);
+    if (!group) {
+      this.logger.error({ command }, `Cannot find group {${command.group}}`);
+      return;
+    }
     const base = this.getBaseGroup(group.type);
     return await base.activateState(group, command.state, waitForChange);
   }
@@ -81,6 +85,9 @@ export class GroupService {
   ): Promise<GroupDTO<GROUP_TYPE>> {
     entity = is.string(entity) ? [entity] : entity;
     group = await this.load(group);
+    if (!group) {
+      throw new NotFoundException();
+    }
     group.entities = [
       ...group.entities.filter(id => !entity.includes(id)),
       ...entity,
@@ -95,6 +102,9 @@ export class GroupService {
     state: GroupSaveStateDTO<GROUP_TYPE>,
   ): Promise<GroupDTO<GROUP_TYPE>> {
     group = await this.load(group);
+    if (!group) {
+      throw new NotFoundException();
+    }
     const base = this.getBaseGroup(group.type);
     return await base.addState(group, state);
   }
@@ -104,6 +114,9 @@ export class GroupService {
     name: string,
   ): Promise<GroupDTO> {
     group = await this.load(group);
+    if (!group) {
+      throw new NotFoundException();
+    }
     const base = this.getBaseGroup(group.type);
     return await base.captureState(group, name);
   }
@@ -112,7 +125,7 @@ export class GroupService {
     target: string,
     { name, omitStates }: CloneGroupDTO,
   ): Promise<GroupDTO> {
-    const source = await this.get(target);
+    const source = await this.load(target);
     if (!source) {
       throw new NotFoundException();
     }
@@ -134,7 +147,7 @@ export class GroupService {
 
   public async delete(item: GroupDTO | string): Promise<boolean> {
     const group = is.string(item) ? item : item._id;
-    const groupObject = await this.get(group);
+    const groupObject = await this.load(group);
     this.logger.info(`Removing [${groupObject.friendlyName}]`);
     const rooms = await this.roomService.list({
       filters: new Set([{ field: 'groups', value: group }]),
@@ -242,21 +255,6 @@ export class GroupService {
     base.expandState(group, state);
   }
 
-  public async get<GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
-    group: GroupDTO<GROUP_TYPE> | string,
-    control: ResultControlDTO = {},
-  ): Promise<GroupDTO<GROUP_TYPE>> {
-    group = await this.load(group, control);
-    if (!is.undefined(control.select)) {
-      return group;
-    }
-    const base = this.getBaseGroup(group.type);
-    group.state = {
-      states: await base.getState(group),
-    };
-    return group;
-  }
-
   public getBaseGroup(type: GROUP_TYPES): BaseGroupService {
     switch (type) {
       case GROUP_TYPES.switch:
@@ -275,6 +273,23 @@ export class GroupService {
         return this.peopleGroup;
     }
     throw new NotImplementedException();
+  }
+
+  public async getWithStates<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(
+    group: GroupDTO<GROUP_TYPE> | string,
+    control: ResultControlDTO = {},
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    group = await this.load(group, control);
+    if (!is.undefined(control.select)) {
+      return group;
+    }
+    const base = this.getBaseGroup(group.type);
+    group.state = {
+      states: await base.getState(group),
+    };
+    return group;
   }
 
   public async list<GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(

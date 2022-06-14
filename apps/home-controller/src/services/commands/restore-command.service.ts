@@ -31,7 +31,7 @@ export class RestoreCommandService {
       return;
     }
     await each(Object.entries(cache.states), async ([id, item]) => {
-      const group = await this.groupService.get(id);
+      const group = await this.groupService.getWithStates(id);
       const type = this.groupService.getBaseGroup(group.type);
       await type.setState(group.entities, item);
     });

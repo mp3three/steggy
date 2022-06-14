@@ -82,12 +82,16 @@ export class MetadataChangeService
 
     const room =
       activate.activate.type === 'room'
-        ? await this.roomService.get(activate.activate.room, false, {
+        ? await this.roomService.getWithStates(activate.activate.room, false, {
             select: ['friendlyName'],
           })
-        : await this.personService.get(activate.activate.room, false, {
-            select: ['friendlyName'],
-          });
+        : await this.personService.getWithStates(
+            activate.activate.room,
+            false,
+            {
+              select: ['friendlyName'],
+            },
+          );
     this.WATCHERS.add({
       activate,
       callback,

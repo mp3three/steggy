@@ -49,7 +49,7 @@ export class LightFlashCommandService {
 
     waitForChange = false,
   ): Promise<void> {
-    const group = await this.groupService.get(ref);
+    const group = await this.groupService.getWithStates(ref);
     this.logger.debug(`Flash entity ${group.friendlyName}`);
     await each(group.entities, async entity => {
       await this.flashAnimation.flash(

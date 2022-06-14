@@ -106,7 +106,7 @@ export class RoomService {
     group: GroupDTO | string,
   ): Promise<RoomDTO> {
     room = await this.load(room);
-    const attachGroup = await this.groupService.get(group);
+    const attachGroup = await this.groupService.load(group);
     if (!group) {
       const id = is.string(group) ? group : group._id;
       this.logger.error(
@@ -144,7 +144,7 @@ export class RoomService {
     target: string,
     { name, omitStates, omitMetadata }: CloneRoomDTO,
   ): Promise<RoomDTO> {
-    const source = await this.get(target);
+    const source = await this.load(target);
     if (!source) {
       throw new NotFoundException();
     }
@@ -271,7 +271,7 @@ export class RoomService {
     return await this.roomPersistence.update(room, room._id);
   }
 
-  public async get(
+  public async getWithStates(
     room: RoomDTO | string,
     withEntities = false,
     control: ResultControlDTO = {},
@@ -289,10 +289,46 @@ export class RoomService {
     return await this.roomPersistence.findMany(control);
   }
 
+  public async load(
+    room: RoomDTO | string,
+    control: ResultControlDTO = {},
+  ): Promise<RoomDTO> {
+    if (is.string(room)) {
+      room = await this.roomPersistence.findById(room, { control });
+    }
+    if (!room) {
+      throw new NotFoundException();
+    }
+    return room;
+  }
+
   public async update(
     room: Omit<Partial<RoomDTO>, keyof BaseSchemaDTO>,
     id: string,
   ): Promise<RoomDTO> {
+    const loaded = await this.load(id);
+    if (!loaded) {
+      throw new NotFoundException(id);
+    }
+    if (room.groups || room.entities) {
+      room.save_states = room.save_states ?? loaded.save_states;
+      room.entities = room.entities ?? loaded.entities;
+      room.groups = room.groups ?? loaded.groups;
+      room.save_states = room.save_states.map(state => {
+        state.states = state.states.filter(item => {
+          if (item.type === 'entity') {
+            return room.entities.some(
+              ({ entity_id }) => entity_id === item.ref,
+            );
+          }
+          if (item.type === 'group') {
+            return room.groups.includes(item.ref);
+          }
+          return false;
+        });
+        return state;
+      });
+    }
     return await this.roomPersistence.update(room, id);
   }
 
@@ -341,18 +377,5 @@ export class RoomService {
     );
     await this.update(room, room._id);
     return room.save_states.find(state => state.id === id);
-  }
-
-  private async load(
-    room: RoomDTO | string,
-    control: ResultControlDTO = {},
-  ): Promise<RoomDTO> {
-    if (is.string(room)) {
-      room = await this.roomPersistence.findById(room, { control });
-    }
-    if (!room) {
-      throw new NotFoundException();
-    }
-    return room;
   }
 }

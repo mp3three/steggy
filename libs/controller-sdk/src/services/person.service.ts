@@ -60,6 +60,9 @@ export class PersonService {
     waitForChange = false,
   ): Promise<void> {
     const person = await this.load(command.person);
+    if (!person) {
+      throw new NotFoundException();
+    }
     const state = person.save_states.find(({ id }) => id === command.state);
     if (!state) {
       this.logger.error(
@@ -78,6 +81,9 @@ export class PersonService {
     { entity_id }: RoomEntityDTO,
   ): Promise<PersonDTO> {
     person = await this.load(person);
+    if (!person) {
+      throw new NotFoundException();
+    }
     if (!this.entityManager.ENTITIES.has(entity_id)) {
       this.logger.error(
         `[${person.friendlyName}] cannot attach {${entity_id}}. Entity does not exist`,
@@ -91,6 +97,9 @@ export class PersonService {
 
   public async addMetadata(person: PersonDTO | string): Promise<PersonDTO> {
     person = await this.load(person);
+    if (!person) {
+      throw new NotFoundException();
+    }
     person.metadata ??= [];
     person.metadata.push({
       id: v4(),
@@ -106,6 +115,9 @@ export class PersonService {
     state: RoomStateDTO,
   ): Promise<RoomStateDTO> {
     person = await this.load(person);
+    if (!person) {
+      throw new NotFoundException();
+    }
     state.id = v4();
     person.save_states ??= [];
     person.save_states.push(state);
@@ -123,7 +135,10 @@ export class PersonService {
     group: GroupDTO | string,
   ): Promise<PersonDTO> {
     person = await this.load(person);
-    const attachGroup = await this.groupService.get(group);
+    if (!person) {
+      throw new NotFoundException();
+    }
+    const attachGroup = await this.groupService.load(group);
     if (!group) {
       const id = is.string(group) ? group : group._id;
       this.logger.error(
@@ -143,7 +158,10 @@ export class PersonService {
     room: RoomDTO | string,
   ): Promise<PersonDTO> {
     person = await this.load(person);
-    const attachRoom = await this.roomService.get(room);
+    if (!person) {
+      throw new NotFoundException();
+    }
+    const attachRoom = await this.roomService.load(room);
     if (!room) {
       const id = is.string(room) ? room : room._id;
       this.logger.error(
@@ -180,7 +198,7 @@ export class PersonService {
     target: string,
     { name, omitStates, omitMetadata }: CloneRoomDTO,
   ): Promise<PersonDTO> {
-    const source = await this.get(target);
+    const source = await this.load(target);
     if (!source) {
       throw new NotFoundException();
     }
@@ -202,6 +220,10 @@ export class PersonService {
   public async delete(item: PersonDTO | string): Promise<boolean> {
     const id = is.string(item) ? item : item._id;
     const person = await this.load(id);
+    if (!person) {
+      // I guess it's deleted?
+      return true;
+    }
     const routines = await this.routineService.list({
       filters: new Set([{ field: 'command.command.room', value: person._id }]),
     });
@@ -228,6 +250,9 @@ export class PersonService {
     entity: string,
   ): Promise<PersonDTO> {
     person = await this.load(person);
+    if (!person) {
+      throw new NotFoundException();
+    }
     person.entities ??= [];
     person.entities = person.entities.filter(
       ({ entity_id }) => entity_id !== entity,
@@ -248,6 +273,9 @@ export class PersonService {
     stateOnly = false,
   ): Promise<PersonDTO> {
     person = await this.load(person);
+    if (!person) {
+      throw new NotFoundException();
+    }
     if (!stateOnly) {
       person.groups ??= [];
       person.groups = person.groups.filter(group => group !== groupId);
@@ -270,6 +298,9 @@ export class PersonService {
     remove: string,
   ): Promise<PersonDTO> {
     person = await this.load(person);
+    if (!person) {
+      throw new NotFoundException();
+    }
     person.metadata ??= [];
     person.metadata = person.metadata.filter(({ id }) => id !== remove);
     return await this.personPersistence.update(person, person._id);
@@ -281,6 +312,9 @@ export class PersonService {
     stateOnly = false,
   ): Promise<PersonDTO> {
     person = await this.load(person);
+    if (!person) {
+      throw new NotFoundException();
+    }
     if (!stateOnly) {
       person.rooms ??= [];
       person.rooms = person.rooms.filter(room => room !== roomId);
@@ -300,6 +334,9 @@ export class PersonService {
     state: string,
   ): Promise<PersonDTO> {
     person = await this.load(person);
+    if (!person) {
+      throw new NotFoundException();
+    }
     person.save_states ??= [];
     person.save_states = person.save_states.filter(save => save.id !== state);
     const routines = await this.routineService.list({
@@ -325,12 +362,15 @@ export class PersonService {
     return await this.personPersistence.update(person, person._id);
   }
 
-  public async get(
+  public async getWithStates(
     person: PersonDTO | string,
     withEntities = false,
     control: ResultControlDTO = {},
   ): Promise<PersonDTO> {
     person = await this.load(person, control);
+    if (!person) {
+      throw new NotFoundException();
+    }
     if (withEntities) {
       person.entityStates = person.entities.map(({ entity_id }) =>
         this.entityManager.getEntity(entity_id),
@@ -339,15 +379,18 @@ export class PersonService {
     return person;
   }
 
+  // I don't feel like it
+  // eslint-disable-next-line radar/cognitive-complexity
   public async inflatePins(id: string): Promise<InflatedPinDTO[]> {
-    const person = await this.get(id);
+    const person = await this.load(id);
+    if (!person) {
+      throw new NotFoundException();
+    }
     const out: InflatedPinDTO[] = [];
-    // I don't feel like it
-    // eslint-disable-next-line radar/cognitive-complexity
     await eachLimit(person.pinned_items, A_BUNCH, async pin => {
       switch (pin.type) {
         case 'person':
-          const person = await this.get(pin.target);
+          const person = await this.load(pin.target);
           if (!person) {
             this.logger.error(`Cannot find person {${pin.target}}`);
             return;
@@ -389,7 +432,7 @@ export class PersonService {
           });
           return;
         case 'group':
-          const group = await this.groupService.get(pin.target);
+          const group = await this.groupService.load(pin.target);
           if (!group) {
             this.logger.error(`Cannot find group {${pin.target}}`);
             return;
@@ -419,7 +462,7 @@ export class PersonService {
           });
           return;
         case 'room':
-          const room = await this.roomService.get(pin.target);
+          const room = await this.roomService.load(pin.target);
           if (!room) {
             this.logger.error(`Cannot find room {${pin.target}}`);
             return;
@@ -468,7 +511,10 @@ export class PersonService {
     type: PIN_TYPES,
     target: string,
   ): Promise<PersonDTO> {
-    person = await this.get(person);
+    person = await this.load(person);
+    if (!person) {
+      throw new NotFoundException();
+    }
     person.pinned_items ??= [];
     person.pinned_items.push({ target, type });
     return await this.update(person, person._id);
@@ -479,7 +525,10 @@ export class PersonService {
     type: string,
     target: string,
   ): Promise<PersonDTO> {
-    person = await this.get(person);
+    person = await this.load(person);
+    if (!person) {
+      throw new NotFoundException();
+    }
     person.pinned_items ??= [];
     person.pinned_items = person.pinned_items.filter(
       item => !(item.target === target && item.type === type),
@@ -504,6 +553,9 @@ export class PersonService {
     update: Partial<RoomMetadataDTO>,
   ): Promise<PersonDTO> {
     const person = await this.load(target);
+    if (!person) {
+      throw new NotFoundException();
+    }
     person.metadata ??= [];
     const metadata = person.metadata.find(item =>
       [item.id, item.name].includes(id),
@@ -539,6 +591,9 @@ export class PersonService {
     update: RoomStateDTO,
   ): Promise<RoomStateDTO> {
     person = await this.load(person);
+    if (!person) {
+      throw new NotFoundException();
+    }
     person.save_states ??= [];
     person.save_states = person.save_states.map(i =>
       i.id === id ? { ...i, ...update, id } : i,

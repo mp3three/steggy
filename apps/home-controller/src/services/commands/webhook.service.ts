@@ -68,8 +68,8 @@ export class WebhookService
     }
     const target =
       assignType === 'person'
-        ? await this.personService.get(assignTo)
-        : await this.roomService.get(assignTo);
+        ? await this.personService.getWithStates(assignTo)
+        : await this.roomService.getWithStates(assignTo);
     if (!target) {
       this.logger.error(`Could not load {${assignType}} {${assignTo}}`);
       return;

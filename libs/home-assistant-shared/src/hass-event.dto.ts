@@ -12,7 +12,7 @@ export class EventDataDTO<
   public event?: number;
   public id?: string;
   public new_state?: HassStateDTO<STATE, ATTRIBUTES>;
-  public old_state?: HassStateDTO<STATE, ATTRIBUTES> | unknown;
+  public old_state?: HassStateDTO<STATE, ATTRIBUTES>;
 }
 
 export class ContextDTO {

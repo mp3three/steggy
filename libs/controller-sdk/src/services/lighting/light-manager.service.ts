@@ -20,7 +20,10 @@ import {
 } from '@steggy/home-assistant';
 import {
   ColorModes,
+  domain,
+  HA_EVENT_STATE_CHANGE,
   HASS_DOMAINS,
+  HassEventDTO,
   LightAttributesDTO,
   LightStateDTO,
 } from '@steggy/home-assistant-shared';
@@ -231,6 +234,34 @@ export class LightManagerService {
 
   protected async onModuleInit(): Promise<void> {
     await this.refreshForceList();
+  }
+
+  /**
+   * Going from 'unavailable' to turned on, quickly update the temp to the current
+   *
+   * Used for when smart lights are combined with
+   */
+  @OnEvent(HA_EVENT_STATE_CHANGE)
+  protected async quickTemperatureSet(
+    event: HassEventDTO<string, LightAttributesDTO>,
+  ): Promise<void> {
+    const { entity_id, new_state, old_state } = event.data;
+    if (domain(entity_id) !== HASS_DOMAINS.light) {
+      return;
+    }
+    if (old_state.state !== 'unavailable') {
+      return;
+    }
+    if (new_state.state !== 'on') {
+      return;
+    }
+    const update =
+      new_state.attributes.color_mode === ColorModes.color_temp ||
+      this.FORCE_CIRCADIAN.includes(entity_id);
+    if (!update) {
+      return;
+    }
+    await this.circadianLight(entity_id);
   }
 
   private async findCircadianLights(): Promise<LightStateDTO[]> {

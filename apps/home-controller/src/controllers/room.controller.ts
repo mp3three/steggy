@@ -75,7 +75,7 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.addEntity(room, entity);
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 
   @Post(`/:room/metadata`)
@@ -84,7 +84,7 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.addMetadata(room);
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 
   @Post(`/:room/state`)
@@ -99,7 +99,7 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.addState(room, state);
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 
   @Post(`/:room/group`)
@@ -115,7 +115,7 @@ export class RoomController {
     await eachSeries(groups, async id => {
       await this.roomService.attachGroup(room, id);
     });
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 
   @Post(`/:room/clone`)
@@ -162,7 +162,7 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.deleteEntity(room, entity);
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 
   @Delete(`/:room/group/:group`)
@@ -176,7 +176,7 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.deleteGroup(room, group);
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 
   @Delete(`/:room/metadata/:metadata`)
@@ -190,7 +190,7 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.deleteMetadata(room, metadata);
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 
   @Delete(`/:room/state/:state`)
@@ -204,7 +204,7 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.deleteState(room, state);
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 
   @Get('/:room')
@@ -216,7 +216,7 @@ export class RoomController {
     @Param('room') room: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 
   @Get('/:room/group-save-states')
@@ -227,11 +227,11 @@ export class RoomController {
   public async groupSaveStates(
     @Param('room') room: string,
   ): Promise<GroupDTO[]> {
-    const roomInfo = await this.roomService.get(room);
+    const roomInfo = await this.roomService.getWithStates(room);
     const out: GroupDTO[] = [];
     await each(roomInfo.groups, async item => {
       out.push(
-        await this.groupService.get(item, {
+        await this.groupService.getWithStates(item, {
           select: [
             'friendlyName',
             'type',
@@ -265,7 +265,7 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.update(BaseSchemaDTO.cleanup(data), room);
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 
   @Put(`/:room/metadata/:metadata`)
@@ -281,7 +281,7 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.updateMetadata(room, metadata, data);
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 
   @Put(`/:room/metadata-name/:metadata`)
@@ -296,10 +296,10 @@ export class RoomController {
     @Body() data: RoomMetadataDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    const room = await this.roomService.get(roomId);
+    const room = await this.roomService.getWithStates(roomId);
     const meta = room.metadata.find(({ name }) => name === metadata);
     await this.roomService.updateMetadata(room, meta.id, data);
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 
   @Put(`/:room/state/:state`)
@@ -315,6 +315,6 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.updateState(room, state, data);
-    return await this.roomService.get(room, true, control);
+    return await this.roomService.getWithStates(room, true, control);
   }
 }
