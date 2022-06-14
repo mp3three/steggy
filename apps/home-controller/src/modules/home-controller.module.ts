@@ -1,9 +1,7 @@
-import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ApplicationModule, RegisterCache } from '@steggy/boilerplate';
 import { ControllerSDKModule } from '@steggy/controller-sdk';
 import { HomeAssistantModule } from '@steggy/home-assistant';
-import { ConnectService, MongoPersistenceModule } from '@steggy/persistence';
 import { ServerModule } from '@steggy/server';
 import { existsSync } from 'fs';
 import { join } from 'path';
@@ -88,11 +86,6 @@ const APPLICATION = Symbol('home-controller');
     HomeAssistantModule,
     HomeControllerModule,
     RegisterCache(),
-    MongooseModule.forRootAsync({
-      imports: [MongoPersistenceModule],
-      inject: [ConnectService],
-      useFactory: async (connect: ConnectService) => await connect.build(),
-    }),
     ...(existsSync(rootPath) ? [ServeStaticModule.forRoot({ rootPath })] : []),
     ServerModule,
   ],

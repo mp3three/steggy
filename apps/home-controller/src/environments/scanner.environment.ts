@@ -1,5 +1,4 @@
 import { BootstrapOptions, ScanConfig } from '@steggy/boilerplate';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { exit } from 'process';
 
 import { DEFAULT_CONFIG } from './default-config';
@@ -22,21 +21,27 @@ import { DEFAULT_CONFIG } from './default-config';
  * Moving over to a different base can fix pipelines though (ex: `node:18`)
  */
 export const BOOTSTRAP_OPTIONS = async (): Promise<BootstrapOptions> => {
-  const mongod = await MongoMemoryServer.create();
-  const MONGO_URI = mongod.getUri();
-  return {
+  return await {
     config: {
       libs: {
         boilerplate: { LOG_LEVEL: 'silent' },
-        persistence: { MONGO_URI },
       },
     },
+    globals: [
+      {
+        provide: 'DatabaseConnection',
+        useValue: {
+          model() {
+            return undefined;
+          },
+        },
+      },
+    ],
     nestNoopLogger: true,
     preInit: [
       app => {
         // eslint-disable-next-line no-console
         console.log(JSON.stringify(ScanConfig(app, DEFAULT_CONFIG)));
-        mongod.stop();
         exit();
       },
     ],
