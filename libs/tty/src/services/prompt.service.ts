@@ -101,19 +101,20 @@ export class PromptService {
     return new Date(result);
   }
 
-  /**
-   * @deprecated
-   */
-  public async dateRange(): Promise<{ from: Date; to: Date }> {
-    //
-    const result = await this.date({
-      fuzzy: 'always',
-      label: 'Date range',
-      type: 'range',
+  public async dateRange({
+    current,
+    label,
+    ...options
+  }: DateEditorEditorOptions = {}): Promise<{ from: Date; to: Date }> {
+    const [from, to] = await this.applicationManager.activateEditor<
+      DateEditorEditorOptions,
+      string[]
+    >('date', {
+      current,
+      label,
+      ...options,
     });
-    const from = new Date();
-    const to = new Date();
-    return { from, to };
+    return { from: new Date(from), to: new Date(to) };
   }
 
   // /**
@@ -230,6 +231,7 @@ export class PromptService {
       keyMap: { f4: ['Cancel', cancel as T] },
       right: options,
       rightHeader: message,
+      sort: false,
       value: defaultValue,
     })) as T;
     if (result === cancel) {

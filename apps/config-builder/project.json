@@ -47,6 +47,22 @@
       },
       "outputs": ["{options.outputFile}"]
     },
+    "scan-config": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build config-builder --configuration=production",
+            "description": "Create standard production build"
+          },
+          {
+            "command": "mkdir -p dist/configs; node dist/apps/config-builder/main.js --config-scanner > dist/configs/config-builder.json",
+            "description": "Scan config, output to dist"
+          }
+        ]
+      }
+    },
     "local-publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {

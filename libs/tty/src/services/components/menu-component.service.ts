@@ -64,10 +64,22 @@ export type MainMenuCB<T = unknown> = (
 
 export interface MenuComponentOptions<T = unknown> {
   condensed?: boolean;
+  /**
+   * Static text to stick at the top of the component
+   */
   headerMessage?: string;
+  /**
+   * Extra padding to shift the header over by
+   */
   headerPadding?: number;
+  /**
+   * Disallow usage of fuzzy search
+   */
   hideSearch?: boolean;
   item?: string;
+  /**
+   * Entries to activate via keybindings instead of navigation
+   */
   keyMap?: KeyMap<T>;
   /**
    * Only run against keyMap activations
@@ -75,15 +87,50 @@ export interface MenuComponentOptions<T = unknown> {
    * Passes in currently selected value
    */
   keyMapCallback?: MainMenuCB;
+  /**
+   * Don't freak out if menu entries are not provided.
+   * Set to true if deliberately using the menu as a keyboard navigation tool only
+   */
   keyOnly?: boolean;
+  /**
+   * Entries to place in the left column.
+   * If only using one column, right / left doesn't matter
+   */
   left?: MainMenuEntry<T | string>[];
+  /**
+   * Header to be placed directly above the menu entries in the left column
+   */
   leftHeader?: string;
+  /**
+   * Entries to place in the right column.
+   * If only using one column, right / left doesn't matter
+   */
   right?: MainMenuEntry<T | string>[];
+  /**
+   * Header to be placed directly above the menu entries in the right column
+   */
   rightHeader?: string;
+  /**
+   * Show menu entries without the column headers
+   */
   showHeaders?: boolean;
+  /**
+   * Append the help text below menu
+   */
   showHelp?: boolean;
+  /**
+   * Automatically sort menu entries alphabetically by label
+   */
   sort?: boolean;
+  /**
+   * Make menu entry group types prettier.
+   *
+   * Ex: "some-property" => "Some Property"
+   */
   titleTypes?: boolean;
+  /**
+   * Default selected entry. Can be in either left or right list
+   */
   value?: T;
 }
 

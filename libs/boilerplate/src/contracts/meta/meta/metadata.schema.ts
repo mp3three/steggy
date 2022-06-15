@@ -20,6 +20,7 @@ export type AnyConfig =
   | NumberConfig
   | InternalConfig
   | RecordConfig
+  | StringArrayConfig
   | PasswordConfig
   | UrlConfig;
 

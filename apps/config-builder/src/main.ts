@@ -5,6 +5,7 @@ import {
   InjectConfig,
   iQuickScript,
   QuickScript,
+  StringArrayConfig,
   StringConfig,
   WorkspaceService,
 } from '@steggy/boilerplate';
@@ -13,13 +14,21 @@ import {
   DONE,
   FontAwesomeIcons,
   MainMenuEntry,
+  MenuEntry,
   PromptService,
   ScreenService,
   SyncLoggerService,
   ToMenuEntry,
   TTYModule,
 } from '@steggy/tty';
-import { deepExtend, FIRST, is, TitleCase } from '@steggy/utilities';
+import {
+  deepExtend,
+  FIRST,
+  is,
+  SINGLE,
+  START,
+  TitleCase,
+} from '@steggy/utilities';
 import chalk from 'chalk';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { encode } from 'ini';
@@ -27,6 +36,8 @@ import { dump } from 'js-yaml';
 import { get, set } from 'object-path';
 import { exit } from 'process';
 
+const STRING_ARRAY_LIMIT = 50;
+const DASH = chalk.yellow(' - ');
 const NO_VALUE = Symbol();
 @QuickScript({
   application: Symbol('config-builder'),
@@ -35,8 +46,18 @@ const NO_VALUE = Symbol();
 export class ConfigScanner implements iQuickScript {
   constructor(
     private readonly logger: SyncLoggerService,
-    @InjectConfig('DEFINITION_FILE') private readonly definitionFile: string,
-    @InjectConfig('CONFIG_FILE')
+    @InjectConfig('DEFINITION_FILE', {
+      default: './config.json',
+      description: 'File path to file containing an application scanned config',
+      required: true,
+      type: 'string',
+    })
+    private readonly definitionFile: string,
+    @InjectConfig('CONFIG_FILE', {
+      description:
+        'Pass value to interact with a specific config file instead of the predefined options',
+      type: 'string',
+    })
     private readonly outputFile: string,
     private readonly workspaceService: WorkspaceService,
     private readonly screenService: ScreenService,
@@ -252,6 +273,12 @@ export class ConfigScanner implements iQuickScript {
             )
           : await this.promptService.string(config.property, current as string);
         break;
+      case 'string[]':
+        result = await this.stringArray(
+          config as ConfigTypeDTO<StringArrayConfig>,
+          current as string[],
+        );
+        break;
       default:
         await this.promptService.acknowledge(
           chalk.red`"${config.metadata.type}" editor not supported`,
@@ -386,6 +413,69 @@ export class ConfigScanner implements iQuickScript {
     await this.editConfig(item);
     // re-re-recursion!
     return await this.selectConfig(item);
+  }
+
+  private async stringArray(
+    config: ConfigTypeDTO<StringArrayConfig>,
+    current: string[] = [],
+    lastAction = '',
+  ): Promise<string[]> {
+    let headerMessage = ``;
+    if (is.empty(current)) {
+      headerMessage += chalk`{yellow 0} values`;
+    } else {
+      headerMessage +=
+        current.length <= STRING_ARRAY_LIMIT
+          ? chalk`{blue ${current.length}} values\n` +
+            current.map(i => DASH + i).join(`\n`)
+          : chalk`{blue ${current.length}} values\n` +
+            current
+              .slice(START, STRING_ARRAY_LIMIT)
+              .map(i => DASH + i)
+              .join(`\n`) +
+            chalk`\n ... {red ${
+              current.length - STRING_ARRAY_LIMIT
+            }} additional`;
+    }
+    const action = await this.promptService.menu({
+      headerMessage,
+      keyMap: { d: ['Done', 'done'] },
+      right: ToMenuEntry([
+        ['Add', 'add'],
+        ...((is.empty(current)
+          ? []
+          : [
+              ['Remove single', 'remove'],
+              ['Clear all', 'truncate'],
+            ]) as MenuEntry[]),
+      ]),
+      value: lastAction,
+    });
+    if (action === 'done') {
+      return current;
+    }
+    if (action === 'add') {
+      const value = await this.promptService.string(
+        config.property,
+        String(config.metadata.default ?? ''),
+        { placeholder: config.metadata.description },
+      );
+      return await this.stringArray(config, [...current, value], action);
+    }
+    if (action === 'remove') {
+      const value = await this.promptService.pickOne(
+        'Which item to remove?',
+        ToMenuEntry(current.map((i, index) => [i, index])),
+      );
+      // Remove single item from array at index
+      current.splice(value, SINGLE);
+      return await this.stringArray(config, current, action);
+    }
+    if (action === 'truncate') {
+      return await this.stringArray(config, [], action);
+    }
+    // wat
+    return [];
   }
 
   private writeConfig(target = this.outputFile): void {

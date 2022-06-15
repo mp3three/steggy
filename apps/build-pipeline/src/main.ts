@@ -26,10 +26,6 @@ import { inc } from 'semver';
 type AffectedList = { apps: string[]; libs: string[] };
 type PACKAGE = { version: string };
 
-const NX_WORKSPACE = JSON.parse(readFileSync('nx.json', 'utf8')) as {
-  affected: { defaultBase: string };
-};
-
 /**
  * Basic build pipeline.
  * Assume that all the affected packages need a patch version bump, and to be re-published
@@ -71,14 +67,12 @@ export class BuildPipelineService {
     })
     private readonly containerizedBuild: boolean,
     @InjectConfig('BASE', {
-      default: NX_WORKSPACE?.affected?.defaultBase,
       description:
-        'Reference to base commit to measure affected from. Argument passed through to NX, commit SHA is a good value',
+        'Reference to base commit to measure affected from. Argument passed through to NX, commit SHA is a good value4',
       type: 'string',
     })
     private readonly base: string,
     @InjectConfig('HEAD', {
-      default: 'HEAD',
       description:
         'Latest commit to measure from. Argument passed through to NX, commit SHA is a good value',
       type: 'string',
@@ -89,11 +83,9 @@ export class BuildPipelineService {
       description: 'Do not look for affected, just run everything',
       type: 'boolean',
     })
-    private readonly runAll: string,
+    private readonly runAll: boolean,
   ) {
-    if (containerizedBuild) {
-      this.nonInteractive = true;
-    }
+    this.nonInteractive = containerizedBuild || runAll || nonInteractive;
   }
 
   private readonly BUILT_APPS: string[] = [];
@@ -330,19 +322,15 @@ export class BuildPipelineService {
       'nx',
       'affected:apps',
       '--plain',
-      '--base',
-      this.base,
-      '--head',
-      this.head,
+      ...(is.empty(this.base) ? [] : ['--base', this.base]),
+      ...(is.empty(this.base) ? [] : ['--head', this.head]),
     ]);
     const rawLibs = await execa(`npx`, [
       'nx',
       'affected:libs',
       '--plain',
-      '--base',
-      this.base,
-      '--head',
-      this.head,
+      ...(is.empty(this.base) ? [] : ['--base', this.base]),
+      ...(is.empty(this.base) ? [] : ['--head', this.head]),
     ]);
     const libs: string[] = rawLibs.stdout
       .split(' ')

@@ -6,11 +6,12 @@ import {
   LibraryModule,
   StringConfig,
 } from '@steggy/boilerplate';
-import { DOWN, INCREMENT, is, TitleCase, UP } from '@steggy/utilities';
+import { DOWN, EMPTY, INCREMENT, is, TitleCase, UP } from '@steggy/utilities';
 import chalk from 'chalk';
 import { exit } from 'process';
 
 import { HELP } from '../config';
+import { ansiMaxLength } from '../includes';
 import { ApplicationManagerService, ScreenService } from './meta';
 
 @Injectable()
@@ -90,40 +91,56 @@ export class TerminalHelpService {
   }
 
   private booleanSwitch(property: string, config: ConfigItem): void {
+    const prefix = chalk`  {${
+      config.required ? 'red.bold' : 'white'
+    } --${property}} {gray [{bold boolean}}${
+      is.undefined(config.default as number)
+        ? ''
+        : chalk`, {gray default}: {bold.green ${config.default}}`
+    }{gray ]} `;
     this.screenService.print(
-      chalk`  {${
-        config.required ? 'red' : 'white'
-      } --${property}} {gray [{bold boolean}}${
-        is.undefined(config.default as number)
-          ? ''
-          : chalk`, {gray default}: {bold.green ${config.default}}`
-      }{gray ]} ${config.description}`,
+      this.formatDescription(prefix, config.description),
+    );
+  }
+
+  private formatDescription(prefix: string, description: string) {
+    const size = ansiMaxLength(prefix);
+    return (
+      prefix +
+      description
+        .split('. ')
+        .map((line, index) =>
+          index === EMPTY ? line : ' '.repeat(size) + line,
+        )
+        .join(`.\n`)
     );
   }
 
   private numberSwitch(property: string, config: ConfigItem): void {
+    const prefix = chalk`  {${
+      config.required ? 'red.bold' : 'white'
+    } --${property}} {gray [{bold number}}${
+      is.undefined(config.default as number)
+        ? ''
+        : chalk`, {gray default}: {bold.yellow ${config.default}}`
+    }{gray ]} `;
     this.screenService.print(
-      chalk`  {${
-        config.required ? 'red' : 'white'
-      } --${property}} {gray [{bold number}}${
-        is.undefined(config.default as number)
-          ? ''
-          : chalk`, {gray default}: {bold.yellow ${config.default}}`
-      }{gray ]} ${config.description}`,
+      this.formatDescription(prefix, config.description),
     );
   }
 
   private otherSwitch(property: string, config: ConfigItem) {
+    const prefix = chalk`  {${
+      config.required ? 'red.bold' : 'white'
+    } --${property}} {gray [other}${
+      is.undefined(config.default)
+        ? ''
+        : chalk`, {gray default}: {bold.magenta ${JSON.stringify(
+            config.default,
+          )}}`
+    }{gray ]} `;
     this.screenService.print(
-      chalk`  {${
-        config.required ? 'red' : 'white'
-      } --${property}} {gray [other}${
-        is.undefined(config.default)
-          ? ''
-          : chalk`, {gray default}: {bold.magenta ${JSON.stringify(
-              config.default,
-            )}}`
-      }{gray ]} ${config.description}`,
+      this.formatDescription(prefix, config.description),
     );
   }
 
@@ -131,21 +148,21 @@ export class TerminalHelpService {
     property: string,
     config: ConfigItem<StringConfig>,
   ): void {
-    // const options = is.empty(config.)
+    const prefix = chalk`  {${
+      config.required ? 'red.bold' : 'white'
+    } --${property}} {gray [{bold string}}${
+      is.empty(config.default as string)
+        ? ''
+        : chalk`, {gray default}: {bold.blue ${config.default}}`
+    }${
+      is.empty(config.enum)
+        ? ''
+        : chalk`{gray , enum}: ${config.enum
+            .map(item => chalk.blue(item))
+            .join(chalk`{yellow.dim  | }`)}`
+    }{gray ]} `;
     this.screenService.print(
-      chalk`  {${
-        config.required ? 'red' : 'white'
-      } --${property}} {gray [{bold string}}${
-        is.empty(config.default as string)
-          ? ''
-          : chalk`, {gray default}: {bold.blue ${config.default}}`
-      }${
-        is.empty(config.enum)
-          ? ''
-          : chalk`{gray , enum}: ${config.enum
-              .map(item => chalk.cyan(item))
-              .join(chalk`{yellow.dim |}`)}`
-      }{gray ]} ${config.description}`,
+      this.formatDescription(prefix, config.description),
     );
   }
 }
