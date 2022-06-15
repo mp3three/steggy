@@ -84,6 +84,12 @@ export class BuildPipelineService {
       type: 'string',
     })
     private readonly head: string,
+    @InjectConfig('RUN_ALL', {
+      default: false,
+      description: 'Do not look for affected, just run everything',
+      type: 'boolean',
+    })
+    private readonly runAll: string,
   ) {
     if (containerizedBuild) {
       this.nonInteractive = true;
@@ -309,6 +315,17 @@ export class BuildPipelineService {
   }
 
   private async listAffected(): Promise<AffectedList> {
+    if (this.runAll) {
+      const projects = Object.values(this.WORKSPACE.projects);
+      return {
+        apps: projects
+          .filter(i => i.startsWith('app'))
+          .map(i => i.split('/').pop()),
+        libs: projects
+          .filter(i => i.startsWith('lib'))
+          .map(i => i.split('/').pop()),
+      };
+    }
     const rawApps = await execa(`npx`, [
       'nx',
       'affected:apps',
