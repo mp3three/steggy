@@ -2,6 +2,7 @@
 /dist
 /tmp
 /out-tsc
+.VSCodeCounter
 apps/**/yarn.lock
 # Private keys
 **/*vsix

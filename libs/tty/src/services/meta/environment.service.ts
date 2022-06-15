@@ -24,7 +24,6 @@ export class EnvironmentService {
     const width = isNumberString(cols.stdout)
       ? Number(cols.stdout)
       : DEFAULT_WIDTH;
-
     return { height, width };
   }
 }

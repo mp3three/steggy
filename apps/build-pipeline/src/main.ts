@@ -20,7 +20,7 @@ import JSON from 'comment-json';
 import execa from 'execa';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { exit, stdout } from 'process';
+import { exit } from 'process';
 import { inc } from 'semver';
 
 type AffectedList = { apps: string[]; libs: string[] };
@@ -110,9 +110,9 @@ export class BuildPipelineService {
       if (!is.empty(this.runAfter)) {
         // It's expected that prettyified content is being sent through
         // Without env var, all formatting gets removed
-        const result = execa(this.runAfter, { env: { FORCE_COLOR: 'true' } });
-        result.stdout.pipe(stdout);
-        await result;
+        await this.screenService.pipe(
+          execa(this.runAfter, { env: { FORCE_COLOR: 'true' } }),
+        );
       }
     } catch (error) {
       this.logger.error(error.shortMessage ?? 'Command failed');
@@ -184,16 +184,16 @@ export class BuildPipelineService {
       }
     });
     // docker build -f apps/build-pipeline/Dockerfile --build-arg PROJECT_LIST=build-pipeline,boilerplate .
-    const publish = execa(`docker`, [
-      `build`,
-      `-f`,
-      `apps/${this.application.description}/Dockerfile`,
-      `--build-arg`,
-      `PROJECT_LIST=${projects.join(',')}`,
-      `.`,
-    ]);
-    publish.stdout.pipe(stdout);
-    await publish;
+    await this.screenService.pipe(
+      execa(`docker`, [
+        `build`,
+        `-f`,
+        `apps/${this.application.description}/Dockerfile`,
+        `--build-arg`,
+        `PROJECT_LIST=${projects.join(',')}`,
+        `.`,
+      ]),
+    );
   }
 
   private async bumpApplications(apps: string[]): Promise<void> {
@@ -218,9 +218,7 @@ export class BuildPipelineService {
     if (!this.bumpOnly) {
       await eachSeries(apps, async app => {
         this.logger.info(`[${app}] publishing`);
-        const buildDocker = execa(`npx`, [`nx`, `publish`, app]);
-        buildDocker.stdout.pipe(stdout);
-        await buildDocker;
+        await this.screenService.pipe(execa(`npx`, [`nx`, `publish`, app]));
       });
     }
   }
@@ -250,9 +248,9 @@ export class BuildPipelineService {
       await eachSeries(libraries, async library => {
         this.logger.info(`[${library}] publishing`);
         try {
-          const publish = execa(`npx`, [`nx`, `publish`, library]);
-          publish.stdout.pipe(stdout);
-          await publish;
+          await this.screenService.pipe(
+            execa(`npx`, [`nx`, `publish`, library]),
+          );
         } catch (error) {
           this.logger.error(error.stderr);
           exit();
@@ -263,7 +261,7 @@ export class BuildPipelineService {
 
   private async bumpRoot(affected: AffectedList): Promise<string> {
     const packageJSON = JSON.parse(
-      readFileSync('package.json', 'utf8'),
+      readFileSync(PACKAGE_FILE, 'utf8'),
     ) as PACKAGE;
     const newVersion = inc(packageJSON.version, 'patch');
     const proceed =

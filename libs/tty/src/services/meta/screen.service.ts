@@ -9,6 +9,7 @@ import {
   VALUE,
 } from '@steggy/utilities';
 import chalk from 'chalk';
+import execa from 'execa';
 import { ReadStream } from 'fs';
 import MuteStream from 'mute-stream';
 import { stdin, stdout } from 'process';
@@ -114,6 +115,13 @@ export class ScreenService {
       // The sticky content is stale now 🤷
       return result;
     });
+  }
+
+  public async pipe(child: execa.ExecaChildProcess): Promise<void> {
+    this.rl.output.unmute();
+    child.stdout.pipe(stdout);
+    this.rl.output.mute();
+    await child;
   }
 
   /**
