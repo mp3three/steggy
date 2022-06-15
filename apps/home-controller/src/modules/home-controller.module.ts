@@ -82,6 +82,7 @@ const APPLICATION = Symbol('home-controller');
     RoutineController,
   ],
   imports: [
+    // Database connection injected by environment files
     ControllerSDKModule,
     HomeAssistantModule,
     HomeControllerModule,
