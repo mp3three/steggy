@@ -121,6 +121,16 @@ export class AutoConfigService {
           : ['true', 'y', '1'].includes(data.toLowerCase());
       case 'number':
         return Number(data);
+      case 'string[]':
+        if (Array.isArray(data)) {
+          return data;
+        }
+        // This occurs with cli switches
+        // If only 1 is passed, it'll get the value
+        // ex: --foo=bar  ==== {foo:'bar'}
+        // If duplicates are passed, will receive array
+        // ex: --foo=bar --foo=baz === {foo:['bar','baz']}
+        return [data];
     }
     return data;
   }
