@@ -1,4 +1,4 @@
-import { Injectable, Provider } from '@nestjs/common';
+import { Controller, Injectable, Provider } from '@nestjs/common';
 import { is } from '@steggy/utilities';
 import { ClassConstructor } from 'class-transformer';
 import minimist from 'minimist';
@@ -34,6 +34,7 @@ export interface iQuickScript extends iSteggyProvider {
 export function QuickScript({
   WAIT_TIME = WAIT_BOOTSTRAP * ADDITIONAL_WAIT,
   bootstrap,
+  controller,
   PERSISTENT,
   ...options
 }: ApplicationModuleMetadata & {
@@ -43,6 +44,12 @@ export function QuickScript({
   PERSISTENT?: boolean;
   WAIT_TIME?: number;
   bootstrap?: BootstrapOptions;
+  /**
+   * If passed, the class will be set up as a NestJS controller.
+   * Allows usage of annotations like `@Get`, `@Post`, `@Put`, ... etc.
+   * ServerModule and enabling http still must be performed
+   */
+  controller?: string;
 } = {}): ClassDecorator {
   // Add in the MainCLI module to enable TTY functionality
   options.imports ??= [];
@@ -103,6 +110,9 @@ export function QuickScript({
       Bootstrap(CREATE_BOOT_MODULE(options), BOOTSTRAP_OPTIONS);
     }, WAIT_BOOTSTRAP);
     options.providers.push(target as unknown as Provider);
+    if (is.string(controller)) {
+      return Controller(controller)(target);
+    }
     return Injectable()(target);
   };
 }
