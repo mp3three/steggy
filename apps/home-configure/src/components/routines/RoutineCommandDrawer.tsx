@@ -1,5 +1,6 @@
 import {
   GeneralSaveStateDTO,
+  CallServiceCommandDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
@@ -29,6 +30,7 @@ import {
 
 import { FD_ICONS, sendRequest } from '../../types';
 import {
+  CallServiceCommand,
   EntityStateCommand,
   GroupActionCommand,
   GroupStateCommand,
@@ -89,6 +91,13 @@ export function RoutineCommandDrawer(props: {
           <GroupActionCommand
             onUpdate={update => onUpdate(update)}
             command={props.command.command as RoutineCommandGroupActionDTO}
+          />
+        );
+      case 'manual_entity':
+        return (
+          <CallServiceCommand
+            command={props.command.command as CallServiceCommandDTO}
+            onUpdate={update => onUpdate(update)}
           />
         );
       case 'node_red':

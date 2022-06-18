@@ -1,3 +1,4 @@
+export * from './CallServiceCommand';
 export * from './CommandAdd';
 export * from './CommandList';
 export * from './EntityStateCommand';

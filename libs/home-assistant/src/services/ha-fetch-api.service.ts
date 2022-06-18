@@ -7,6 +7,7 @@ import {
 import {
   HassStateDTO,
   HomeAssistantServerLogItem,
+  ServiceListItemDTO,
 } from '@steggy/home-assistant-shared';
 import { FetchWith, SECOND } from '@steggy/utilities';
 
@@ -103,6 +104,12 @@ export class HomeAssistantFetchAPIService {
     return await this.fetch<string>({
       process: 'text',
       url: `/api/error_log`,
+    });
+  }
+
+  public async listServices(): Promise<ServiceListItemDTO[]> {
+    return await this.fetch({
+      url: `/api/services`,
     });
   }
 }

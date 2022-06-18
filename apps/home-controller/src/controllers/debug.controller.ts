@@ -25,9 +25,14 @@ import {
 import {
   HACallService,
   HASocketAPIService,
+  HomeAssistantFetchAPIService,
   NotifyDomainService,
 } from '@steggy/home-assistant';
-import { HassConfig, HassNotificationDTO } from '@steggy/home-assistant-shared';
+import {
+  HassConfig,
+  HassNotificationDTO,
+  ServiceListItemDTO,
+} from '@steggy/home-assistant-shared';
 import {
   ApiGenericResponse,
   AuthStack,
@@ -45,6 +50,7 @@ export class DebugController {
     private readonly callService: HACallService,
     private readonly chronoService: ChronoService,
     private readonly debugService: DebuggerService,
+    private readonly haFetch: HomeAssistantFetchAPIService,
     private readonly nodeRed: NodeRedCommand,
     private readonly notification: NotifyDomainService,
     private readonly recorderService: RecorderService,
@@ -137,6 +143,12 @@ export class DebugController {
   @UseInterceptors(JSONFilterInterceptor)
   public listRoutineCommands(): RoutineCommandSettings[] {
     return [...this.routineService.ROUTINE_COMMAND.values()];
+  }
+
+  @Get('/home-assistant/services')
+  @ApiResponse({ type: [ServiceListItemDTO] })
+  public async listServices(): Promise<ServiceListItemDTO[]> {
+    return await this.haFetch.listServices();
   }
 
   @Get(`/node-red/commands`)

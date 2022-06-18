@@ -139,6 +139,22 @@ export class WebhookHeaderDTO {
   public value: string;
 }
 
+export class CallServiceCommandDTO {
+  @ApiProperty()
+  @IsObject()
+  public attributes?: Record<string, unknown>;
+  @ApiProperty()
+  @IsString()
+  public entity_id: string;
+  @ApiProperty()
+  @IsString()
+  public service: string;
+  @ApiProperty()
+  @IsString({ each: true })
+  @IsOptional()
+  public set_attributes?: string[];
+}
+
 export class SetRoomMetadataCommandDTO {
   @ApiProperty()
   @IsString()
