@@ -1,5 +1,12 @@
 # Build Pipeline
 
+## 0.12.0
+
+- Added support for logs containing color codes
+- Added ability to manually define base / head commits for `affected()`
+- Added `RUN_ALL`
+- Added `RUN_PROJECT` to manually define a project to build
+
 ## 0.11.15
 
 - Added `NON_INTERACTIVE` & `BUMP_ONLY` configs

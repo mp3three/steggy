@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.12.0
+
+- Pretty logger: added new lightlight symbol `>`
+  - Intended for use with messages like **Item 1 > Item 2 > Item 3**
+  - Seperator Will be highlighted blue
+- `@QuickScript`: Added the ability to set up the annotated class as a controller
+  - Still requires that `ServerModule` get involved, and appropriate boot options set
+- Added support for `string[]` config types
+  - Handles `--property` switch being passed via command line multiple times
+
 ## 0.11.13
 
 - `@QuickScript` application symbol is now optional

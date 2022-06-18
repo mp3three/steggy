@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.12.0
+
+- Added support for `string[]` config types
+
 ## 0.11.13
 
 - Providing a `CONFIG_FILE` will make the script ignore any other configuration files that are on the system when loading data

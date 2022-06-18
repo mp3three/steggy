@@ -1,4 +1,9 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
 import {
   GroupDTO,
@@ -23,6 +28,7 @@ import { ICONS } from '../../types';
 import { GroupCommandService } from '../groups';
 import { EntityService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';
+import { MetadataService } from '../metadata.service';
 import { PinnedItemService } from '../pinned-item.service';
 import { RoomCommandService } from '../rooms';
 import { PersonStateService } from './person-state.service';
@@ -38,6 +44,8 @@ export class PersonCommandService {
   constructor(
     @InjectCache()
     private readonly cache: CacheManagerService,
+    @Inject(forwardRef(() => MetadataService))
+    private readonly metadataService: MetadataService<PersonDTO>,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
@@ -117,6 +125,7 @@ export class PersonCommandService {
     return person;
   }
 
+  // eslint-disable-next-line radar/cognitive-complexity
   public async processPerson(
     person: PersonDTO,
     defaultAction?: string,
@@ -188,6 +197,19 @@ export class PersonCommandService {
               type: 'Save States',
             } as MainMenuEntry<string>),
         ),
+        ...person.metadata.map(
+          metadata =>
+            ({
+              entry: [
+                chalk`{gray (${metadata.type})} ${metadata.name}`,
+                metadata.id,
+              ],
+              helpText: chalk`{green.bold Current Value}: ${this.metadataService.formatValue(
+                metadata,
+              )}${metadata.description ? `\n${metadata.description}` : ''}`,
+              type: 'Metadata',
+            } as MainMenuEntry<string>),
+        ),
       ],
       showHeaders: false,
       value: defaultAction,
@@ -250,6 +272,15 @@ export class PersonCommandService {
         person = await this.update(person);
         return await this.processPerson(person, action);
       default:
+        const isMetadata = person.metadata.find(({ id }) => id === action);
+        if (isMetadata) {
+          person = await this.metadataService.setValue(
+            person,
+            'person',
+            action,
+          );
+          return await this.processPerson(person, action);
+        }
         await this.personState.activate(person, action);
         return await this.processPerson(person, action);
     }

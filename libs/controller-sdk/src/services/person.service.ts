@@ -21,7 +21,7 @@ import {
 } from '@steggy/controller-shared';
 import { EntityManagerService } from '@steggy/home-assistant';
 import { BaseSchemaDTO } from '@steggy/persistence';
-import { each, is, ResultControlDTO } from '@steggy/utilities';
+import { each, is, ResultControlDTO, START } from '@steggy/utilities';
 import { eachLimit } from 'async';
 import EventEmitter from 'eventemitter3';
 import { v4 } from 'uuid';
@@ -389,6 +389,44 @@ export class PersonService {
     const out: InflatedPinDTO[] = [];
     await eachLimit(person.pinned_items, A_BUNCH, async pin => {
       switch (pin.type) {
+        case 'person_metadata':
+          const people = await this.list({
+            filters: new Set([{ field: 'metadata.id', value: pin.target }]),
+          });
+          if (is.empty(people)) {
+            this.logger.error(`Cannot find metadata {${pin.target}}`);
+            return;
+          }
+          const metaPerson = people[START];
+          const metaPersonProperty = metaPerson.metadata.find(
+            ({ id }) => id === pin.target,
+          );
+          out.push({
+            description: metaPersonProperty.description,
+            friendlyName: [metaPerson.friendlyName, metaPersonProperty.name],
+            id: pin.target,
+            type: pin.type,
+          });
+          return;
+        case 'room_metadata':
+          const rooms = await this.roomService.list({
+            filters: new Set([{ field: 'metadata.id', value: pin.target }]),
+          });
+          if (is.empty(rooms)) {
+            this.logger.error(`Cannot find metadata {${pin.target}}`);
+            return;
+          }
+          const metaRoom = rooms[START];
+          const metaRoomProperty = metaRoom.metadata.find(
+            ({ id }) => id === pin.target,
+          );
+          out.push({
+            description: metaRoomProperty.description,
+            friendlyName: [metaRoom.friendlyName, metaRoomProperty.name],
+            id: pin.target,
+            type: pin.type,
+          });
+          return;
         case 'person':
           const person = await this.load(pin.target);
           if (!person) {

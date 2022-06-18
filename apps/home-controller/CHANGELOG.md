@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.12.0
+
+- Added Routine Command: Call Service
+  - Pulls a list of available domains, and the services they support, and all the available options
+  - Will present a form, which will allow for selection of:
+    - entity_id
+    - service
+    - properties to send with request
+  - Sends request via socket api
+- Dropped Routine Command: Entity State
+  - UI widgets remain currently, but will be refactored to a more standardized form based off the call service command
+
+## 0.11.25
+
+- Added popover to person avatar in top/right of screen
+  - Directly change a piece of metadata
+  - Activate a person state
+- Squished annoying bug that resulted in date range enabled routines to only work for 1 day
+  - Server either needed to be reloaded, or the routine modified in order to reload
+- Reworked config scanner to work without external dependencies being required (like mongo)
+- Added "circadian quick set" functionality for lights
+  - Watches for entities in the `light` domain that have gone from an offline to "on" state
+  - Intended for use with temperature adjustable lights attached to dumb switches
+  - If the next circadian update would result in a temperature update, one is performed immediately
+    - There can still be a lag time between "light on", and when it connects to wifi/whatever
+
 ## 0.11.13
 
 - Added endpoint to `people`, `groups`, & `rooms` to activate save states by id

@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.12.0
+
+- Fixed rendering errors that happen with modifier + key combos for keymaps
+- Added clear keybind to string editor
+- Removed all prompts based on `inquirer` due to incompatibilities with internal rendering
+- Added new editor: Date
+  - Can be put into formats
+    - date
+    - time
+    - datetime
+    - range (date a - date b)
+  - Supports direct manipulation of numbers for ymdhms
+  - Supports conversion from expressions using `chrono-node`
+- Terminal `--help`: Improved description rendering
+- Added a quick function to pipe through stdout from `execa`, while waiting on the result
+
 ## 0.11.16
 
 - Added extra qol keybinds to editors

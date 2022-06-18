@@ -1,15 +1,9 @@
 # Changelog
 
-## 0.11.x
+## 0.12.0
 
-> Shifting the vision away from a configuration tool to a more minimal command issuing type of role.
->
-> All "building" prompts are being removed, tools to manage existing data (delete stuff, change names, etc) is being kept.
-> The general rule of thumb being: anything `home-configure` ALWAYS nests in drawers will not be be a cli feature
->
-> - save state editing
-> - editing of routine command / activations
-> - /
+- Completed UI reflow, with added support for pinned items & metadata
+- Routines activated via CLI should properly flag as such in the controller in the recent activations list
 
 ### 0.11.7
 
