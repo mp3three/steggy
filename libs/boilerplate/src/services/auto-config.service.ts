@@ -123,14 +123,14 @@ export class AutoConfigService {
         return Number(data);
       case 'string[]':
         if (Array.isArray(data)) {
-          return data;
+          return data.map(String);
         }
         // This occurs with cli switches
         // If only 1 is passed, it'll get the value
         // ex: --foo=bar  ==== {foo:'bar'}
         // If duplicates are passed, will receive array
         // ex: --foo=bar --foo=baz === {foo:['bar','baz']}
-        return [data];
+        return [String(data)];
     }
     return data;
   }
@@ -150,9 +150,10 @@ export class AutoConfigService {
     this.setDefaults();
     deepExtend(this.config, this.configDefaults ?? {});
     this.logger.setContext(LIB_BOILERPLATE, AutoConfigService);
-    this.logger[
-      'context'
-    ] = `${LIB_BOILERPLATE.description}:${AutoConfigService.name}`;
+    this.logger['context'] = [
+      LIB_BOILERPLATE.description,
+      AutoConfigService.name,
+    ].join(':');
     if (this.noUserConfig) {
       this.configFiles = [];
       return;

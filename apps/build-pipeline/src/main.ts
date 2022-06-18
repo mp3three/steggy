@@ -84,8 +84,15 @@ export class BuildPipelineService {
       type: 'boolean',
     })
     private readonly runAll: boolean,
+    @InjectConfig('RUN_PROJECT', {
+      description:
+        'Manually select project to build. If project is a library, all other libraries will be included.',
+      type: 'string[]',
+    })
+    private readonly runProject: string[],
   ) {
-    this.nonInteractive = containerizedBuild || runAll || nonInteractive;
+    this.nonInteractive =
+      containerizedBuild || runAll || nonInteractive || !is.empty(runProject);
   }
 
   private readonly BUILT_APPS: string[] = [];
@@ -126,14 +133,12 @@ export class BuildPipelineService {
     }
     this.screenService.print(chalk.bold.cyan`APPS`);
     affected.apps.forEach(line => {
-      const file = join('apps', line, 'package.json');
+      const file = join('apps', line, PACKAGE_FILE);
       if (!existsSync(file)) {
         this.screenService.print(chalk` {yellow - } ${line}`);
         return;
       }
-      const { version } = JSON.parse(
-        readFileSync(join('apps', line, 'package.json'), 'utf8'),
-      ) as PACKAGE;
+      const { version } = JSON.parse(readFileSync(file, 'utf8')) as PACKAGE;
       this.screenService.print(
         chalk` {yellow - } ${version ? chalk` {gray ${version}} ` : ''}${line}`,
       );
@@ -163,7 +168,7 @@ export class BuildPipelineService {
       projects.push(...libraries);
     }
     apps.forEach(app => {
-      // Also add apps that have a publish target, AND a bin listed in the package.json
+      // Also add apps that have a publish target, AND a bin entry in the package.json
       // Projects with bin entries need to be published to npm in order to be installed
       const workspace = JSON.parse(
         readFileSync(join('apps', app, 'project.json'), 'utf8'),
@@ -272,7 +277,7 @@ export class BuildPipelineService {
       return ``;
     }
     writeFileSync(
-      'package.json',
+      PACKAGE_FILE,
       JSON.stringify(packageJSON, undefined, '  ') + `\n`,
     );
     return packageJSON.version;
@@ -305,15 +310,25 @@ export class BuildPipelineService {
   }
 
   private async listAffected(): Promise<AffectedList> {
+    const projects = Object.values(this.WORKSPACE.projects);
+    const allApps = projects
+      .filter(i => i.startsWith('app'))
+      .map(i => i.split('/').pop());
+    const allLibs = projects
+      .filter(i => i.startsWith('lib'))
+      .map(i => i.split('/').pop());
     if (this.runAll) {
-      const projects = Object.values(this.WORKSPACE.projects);
       return {
-        apps: projects
-          .filter(i => i.startsWith('app'))
-          .map(i => i.split('/').pop()),
-        libs: projects
-          .filter(i => i.startsWith('lib'))
-          .map(i => i.split('/').pop()),
+        apps: allApps,
+        libs: allLibs,
+      };
+    }
+    if (!is.empty(this.runProject)) {
+      return {
+        apps: this.runProject.filter(project => allApps.includes(project)),
+        libs: this.runProject.some(project => allLibs.includes(project))
+          ? allLibs
+          : [],
       };
     }
     const rawApps = await execa(`npx`, [
