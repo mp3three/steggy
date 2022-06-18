@@ -1,6 +1,6 @@
 import {
-  GeneralSaveStateDTO,
   CallServiceCommandDTO,
+  GeneralSaveStateDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
@@ -93,7 +93,7 @@ export function RoutineCommandDrawer(props: {
             command={props.command.command as RoutineCommandGroupActionDTO}
           />
         );
-      case 'manual_entity':
+      case 'call_service':
         return (
           <CallServiceCommand
             command={props.command.command as CallServiceCommandDTO}

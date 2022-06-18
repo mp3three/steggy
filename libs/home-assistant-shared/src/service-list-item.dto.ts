@@ -23,13 +23,13 @@ export class ServiceListSelector {
 }
 
 export class ServiceListFieldDescription {
+  public advanced?: boolean;
   public description?: string;
   public name?: string;
   public selector?: ServiceListSelector;
 }
 
 export class ServiceListField {
-  public advanced?: boolean;
   public description?: string;
   public example?: string | number;
   public fields?: Record<string, ServiceListFieldDescription>;

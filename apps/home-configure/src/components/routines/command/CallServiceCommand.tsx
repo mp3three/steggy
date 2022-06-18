@@ -58,20 +58,22 @@ export function CallServiceCommand(props: {
         }),
       );
     }
-    if (is.empty(props.command.entity_id)) {
+    if (is.empty(props.command?.entity_id)) {
       setEntity(undefined);
       return;
     }
     refresh();
-  }, [props.command.entity_id]);
+  }, [props.command?.entity_id]);
   const serviceList = availableServices.find(
     i => i.domain === domain(props.command?.entity_id),
   );
   const service = serviceList
     ? serviceList?.services[props.command.service]
     : undefined;
-  props.command.attributes ??= {};
-  props.command.set_attributes ??= [];
+  if (props.command) {
+    props.command.attributes ??= {};
+    props.command.set_attributes ??= [];
+  }
   const updateAttribute = (value, fieldName: string) =>
     props.onUpdate({
       attributes: {
@@ -140,9 +142,26 @@ export function CallServiceCommand(props: {
                           </Typography.Text>
                         </>
                       )}
+                      {field.advanced ? (
+                        <>
+                          <Divider />
+                          <Typography.Text type="secondary">
+                            Dev note: Property flagged as "advanced". It may
+                            require another attribute ALSO be set (ex: min temp
+                            + max temp, instead of just one of them), or some
+                            other extra logic. This is the most I know about it
+                            right now.
+                          </Typography.Text>
+                        </>
+                      ) : undefined}
                     </>
                   }
                 >
+                  {field.advanced ? (
+                    <Typography.Text style={{ color: 'blue' }}>
+                      {'* '}
+                    </Typography.Text>
+                  ) : undefined}
                   {field.name}
                 </Popover>
               }
@@ -197,8 +216,10 @@ export function CallServiceCommand(props: {
                     max={field.selector.number.max}
                     min={field.selector.number.min}
                     step={field.selector.number.step}
-                    defaultValue={props.command.attributes[fieldName] as number}
-                    onBlur={value => updateAttribute(value, fieldName)}
+                    defaultValue={Number(props.command.attributes[fieldName])}
+                    onBlur={({ target }) =>
+                      updateAttribute(Number(target.value), fieldName)
+                    }
                     placeholder={
                       entity
                         ? String(entity?.attributes[fieldName] ?? '')

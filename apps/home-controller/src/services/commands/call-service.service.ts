@@ -6,14 +6,14 @@ import {
   CallServiceCommandDTO,
   RoutineCommandDTO,
 } from '@steggy/controller-shared';
-import { HomeAssistantFetchAPIService } from '@steggy/home-assistant';
+import { HACallService } from '@steggy/home-assistant';
 import { domain } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 
 @RoutineCommand({
   description:
     'Execute a command against a device through the home assistant api',
-  name: 'Home Assistant: Call Service',
+  name: 'Call Service',
   type: 'call_service',
 })
 // ServiceServiceService
@@ -22,13 +22,15 @@ export class CallServiceService
 {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly fetchService: HomeAssistantFetchAPIService,
+    private readonly callService: HACallService,
   ) {}
 
   public async activate({
     command,
+    waitForChange,
   }: {
     command: RoutineCommandDTO<CallServiceCommandDTO>;
+    waitForChange: boolean;
   }): Promise<void> {
     const {
       command: { service, entity_id, attributes = {}, set_attributes = [] },
@@ -46,11 +48,14 @@ export class CallServiceService
         set_attributes.includes(field),
       ),
     );
-    this.logger.debug(filtered, `[${entity_id}] {${service}}`);
-    await this.fetchService.fetch({
-      body: { ...filtered, entity_id },
-      method: 'post',
-      url: `/api/services/${domain(entity_id)}/${service}`,
-    });
+    const service_data = { ...filtered, entity_id };
+    this.logger.debug({ service_data }, `[${entity_id}] {${service}}`);
+
+    await this.callService.call(
+      service,
+      service_data,
+      domain(entity_id),
+      waitForChange,
+    );
   }
 }
