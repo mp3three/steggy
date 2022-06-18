@@ -10,6 +10,7 @@ import { ItemPin } from '../misc';
 
 export function RoutineExtraActions(props: {
   onClone?: (routine: RoutineDTO) => void;
+  onLoad?: (routine: string) => void;
   onUpdate?: (routine: RoutineDTO) => void;
   routine: RoutineDTO;
 }) {
@@ -41,6 +42,13 @@ export function RoutineExtraActions(props: {
     });
     if (props.onUpdate) {
       props.onUpdate(undefined);
+    }
+  }
+
+  function promptId(): void {
+    const id = prompt('Routine ID');
+    if (!is.empty(id)) {
+      props.onLoad(id);
     }
   }
 
@@ -98,6 +106,17 @@ export function RoutineExtraActions(props: {
                     target={props.routine?._id}
                     menuItem
                   />
+                ),
+              },
+              {
+                label: (
+                  <Button
+                    onClick={() => promptId()}
+                    icon={FD_ICONS.get('folder_open')}
+                    style={{ textAlign: 'start', width: '100%' }}
+                  >
+                    Load by id
+                  </Button>
                 ),
               },
             ] as MenuItem[]

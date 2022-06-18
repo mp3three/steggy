@@ -27,7 +27,6 @@ import {
   AttributeChangeActivateService,
   CallServiceService,
   CaptureCommandService,
-  EntityStateChangeCommandService,
   GroupActionCommandService,
   GroupStateChangeCommandService,
   InternalEventChangeService,
@@ -72,7 +71,6 @@ const APPLICATION = Symbol('home-controller');
   },
   controllers: [
     AdminController,
-    // AnimationController,
     DebugController,
     DeviceController,
     EntityController,
@@ -92,12 +90,9 @@ const APPLICATION = Symbol('home-controller');
     ServerModule,
   ],
   providers: [
-    // DeviceTriggerActivateService,
-    // LightFlashCommandService,
     ApplicationService,
     AttributeChangeActivateService,
     CaptureCommandService,
-    EntityStateChangeCommandService,
     GroupActionCommandService,
     GroupStateChangeCommandService,
     InternalEventChangeService,

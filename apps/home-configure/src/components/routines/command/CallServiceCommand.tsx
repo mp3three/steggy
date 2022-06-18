@@ -4,7 +4,7 @@ import {
   ServiceListFieldDescription,
   ServiceListItemDTO,
 } from '@steggy/home-assistant-shared';
-import { DOWN, is, UP } from '@steggy/utilities';
+import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
 import {
   Checkbox,
   Divider,
@@ -162,7 +162,7 @@ export function CallServiceCommand(props: {
                       {'* '}
                     </Typography.Text>
                   ) : undefined}
-                  {field.name}
+                  {field.name || TitleCase(fieldName)}
                 </Popover>
               }
             >

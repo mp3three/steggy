@@ -75,6 +75,9 @@ export function RoutinePage() {
             <RoutineListDetail
               onClone={routine => onClone(routine)}
               routine={selected}
+              onLoad={routine =>
+                setSelected(routines.find(({ _id }) => _id === routine))
+              }
               onUpdate={routine => refresh(routine)}
             />
           </Col>

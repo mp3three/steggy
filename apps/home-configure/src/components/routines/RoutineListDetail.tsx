@@ -13,6 +13,7 @@ import { RoutineSettings } from './RoutineSettings';
 export function RoutineListDetail(props: {
   nested?: boolean;
   onClone?: (routine: RoutineDTO) => void;
+  onLoad?: (routine: string) => void;
   onUpdate: (routine: RoutineDTO) => void;
   routine: RoutineDTO;
 }) {
@@ -167,6 +168,7 @@ export function RoutineListDetail(props: {
           <RoutineExtraActions
             routine={props.routine}
             onClone={props.onClone}
+            onLoad={routine => props.onLoad(routine)}
             onUpdate={update => onUpdate(update)}
           />
         )
