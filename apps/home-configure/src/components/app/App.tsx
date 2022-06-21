@@ -28,7 +28,7 @@ const { Sider, Content } = Layout;
 
 export function App() {
   const [collapsed, setCollapsed] = useState(false);
-  const [baseUrl, setBaseURL] = useState(localStorage.getItem(BASE_URL));
+  const [baseUrl, setBaseURL] = useState(localStorage.getItem(BASE_URL) || '');
   const [adminKey, setAdminKey] = useState(localStorage.getItem(ADMIN_KEY));
 
   const [profile, setProfile] = useState<PersonDTO>();
