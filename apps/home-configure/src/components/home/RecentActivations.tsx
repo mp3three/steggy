@@ -31,7 +31,7 @@ export function RecentActivations() {
     setEvents(
       await sendRequest<RoutineTriggerEvent[]>({
         control: {
-          sort: ['time'],
+          sort: ['-time'],
         },
         url: `/debug/recent-activations`,
       }),

@@ -5,7 +5,16 @@ import {
   RoomMetadataDTO,
 } from '@steggy/controller-shared';
 import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
-import { Button, Card, Empty, List, Skeleton, Space, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  Empty,
+  List,
+  Skeleton,
+  Space,
+  Tooltip,
+  Typography,
+} from 'antd';
 import { useContext, useEffect, useState } from 'react';
 
 import { CurrentUserContext, sendRequest } from '../../types';
@@ -42,16 +51,18 @@ export function PinnedMetadata() {
               <Space>
                 <RoomInspectButton room={room} />
                 {' > '}
-                <Button
-                  size="small"
-                  onClick={() => {
-                    setRoom(room);
-                    setMetadata(data);
-                  }}
-                  type={data?.id === metadata?.id ? 'primary' : 'text'}
-                >
-                  {data?.name}
-                </Button>
+                <Tooltip title={data.description}>
+                  <Button
+                    size="small"
+                    onClick={() => {
+                      setRoom(room);
+                      setMetadata(data);
+                    }}
+                    type={data?.id === metadata?.id ? 'primary' : 'text'}
+                  >
+                    {data?.name}
+                  </Button>
+                </Tooltip>
               </Space>
             }
             description={TitleCase(item.type)}

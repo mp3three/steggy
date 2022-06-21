@@ -26,6 +26,7 @@ export function RoutineActivateKunami(props: {
   const [isRecording, setIsRecording] = useState<boolean>();
   const [recordLabel, setRecordLabel] = useState<string>();
   const [recordProgress, setRecordProgress] = useState<number>();
+  const [matches, setMatches] = useState<string>('');
   const [recordSeconds, setRecordSeconds] = useState<number>(5);
 
   useEffect(() => {
@@ -62,6 +63,7 @@ export function RoutineActivateKunami(props: {
           method: 'post',
           url: `/entity/record/${sensor}`,
         });
+        setMatches(match.join(`\n`));
         props.onUpdate({ match });
       })(),
     ]);
@@ -93,7 +95,8 @@ export function RoutineActivateKunami(props: {
         <Col span={16}>
           <Form.Item label="States">
             <Input.TextArea
-              value={(props.activate?.match ?? []).join(`\n`)}
+              value={matches}
+              onChange={({ target }) => setMatches(target.value)}
               style={{ minHeight: '250px' }}
               onBlur={({ target }) =>
                 props.onUpdate({
