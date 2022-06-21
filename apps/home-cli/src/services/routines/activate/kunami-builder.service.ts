@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { SequenceActivateDTO } from '@steggy/controller-shared';
-import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import { PromptService, SyncLoggerService, ToMenuEntry } from '@steggy/tty';
 import { is } from '@steggy/utilities';
 import chalk from 'chalk';
@@ -25,11 +24,7 @@ export class KunamiBuilderService {
   ): Promise<SequenceActivateDTO> {
     current.sensor = !is.empty(sensorList)
       ? await this.entityService.pickOne(sensorList, current.sensor)
-      : await this.entityService.pickInDomain(
-          [HASS_DOMAINS.sensor],
-          [],
-          current.sensor,
-        );
+      : await this.entityService.pickInDomain(['sensor'], [], current.sensor);
     const type = await this.promptService.pickOne(
       `How to enter values?`,
       ToMenuEntry([

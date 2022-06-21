@@ -7,7 +7,6 @@ import {
   EntityRegistryItemDTO,
   HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
-  HASS_DOMAINS,
   HassEventDTO,
   HASSIO_WS_COMMAND,
   HassStateDTO,
@@ -41,7 +40,7 @@ export class EntityManagerService {
   private readonly SUBSCRIBERS = new Map<string, Subscriber<HassStateDTO>>();
 
   public findByDomain<T extends HassStateDTO = HassStateDTO>(
-    target: HASS_DOMAINS,
+    target: string,
   ): T[] {
     const out: T[] = [];
     this.ENTITIES.forEach((state, key) => {

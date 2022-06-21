@@ -30,7 +30,6 @@ import {
 import {
   domain,
   EntityRegistryItemDTO,
-  HASS_DOMAINS,
   HassStateDTO,
   LightStateDTO,
 } from '@steggy/home-assistant-shared';
@@ -205,10 +204,7 @@ export class EntityController {
     @Param('id') id: string,
     @Body() data: Partial<GeneralSaveStateDTO> = {},
   ): Promise<LightStateDTO> {
-    if (
-      domain(id) !== HASS_DOMAINS.light ||
-      !this.entityManager.isValidId(id)
-    ) {
+    if (domain(id) !== 'light' || !this.entityManager.isValidId(id)) {
       throw new BadRequestException();
     }
     await (data.state === 'off'

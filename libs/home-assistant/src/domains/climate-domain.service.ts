@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { HASS_DOMAINS, HassStateDTO } from '@steggy/home-assistant-shared';
+import { HassStateDTO } from '@steggy/home-assistant-shared';
 
 import { HACallService } from '../services';
 
@@ -9,7 +9,7 @@ import { HACallService } from '../services';
 @Injectable()
 export class ClimateDomainService {
   constructor(private readonly callService: HACallService) {
-    callService.domain = HASS_DOMAINS.climate;
+    callService.domain = 'climate';
   }
 
   public async setAuxHeat<T extends HassStateDTO = HassStateDTO>(

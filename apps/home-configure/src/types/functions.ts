@@ -1,4 +1,3 @@
-import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   controlToQuery,
   FetchArguments,
@@ -71,21 +70,21 @@ sendRequest.configure = ({ key, base }: { base?: string; key?: string }) => {
  */
 export function split(
   entity: { entity_id: string } | string = '',
-): [HASS_DOMAINS, string] {
+): [string, string] {
   if (is.object(entity)) {
     entity = entity.entity_id;
   }
-  return entity.split('.') as [HASS_DOMAINS, string];
+  return entity.split('.') as [string, string];
 }
 
 /**
  * This should come from home-assistant-shared, but doing so makes webpack shit a brick for no reason
  */
-export function domain(entity: { entity_id: string } | string): HASS_DOMAINS {
+export function domain(entity: { entity_id: string } | string): string {
   if (is.object(entity)) {
     entity = entity.entity_id;
   }
-  return split(entity).shift() as HASS_DOMAINS;
+  return split(entity).shift();
 }
 
 function cast(item: FetchParameterTypes): string {

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 
 import { HACallService } from '../services';
 
@@ -9,7 +8,7 @@ import { HACallService } from '../services';
 @Injectable()
 export class MediaPlayerDomainService {
   constructor(private readonly callService: HACallService) {
-    callService.domain = HASS_DOMAINS.media_player;
+    callService.domain = 'media_player';
   }
 
   public async mute(

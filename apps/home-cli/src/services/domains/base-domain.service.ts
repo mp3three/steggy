@@ -7,7 +7,6 @@ import {
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import {
   domain,
-  HASS_DOMAINS,
   HassStateDTO,
   RelatedDescriptionDTO,
 } from '@steggy/home-assistant-shared';
@@ -146,7 +145,7 @@ export class BaseDomainService {
   }
 
   public async pickFromDomain<T extends HassStateDTO = HassStateDTO>(
-    search: HASS_DOMAINS,
+    search: string,
     insideList: string[] = [],
   ): Promise<T> {
     const entities = await this.fetchService.fetch<string[]>({

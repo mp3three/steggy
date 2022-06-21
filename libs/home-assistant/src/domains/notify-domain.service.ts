@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 
 import { HACallService } from '../services';
 
 @Injectable()
 export class NotifyDomainService {
   constructor(private readonly callService: HACallService) {
-    callService.domain = HASS_DOMAINS.notify;
+    callService.domain = 'notify';
   }
 
   public async notify(

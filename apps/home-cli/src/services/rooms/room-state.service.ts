@@ -10,7 +10,7 @@ import {
   RoomDTO,
   RoomStateDTO,
 } from '@steggy/controller-shared';
-import { domain, HASS_DOMAINS } from '@steggy/home-assistant-shared';
+import { domain } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
   IsDone,
@@ -275,9 +275,7 @@ export class RoomStateService {
       // Filter out non-actionable domains
       room.entities
         .map(({ entity_id }) => entity_id)
-        .filter(
-          entity_id => ![HASS_DOMAINS.sensor].includes(domain(entity_id)),
-        ),
+        .filter(entity_id => !['sensor'].includes(domain(entity_id))),
       current.states
         .filter(state => state.type === 'entity' && state.ref.includes('.'))
         .map(({ ref }) => ref),

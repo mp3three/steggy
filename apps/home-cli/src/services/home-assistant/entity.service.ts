@@ -3,7 +3,6 @@ import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import {
   domain,
   FanAttributesDTO,
-  HASS_DOMAINS,
   HassStateDTO,
   LightAttributesDTO,
 } from '@steggy/home-assistant-shared';
@@ -59,7 +58,7 @@ export class EntityService {
   ) {}
 
   public async buildList(
-    inList: HASS_DOMAINS[] = [],
+    inList: string[] = [],
     { omit = [], current = [] }: { current?: string[]; omit?: string[] } = {},
   ): Promise<string[]> {
     let entities = await this.list();
@@ -79,23 +78,23 @@ export class EntityService {
     current?: GeneralSaveStateDTO,
   ): Promise<GeneralSaveStateDTO> {
     switch (domain(entity_id)) {
-      case HASS_DOMAINS.light:
+      case 'light':
         return await this.lightService.createSaveCommand(
           entity_id,
           current as GeneralSaveStateDTO<LightAttributesDTO>,
         );
-      case HASS_DOMAINS.switch:
+      case 'switch':
         return await this.switchService.createSaveCommand(entity_id, current);
-      case HASS_DOMAINS.fan:
+      case 'fan':
         return await this.fanService.createSaveCommand(
           entity_id,
           current as GeneralSaveStateDTO<FanAttributesDTO>,
         );
-      case HASS_DOMAINS.media_player:
+      case 'media_player':
         return await this.mediaService.createSaveCommand(entity_id, current);
-      case HASS_DOMAINS.lock:
+      case 'lock':
         return await this.lockService.createSaveCommand(entity_id, current);
-      case HASS_DOMAINS.climate:
+      case 'climate':
         return await this.climateService.createSaveCommand(entity_id, current);
     }
     return await this.baseService.createSaveCommand(entity_id, current);
@@ -122,7 +121,7 @@ export class EntityService {
   }
 
   public async pickInDomain(
-    inList: HASS_DOMAINS[] = [],
+    inList: string[] = [],
     omit: string[] = [],
     defaultValue?: string,
   ): Promise<string> {
@@ -175,22 +174,22 @@ export class EntityService {
 
   public async process(id: string): Promise<void> {
     switch (domain(id)) {
-      case HASS_DOMAINS.light:
+      case 'light':
         await this.lightService.processId(id);
         return;
-      case HASS_DOMAINS.switch:
+      case 'switch':
         await this.switchService.processId(id);
         return;
-      case HASS_DOMAINS.fan:
+      case 'fan':
         await this.fanService.processId(id);
         return;
-      case HASS_DOMAINS.media_player:
+      case 'media_player':
         await this.mediaService.processId(id);
         return;
-      case HASS_DOMAINS.lock:
+      case 'lock':
         await this.lockService.processId(id);
         return;
-      case HASS_DOMAINS.climate:
+      case 'climate':
         await this.climateService.processId(id);
         return;
     }

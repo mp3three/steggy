@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
-import {
-  HASS_DOMAINS,
-  LightAttributesDTO,
-} from '@steggy/home-assistant-shared';
+import { LightAttributesDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 
 import { EntityService, HACallService } from '../services';
@@ -18,7 +15,7 @@ export class LightDomainService extends EntityService {
     private readonly callService: HACallService,
   ) {
     super();
-    callService.domain = HASS_DOMAINS.light;
+    callService.domain = 'light';
   }
   private CIRCADIAN_LIGHTING = new Set<string>();
 

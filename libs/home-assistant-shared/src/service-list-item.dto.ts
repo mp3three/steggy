@@ -1,7 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { HASS_DOMAINS } from './socket';
-
 export class ServiceListSelector {
   public boolean?: null;
   public entity?: {
@@ -38,7 +36,7 @@ export class ServiceListField {
 
 export class ServiceListItemDTO {
   @ApiProperty()
-  public domain: `${HASS_DOMAINS}`;
+  public domain: string;
   @ApiProperty()
   public services: Record<string, ServiceListField>;
 }

@@ -7,7 +7,7 @@ import {
   RoutineCommandDTO,
 } from '@steggy/controller-shared';
 import { HACallService } from '@steggy/home-assistant';
-import { domain } from '@steggy/home-assistant-shared';
+import { domain as getDomain } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 
 @RoutineCommand({
@@ -33,7 +33,13 @@ export class CallServiceService
     waitForChange: boolean;
   }): Promise<void> {
     const {
-      command: { service, entity_id, attributes = {}, set_attributes = [] },
+      command: {
+        service,
+        domain,
+        entity_id,
+        attributes = {},
+        set_attributes = [],
+      },
     } = command;
     if (is.empty(entity_id)) {
       this.logger.error({ command }, `{entity_id} not provided`);
@@ -54,7 +60,7 @@ export class CallServiceService
     await this.callService.call(
       service,
       service_data,
-      domain(entity_id),
+      domain || getDomain(entity_id),
       waitForChange,
     );
   }

@@ -15,7 +15,7 @@ import type {
   RoutineCommandGroupStateDTO,
 } from '@steggy/controller-shared';
 import { GROUP_TYPES, GroupDTO } from '@steggy/controller-shared';
-import { domain, HASS_DOMAINS } from '@steggy/home-assistant-shared';
+import { domain } from '@steggy/home-assistant-shared';
 import { BaseSchemaDTO } from '@steggy/persistence';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
 import { v4 } from 'uuid';
@@ -343,7 +343,7 @@ export class GroupService {
     group = await this.load(group);
     await each(group.entities, async entity => {
       if ((group as GroupDTO).type === GROUP_TYPES.light) {
-        if (domain(entity) !== HASS_DOMAINS.light) {
+        if (domain(entity) !== 'light') {
           await this.commandRouter.process(entity, 'turnOn');
           this.logger.warn({ entity }, `Invalid entity in light group`);
           return;

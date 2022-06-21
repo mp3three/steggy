@@ -12,7 +12,6 @@ import {
   GroupDTO,
   GroupSaveStateDTO,
 } from '@steggy/controller-shared';
-import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
   DONE,
@@ -73,18 +72,10 @@ export const GROUP_DEFINITIONS = new Map<GROUP_TYPES, string>([
 ]);
 
 const GROUP_DOMAINS = new Map([
-  [GROUP_TYPES.light, [HASS_DOMAINS.light]],
-  [
-    GROUP_TYPES.switch,
-    [
-      HASS_DOMAINS.light,
-      HASS_DOMAINS.fan,
-      HASS_DOMAINS.media_player,
-      HASS_DOMAINS.switch,
-    ],
-  ],
-  [GROUP_TYPES.lock, [HASS_DOMAINS.lock]],
-  [GROUP_TYPES.fan, [HASS_DOMAINS.fan]],
+  [GROUP_TYPES.light, [`light`]],
+  [GROUP_TYPES.switch, [`light`, `fan`, `media_player`, `switch`]],
+  [GROUP_TYPES.lock, [`lock`]],
+  [GROUP_TYPES.fan, [`fan`]],
 ]);
 const CACHE_KEY = `MENU_LAST_GROUP`;
 

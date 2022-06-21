@@ -1,10 +1,6 @@
 import { Injectable, Scope } from '@nestjs/common';
 import { AutoLogService, InjectLogger } from '@steggy/boilerplate';
-import {
-  HASS_DOMAINS,
-  HASSIO_WS_COMMAND,
-  HassStateDTO,
-} from '@steggy/home-assistant-shared';
+import { HASSIO_WS_COMMAND, HassStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 
 import { HASocketAPIService } from './ha-socket-api.service';
@@ -17,7 +13,7 @@ export class HACallService {
     private readonly logger: AutoLogService,
   ) {}
 
-  public domain: HASS_DOMAINS;
+  public domain: string;
 
   /**
    * Convenience wrapper around sendMsg
@@ -28,7 +24,7 @@ export class HACallService {
   public async call<T extends unknown = HassStateDTO>(
     service: string,
     service_data: Record<string, unknown> = {},
-    domain: HASS_DOMAINS = this.domain,
+    domain: string = this.domain,
     waitForChange = false,
   ): Promise<T> {
     // Filter out superfluous calls here
@@ -61,7 +57,7 @@ export class HACallService {
     return await this.call(
       'dismiss',
       { notification_id },
-      HASS_DOMAINS.persistentNotification,
+      'persistentNotification',
     );
   }
 
@@ -73,7 +69,7 @@ export class HACallService {
     payload: Record<string, unknown>,
   ): Promise<T> {
     return await this.socketService.sendMessage<T>({
-      domain: HASS_DOMAINS.mqtt,
+      domain: 'mqtt',
       service: 'publish',
       service_data: {
         topic,
@@ -100,15 +96,13 @@ export class HACallService {
         message,
         title,
       },
-      HASS_DOMAINS.notify,
+      'notify',
     );
   }
 
-  public async updateEntity(
-    entityId: string | string[],
-  ): Promise<HASS_DOMAINS> {
+  public async updateEntity(entityId: string | string[]): Promise<string> {
     return await this.socketService.sendMessage({
-      domain: HASS_DOMAINS.homeassistant,
+      domain: 'homeassistant',
       service: 'update_entity',
       service_data: {
         entity_id: entityId,

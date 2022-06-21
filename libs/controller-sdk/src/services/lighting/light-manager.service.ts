@@ -22,7 +22,6 @@ import {
   ColorModes,
   domain,
   HA_EVENT_STATE_CHANGE,
-  HASS_DOMAINS,
   HassEventDTO,
   LightAttributesDTO,
   LightStateDTO,
@@ -113,7 +112,7 @@ export class LightManagerService {
 
   public findDimmableLights(change: string[]): string[] {
     return this.entityManager
-      .findByDomain(HASS_DOMAINS.light)
+      .findByDomain('light')
       .map(({ entity_id }) => entity_id)
       .filter(id => change.includes(id));
   }
@@ -246,7 +245,7 @@ export class LightManagerService {
     event: HassEventDTO<string, LightAttributesDTO>,
   ): Promise<void> {
     const { entity_id, new_state, old_state } = event.data;
-    if (domain(entity_id) !== HASS_DOMAINS.light) {
+    if (domain(entity_id) !== 'light') {
       return;
     }
     if (old_state.state !== 'unavailable') {
@@ -265,9 +264,7 @@ export class LightManagerService {
   }
 
   private async findCircadianLights(): Promise<LightStateDTO[]> {
-    const lights = this.entityManager.findByDomain<LightStateDTO>(
-      HASS_DOMAINS.light,
-    );
+    const lights = this.entityManager.findByDomain<LightStateDTO>('light');
     const forceActive: string[] = [];
     await each(this.FORCE_CIRCADIAN, async id => {
       const entity = lights.find(({ entity_id }) => entity_id === id);

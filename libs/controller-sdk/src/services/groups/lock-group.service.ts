@@ -12,7 +12,6 @@ import {
 } from '@steggy/home-assistant';
 import {
   domain,
-  HASS_DOMAINS,
   LOCK_STATES,
   LockAttributesDTO,
   LockStateDTO,
@@ -145,8 +144,8 @@ export class LockGroupService extends BaseGroupService {
 
   private isValid(id: string | string[]): boolean {
     if (is.string(id)) {
-      return domain(id) === HASS_DOMAINS.lock;
+      return domain(id) === 'lock';
     }
-    return id.every(item => domain(item) === HASS_DOMAINS.lock);
+    return id.every(item => domain(item) === 'lock');
   }
 }

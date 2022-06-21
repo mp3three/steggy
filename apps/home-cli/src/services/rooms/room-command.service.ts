@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
 import { GroupDTO, RoomDTO, RoomEntityDTO } from '@steggy/controller-shared';
-import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
   IsDone,
@@ -320,15 +319,7 @@ export class RoomCommandService {
     current: string[] = [],
   ): Promise<RoomEntityDTO[]> {
     const ids = await this.entityService.buildList(
-      [
-        HASS_DOMAINS.climate,
-        HASS_DOMAINS.fan,
-        HASS_DOMAINS.light,
-        HASS_DOMAINS.lock,
-        HASS_DOMAINS.media_player,
-        HASS_DOMAINS.sensor,
-        HASS_DOMAINS.switch,
-      ],
+      ['climate', 'fan', 'light', 'lock', 'media_player', 'sensor', 'switch'],
       { current },
     );
     return ids.map(entity_id => ({

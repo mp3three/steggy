@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
-import { FanStateDTO, HASS_DOMAINS } from '@steggy/home-assistant-shared';
+import { FanStateDTO } from '@steggy/home-assistant-shared';
 import { START } from '@steggy/utilities';
 
 import { EntityManagerService, HACallService } from '../services';
@@ -16,7 +16,7 @@ export class FanDomainService {
     private readonly callService: HACallService,
     private readonly entityManager: EntityManagerService,
   ) {
-    callService.domain = HASS_DOMAINS.fan;
+    callService.domain = 'fan';
   }
 
   public async fanDirection(entityId?: string): Promise<void> {

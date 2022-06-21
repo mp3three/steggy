@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { domain, HASS_DOMAINS } from '@steggy/home-assistant-shared';
+import { domain } from '@steggy/home-assistant-shared';
 import { is, START } from '@steggy/utilities';
 
 import { HACallService } from '../services';
@@ -7,7 +7,7 @@ import { HACallService } from '../services';
 @Injectable()
 export class SwitchDomainService {
   constructor(private readonly callService: HACallService) {
-    this.callService.domain = HASS_DOMAINS.switch;
+    this.callService.domain = 'switch';
   }
 
   public async toggle(

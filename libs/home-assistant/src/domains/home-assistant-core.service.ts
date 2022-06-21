@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 
 import { HACallService } from '../services';
 
 @Injectable()
 export class HomeAssistantCoreService {
   constructor(private readonly callService: HACallService) {
-    this.callService.domain = HASS_DOMAINS.homeassistant;
+    this.callService.domain = 'homeassistant';
   }
 
   public async checkConfig(): Promise<void> {

@@ -5,10 +5,7 @@ import {
   HACallService,
   HomeAssistantFetchAPIService,
 } from '@steggy/home-assistant';
-import {
-  HASS_DOMAINS,
-  HomeAssistantServerLogItem,
-} from '@steggy/home-assistant-shared';
+import { HomeAssistantServerLogItem } from '@steggy/home-assistant-shared';
 import {
   ApiGenericResponse,
   AuthStack,
@@ -40,7 +37,7 @@ export class AdminController {
     description: `Clear recent logs`,
   })
   public async clearLogs(): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.callService.call('clear', {}, HASS_DOMAINS.system_log);
+    await this.callService.call('clear', {}, 'system_log');
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -60,7 +57,7 @@ export class AdminController {
   })
   public async hassReboot(): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     this.logger.warn(`Rebooting Home Assistant`);
-    await this.callService.call(`restart`, {}, HASS_DOMAINS.homeassistant);
+    await this.callService.call(`restart`, {}, 'homeassistant');
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -71,7 +68,7 @@ export class AdminController {
   })
   public async hassStop(): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     this.logger.warn(`Stopping Home Assistant`);
-    await this.callService.call(`stop`, {}, HASS_DOMAINS.homeassistant);
+    await this.callService.call(`stop`, {}, 'homeassistant');
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -107,7 +104,7 @@ export class AdminController {
     description: `Send a domain reload command to home assistant`,
   })
   public async reloadDomain(
-    @Param('domain') domain: HASS_DOMAINS,
+    @Param('domain') domain: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     this.logger.warn(`Reloading domain {${domain}}`);
     await this.callService.call(`reload`, {}, domain);

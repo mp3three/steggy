@@ -19,7 +19,6 @@ import {
   ClimateAttributesDTO,
   domain,
   FanAttributesDTO,
-  HASS_DOMAINS,
   LightAttributesDTO,
 } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
@@ -52,7 +51,7 @@ export class EntityCommandRouterService {
     waitForChange = false,
   ): Promise<void> {
     switch (domain(id)) {
-      case HASS_DOMAINS.light:
+      case 'light':
         await this.lightEntity(
           id,
           command as keyof LightManagerService,
@@ -60,22 +59,22 @@ export class EntityCommandRouterService {
           waitForChange,
         );
         return;
-      case HASS_DOMAINS.input_boolean:
-      case HASS_DOMAINS.switch:
+      case 'input_boolean':
+      case 'switch':
         await this.switchEntity(
           id,
           command as keyof SwitchDomainService,
           waitForChange,
         );
         return;
-      case HASS_DOMAINS.media_player:
+      case 'media_player':
         await this.mediaEntity(
           id,
           command as keyof MediaPlayerDomainService,
           waitForChange,
         );
         return;
-      case HASS_DOMAINS.fan:
+      case 'fan':
         await this.fanEntity(
           id,
           command as keyof FanDomainService,
@@ -83,14 +82,14 @@ export class EntityCommandRouterService {
           waitForChange,
         );
         return;
-      case HASS_DOMAINS.lock:
+      case 'lock':
         await this.lockEntity(
           id,
           command as keyof LockDomainService,
           waitForChange,
         );
         return;
-      case HASS_DOMAINS.climate:
+      case 'climate':
         await this.climateEntity(
           id,
           command as keyof ClimateDomainService,

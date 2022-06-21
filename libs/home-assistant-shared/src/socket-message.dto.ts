@@ -1,11 +1,7 @@
 import { IsString } from 'class-validator';
 
 import { HassEventDTO } from './hass-event.dto';
-import {
-  HASS_DOMAINS,
-  HASSIO_WS_COMMAND,
-  HassSocketMessageTypes,
-} from './socket';
+import { HASSIO_WS_COMMAND, HassSocketMessageTypes } from './socket';
 
 export class AreaDTO {
   public area_id: string;
@@ -80,7 +76,7 @@ export class SocketMessageDTO {
 
 export class SendSocketMessageDTO {
   public access_token?: string;
-  public domain?: HASS_DOMAINS;
+  public domain?: string;
   public id?: number;
   public service?: string;
   public service_data?: unknown;

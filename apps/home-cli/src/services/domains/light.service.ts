@@ -1,7 +1,6 @@
 import { Inject, Injectable, NotImplementedException } from '@nestjs/common';
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import {
-  HASS_DOMAINS,
   LightAttributesDTO,
   LightStateDTO,
 } from '@steggy/home-assistant-shared';
@@ -143,7 +142,7 @@ export class LightService extends SwitchService {
   public async swapState(id: string, withinList?: string[]): Promise<void> {
     const state = await this.getState<LightStateDTO>(id);
     const swapWith = await this.pickFromDomain<LightStateDTO>(
-      HASS_DOMAINS.light,
+      `light`,
       withinList,
     );
     await this.setState(swapWith.entity_id, {

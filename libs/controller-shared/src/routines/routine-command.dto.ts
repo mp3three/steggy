@@ -145,6 +145,9 @@ export class CallServiceCommandDTO {
   public attributes?: Record<string, unknown>;
   @ApiProperty()
   @IsString()
+  public domain?: string;
+  @ApiProperty()
+  @IsString()
   public entity_id: string;
   @ApiProperty()
   @IsString()

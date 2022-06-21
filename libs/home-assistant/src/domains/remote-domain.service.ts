@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 
 import { HACallService } from '../services';
 
@@ -9,7 +8,7 @@ import { HACallService } from '../services';
 @Injectable()
 export class RemoteDomainService {
   constructor(private readonly callService: HACallService) {
-    callService.domain = HASS_DOMAINS.remote;
+    callService.domain = 'remote';
   }
 
   public async sendCommand(entityId: string | string[]): Promise<void> {
