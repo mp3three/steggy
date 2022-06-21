@@ -18,6 +18,7 @@ export class ServiceListSelector {
     options: Record<'label' | 'value', string>[] | string[];
   };
   public text?: null;
+  public time?: null;
 }
 
 export class ServiceListFieldDescription {

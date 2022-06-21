@@ -1,6 +1,7 @@
 import { CallServiceCommandDTO } from '@steggy/controller-shared';
 import {
   HassStateDTO,
+  ServiceListField,
   ServiceListFieldDescription,
   ServiceListItemDTO,
 } from '@steggy/home-assistant-shared';
@@ -64,12 +65,27 @@ export function CallServiceCommand(props: {
     }
     refresh();
   }, [props.command?.entity_id]);
-  const serviceList = availableServices.find(
-    i => i.domain === domain(props.command?.entity_id),
+  const allServices = availableServices.filter(
+    i =>
+      // direct match of domain
+      i.domain === domain(props.command?.entity_id) ||
+      // something more integration specific
+      // has a selector for a domain
+      Object.values(i?.services ?? {}).some(i =>
+        Object.values(i?.fields ?? {}).some(
+          // There can be a `domain` selector also, but I'm not sure where to get that info from right now
+          i => i.selector?.entity?.domain === domain(props.command?.entity_id),
+        ),
+      ),
   );
-  const service = serviceList
-    ? serviceList?.services[props.command.service]
-    : undefined;
+  let service: ServiceListField;
+  if (!is.empty(allServices)) {
+    allServices.forEach(i => {
+      if (i.services[props.command.service]) {
+        service = i.services[props.command.service];
+      }
+    });
+  }
   if (props.command) {
     props.command.attributes ??= {};
     props.command.set_attributes ??= [];
@@ -81,6 +97,21 @@ export function CallServiceCommand(props: {
         [fieldName]: value,
       },
     });
+  type tCommandList = [{ domain: string; service: string }, ServiceListField];
+  const commands: tCommandList[] = [];
+  allServices.forEach(i => {
+    Object.entries(i.services).forEach(([name, service]) => {
+      commands.push([
+        { domain: i.domain, service: name },
+        service,
+      ] as tCommandList);
+    });
+  });
+
+  function sendUpdate(update: string) {
+    const [domain, service] = update.split('.');
+    props.onUpdate({ attributes: {}, domain, service, set_attributes: [] });
+  }
 
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
@@ -93,19 +124,29 @@ export function CallServiceCommand(props: {
           data={entities.map(id => ({ text: id, value: id }))}
         />
       </Form.Item>
-      {!serviceList ? undefined : (
+      {!commands ? undefined : (
         <Form.Item label="Service">
           <Select
-            value={props.command.service}
-            onChange={service =>
-              props.onUpdate({ attributes: {}, service, set_attributes: [] })
+            value={
+              is.empty(props.command.service)
+                ? ''
+                : [props.command.domain, props.command.service].join(`.`)
             }
+            onChange={service => sendUpdate(service)}
           >
-            {Object.keys(serviceList?.services)
-              .sort((a, b) => (a > b ? UP : DOWN))
-              .map(service => (
-                <Select.Option key={service} value={service}>
-                  {serviceList?.services[service].name}
+            {commands
+              .sort(([aDomain, a], [bDomain, b]) =>
+                aDomain.domain > bDomain.domain ||
+                (a.name || aDomain.service) > (b.name || bDomain.service)
+                  ? UP
+                  : DOWN,
+              )
+              .map(([{ domain, service }, serviceItem]) => (
+                <Select.Option
+                  key={[domain, service].join('.')}
+                  value={[domain, service].join('.')}
+                >
+                  {serviceItem.name || service}
                 </Select.Option>
               ))}
           </Select>
@@ -123,157 +164,179 @@ export function CallServiceCommand(props: {
         // * FIELDS
         // *
         Object.entries(service.fields).map(
-          ([fieldName, field]: [string, ServiceListFieldDescription]) => (
-            <Form.Item
-              labelCol={{ span: 8 }}
-              label={
-                <Popover
-                  title={
-                    <Typography.Title level={5}>{field.name}</Typography.Title>
-                  }
-                  content={
-                    <>
-                      {field.description}
-                      {is.undefined(service.example) ? undefined : (
-                        <>
-                          <Divider />
-                          <Typography.Text code>
-                            {JSON.stringify(service.example)}
-                          </Typography.Text>
-                        </>
-                      )}
-                      {field.advanced ? (
-                        <>
-                          <Divider />
-                          <Typography.Text type="secondary">
-                            Dev note: Property flagged as "advanced". It may
-                            require another attribute ALSO be set (ex: min temp
-                            + max temp, instead of just one of them), or some
-                            other extra logic. This is the most I know about it
-                            right now.
-                          </Typography.Text>
-                        </>
-                      ) : undefined}
-                    </>
-                  }
-                >
-                  {field.advanced ? (
-                    <Typography.Text style={{ color: 'blue' }}>
-                      {'* '}
-                    </Typography.Text>
-                  ) : undefined}
-                  {field.name || TitleCase(fieldName)}
-                </Popover>
-              }
-            >
-              <Space style={{ width: '100%' }}>
-                <Tooltip title="Set value">
-                  <Checkbox
-                    onChange={({ target }) =>
-                      target.checked
-                        ? props.onUpdate({
-                            set_attributes: [
-                              ...props.command.set_attributes,
-                              fieldName,
-                            ],
-                          })
-                        : props.onUpdate({
-                            set_attributes: props.command.set_attributes.filter(
-                              i => i !== fieldName,
-                            ),
-                          })
+          ([fieldName, field]: [string, ServiceListFieldDescription]) =>
+            !is.undefined(field.selector.entity) ? undefined : (
+              <Form.Item
+                labelCol={{ span: 8 }}
+                label={
+                  <Popover
+                    title={
+                      <Typography.Title level={5}>
+                        {field.name}
+                      </Typography.Title>
                     }
-                    checked={props.command.set_attributes?.includes(fieldName)}
-                  />
-                </Tooltip>
-
-                {/* BOOLEAN */}
-                {field.selector.boolean === null ? (
-                  <Checkbox
-                    checked={props.command.attributes[fieldName] as boolean}
-                    onChange={({ target }) =>
-                      updateAttribute(target.checked, fieldName)
+                    content={
+                      <>
+                        {field.description}
+                        {is.undefined(service.example) ? undefined : (
+                          <>
+                            <Divider />
+                            <Typography.Text code>
+                              {JSON.stringify(service.example)}
+                            </Typography.Text>
+                          </>
+                        )}
+                        {field.advanced ? (
+                          <>
+                            <Divider />
+                            <Typography.Text type="secondary">
+                              Dev note: Property flagged as "advanced". It may
+                              require another attribute ALSO be set (ex: min
+                              temp + max temp, instead of just one of them), or
+                              some other extra logic. This is the most I know
+                              about it right now.
+                            </Typography.Text>
+                          </>
+                        ) : undefined}
+                      </>
                     }
-                  />
-                ) : undefined}
-                {/* ENTITY */}
-                {field.selector.entity ? (
-                  <FuzzySelect
-                    onChange={value => updateAttribute(value, fieldName)}
-                    value={props.command.attributes[fieldName] as string}
-                    data={entities
-                      .filter(id =>
-                        is.empty(field.selector.entity.domain)
-                          ? true
-                          : domain(id) === field.selector.entity.domain,
-                      )
-                      .map(id => ({ text: id, value: id }))}
-                  />
-                ) : undefined}
-                {/* NUMBER */}
-                {field.selector.number ? (
-                  <InputNumber
-                    max={field.selector.number.max}
-                    min={field.selector.number.min}
-                    step={field.selector.number.step}
-                    defaultValue={Number(props.command.attributes[fieldName])}
-                    onBlur={({ target }) =>
-                      updateAttribute(Number(target.value), fieldName)
-                    }
-                    placeholder={
-                      entity
-                        ? String(entity?.attributes[fieldName] ?? '')
-                        : undefined
-                    }
-                    addonAfter={field.selector.number.unit_of_measurement}
-                  />
-                ) : undefined}
-                {/* OBJECT */}
-                {field.selector.object ? (
-                  <Input
-                    onBlur={value => updateAttribute(value, fieldName)}
-                    defaultValue={props.command.attributes[fieldName] as string}
-                    placeholder={
-                      (service.example as string) ?? 'Enter value as json'
-                    }
-                  />
-                ) : undefined}
-                {/* SELECT */}
-                {field.selector.select ? (
-                  <Select
-                    style={{ minWidth: '150px' }}
-                    onChange={value => updateAttribute(value, fieldName)}
-                    value={props.command.attributes[fieldName] as string}
                   >
-                    {field.selector.select.options.map(
-                      (option: string | Record<'label' | 'value', string>) =>
-                        is.string(option) ? (
-                          <Select.Option key={option} value={option}>
-                            {option}
-                          </Select.Option>
-                        ) : (
-                          <Select.Option
-                            key={option.value}
-                            value={option.value}
-                          >
-                            {option.label}
-                          </Select.Option>
-                        ),
-                    )}
-                  </Select>
-                ) : undefined}
-                {/* TEXT */}
-                {field.selector.text ? (
-                  <Input
-                    defaultValue={props.command.attributes[fieldName] as string}
-                    onBlur={({ target }) =>
-                      updateAttribute(target.checked, fieldName)
-                    }
-                  />
-                ) : undefined}
-              </Space>
-            </Form.Item>
-          ),
+                    {field.advanced ? (
+                      <Typography.Text style={{ color: 'blue' }}>
+                        {'* '}
+                      </Typography.Text>
+                    ) : undefined}
+                    {field.name || TitleCase(fieldName)}
+                  </Popover>
+                }
+              >
+                <Space style={{ width: '100%' }}>
+                  <Tooltip title="Set value">
+                    <Checkbox
+                      onChange={({ target }) =>
+                        target.checked
+                          ? props.onUpdate({
+                              set_attributes: [
+                                ...props.command.set_attributes,
+                                fieldName,
+                              ],
+                            })
+                          : props.onUpdate({
+                              set_attributes:
+                                props.command.set_attributes.filter(
+                                  i => i !== fieldName,
+                                ),
+                            })
+                      }
+                      checked={props.command.set_attributes?.includes(
+                        fieldName,
+                      )}
+                    />
+                  </Tooltip>
+
+                  {/* BOOLEAN */}
+                  {field.selector.boolean === null ? (
+                    <Checkbox
+                      checked={props.command.attributes[fieldName] as boolean}
+                      onChange={({ target }) =>
+                        updateAttribute(target.checked, fieldName)
+                      }
+                    />
+                  ) : undefined}
+                  {/* ENTITY */}
+                  {field.selector.entity ? (
+                    <FuzzySelect
+                      onChange={value => updateAttribute(value, fieldName)}
+                      value={props.command.attributes[fieldName] as string}
+                      style={{ minWidth: '250px' }}
+                      data={entities
+                        .filter(id =>
+                          is.empty(field.selector.entity.domain)
+                            ? true
+                            : domain(id) === field.selector.entity.domain,
+                        )
+                        .map(id => ({ text: id, value: id }))}
+                    />
+                  ) : undefined}
+                  {/* NUMBER */}
+                  {field.selector.number ? (
+                    <InputNumber
+                      max={field.selector.number.max}
+                      min={field.selector.number.min}
+                      step={field.selector.number.step}
+                      defaultValue={Number(props.command.attributes[fieldName])}
+                      onBlur={({ target }) =>
+                        updateAttribute(Number(target.value), fieldName)
+                      }
+                      placeholder={
+                        entity
+                          ? String(entity?.attributes[fieldName] ?? '')
+                          : undefined
+                      }
+                      addonAfter={field.selector.number.unit_of_measurement}
+                    />
+                  ) : undefined}
+                  {/* OBJECT */}
+                  {field.selector.object ? (
+                    <Input
+                      onBlur={value => updateAttribute(value, fieldName)}
+                      defaultValue={
+                        props.command.attributes[fieldName] as string
+                      }
+                      placeholder={
+                        (service.example as string) ?? 'Enter value as json'
+                      }
+                    />
+                  ) : undefined}
+                  {/* SELECT */}
+                  {field.selector.select ? (
+                    <Select
+                      style={{ minWidth: '150px' }}
+                      onChange={value => updateAttribute(value, fieldName)}
+                      value={props.command.attributes[fieldName] as string}
+                    >
+                      {field.selector.select.options.map(
+                        (option: string | Record<'label' | 'value', string>) =>
+                          is.string(option) ? (
+                            <Select.Option key={option} value={option}>
+                              {option}
+                            </Select.Option>
+                          ) : (
+                            <Select.Option
+                              key={option.value}
+                              value={option.value}
+                            >
+                              {option.label}
+                            </Select.Option>
+                          ),
+                      )}
+                    </Select>
+                  ) : undefined}
+                  {/* TEXT */}
+                  {!is.undefined(field.selector.text) ? (
+                    <Input
+                      defaultValue={
+                        props.command.attributes[fieldName] as string
+                      }
+                      onBlur={({ target }) =>
+                        updateAttribute(target.checked, fieldName)
+                      }
+                    />
+                  ) : undefined}
+                  {/* TIME */}
+                  {!is.undefined(field.selector.time) ? (
+                    <Input
+                      defaultValue={
+                        props.command.attributes[fieldName] as string
+                      }
+                      onBlur={({ target }) =>
+                        updateAttribute(target.checked, fieldName)
+                      }
+                    />
+                  ) : undefined}
+                </Space>
+              </Form.Item>
+            ),
         )
       )}
     </Space>
