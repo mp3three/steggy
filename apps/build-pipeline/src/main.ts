@@ -78,13 +78,13 @@ export class BuildPipelineService {
       type: 'string',
     })
     private readonly head: string,
-    @InjectConfig('RUN_ALL', {
+    @InjectConfig('ALL', {
       default: false,
       description: 'Do not look for affected, just run everything',
       type: 'boolean',
     })
     private readonly runAll: boolean,
-    @InjectConfig('RUN_PROJECT', {
+    @InjectConfig('RUN', {
       description:
         'Manually select project to build. If project is a library, all other libraries will be included.',
       type: 'string[]',
