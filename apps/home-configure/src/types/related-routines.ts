@@ -24,8 +24,8 @@ export const RELATED_ROUTINES = {
       },
       {
         filters: new Set([
-          { commandType, value: 'entity_state' },
-          { field: 'command.command.ref', value },
+          { commandType, value: 'call_service' },
+          { field: 'command.command.entity_id', value },
         ]),
         sort: ['friendlyName'],
       },

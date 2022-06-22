@@ -172,7 +172,7 @@ export class EntityRenameService {
     // Automated migrations don't need race conditions
     await this.renameInRoutines_activateAttribute(from, to);
     await this.renameInRoutines_activateSequence(from, to);
-    await this.renameInRoutines_commandEntityState(from, to);
+    await this.renameInRoutines_commandCallService(from, to);
     await this.renameInRoutines_commandStopProcessing(from, to);
     await this.renameInRoutines_enable(from, to);
   }
@@ -250,15 +250,15 @@ export class EntityRenameService {
     });
   }
 
-  private async renameInRoutines_commandEntityState(from, to): Promise<void> {
+  private async renameInRoutines_commandCallService(from, to): Promise<void> {
     const list = await this.routineService.list({
       filters: new Set([
         {
           field: 'command.type',
-          value: 'entity_state',
+          value: 'call_service',
         },
         {
-          field: 'command.command.ref',
+          field: 'command.command.entity_id',
           value: from,
         },
       ]),
@@ -269,7 +269,7 @@ export class EntityRenameService {
     await eachSeries(list, async routine => {
       routine.command = routine.command.map(
         (command: RoutineCommandDTO<GeneralSaveStateDTO>) => {
-          if (command.type !== 'entity_state') {
+          if (command.type !== 'call_service') {
             return command;
           }
           this.logger.debug(

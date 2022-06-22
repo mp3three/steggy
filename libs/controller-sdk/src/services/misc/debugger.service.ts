@@ -2,8 +2,8 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   AttributeChangeActivateDTO,
+  CallServiceCommandDTO,
   DebugReportDTO,
-  GeneralSaveStateDTO,
   GroupDTO,
   MetadataComparisonDTO,
   PersonDTO,
@@ -171,16 +171,16 @@ export class DebuggerService {
             return exists;
 
           // ENTITIES
-          case 'entity_state':
+          case 'call_service':
             exists = entities.includes(
-              (command.command as GeneralSaveStateDTO).ref,
+              (command.command as CallServiceCommandDTO).entity_id,
             );
             if (!exists) {
               this.logger.warn(
                 `Routine command [${routine.friendlyName}]>[${
                   command.friendlyName
                 }] refers to missing entity {${
-                  (command.command as GeneralSaveStateDTO).ref
+                  (command.command as CallServiceCommandDTO).entity_id
                 }}`,
               );
             }

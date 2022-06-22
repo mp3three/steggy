@@ -1,11 +1,5 @@
 # Routine Commands
 
-## Entity State
-
-Manipulate entity state / attributes.
-
-[![Entity State Command](images/command.entity_state.png)](images/command.entity_state.png)
-
 ## Group State
 
 Trigger a previously saved group state

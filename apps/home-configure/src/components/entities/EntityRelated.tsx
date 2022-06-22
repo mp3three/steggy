@@ -118,8 +118,8 @@ export function EntityRelated(props: { entity: string }) {
               },
               {
                 filters: new Set([
-                  { field: 'command.type', value: 'entity_state' },
-                  { field: 'command.command.ref', value: props.entity },
+                  { field: 'command.type', value: 'call_service' },
+                  { field: 'command.command.entity_id', value: props.entity },
                 ]),
               },
             ] as ResultControlDTO[]

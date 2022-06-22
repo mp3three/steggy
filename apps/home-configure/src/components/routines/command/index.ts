@@ -1,7 +1,6 @@
 export * from './CallServiceCommand';
 export * from './CommandAdd';
 export * from './CommandList';
-export * from './EntityStateCommand';
 export * from './GroupActionCommand';
 export * from './GroupStateCommand';
 export * from './NodeRedCommand';

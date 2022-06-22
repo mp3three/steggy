@@ -5,7 +5,7 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 import {
-  GeneralSaveStateDTO,
+  CallServiceCommandDTO,
   GroupDTO,
   RoomDTO,
   RoutineCommandDTO,
@@ -88,15 +88,18 @@ export class RoutineCommandService {
           chalk`{bold Method:} ${webhook.method}`,
           chalk`{bold Target:} ${webhook.url}`,
         ].join(`\n`);
-      case 'entity_state':
-        const entityState = current.command as GeneralSaveStateDTO;
+      case 'call_service':
+        const entityState = current.command as CallServiceCommandDTO;
         return [
-          chalk`{bold Entity:} ${entityState.ref}`,
-          chalk`{bold State:} ${entityState.state}`,
-          ...(entityState.extra
-            ? Object.keys(entityState.extra).map(
+          chalk`{bold Entity:} ${entityState.entity_id}`,
+          chalk`{bold Domain:} ${entityState.domain}`,
+          chalk`{bold Service:} ${entityState.service}`,
+          ...(entityState.attributes
+            ? Object.keys(entityState.attributes).map(
                 key =>
-                  chalk`{bold ${TitleCase(key)}:} ${entityState.extra[key]}`,
+                  chalk`{bold ${TitleCase(key)}:} ${
+                    entityState.attributes[key]
+                  }`,
               )
             : []),
         ].join(`\n`);
