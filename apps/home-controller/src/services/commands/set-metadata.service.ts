@@ -3,6 +3,7 @@ import { AutoLogService } from '@steggy/boilerplate';
 import {
   ChronoService,
   iRoutineCommand,
+  MathService,
   MetadataUpdate,
   PERSON_METADATA_UPDATED,
   PersonService,
@@ -21,9 +22,8 @@ import { HASocketAPIService } from '@steggy/home-assistant';
 import { EMPTY, is, START } from '@steggy/utilities';
 import { isNumberString } from 'class-validator';
 import EventEmitter from 'eventemitter3';
-import { parse } from 'mathjs';
 
-type NumberTypes = 'set_value' | 'increment' | 'decrement' | 'formula';
+type NumberTypes = 'set_value' | 'increment' | 'decrement' | 'formula' | 'eval';
 
 @RoutineCommand({
   description: 'Update metadata for a person/room',
@@ -44,6 +44,7 @@ export class SetMetadataService
     private readonly socketService: HASocketAPIService,
     @Inject(forwardRef(() => VMService))
     private readonly vmService: VMService,
+    private readonly mathService: MathService,
   ) {}
 
   public async activate({
@@ -105,13 +106,17 @@ export class SetMetadataService
     return command.value;
   }
 
-  private getNumberValue(
+  // eslint-disable-next-line radar/cognitive-complexity
+  private async getNumberValue(
     command: SetRoomMetadataCommandDTO,
     room: RoomDTO,
     metadata: RoomMetadataDTO,
-  ): number {
+  ): Promise<number> {
     const valueType = (command.valueType ?? 'set_value') as NumberTypes;
     let setValue = command.value;
+    if (valueType === 'eval') {
+      return EMPTY;
+    }
     if (valueType === 'formula') {
       if (!is.string(setValue)) {
         this.logger.error(
@@ -121,19 +126,7 @@ export class SetMetadataService
         return EMPTY;
       }
       try {
-        const node = parse(setValue);
-        if (!node) {
-          return EMPTY;
-        }
-        return node.evaluate(
-          // Inject all numeric metadata for the same room
-          // TODO: entity info also?
-          Object.fromEntries(
-            room.metadata
-              .filter(({ type }) => type === 'number')
-              .map(({ name, value }) => [name, value as number]),
-          ),
-        );
+        return await this.mathService.exec(setValue);
       } catch (error) {
         this.logger.error({ error });
         return EMPTY;
@@ -217,7 +210,7 @@ export class SetMetadataService
       return (start as Date).toISOString();
     }
     if (metadata.type === 'number') {
-      return this.getNumberValue(command, room, metadata);
+      return await this.getNumberValue(command, room, metadata);
     }
     throw new NotImplementedException(`Bad metadata type: ${metadata.type}`);
   }

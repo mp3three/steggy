@@ -1,19 +1,15 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { AutoLogService } from '@steggy/boilerplate';
 import dayjs from 'dayjs';
 import { VM } from 'vm2';
 
-import { PersonService } from '../person.service';
-import { RoomService } from '../room.service';
-import { SecretsService } from '../secrets.service';
+import { DataAggregatorService } from './data-aggregator.service';
 
 @Injectable()
 export class VMService {
   constructor(
-    @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
-    @Inject(forwardRef(() => PersonService))
-    private readonly personService: PersonService,
-    private readonly secretsService: SecretsService,
+    private readonly logger: AutoLogService,
+    private readonly dataAggregator: DataAggregatorService,
   ) {}
 
   public async exec<T>(
@@ -25,9 +21,7 @@ export class VMService {
       fixAsync: true,
       sandbox: {
         dayjs,
-        ...(await this.roomService.buildMetadata()),
-        ...(await this.personService.buildMetadata()),
-        ...(await this.secretsService.buildMetadata()),
+        ...(await this.dataAggregator.exec()),
         ...parameters,
       },
       timeout: 250,

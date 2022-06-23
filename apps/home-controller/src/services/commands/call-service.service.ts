@@ -4,6 +4,7 @@ import { AutoLogService } from '@steggy/boilerplate';
 import {
   ChronoService,
   iRoutineCommand,
+  MathService,
   RoutineCommand,
   VMService,
 } from '@steggy/controller-sdk';
@@ -16,7 +17,6 @@ import { HACallService, HASocketAPIService } from '@steggy/home-assistant';
 import { domain as getDomain } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import { each } from 'async';
-import { parse } from 'mathjs';
 
 @RoutineCommand({
   description:
@@ -24,7 +24,7 @@ import { parse } from 'mathjs';
   name: 'Call Service',
   type: 'call_service',
 })
-// ServiceServiceService
+// ServiceServiceServiceServiceService
 export class CallServiceService
   implements iRoutineCommand<CallServiceCommandDTO>
 {
@@ -34,6 +34,7 @@ export class CallServiceService
     private readonly vmService: VMService,
     private readonly socketService: HASocketAPIService,
     private readonly chronoService: ChronoService,
+    private readonly mathService: MathService,
   ) {}
 
   public async activate({
@@ -95,8 +96,7 @@ export class CallServiceService
         return;
       }
       if (type === 'math') {
-        const node = parse(value as string);
-        out[key] = node.evaluate();
+        out[key] = await this.mathService.exec(value as string);
         return;
       }
       if (type === 'chrono') {

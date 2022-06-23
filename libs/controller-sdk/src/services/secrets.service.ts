@@ -10,7 +10,7 @@ export class SecretsService {
     private readonly secrets: Record<string, string> = {},
   ) {}
 
-  public buildMetadata(): Record<string, Record<string, unknown>> {
+  public buildMetadata(): { secrets: Record<string, unknown> } {
     return { secrets: this.secrets };
   }
 

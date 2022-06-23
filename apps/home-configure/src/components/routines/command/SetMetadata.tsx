@@ -205,7 +205,8 @@ export function SetRoomMetadataCommand(props: {
             <Radio.Button value="set_value">Set value</Radio.Button>
             <Radio.Button value="increment">Increment</Radio.Button>
             <Radio.Button value="decrement">Decrement</Radio.Button>
-            <Radio.Button value="formula">Formula</Radio.Button>
+            <Radio.Button value="formula">Math Formula</Radio.Button>
+            <Radio.Button value="eval">Javascript</Radio.Button>
           </Radio.Group>
           {props.command?.valueType === 'formula' ? (
             <Space direction="vertical" style={{ width: '100%' }}>

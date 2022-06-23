@@ -25,6 +25,7 @@ export class PersonGroupService extends BaseGroupService {
     protected readonly logger: AutoLogService,
     @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
+    @Inject(forwardRef(() => PersonService))
     private readonly personService: PersonService,
     protected readonly groupPersistence: GroupPersistenceService,
   ) {
