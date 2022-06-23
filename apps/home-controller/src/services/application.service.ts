@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService, InjectConfig, OnEvent } from '@steggy/boilerplate';
-import { LIB_CONTROLLER_SDK, SAFE_MODE } from '@steggy/controller-sdk';
+import {
+  LIB_CONTROLLER_SDK,
+  RoutineService,
+  SAFE_MODE,
+} from '@steggy/controller-sdk';
 import {
   HASocketAPIService,
   NotifyDomainService,
@@ -19,6 +23,7 @@ export class ApplicationService {
     private readonly logger: AutoLogService,
     private readonly notifyService: NotifyDomainService,
     private readonly socketApi: HASocketAPIService,
+    private readonly routineService: RoutineService,
   ) {}
   private connectionReady = false;
 

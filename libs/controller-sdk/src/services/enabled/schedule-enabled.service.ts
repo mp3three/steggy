@@ -54,7 +54,7 @@ export class ScheduleEnabledService
     const result = this.stopProcessing.dateComparison(comparison);
     if (result !== currentState) {
       this.logger.info(
-        `[${this.routineEnabled.superFriendlyName(routine._id)}] State changed`,
+        `${this.routineEnabled.superFriendlyName(routine._id)} State changed`,
       );
       return result;
     }

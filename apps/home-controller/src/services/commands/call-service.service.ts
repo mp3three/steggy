@@ -1,14 +1,22 @@
 // ManualEntityCommandDTO
 
 import { AutoLogService } from '@steggy/boilerplate';
-import { iRoutineCommand, RoutineCommand } from '@steggy/controller-sdk';
 import {
+  ChronoService,
+  iRoutineCommand,
+  RoutineCommand,
+  VMService,
+} from '@steggy/controller-sdk';
+import {
+  CallServiceCommandAttribute,
   CallServiceCommandDTO,
   RoutineCommandDTO,
 } from '@steggy/controller-shared';
-import { HACallService } from '@steggy/home-assistant';
+import { HACallService, HASocketAPIService } from '@steggy/home-assistant';
 import { domain as getDomain } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
+import { each } from 'async';
+import { parse } from 'mathjs';
 
 @RoutineCommand({
   description:
@@ -23,6 +31,9 @@ export class CallServiceService
   constructor(
     private readonly logger: AutoLogService,
     private readonly callService: HACallService,
+    private readonly vmService: VMService,
+    private readonly socketService: HASocketAPIService,
+    private readonly chronoService: ChronoService,
   ) {}
 
   public async activate({
@@ -49,11 +60,7 @@ export class CallServiceService
       this.logger.error({ command }, `{service} not provided`);
       return;
     }
-    const filtered = Object.fromEntries(
-      Object.entries(attributes).filter(([field]) =>
-        set_attributes.includes(field),
-      ),
-    );
+    const filtered = await this.buildAttributes(attributes, set_attributes);
     const service_data = { ...filtered, entity_id };
     this.logger.debug({ service_data }, `[${entity_id}] {${service}}`);
 
@@ -63,5 +70,44 @@ export class CallServiceService
       domain || getDomain(entity_id),
       waitForChange,
     );
+  }
+
+  private async buildAttributes(
+    attributes: Record<string, CallServiceCommandAttribute>,
+    set_attributes: string[],
+  ): Promise<Record<string, unknown>> {
+    const out: Record<string, unknown> = {};
+    await each(Object.entries(attributes), async ([key, { type, value }]) => {
+      if (!set_attributes.includes(key)) {
+        return;
+      }
+      type ||= 'simple';
+      if (type === 'eval') {
+        out[key] = await this.vmService.exec(value as string);
+        return;
+      }
+      if (type === 'template') {
+        out[key] = await this.socketService.renderTemplate(value as string);
+        return;
+      }
+      if (type === 'simple') {
+        out[key] = value;
+        return;
+      }
+      if (type === 'math') {
+        const node = parse(value as string);
+        out[key] = node.evaluate();
+        return;
+      }
+      if (type === 'chrono') {
+        const [start] = await this.chronoService.parse(value as string);
+        if (is.date(start)) {
+          out[key] = start;
+        }
+        return;
+      }
+      this.logger.error(`Unknown type {${type}}`);
+    });
+    return out;
   }
 }

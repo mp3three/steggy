@@ -110,7 +110,7 @@ export class SetMetadataService
     room: RoomDTO,
     metadata: RoomMetadataDTO,
   ): number {
-    const valueType = (command.type ?? 'set_value') as NumberTypes;
+    const valueType = (command.valueType ?? 'set_value') as NumberTypes;
     let setValue = command.value;
     if (valueType === 'formula') {
       if (!is.string(setValue)) {
@@ -173,7 +173,7 @@ export class SetMetadataService
       this.logger.error({ command }, `Value is not string`);
       return ``;
     }
-    const type = command.type ?? 'simple';
+    const type = command.valueType ?? 'simple';
     if (type === 'simple') {
       return command.value;
     }

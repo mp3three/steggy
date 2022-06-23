@@ -44,7 +44,7 @@ export function SetRoomMetadataCommand(props: {
       });
       setParsedExpression(parsed);
     }
-    if (props?.command?.type !== 'date') {
+    if (props?.command?.valueType !== 'date') {
       return;
     }
     refresh();
@@ -197,15 +197,17 @@ export function SetRoomMetadataCommand(props: {
         <Space direction="vertical">
           <Radio.Group
             buttonStyle="solid"
-            value={props.command?.type ?? 'set_value'}
-            onChange={({ target }) => props.onUpdate({ type: target.value })}
+            value={props.command?.valueType ?? 'set_value'}
+            onChange={({ target }) =>
+              props.onUpdate({ valueType: target.value })
+            }
           >
             <Radio.Button value="set_value">Set value</Radio.Button>
             <Radio.Button value="increment">Increment</Radio.Button>
             <Radio.Button value="decrement">Decrement</Radio.Button>
             <Radio.Button value="formula">Formula</Radio.Button>
           </Radio.Group>
-          {props.command?.type === 'formula' ? (
+          {props.command?.valueType === 'formula' ? (
             <Space direction="vertical" style={{ width: '100%' }}>
               <div style={{ textAlign: 'right' }}>
                 <Tooltip
@@ -269,7 +271,7 @@ export function SetRoomMetadataCommand(props: {
           <Select
             style={{ width: '250px' }}
             value={type}
-            onChange={type => props.onUpdate({ type })}
+            onChange={valueType => props.onUpdate({ valueType })}
           >
             <Select.Option value="simple">Plain Text</Select.Option>
             <Select.Option value="template">

@@ -228,7 +228,8 @@ export class AutoConfigService {
    * What it gains in easy readability it loses in precision, and the ability to potentially have conflicts between libraries.
    *
    * Configuration property names here attempt to snag anything that seems close to the correct thing.
-   * They are treated as case insensitive, and dashes / underscores are both interchangable.
+   * They are treated as case insensitive, and dashes / underscores are both interchangable and optional.
+   * The default suggestion will use the same case as provided in the original value.
    *
    * Pulling switches from argv operates on similar rules
    */

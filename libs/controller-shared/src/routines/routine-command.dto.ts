@@ -139,10 +139,19 @@ export class WebhookHeaderDTO {
   public value: string;
 }
 
+export class CallServiceCommandAttribute {
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  public type?: 'simple' | 'template' | 'eval' | 'math' | 'chrono';
+  @ApiProperty()
+  public value: unknown;
+}
+
 export class CallServiceCommandDTO {
   @ApiProperty()
   @IsObject()
-  public attributes?: Record<string, unknown>;
+  public attributes?: Record<string, CallServiceCommandAttribute>;
   @ApiProperty()
   @IsString()
   public domain?: string;
@@ -164,13 +173,18 @@ export class SetRoomMetadataCommandDTO {
   public name: string;
   @ApiProperty()
   @IsString()
+  public person?: string;
+  @ApiProperty()
+  @IsString()
   public room: string;
   @ApiProperty()
   @IsString()
   @IsOptional()
-  public type?: string;
+  public type?: 'person' | 'room';
   @ApiProperty()
   public value: boolean | string | number;
+  @ApiProperty()
+  public valueType: string;
 }
 
 export class RoutineCommandNodeRedDTO {
