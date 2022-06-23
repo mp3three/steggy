@@ -118,7 +118,9 @@ export class BuildPipelineService {
         // It's expected that prettyified content is being sent through
         // Without env var, all formatting gets removed
         await this.screenService.pipe(
-          execa(this.runAfter, { env: { FORCE_COLOR: 'true' } }),
+          execa(this.runAfter, affected.apps, {
+            env: { FORCE_COLOR: 'true' },
+          }),
         );
       }
     } catch (error) {
@@ -319,7 +321,7 @@ export class BuildPipelineService {
       .map(i => i.split('/').pop());
     if (this.runAll) {
       return {
-        apps: allApps,
+        apps: allApps.filter(i => this.hasPublish(i)),
         libs: allLibs,
       };
     }
