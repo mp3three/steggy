@@ -21,7 +21,7 @@ export class VMService {
       fixAsync: true,
       sandbox: {
         dayjs,
-        ...(await this.dataAggregator.exec()),
+        ...(await this.dataAggregator.load()),
         ...parameters,
       },
       timeout: 250,

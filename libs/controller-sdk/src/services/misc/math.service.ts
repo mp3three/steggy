@@ -15,6 +15,7 @@ export class MathService {
   public async exec(expression: string): Promise<number> {
     this.logger.debug({ expression }, `Math evaluation`);
     const node = parse(expression);
-    return node.evaluate(await this.dataService.exec());
+    const data = await this.dataService.load('number');
+    return node.evaluate(data);
   }
 }

@@ -10,13 +10,21 @@ export const is = {
     return test instanceof Date;
   },
   empty(
-    type: string | Array<unknown> | Set<unknown> | Map<unknown, unknown>,
+    type:
+      | string
+      | Array<unknown>
+      | Set<unknown>
+      | Map<unknown, unknown>
+      | object,
   ): boolean {
     if (is.string(type) || Array.isArray(type)) {
       return type.length === EMPTY;
     }
     if (type instanceof Map || type instanceof Set) {
       return type.size === EMPTY;
+    }
+    if (is.object(type)) {
+      return Object.keys(type).length === EMPTY;
     }
     return true;
   },

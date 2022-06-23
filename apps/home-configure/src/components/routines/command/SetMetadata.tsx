@@ -19,6 +19,7 @@ import { parse } from 'mathjs';
 import { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../../types';
+import { MathExample } from '../../examples';
 import { ChronoExamples, renderDateExpression } from '../../misc';
 
 // eslint-disable-next-line radar/cognitive-complexity
@@ -34,6 +35,9 @@ export function SetRoomMetadataCommand(props: {
   >([]);
   const [expression, setExpression] = useState<string>();
   const [parsedExpression, setParsedExpression] = useState<string[]>([]);
+  const [mathExpression, setMathExpression] = useState<string>(
+    (props.command.value as string) ?? '',
+  );
 
   useEffect(() => {
     async function refresh() {
@@ -193,74 +197,86 @@ export function SetRoomMetadataCommand(props: {
     const currentValue = is.number(value) ? value : EMPTY;
 
     return (
-      <Form.Item label="Value">
-        <Space direction="vertical">
-          <Radio.Group
-            buttonStyle="solid"
-            value={props.command?.valueType ?? 'set_value'}
-            onChange={({ target }) =>
-              props.onUpdate({ valueType: target.value })
-            }
-          >
-            <Radio.Button value="set_value">Set value</Radio.Button>
-            <Radio.Button value="increment">Increment</Radio.Button>
-            <Radio.Button value="decrement">Decrement</Radio.Button>
-            <Radio.Button value="formula">Math Formula</Radio.Button>
-            <Radio.Button value="eval">Javascript</Radio.Button>
-          </Radio.Group>
-          {props.command?.valueType === 'formula' ? (
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <div style={{ textAlign: 'right' }}>
-                <Tooltip
-                  title={
-                    <Typography>
-                      <Typography.Title level={4}>Overview</Typography.Title>
-                      <Typography.Paragraph>
-                        Enter a math expression, the result will be set as the
-                        new metadata value.
-                      </Typography.Paragraph>
-                      <Typography.Title level={4}>Examples</Typography.Title>
-                      <Typography.Paragraph>
-                        <Typography.Text code>{exampleA}</Typography.Text>=
-                        <Typography.Text code>
-                          {String(
-                            nodeA.evaluate({
-                              [props.command.name]: currentValue,
-                            }),
-                          )}
-                        </Typography.Text>
-                      </Typography.Paragraph>
-                      <Typography.Paragraph>
-                        <Typography.Text code>{exampleB}</Typography.Text>=
-                        <Typography.Text code>
-                          {String(
-                            nodeB.evaluate({
-                              [props.command.name]: currentValue,
-                            }),
-                          )}
-                        </Typography.Text>
-                      </Typography.Paragraph>
-                    </Typography>
-                  }
-                >
-                  {FD_ICONS.get('information')}
-                </Tooltip>
-              </div>
-              <Input.TextArea
-                style={{ width: '100%' }}
-                defaultValue={String(props.command?.value)}
+      <>
+        <Form.Item label="Value">
+          <Space direction="vertical">
+            <Radio.Group
+              buttonStyle="solid"
+              value={props.command?.valueType ?? 'set_value'}
+              onChange={({ target }) =>
+                props.onUpdate({ value: undefined, valueType: target.value })
+              }
+            >
+              <Radio.Button value="set_value">Set value</Radio.Button>
+              <Radio.Button value="increment">Increment</Radio.Button>
+              <Radio.Button value="decrement">Decrement</Radio.Button>
+              <Radio.Button value="formula">Math Formula</Radio.Button>
+              <Radio.Button value="eval">Javascript</Radio.Button>
+            </Radio.Group>
+            {props.command?.valueType === 'formula' ? (
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <div style={{ textAlign: 'right' }}>
+                  <Tooltip
+                    title={
+                      <Typography>
+                        <Typography.Title level={4}>Overview</Typography.Title>
+                        <Typography.Paragraph>
+                          Enter a math expression, the result will be set as the
+                          new metadata value.
+                        </Typography.Paragraph>
+                        <Typography.Title level={4}>Examples</Typography.Title>
+                        <Typography.Paragraph>
+                          <Typography.Text code>{exampleA}</Typography.Text>=
+                          <Typography.Text code>
+                            {String(
+                              nodeA.evaluate({
+                                [props.command.name]: currentValue,
+                              }),
+                            )}
+                          </Typography.Text>
+                        </Typography.Paragraph>
+                        <Typography.Paragraph>
+                          <Typography.Text code>{exampleB}</Typography.Text>=
+                          <Typography.Text code>
+                            {String(
+                              nodeB.evaluate({
+                                [props.command.name]: currentValue,
+                              }),
+                            )}
+                          </Typography.Text>
+                        </Typography.Paragraph>
+                      </Typography>
+                    }
+                  >
+                    {FD_ICONS.get('information')}
+                  </Tooltip>
+                </div>
+                <Input.TextArea
+                  style={{ minHeight: '300px', width: '100%' }}
+                  value={mathExpression}
+                  onChange={({ target }) => setMathExpression(target.value)}
+                  onBlur={() => props.onUpdate({ value: mathExpression })}
+                />
+              </Space>
+            ) : undefined}
+
+            {!['formula', 'eval'].includes(props.command.valueType) ? (
+              <Input
+                type="number"
+                defaultValue={Number(props.command.value ?? SINGLE)}
                 onBlur={({ target }) => props.onUpdate({ value: target.value })}
               />
-            </Space>
-          ) : (
-            <Input
-              type="number"
-              defaultValue={Number(props.command.value ?? SINGLE)}
-              onBlur={({ target }) => props.onUpdate({ value: target.value })}
-            />
-          )}
-        </Space>
-      </Form.Item>
+            ) : undefined}
+          </Space>
+        </Form.Item>
+        {props.command?.valueType === 'formula' ? (
+          <MathExample
+            addVariable={variable =>
+              setMathExpression(mathExpression + variable)
+            }
+          />
+        ) : undefined}
+      </>
     );
   }
 
@@ -283,8 +299,9 @@ export function SetRoomMetadataCommand(props: {
         </Form.Item>
         <Form.Item label="Value">
           <Input.TextArea
-            defaultValue={props.command.value as string}
-            onBlur={({ target }) => props.onUpdate({ value: target.value })}
+            value={mathExpression}
+            onChange={({ target }) => setMathExpression(target.value)}
+            onBlur={() => props.onUpdate({ value: mathExpression })}
           />
         </Form.Item>
       </>

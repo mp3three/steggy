@@ -19,4 +19,5 @@ export * from './routine-command.settings';
 export * from './routine-trigger-event.dto';
 export * from './routines';
 export * from './schemas';
+export * from './types';
 export * from './update-entity-id.dto';

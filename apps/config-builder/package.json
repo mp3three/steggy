@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "main.js",
   "displayName": "Config Builder",
-  "version": "0.12.3",
+  "version": "0.12.4",
   "homepage": "https://github.com/ccontour/steggy",
   "engines": {
     "node": ">=16.0.0"

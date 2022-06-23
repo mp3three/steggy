@@ -21,6 +21,7 @@ export const LABEL = 0;
 export const START = 0;
 export const FIRST = 0;
 export const EMPTY = 0;
+export const NO_CHANGE = 0;
 
 // Testing of indexes
 export const NOT_FOUND = -1;
@@ -40,6 +41,11 @@ export const PERCENT = 100;
 export const sleep = (ms: number = SECOND): Promise<void> =>
   new Promise(done => setTimeout(() => done(), ms));
 
+/**
+ * ## (re)peat
+ *
+ * Create an array of length, where the values are filled with a provided fill value, or (index + 1) as default value
+ */
 export function PEAT<T extends unknown = number>(
   length: number,
   fill?: T,

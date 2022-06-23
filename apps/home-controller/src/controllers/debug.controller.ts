@@ -10,6 +10,7 @@ import {
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   ChronoService,
+  DataAggregatorService,
   DebuggerService,
   RecorderService,
   RoutineEnabledService,
@@ -21,6 +22,7 @@ import {
   DebugReportDTO,
   RoutineCommandSettings,
   RoutineTriggerEvent,
+  tNestedObject,
 } from '@steggy/controller-shared';
 import {
   HACallService,
@@ -49,6 +51,7 @@ export class DebugController {
   constructor(
     private readonly callService: HACallService,
     private readonly chronoService: ChronoService,
+    private readonly dataAggregator: DataAggregatorService,
     private readonly debugService: DebuggerService,
     private readonly haFetch: HomeAssistantFetchAPIService,
     private readonly nodeRed: NodeRedCommand,
@@ -110,6 +113,14 @@ export class DebugController {
       latitude: this.solarCalc.latitude,
       longitude: this.solarCalc.longitude,
     };
+  }
+
+  @Get('/data-math')
+  @ApiOperation({
+    description: `Retrieve data properties that would be passed into the math interpreter`,
+  })
+  public async getMathData(): Promise<tNestedObject> {
+    return await this.dataAggregator.load('number');
   }
 
   @Get('/notifications')

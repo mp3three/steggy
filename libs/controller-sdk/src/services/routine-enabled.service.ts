@@ -380,13 +380,13 @@ export class RoutineEnabledService {
     this.ACTIVE_ROUTINES.add(routine._id);
     if (is.empty(routine.command)) {
       this.logger.debug(
-        `${this.superFriendlyName(routine._id)} false start (no commands)`,
+        `${this.superFriendlyName(routine._id)} false start {(no commands)}`,
       );
       return;
     }
     if (is.empty(routine.activate)) {
       this.logger.debug(
-        `${this.superFriendlyName(routine._id)} false start (no activate)`,
+        `${this.superFriendlyName(routine._id)} false start {(no activate)}`,
       );
       return;
     }
