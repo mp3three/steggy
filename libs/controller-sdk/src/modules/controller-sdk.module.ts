@@ -21,6 +21,7 @@ import {
   RECENT_ROUTINE_TTL,
   SAFE_MODE,
   SECRETS,
+  VM_TIMEOUT,
 } from '../config';
 import {
   ChronoService,
@@ -135,6 +136,12 @@ const providers = [
     [SECRETS]: {
       description: 'Key / value pairs',
       type: 'record',
+    },
+    [VM_TIMEOUT]: {
+      default: 250,
+      description:
+        'When evaluating user provided javascript code, this determines maximum runtime',
+      type: 'number',
     },
   },
   exports: providers,

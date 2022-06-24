@@ -16,9 +16,7 @@ import { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 
-export function MathExample(props: {
-  addVariable: (variable: string) => void;
-}) {
+export function MathHelp(props: { addVariable: (variable: string) => void }) {
   const [data, setData] = useState<tNestedObject>({});
 
   async function loadData(): Promise<void> {

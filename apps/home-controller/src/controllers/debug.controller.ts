@@ -95,6 +95,14 @@ export class DebugController {
     return await this.debugService.sanityCheck();
   }
 
+  @Get('/data-all')
+  @ApiOperation({
+    description: `Retrieve data properties that would be passed into vmservice`,
+  })
+  public async getAggregateData(): Promise<tNestedObject> {
+    return await this.dataAggregator.load();
+  }
+
   @Get('/location')
   @ApiResponse({
     schema: {

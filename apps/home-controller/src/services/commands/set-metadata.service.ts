@@ -114,9 +114,6 @@ export class SetMetadataService
   ): Promise<number> {
     const valueType = (command.valueType ?? 'set_value') as NumberTypes;
     let setValue = command.value;
-    if (valueType === 'eval') {
-      return EMPTY;
-    }
     if (valueType === 'formula') {
       if (!is.string(setValue)) {
         this.logger.error(
@@ -159,7 +156,6 @@ export class SetMetadataService
 
   private async getStringValue(
     command: SetRoomMetadataCommandDTO,
-    runId: string,
   ): Promise<string> {
     if (!is.string(command.value)) {
       // 🤷
@@ -167,23 +163,10 @@ export class SetMetadataService
       return ``;
     }
     const type = command.valueType ?? 'simple';
-    if (type === 'simple') {
-      return command.value;
-    }
     if (type === 'template') {
       return await this.socketService.renderTemplate(command.value);
     }
-    const result = await this.vmService.exec(command.value, {
-      runId,
-    });
-    if (!is.string(result)) {
-      this.logger.error(
-        { command, result },
-        `Code did not return string result`,
-      );
-      return ``;
-    }
-    return result;
+    return command.value;
   }
 
   private async getValue(
@@ -192,6 +175,11 @@ export class SetMetadataService
     metadata: RoomMetadataDTO,
     runId: string,
   ): Promise<string | number | boolean> {
+    if (command.valueType === 'eval') {
+      return await this.vmService.exec((command.value as string) || '', {
+        runId,
+      });
+    }
     if (metadata.type === 'boolean') {
       if (is.boolean(command.value)) {
         return command.value;
@@ -200,7 +188,7 @@ export class SetMetadataService
       return !metadata.value;
     }
     if (metadata.type === 'string') {
-      return await this.getStringValue(command, runId);
+      return await this.getStringValue(command);
     }
     if (metadata.type === 'enum') {
       return this.getEnumValue(command, metadata);

@@ -84,20 +84,30 @@ export class DataAggregatorService {
   private fromEntities(type: tMetadataType): tNestedObject {
     const out: tNestedObject = {};
     this.entityManager.ENTITIES.forEach(({ state, attributes }, entity_id) => {
-      if (
-        type === 'number' &&
-        (is.number(state) || (is.string(state) && isNumberString(state)))
-      ) {
-        state = Number(state);
-        set(out, entity_id, Number(state));
+      if (type === 'number') {
+        if (is.number(state) || (is.string(state) && isNumberString(state))) {
+          state = Number(state);
+          set(out, entity_id, Number(state));
+        }
+      } else {
+        set(out, entity_id, state);
       }
       Object.entries(attributes).forEach(([name, value]) => {
-        if (is.number(value) || (is.string(value) && isNumberString(value))) {
+        if (type === 'number') {
+          if (is.number(value) || (is.string(value) && isNumberString(value))) {
+            const [domain, id] = entity_id.split('.');
+            set(
+              out,
+              `${domain}_attributes.${id}.${name.replace(' ', '_')}`,
+              Number(value),
+            );
+          }
+        } else {
           const [domain, id] = entity_id.split('.');
           set(
             out,
             `${domain}_attributes.${id}.${name.replace(' ', '_')}`,
-            Number(value),
+            value,
           );
         }
       });

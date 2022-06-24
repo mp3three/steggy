@@ -6,3 +6,4 @@ export const SECRETS = 'SECRETS';
 export const SAFE_MODE = 'SAFE_MODE';
 export const RECENT_ROUTINE_TTL = 'RECENT_ROUTINE_TTL';
 export const LIB_CONTROLLER_SDK = Symbol('controller-sdk');
+export const VM_TIMEOUT = 'VM_TIMEOUT';

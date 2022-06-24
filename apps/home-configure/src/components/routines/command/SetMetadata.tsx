@@ -4,39 +4,37 @@ import {
   RoomMetadataDTO,
   SetRoomMetadataCommandDTO,
 } from '@steggy/controller-shared';
-import { EMPTY, is, SINGLE } from '@steggy/utilities';
-import {
-  Form,
-  Input,
-  Radio,
-  Select,
-  Skeleton,
-  Space,
-  Tooltip,
-  Typography,
-} from 'antd';
-import { parse } from 'mathjs';
+import { is, SINGLE } from '@steggy/utilities';
+import { Form, Input, Radio, Select, Skeleton, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { FD_ICONS, sendRequest } from '../../../types';
-import { MathExample } from '../../examples';
-import { ChronoExamples, renderDateExpression } from '../../misc';
+import { sendRequest } from '../../../types';
+import {
+  ChronoExamples,
+  EvalHelp,
+  MathHelp,
+  renderDateExpression,
+} from '../../misc';
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function SetRoomMetadataCommand(props: {
   command?: SetRoomMetadataCommandDTO;
   onUpdate: (command: Partial<SetRoomMetadataCommandDTO>) => void;
 }) {
+  const command = props.command ?? ({} as SetRoomMetadataCommandDTO);
   const [people, setPeople] = useState<
     Pick<PersonDTO, '_id' | 'friendlyName' | 'metadata'>[]
   >([]);
   const [rooms, setRooms] = useState<
     Pick<RoomDTO, '_id' | 'friendlyName' | 'metadata'>[]
   >([]);
-  const [expression, setExpression] = useState<string>();
+  const [expression, setExpression] = useState<string>(command.value as string);
   const [parsedExpression, setParsedExpression] = useState<string[]>([]);
   const [mathExpression, setMathExpression] = useState<string>(
-    (props.command.value as string) ?? '',
+    (command.value as string) ?? '',
+  );
+  const [evalExpression, setEvalExpression] = useState<string>(
+    (command.value as string) ?? '',
   );
 
   useEffect(() => {
@@ -55,12 +53,8 @@ export function SetRoomMetadataCommand(props: {
   }, [expression, props?.command]);
 
   const room =
-    rooms.find(({ _id }) => _id === props.command?.room) ||
-    people.find(({ _id }) => _id === props.command?.room);
-
-  const value = (room?.metadata ?? []).find(
-    ({ name }) => name === props.command.name,
-  )?.value;
+    rooms.find(({ _id }) => _id === command?.room) ||
+    people.find(({ _id }) => _id === command?.room);
 
   useEffect(() => {
     async function refresh(): Promise<void> {
@@ -111,9 +105,7 @@ export function SetRoomMetadataCommand(props: {
     if (is.empty(room?.metadata)) {
       return <Skeleton.Input active />;
     }
-    const metadata = room.metadata.find(
-      ({ name }) => name === props.command.name,
-    );
+    const metadata = room.metadata.find(({ name }) => name === command.name);
     if (!metadata) {
       return <Skeleton.Input active />;
     }
@@ -137,37 +129,88 @@ export function SetRoomMetadataCommand(props: {
 
   function renderValueBoolean() {
     return (
-      <Form.Item label="Value">
-        <Radio.Group
-          buttonStyle="solid"
-          value={props.command.value ?? 'toggle'}
-          onChange={({ target }) => props.onUpdate({ value: target.value })}
-        >
-          <Radio.Button value={true}>Checked</Radio.Button>
-          <Radio.Button value={false}>Unchecked</Radio.Button>
-          <Radio.Button value={`toggle`}>Toggle</Radio.Button>
-        </Radio.Group>
-      </Form.Item>
+      <>
+        <Form.Item label="Value">
+          <Radio.Group
+            buttonStyle="solid"
+            value={command.valueType ?? 'toggle'}
+            onChange={({ target }) =>
+              props.onUpdate({ valueType: target.value })
+            }
+          >
+            <Radio.Button value={true}>Checked</Radio.Button>
+            <Radio.Button value={false}>Unchecked</Radio.Button>
+            <Radio.Button value={`toggle`}>Toggle</Radio.Button>
+            <Radio.Button value="eval">Javascript</Radio.Button>
+          </Radio.Group>
+        </Form.Item>
+        {command?.valueType === 'eval' ? (
+          <>
+            <Form.Item>
+              <Input.TextArea
+                style={{ minHeight: '300px', width: '100%' }}
+                placeholder={`if (sensor.total_consumption > 350) {\n  return false;\n}\nreturn true;`}
+                value={evalExpression}
+                onChange={({ target }) => setEvalExpression(target.value)}
+                onBlur={() => props.onUpdate({ value: evalExpression })}
+              />
+            </Form.Item>
+            <EvalHelp
+              addVariable={variable =>
+                setEvalExpression(evalExpression + variable)
+              }
+            />
+          </>
+        ) : undefined}
+      </>
     );
   }
 
   function renderValueDate() {
-    setExpression(props.command.value as string);
     return (
       <>
         <Form.Item label="Value">
           <Space direction="vertical" style={{ width: '100%' }}>
-            <Input
-              placeholder="tomorrow"
-              defaultValue={String(props.command.value)}
-              onBlur={({ target }) => props.onUpdate({ value: target.value })}
-            />
-            <Typography.Paragraph>
-              {renderDateExpression(parsedExpression)}
-            </Typography.Paragraph>
+            <Radio.Group
+              buttonStyle="solid"
+              value={command.valueType ?? 'toggle'}
+              onChange={({ target }) =>
+                props.onUpdate({ value: undefined, valueType: target.value })
+              }
+            >
+              <Radio.Button value="expression">Expression</Radio.Button>
+              <Radio.Button value="eval">Javascript</Radio.Button>
+            </Radio.Group>
+            {command.valueType === 'expression' ? (
+              <>
+                <Input
+                  placeholder="tomorrow"
+                  value={expression}
+                  onChange={({ target }) => setExpression(target.value)}
+                  onBlur={() => props.onUpdate({ value: expression })}
+                />
+                <Typography.Paragraph>
+                  {renderDateExpression(parsedExpression)}
+                </Typography.Paragraph>
+              </>
+            ) : undefined}
           </Space>
         </Form.Item>
-        <ChronoExamples />
+        {command.valueType === 'eval' ? (
+          <Input.TextArea
+            placeholder={`const tomorrow = dayjs().add(1,'day');\n\nif (dayjs(person.date).isAfter(tomorrow)) {\n  return tomorrow.toDate();\n}\nreturn new Date();`}
+            value={expression}
+            style={{ minHeight: '300px' }}
+            onChange={({ target }) => setExpression(target.value)}
+            onBlur={() => props.onUpdate({ value: expression })}
+          />
+        ) : undefined}
+        {command.valueType === 'expression' ? <ChronoExamples /> : undefined}
+        {command.valueType === 'eval' ? (
+          <EvalHelp
+            addVariable={variable => setExpression(expression + variable)}
+          />
+        ) : undefined}
       </>
     );
   }
@@ -176,7 +219,7 @@ export function SetRoomMetadataCommand(props: {
     return (
       <Form.Item label="Value">
         <Select
-          value={props.command.value}
+          value={command.value}
           onChange={(value: string) => props.onUpdate({ value })}
         >
           {metadata.options.map(option => (
@@ -190,89 +233,60 @@ export function SetRoomMetadataCommand(props: {
   }
 
   function renderValueNumber() {
-    const exampleA = `${props.command.name} + 5`;
-    const nodeA = parse(exampleA);
-    const exampleB = `cos(45 deg)`;
-    const nodeB = parse(exampleB);
-    const currentValue = is.number(value) ? value : EMPTY;
-
     return (
       <>
         <Form.Item label="Value">
-          <Space direction="vertical">
-            <Radio.Group
-              buttonStyle="solid"
-              value={props.command?.valueType ?? 'set_value'}
-              onChange={({ target }) =>
-                props.onUpdate({ value: undefined, valueType: target.value })
-              }
-            >
-              <Radio.Button value="set_value">Set value</Radio.Button>
-              <Radio.Button value="increment">Increment</Radio.Button>
-              <Radio.Button value="decrement">Decrement</Radio.Button>
-              <Radio.Button value="formula">Math Formula</Radio.Button>
-              <Radio.Button value="eval">Javascript</Radio.Button>
-            </Radio.Group>
-            {props.command?.valueType === 'formula' ? (
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <div style={{ textAlign: 'right' }}>
-                  <Tooltip
-                    title={
-                      <Typography>
-                        <Typography.Title level={4}>Overview</Typography.Title>
-                        <Typography.Paragraph>
-                          Enter a math expression, the result will be set as the
-                          new metadata value.
-                        </Typography.Paragraph>
-                        <Typography.Title level={4}>Examples</Typography.Title>
-                        <Typography.Paragraph>
-                          <Typography.Text code>{exampleA}</Typography.Text>=
-                          <Typography.Text code>
-                            {String(
-                              nodeA.evaluate({
-                                [props.command.name]: currentValue,
-                              }),
-                            )}
-                          </Typography.Text>
-                        </Typography.Paragraph>
-                        <Typography.Paragraph>
-                          <Typography.Text code>{exampleB}</Typography.Text>=
-                          <Typography.Text code>
-                            {String(
-                              nodeB.evaluate({
-                                [props.command.name]: currentValue,
-                              }),
-                            )}
-                          </Typography.Text>
-                        </Typography.Paragraph>
-                      </Typography>
-                    }
-                  >
-                    {FD_ICONS.get('information')}
-                  </Tooltip>
-                </div>
-                <Input.TextArea
-                  style={{ minHeight: '300px', width: '100%' }}
-                  value={mathExpression}
-                  onChange={({ target }) => setMathExpression(target.value)}
-                  onBlur={() => props.onUpdate({ value: mathExpression })}
-                />
-              </Space>
-            ) : undefined}
-
-            {!['formula', 'eval'].includes(props.command.valueType) ? (
-              <Input
-                type="number"
-                defaultValue={Number(props.command.value ?? SINGLE)}
-                onBlur={({ target }) => props.onUpdate({ value: target.value })}
-              />
-            ) : undefined}
-          </Space>
+          <Radio.Group
+            buttonStyle="solid"
+            value={command?.valueType ?? 'set_value'}
+            onChange={({ target }) =>
+              props.onUpdate({ value: undefined, valueType: target.value })
+            }
+          >
+            <Radio.Button value="set_value">Set Value</Radio.Button>
+            <Radio.Button value="increment">Increment</Radio.Button>
+            <Radio.Button value="decrement">Decrement</Radio.Button>
+            <Radio.Button value="formula">Math Formula</Radio.Button>
+            <Radio.Button value="eval">Javascript</Radio.Button>
+          </Radio.Group>
         </Form.Item>
-        {props.command?.valueType === 'formula' ? (
-          <MathExample
+        <Form.Item>
+          {command?.valueType === 'formula' ? (
+            <Input.TextArea
+              style={{ minHeight: '300px', width: '100%' }}
+              value={mathExpression}
+              onChange={({ target }) => setMathExpression(target.value)}
+              onBlur={() => props.onUpdate({ value: mathExpression })}
+            />
+          ) : undefined}
+          {command?.valueType === 'eval' ? (
+            <Input.TextArea
+              style={{ minHeight: '300px', width: '100%' }}
+              placeholder={`if (sensor.total_consumption > 350) {\n  return 220;\n}\nreturn 654;`}
+              value={evalExpression}
+              onChange={({ target }) => setEvalExpression(target.value)}
+              onBlur={() => props.onUpdate({ value: evalExpression })}
+            />
+          ) : undefined}
+          {!['formula', 'eval'].includes(command.valueType) ? (
+            <Input
+              type="number"
+              defaultValue={Number(command.value ?? SINGLE)}
+              onBlur={({ target }) => props.onUpdate({ value: target.value })}
+            />
+          ) : undefined}
+        </Form.Item>
+        {command?.valueType === 'formula' ? (
+          <MathHelp
             addVariable={variable =>
               setMathExpression(mathExpression + variable)
+            }
+          />
+        ) : undefined}
+        {command?.valueType === 'eval' ? (
+          <EvalHelp
+            addVariable={variable =>
+              setEvalExpression(evalExpression + variable)
             }
           />
         ) : undefined}
@@ -281,7 +295,7 @@ export function SetRoomMetadataCommand(props: {
   }
 
   function renderValueString() {
-    const type = props.command?.type ?? 'simple';
+    const type = command?.valueType ?? 'simple';
     return (
       <>
         <Form.Item label="Type">
@@ -294,16 +308,29 @@ export function SetRoomMetadataCommand(props: {
             <Select.Option value="template">
               Home Assistant Template
             </Select.Option>
-            <Select.Option value="javascript">Javascript</Select.Option>
+            <Select.Option value="eval">Javascript</Select.Option>
           </Select>
         </Form.Item>
-        <Form.Item label="Value">
+        <Form.Item>
           <Input.TextArea
-            value={mathExpression}
-            onChange={({ target }) => setMathExpression(target.value)}
-            onBlur={() => props.onUpdate({ value: mathExpression })}
+            style={{ minHeight: '300px', width: '100%' }}
+            placeholder={
+              type === 'eval'
+                ? `if (sensor.total_consumption > 350) {\n  return 'foo';\n}\nreturn 'bar';`
+                : undefined
+            }
+            value={evalExpression}
+            onChange={({ target }) => setEvalExpression(target.value)}
+            onBlur={() => props.onUpdate({ value: evalExpression })}
           />
         </Form.Item>
+        {command?.valueType === 'eval' ? (
+          <EvalHelp
+            addVariable={variable =>
+              setEvalExpression(evalExpression + variable)
+            }
+          />
+        ) : undefined}
       </>
     );
   }
@@ -341,7 +368,7 @@ export function SetRoomMetadataCommand(props: {
             </Typography.Text>
           ) : (
             <Select
-              value={props.command?.name}
+              value={command?.name}
               onChange={name => props.onUpdate({ name })}
             >
               {(room.metadata ?? []).map(state => (

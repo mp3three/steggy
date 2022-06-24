@@ -1,6 +1,5 @@
 export * from './app';
 export * from './entities';
-export * from './examples';
 export * from './groups';
 export * from './home';
 export * from './misc';

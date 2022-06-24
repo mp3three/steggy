@@ -219,6 +219,7 @@
               "usr",
               "utf",
               "vm",
+              "vmservice",
               "wasm",
               "wat",
               "webhook",
