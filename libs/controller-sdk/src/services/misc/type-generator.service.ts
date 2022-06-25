@@ -3,7 +3,7 @@ import { AutoLogService } from '@steggy/boilerplate';
 import { PersonDTO, RoomDTO, RoomMetadataDTO } from '@steggy/controller-shared';
 import { EntityManagerService } from '@steggy/home-assistant';
 import { domain, HassStateDTO } from '@steggy/home-assistant-shared';
-import { is, VALUE } from '@steggy/utilities';
+import { is, TitleCase, VALUE } from '@steggy/utilities';
 import {
   addSyntheticLeadingComment,
   createPrinter,
@@ -55,17 +55,31 @@ export class TypeGeneratorService {
     ].join(`\n`);
   }
 
+  /**
+   *
+   * ```text
+   * ? MULTILINE TSDOC: "## Home Assistant {Domain} Domain"
+   * const {DOMAIN} = {
+   *    [entity_id_suffix]:HassStateDTO,
+   *    [entity_id_suffix]:HassStateDTO,
+   *    [entity_id_suffix]:HassStateDTO
+   * }
+   * ```
+   */
   private buildTypesFromEntities(): string {
     const exportTypes: string[] = [];
     const domainMap = new Map<string, HassStateDTO[]>();
     this.entityManager.ENTITIES.forEach(entity => {
       const list = domainMap.get(domain(entity.entity_id)) ?? [];
+      // ? Is there any constructive tsdoc I can add here?
       list.push(entity);
       domainMap.set(domain(entity.entity_id), list);
     });
     domainMap.forEach((elements, domain) => {
       exportTypes.push(
-        `declare const ${domain} = ${JSON.stringify(
+        `/**\n * ## Home Assistant ${TitleCase(
+          domain,
+        )} Domain\n */\n const ${domain} = ${JSON.stringify(
           Object.fromEntries(
             elements.map(i => [i.entity_id.split('.')[VALUE], i]),
           ),
@@ -81,7 +95,7 @@ export class TypeGeneratorService {
    *
    * ```text
    * ? MULTILINE TSDOC: (Type) {friendlyName}
-   * declare const {(room | person).name} = {
+   * const {(room | person).name} = {
    * ? MULTILINE TSDOC: metadata.description
    *    [metadata.name]:metadata.value,
    * ? MULTILINE TSDOC: metadata.description
@@ -106,7 +120,7 @@ export class TypeGeneratorService {
         const { name, friendlyName, metadata } = item;
         const statement = addSyntheticLeadingComment(
           factory.createVariableStatement(
-            [factory.createModifier(SyntaxKind.DeclareKeyword)],
+            [],
             factory.createVariableDeclarationList(
               [
                 factory.createVariableDeclaration(
@@ -146,7 +160,7 @@ export class TypeGeneratorService {
     ]
       .map(i => ` * ${i}`)
       .join(`\n`)}\n */\n`;
-    return `${tsdoc}declare const secrets = ${JSON.stringify(
+    return `${tsdoc}const secrets = ${JSON.stringify(
       secrets,
       undefined,
       '  ',

@@ -6,7 +6,7 @@ import {
   SetRoomMetadataCommandDTO,
   tNestedObject,
 } from '@steggy/controller-shared';
-import { is, SINGLE } from '@steggy/utilities';
+import { HALF, is, SECOND, SINGLE } from '@steggy/utilities';
 import { Form, Input, Radio, Select, Skeleton, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
@@ -16,7 +16,10 @@ import {
   EvalHelp,
   MathHelp,
   renderDateExpression,
+  TypedEditor,
 } from '../../misc';
+
+let timeout: NodeJS.Timeout;
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function SetRoomMetadataCommand(props: {
@@ -39,17 +42,9 @@ export function SetRoomMetadataCommand(props: {
     (command.value as string) ?? '',
   );
   const [data, setData] = useState<tNestedObject>({});
-  const [extraTypes, setExtraTypes] = useState<string>('');
 
   useEffect(() => {
-    async function loadTypes() {
-      const { types } = await sendRequest<{ types: string }>({
-        url: `/debug/editor-types`,
-      });
-      setExtraTypes(types);
-    }
     loadData();
-    loadTypes();
   }, []);
   async function loadData(): Promise<void> {
     setData(
@@ -58,7 +53,6 @@ export function SetRoomMetadataCommand(props: {
       }),
     );
   }
-
   useEffect(() => {
     async function refresh() {
       const [parsed] = await sendRequest<string[][]>({
@@ -114,6 +108,24 @@ export function SetRoomMetadataCommand(props: {
     refresh();
   }, []);
 
+  /**
+   * Send the updated text back to the server.
+   * Throttle it to 1/4 second though, since otherwise it'd be sending live keypresses and that's a recipe for race conditions.
+   *
+   * If the user closes the editor inside that 1/4 second window, it will pop everything back open in a weird way.
+   * I can live with it, slow down a little
+   */
+  function sendUpdate(update: string): void {
+    setEvalExpression(update);
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(
+      () => props.onUpdate({ value: update }),
+      HALF * HALF * SECOND,
+    );
+  }
+
   function onTargetUpdate(room: string): void {
     props.onUpdate({
       name: undefined,
@@ -163,43 +175,17 @@ export function SetRoomMetadataCommand(props: {
             <Radio.Button value={true}>Checked</Radio.Button>
             <Radio.Button value={false}>Unchecked</Radio.Button>
             <Radio.Button value={`toggle`}>Toggle</Radio.Button>
-            <Radio.Button value="eval">Javascript</Radio.Button>
+            <Radio.Button value="eval">TS Eval</Radio.Button>
           </Radio.Group>
         </Form.Item>
         {command?.valueType === 'eval' ? (
-          <>
-            <Form.Item>
-              <Editor
-                theme="vs-dark"
-                height="30vh"
-                value={evalExpression}
-                beforeMount={({ languages: { typescript } }) => {
-                  typescript.typescriptDefaults.setDiagnosticsOptions(
-                    // ? 1108 = top level return
-                    // This is needed because we are only typing the function body, not a whole file
-                    { diagnosticCodesToIgnore: [1108] },
-                  );
-                  typescript.typescriptDefaults.addExtraLib(
-                    extraTypes,
-                    'test.d.ts',
-                  );
-                }}
-                options={{
-                  minimap: { enabled: false },
-                }}
-                onChange={value => setEvalExpression(value)}
-                defaultLanguage="typescript"
-                defaultValue={`if (sensor.total_consumption > 350) {\n  return false;\n}\nreturn true;`}
-              />
-            </Form.Item>
-            <EvalHelp
-              refresh={() => loadData()}
-              data={data}
-              addVariable={variable =>
-                setEvalExpression(evalExpression + variable)
-              }
+          <Form.Item>
+            <TypedEditor
+              onUpdate={value => props.onUpdate({ value })}
+              defaultValue={`if (sensor.total_consumption > 350) {\n  return false;\n}\nreturn true;`}
+              code={props.command.value as string}
             />
-          </>
+          </Form.Item>
         ) : undefined}
       </>
     );
@@ -218,7 +204,7 @@ export function SetRoomMetadataCommand(props: {
               }
             >
               <Radio.Button value="expression">Expression</Radio.Button>
-              <Radio.Button value="eval">Javascript</Radio.Button>
+              <Radio.Button value="eval">TS Eval</Radio.Button>
             </Radio.Group>
             {command.valueType === 'expression' ? (
               <>
@@ -288,7 +274,7 @@ export function SetRoomMetadataCommand(props: {
             <Radio.Button value="increment">Increment</Radio.Button>
             <Radio.Button value="decrement">Decrement</Radio.Button>
             <Radio.Button value="formula">Math Formula</Radio.Button>
-            <Radio.Button value="eval">Javascript</Radio.Button>
+            <Radio.Button value="eval">TS Eval</Radio.Button>
           </Radio.Group>
         </Form.Item>
         <Form.Item>
@@ -351,7 +337,7 @@ export function SetRoomMetadataCommand(props: {
             <Select.Option value="template">
               Home Assistant Template
             </Select.Option>
-            <Select.Option value="eval">Javascript</Select.Option>
+            <Select.Option value="eval">TS Eval</Select.Option>
           </Select>
         </Form.Item>
         <Form.Item>

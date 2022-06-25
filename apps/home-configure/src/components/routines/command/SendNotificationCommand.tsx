@@ -25,7 +25,7 @@ export function SendNotificationCommand(props: {
           <Select.Option value="template">
             Home Assistant Template
           </Select.Option>
-          <Select.Option value="javascript">Javascript</Select.Option>
+          <Select.Option value="javascript">TS Eval</Select.Option>
         </Select>
       </Form.Item>
       <Form.Item label=" " colon={false}>

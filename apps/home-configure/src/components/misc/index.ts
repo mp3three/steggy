@@ -1,6 +1,7 @@
 export * from './ChronoExamples';
 export * from './CompareValue';
 export * from './comparisons';
+export * from './Editor';
 export * from './EvalHelp';
 export * from './FilterValue';
 export * from './FuzzySelect';
