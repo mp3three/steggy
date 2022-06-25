@@ -1,8 +1,10 @@
+import Editor from '@monaco-editor/react';
 import {
   PersonDTO,
   RoomDTO,
   RoomMetadataDTO,
   SetRoomMetadataCommandDTO,
+  tNestedObject,
 } from '@steggy/controller-shared';
 import { is, SINGLE } from '@steggy/utilities';
 import { Form, Input, Radio, Select, Skeleton, Space, Typography } from 'antd';
@@ -36,6 +38,26 @@ export function SetRoomMetadataCommand(props: {
   const [evalExpression, setEvalExpression] = useState<string>(
     (command.value as string) ?? '',
   );
+  const [data, setData] = useState<tNestedObject>({});
+  const [extraTypes, setExtraTypes] = useState<string>('');
+
+  useEffect(() => {
+    async function loadTypes() {
+      const { types } = await sendRequest<{ types: string }>({
+        url: `/debug/editor-types`,
+      });
+      setExtraTypes(types);
+    }
+    loadData();
+    loadTypes();
+  }, []);
+  async function loadData(): Promise<void> {
+    setData(
+      await sendRequest({
+        url: `/debug/data-all`,
+      }),
+    );
+  }
 
   useEffect(() => {
     async function refresh() {
@@ -147,15 +169,32 @@ export function SetRoomMetadataCommand(props: {
         {command?.valueType === 'eval' ? (
           <>
             <Form.Item>
-              <Input.TextArea
-                style={{ minHeight: '300px', width: '100%' }}
-                placeholder={`if (sensor.total_consumption > 350) {\n  return false;\n}\nreturn true;`}
+              <Editor
+                theme="vs-dark"
+                height="30vh"
                 value={evalExpression}
-                onChange={({ target }) => setEvalExpression(target.value)}
-                onBlur={() => props.onUpdate({ value: evalExpression })}
+                beforeMount={({ languages: { typescript } }) => {
+                  typescript.typescriptDefaults.setDiagnosticsOptions(
+                    // ? 1108 = top level return
+                    // This is needed because we are only typing the function body, not a whole file
+                    { diagnosticCodesToIgnore: [1108] },
+                  );
+                  typescript.typescriptDefaults.addExtraLib(
+                    extraTypes,
+                    'test.d.ts',
+                  );
+                }}
+                options={{
+                  minimap: { enabled: false },
+                }}
+                onChange={value => setEvalExpression(value)}
+                defaultLanguage="typescript"
+                defaultValue={`if (sensor.total_consumption > 350) {\n  return false;\n}\nreturn true;`}
               />
             </Form.Item>
             <EvalHelp
+              refresh={() => loadData()}
+              data={data}
               addVariable={variable =>
                 setEvalExpression(evalExpression + variable)
               }
@@ -208,6 +247,8 @@ export function SetRoomMetadataCommand(props: {
         {command.valueType === 'expression' ? <ChronoExamples /> : undefined}
         {command.valueType === 'eval' ? (
           <EvalHelp
+            refresh={() => loadData()}
+            data={data}
             addVariable={variable => setExpression(expression + variable)}
           />
         ) : undefined}
@@ -285,6 +326,8 @@ export function SetRoomMetadataCommand(props: {
         ) : undefined}
         {command?.valueType === 'eval' ? (
           <EvalHelp
+            refresh={() => loadData()}
+            data={data}
             addVariable={variable =>
               setEvalExpression(evalExpression + variable)
             }
@@ -326,6 +369,8 @@ export function SetRoomMetadataCommand(props: {
         </Form.Item>
         {command?.valueType === 'eval' ? (
           <EvalHelp
+            refresh={() => loadData()}
+            data={data}
             addVariable={variable =>
               setEvalExpression(evalExpression + variable)
             }

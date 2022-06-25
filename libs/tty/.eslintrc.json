@@ -4,19 +4,18 @@
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {
-        "no-console": "off",
-        "security/detect-object-injection": "off"
-      },
+      "rules": {},
       "parserOptions": {
         "project": ["libs/tty/tsconfig.lib.json"]
       }
     },
     {
-      "files": ["*repl.ts"],
-      "rules": {
-        "radar/no-identical-functions": "off"
-      }
+      "files": ["*.ts", "*.tsx"],
+      "rules": {}
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "rules": {}
     }
   ]
 }

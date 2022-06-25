@@ -16,6 +16,7 @@ import {
   RoutineEnabledService,
   RoutineService,
   SolarCalcService,
+  TypeGeneratorService,
 } from '@steggy/controller-sdk';
 import {
   ActivationEventSettings,
@@ -61,7 +62,13 @@ export class DebugController {
     private readonly routineService: RoutineService,
     private readonly socketService: HASocketAPIService,
     private readonly solarCalc: SolarCalcService,
+    private readonly typeGenerator: TypeGeneratorService,
   ) {}
+
+  @Get('/editor-types')
+  public async buildEditorTypes(): Promise<{ types: string }> {
+    return { types: await this.typeGenerator.assemble() };
+  }
 
   @Post(`/chrono-parse`)
   public chronoParse(

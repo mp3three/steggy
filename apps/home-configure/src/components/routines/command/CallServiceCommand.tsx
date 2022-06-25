@@ -81,8 +81,8 @@ export function CallServiceCommand(props: {
   let service: ServiceListField;
   if (!is.empty(allServices)) {
     allServices.forEach(i => {
-      if (i.services[props.command.service]) {
-        service = i.services[props.command.service];
+      if (i.services[props.command?.service]) {
+        service = i.services[props.command?.service];
       }
     });
   }
@@ -93,7 +93,7 @@ export function CallServiceCommand(props: {
   const updateAttribute = (value, fieldName: string) =>
     props.onUpdate({
       attributes: {
-        ...props.command.attributes,
+        ...props.command?.attributes,
         [fieldName]: value,
       },
     });
@@ -128,7 +128,7 @@ export function CallServiceCommand(props: {
         <Form.Item label="Service">
           <Select
             value={
-              is.empty(props.command.service)
+              is.empty(props.command?.service)
                 ? ''
                 : [props.command.domain, props.command.service].join(`.`)
             }
@@ -223,12 +223,12 @@ export function CallServiceCommand(props: {
                             })
                           : props.onUpdate({
                               set_attributes:
-                                props.command.set_attributes.filter(
+                                props.command?.set_attributes.filter(
                                   i => i !== fieldName,
                                 ),
                             })
                       }
-                      checked={props.command.set_attributes?.includes(
+                      checked={props.command?.set_attributes?.includes(
                         fieldName,
                       )}
                     />
@@ -238,7 +238,7 @@ export function CallServiceCommand(props: {
                   {field.selector.boolean === null ? (
                     <Checkbox
                       checked={
-                        props.command.attributes[fieldName].value as boolean
+                        props.command?.attributes[fieldName].value as boolean
                       }
                       onChange={({ target }) =>
                         updateAttribute(target.checked, fieldName)
@@ -250,7 +250,7 @@ export function CallServiceCommand(props: {
                     <FuzzySelect
                       onChange={value => updateAttribute(value, fieldName)}
                       value={
-                        props.command.attributes[fieldName].value as string
+                        props.command?.attributes[fieldName].value as string
                       }
                       style={{ minWidth: '250px' }}
                       data={entities
@@ -268,7 +268,9 @@ export function CallServiceCommand(props: {
                       max={field.selector.number.max}
                       min={field.selector.number.min}
                       step={field.selector.number.step}
-                      defaultValue={Number(props.command.attributes[fieldName])}
+                      defaultValue={Number(
+                        props.command?.attributes[fieldName],
+                      )}
                       onBlur={({ target }) =>
                         updateAttribute(Number(target.value), fieldName)
                       }
@@ -285,7 +287,7 @@ export function CallServiceCommand(props: {
                     <Input
                       onBlur={value => updateAttribute(value, fieldName)}
                       defaultValue={
-                        props.command.attributes[fieldName].value as string
+                        props.command?.attributes[fieldName].value as string
                       }
                       placeholder={
                         (service.example as string) ?? 'Enter value as json'
@@ -298,7 +300,7 @@ export function CallServiceCommand(props: {
                       style={{ minWidth: '150px' }}
                       onChange={value => updateAttribute(value, fieldName)}
                       value={
-                        props.command.attributes[fieldName].value as string
+                        props.command?.attributes[fieldName].value as string
                       }
                     >
                       {field.selector.select.options.map(
@@ -322,7 +324,7 @@ export function CallServiceCommand(props: {
                   {!is.undefined(field.selector.text) ? (
                     <Input
                       defaultValue={
-                        props.command.attributes[fieldName].value as string
+                        props.command?.attributes[fieldName].value as string
                       }
                       onBlur={({ target }) =>
                         updateAttribute(target.checked, fieldName)
@@ -333,7 +335,7 @@ export function CallServiceCommand(props: {
                   {!is.undefined(field.selector.time) ? (
                     <Input
                       defaultValue={
-                        props.command.attributes[fieldName].value as string
+                        props.command?.attributes[fieldName].value as string
                       }
                       onBlur={({ target }) =>
                         updateAttribute(target.checked, fieldName)

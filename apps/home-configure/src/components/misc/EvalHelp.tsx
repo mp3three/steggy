@@ -10,25 +10,15 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import { useEffect, useState } from 'react';
 
-import { FD_ICONS, sendRequest } from '../../types';
+import { FD_ICONS } from '../../types';
 
-export function EvalHelp(props: { addVariable: (variable: string) => void }) {
-  const [data, setData] = useState<tNestedObject>({});
-
-  async function loadData(): Promise<void> {
-    setData(
-      await sendRequest({
-        url: `/debug/data-all`,
-      }),
-    );
-  }
-
-  useEffect(() => {
-    loadData();
-  }, []);
-  const entries = Object.entries(data);
+export function EvalHelp(props: {
+  addVariable: (variable: string) => void;
+  data: tNestedObject;
+  refresh: () => void;
+}) {
+  const entries = Object.entries(props.data);
 
   return (
     <Form.Item>
@@ -36,7 +26,7 @@ export function EvalHelp(props: { addVariable: (variable: string) => void }) {
         <Tabs.TabPane tab="Injected Variables" key="b">
           <div style={{ textAlign: 'right' }}>
             <Tooltip title="Click to reload values">
-              <Button type="text" size="small" onClick={() => loadData()}>
+              <Button type="text" size="small" onClick={() => props.refresh()}>
                 {FD_ICONS.get('refresh')}
               </Button>
             </Tooltip>

@@ -57,6 +57,7 @@ import {
   SecretsService,
   SolarCalcService,
   SwitchGroupService,
+  TypeGeneratorService,
   VMService,
 } from '../services';
 
@@ -92,6 +93,7 @@ const providers = [
   SecretsService,
   SolarCalcService,
   SwitchGroupService,
+  TypeGeneratorService,
   VMService,
   StopProcessingCommandService,
 ];
