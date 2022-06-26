@@ -1,25 +1,20 @@
-import Editor from '@monaco-editor/react';
 import {
   PersonDTO,
   RoomDTO,
   RoomMetadataDTO,
   SetRoomMetadataCommandDTO,
-  tNestedObject,
 } from '@steggy/controller-shared';
-import { HALF, is, SECOND, SINGLE } from '@steggy/utilities';
+import { is, SINGLE } from '@steggy/utilities';
 import { Form, Input, Radio, Select, Skeleton, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../../types';
 import {
   ChronoExamples,
-  EvalHelp,
   MathHelp,
   renderDateExpression,
   TypedEditor,
 } from '../../misc';
-
-let timeout: NodeJS.Timeout;
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function SetRoomMetadataCommand(props: {
@@ -41,18 +36,7 @@ export function SetRoomMetadataCommand(props: {
   const [evalExpression, setEvalExpression] = useState<string>(
     (command.value as string) ?? '',
   );
-  const [data, setData] = useState<tNestedObject>({});
 
-  useEffect(() => {
-    loadData();
-  }, []);
-  async function loadData(): Promise<void> {
-    setData(
-      await sendRequest({
-        url: `/debug/data-all`,
-      }),
-    );
-  }
   useEffect(() => {
     async function refresh() {
       const [parsed] = await sendRequest<string[][]>({
@@ -107,24 +91,6 @@ export function SetRoomMetadataCommand(props: {
     }
     refresh();
   }, []);
-
-  /**
-   * Send the updated text back to the server.
-   * Throttle it to 1/4 second though, since otherwise it'd be sending live keypresses and that's a recipe for race conditions.
-   *
-   * If the user closes the editor inside that 1/4 second window, it will pop everything back open in a weird way.
-   * I can live with it, slow down a little
-   */
-  function sendUpdate(update: string): void {
-    setEvalExpression(update);
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-    timeout = setTimeout(
-      () => props.onUpdate({ value: update }),
-      HALF * HALF * SECOND,
-    );
-  }
 
   function onTargetUpdate(room: string): void {
     props.onUpdate({
@@ -222,22 +188,13 @@ export function SetRoomMetadataCommand(props: {
           </Space>
         </Form.Item>
         {command.valueType === 'eval' ? (
-          <Input.TextArea
-            placeholder={`const tomorrow = dayjs().add(1,'day');\n\nif (dayjs(person.date).isAfter(tomorrow)) {\n  return tomorrow.toDate();\n}\nreturn new Date();`}
-            value={expression}
-            style={{ minHeight: '300px' }}
-            onChange={({ target }) => setExpression(target.value)}
-            onBlur={() => props.onUpdate({ value: expression })}
+          <TypedEditor
+            onUpdate={value => props.onUpdate({ value })}
+            defaultValue={`const tomorrow = dayjs().add(1,'day');\n\nif (dayjs(person.date).isAfter(tomorrow)) {\n  return tomorrow.toDate();\n}\nreturn new Date();`}
+            code={props.command.value as string}
           />
         ) : undefined}
         {command.valueType === 'expression' ? <ChronoExamples /> : undefined}
-        {command.valueType === 'eval' ? (
-          <EvalHelp
-            refresh={() => loadData()}
-            data={data}
-            addVariable={variable => setExpression(expression + variable)}
-          />
-        ) : undefined}
       </>
     );
   }
@@ -287,12 +244,10 @@ export function SetRoomMetadataCommand(props: {
             />
           ) : undefined}
           {command?.valueType === 'eval' ? (
-            <Input.TextArea
-              style={{ minHeight: '300px', width: '100%' }}
-              placeholder={`if (sensor.total_consumption > 350) {\n  return 220;\n}\nreturn 654;`}
-              value={evalExpression}
-              onChange={({ target }) => setEvalExpression(target.value)}
-              onBlur={() => props.onUpdate({ value: evalExpression })}
+            <TypedEditor
+              onUpdate={value => props.onUpdate({ value })}
+              defaultValue={`if (sensor.total_consumption > 350) {\n  return 220;\n}\nreturn 654;`}
+              code={props.command.value as string}
             />
           ) : undefined}
           {!['formula', 'eval'].includes(command.valueType) ? (
@@ -307,15 +262,6 @@ export function SetRoomMetadataCommand(props: {
           <MathHelp
             addVariable={variable =>
               setMathExpression(mathExpression + variable)
-            }
-          />
-        ) : undefined}
-        {command?.valueType === 'eval' ? (
-          <EvalHelp
-            refresh={() => loadData()}
-            data={data}
-            addVariable={variable =>
-              setEvalExpression(evalExpression + variable)
             }
           />
         ) : undefined}
@@ -341,27 +287,26 @@ export function SetRoomMetadataCommand(props: {
           </Select>
         </Form.Item>
         <Form.Item>
-          <Input.TextArea
-            style={{ minHeight: '300px', width: '100%' }}
-            placeholder={
-              type === 'eval'
-                ? `if (sensor.total_consumption > 350) {\n  return 'foo';\n}\nreturn 'bar';`
-                : undefined
-            }
-            value={evalExpression}
-            onChange={({ target }) => setEvalExpression(target.value)}
-            onBlur={() => props.onUpdate({ value: evalExpression })}
-          />
+          {command?.valueType === 'eval' ? (
+            <TypedEditor
+              onUpdate={value => props.onUpdate({ value })}
+              defaultValue={`if (sensor.total_consumption > 350) {\n  return 'foo';\n}\nreturn 'bar';`}
+              code={props.command.value as string}
+            />
+          ) : (
+            <Input.TextArea
+              style={{ minHeight: '300px', width: '100%' }}
+              placeholder={
+                type === 'eval'
+                  ? `if (sensor.total_consumption > 350) {\n  return 'foo';\n}\nreturn 'bar';`
+                  : undefined
+              }
+              value={evalExpression}
+              onChange={({ target }) => setEvalExpression(target.value)}
+              onBlur={() => props.onUpdate({ value: evalExpression })}
+            />
+          )}
         </Form.Item>
-        {command?.valueType === 'eval' ? (
-          <EvalHelp
-            refresh={() => loadData()}
-            data={data}
-            addVariable={variable =>
-              setEvalExpression(evalExpression + variable)
-            }
-          />
-        ) : undefined}
       </>
     );
   }

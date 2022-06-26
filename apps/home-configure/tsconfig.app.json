@@ -27,6 +27,7 @@
     "../../libs/controller-shared/**/*.ts",
     "../../libs/server/**/*.ts",
     "../../libs/utilities/**/*.ts",
-    "../../libs/home-assistant-shared/**/*.ts"
+    "../../libs/home-assistant-shared/**/*.ts",
+    "webpack.config.js"
   ]
 }
