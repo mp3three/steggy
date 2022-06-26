@@ -43,30 +43,166 @@
   },
   "extensions": {
     "recommendations": [
+      // better comments
+      "aaron-bond.better-comments",
       // eslint
       "dbaeumer.vscode-eslint",
-      // Markdown tools
-      "yzhang.markdown-all-in-one",
-      // Markdown previews
-      "shd101wyy.markdown-preview-enhanced",
-      // Material icon theme
+      // material icon theme
       "pkief.material-icon-theme",
-      // Additional support for npm paths
-      "christian-kohler.npm-intellisense",
-      // in-ide git tools
-      "eamodio.gitlens",
       // dockerfile linting
       "exiasr.hadolint",
-      // More code formatting
+      // code formatting
       "esbenp.prettier-vscode",
-      // Highlighter for specific comment strings
+      // highlighter for specific comment strings
       "wayou.vscode-todo-highlight",
-      // Import sorting
+      // import sorting
+      "nsoult.typescript-imports-sort",
+      // nx console
+      "nrwl.angular-console",
+      // shell check
+      "timonwong.shellcheck",
+      // import sorting
+      // works differently from eslint, use both for 100% consistency
       "nsoult.typescript-imports-sort"
     ],
     "unwantedRecommendations": []
   },
   "settings": {
+    "material-icon-theme.folders.associations": {
+      ".config": "config",
+      ".ebextensions": "plugin",
+      ".gitsecret": "git",
+      ".well-known": "public",
+      "action": "azure-pipelines",
+      "activate": "examples",
+      "adapters": "custom",
+      "app": "vscode",
+      "boilerplate": "core",
+      "build-pipeline": "pipe",
+      "canvas": "interface",
+      "changelog": "template",
+      "comparisons": "custom",
+      "conf.d": "routes",
+      "config-builder": "template",
+      "contracts": "contract",
+      "controller-logic": "custom",
+      "controller-sdk": "tools",
+      "controller-shared": "components",
+      "cron": "ci",
+      "dashboard": "mjml",
+      "decorators": "delta",
+      "deployments": "terraform",
+      "devices": "project",
+      "devtools": "debug",
+      "domains": "mappings",
+      "dto": "database",
+      "edge": "cluster",
+      "editors": "svelte",
+      "enabled": "functions",
+      "endpoints": "mappings",
+      "entities": "components",
+      "entrypoints": "home",
+      "enums": "constant",
+      "event-emitter": "event",
+      "executors": "custom",
+      "explorers": "context",
+      "external": "shared",
+      "fetch-proxy": "public",
+      "fetch": "flow",
+      "filters": "other",
+      "footer": "react-components",
+      "form": "components",
+      "groups": "context",
+      "home-assistant-shared": "components",
+      "home-assistant": "middleware",
+      "home-cli": "admin",
+      "home-configure": "prisma",
+      "home-controller": "home",
+      "injectors": "expo",
+      "inputs": "font",
+      "inquirer": "layout",
+      "interceptors": "hook",
+      "interfaces": "mappings",
+      "jest": "test",
+      "libs": "lib",
+      "lighting": "svg",
+      "log-formatter": "flow",
+      "logger": "log",
+      "maintenance": "rules",
+      "menu": "react-components",
+      "microservice": "template",
+      "modules": "redux-reducer",
+      "mongo": "ngrx-store",
+      "mqtt": "connection",
+      "nginx": "routes",
+      "node-red-contrib-steggy": "graphql",
+      "people": "admin",
+      "persistence": "database",
+      "pico-relay": "connection",
+      "premium": "admin",
+      "project": "components",
+      "proxy": "routes",
+      "render": "helper",
+      "requests": "content",
+      "response": "dist",
+      "rooms": "packages",
+      "routines": "animation",
+      "select": "import",
+      "sensors": "stack",
+      "states": "stack",
+      "steggy": "home",
+      "strategies": "animation",
+      "strings": "template",
+      "symbols": "mappings",
+      "terminal": "batch",
+      "tty": "command",
+      "type-writer": "template",
+      "validate": "rules",
+      "webhook": "messages",
+      "work": "wordpress",
+      "workers": "tasks",
+      "workflows": "ci",
+      "workspaces": "examples",
+      "wrapper": "global"
+    },
+    "material-icon-theme.files.associations": {
+      ".nxignore": "nrwl",
+      ".pino-prettyrc": "prettier",
+      "*.code-workspace": "contributing",
+      "*.docker-compose.yaml": "docker",
+      "*.dto.ts": "pug",
+      "*.entity.ts": "bithound",
+      "*.environment.ts": "dune",
+      "*.interceptor.ts": "nest-pipe",
+      "*.layout.ts": "diff",
+      "*.main.ts": "exe",
+      "*.payload.dto.ts": "javaclass",
+      "*.response.dto.ts": "java",
+      "*.schema.ts": "bithound",
+      "*.secret": "lock",
+      "*.strategy.ts": "nest-resolver",
+      "*.workspace.ts": "crystal",
+      "config.ts": "makefile",
+      "deep": "perl",
+      "environment.ts": "dune",
+      "home-cli": "pipeline",
+      "home-controller": "maven",
+      "index.ts": "stitches",
+      "jest-test": "test-jsx",
+      "license": "prolog",
+      "main.ts": "exe",
+      "package.json": "npm",
+      "project.json": "nrwl",
+      "support": "prolog",
+      "tsconfig.app.json": "nodejs_alt",
+      "tsconfig.base.json": "nodejs_alt",
+      "tsconfig.build.json": "nodejs_alt",
+      "tsconfig.doc.json": "nodejs_alt",
+      "tsconfig.json": "nodejs_alt",
+      "tsconfig.lib.json": "nodejs_alt",
+      "tsconfig.spec.json": "nodejs_alt",
+      "workspace.json": "nrwl"
+    },
     "search.exclude": {
       "**/node_modules": true,
       "**/bower_components": true,
@@ -109,7 +245,6 @@
       ".editorconfig": true
     },
     "prettier.arrowParens": "avoid",
-
     // * <Decorative>
     "better-comments.tags": [
       {
@@ -159,7 +294,6 @@
       }
     ],
     // * </Decorative>
-
     "typescript.tsdk": "node_modules/typescript/lib"
   }
 }
