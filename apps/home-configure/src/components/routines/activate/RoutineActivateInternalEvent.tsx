@@ -1,5 +1,7 @@
 import { InternalEventActivateDTO } from '@steggy/controller-shared';
-import { Form, Input, Select, Space } from 'antd';
+import { Form, Select, Space, Typography } from 'antd';
+
+import { TypedEditor } from '../../misc';
 
 export const ALL_EVENTS = [
   'GROUP_UPDATE',
@@ -31,11 +33,16 @@ export function RoutineActivateInternalEvent(props: {
           ))}
         </Select>
       </Form.Item>
-      <Form.Item label="Filter events">
-        <Input.TextArea
-          defaultValue={props.activate?.validate}
-          style={{ minHeight: '150px' }}
-          onBlur={({ target }) => props.onUpdate({ validate: target.value })}
+      <Form.Item>
+        <TypedEditor
+          secondaryText={
+            <>
+              <Typography.Text code>return true</Typography.Text>
+              {` to activate`}
+            </>
+          }
+          code={props.activate?.validate}
+          onUpdate={validate => props.onUpdate({ validate })}
         />
       </Form.Item>
     </Space>

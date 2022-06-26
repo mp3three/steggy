@@ -1,5 +1,5 @@
 import { RoutineCommandSendNotificationDTO } from '@steggy/controller-shared';
-import { Form, Input, Select, Typography } from 'antd';
+import { Form, Input, Radio, Typography } from 'antd';
 
 import { TypedEditor } from '../../misc';
 
@@ -11,13 +11,15 @@ export function SendNotificationCommand(props: {
   return (
     <>
       <Form.Item label="Type">
-        <Select value={type} onChange={type => props.onUpdate({ type })}>
-          <Select.Option value="simple">Plain Text</Select.Option>
-          <Select.Option value="template">
-            Home Assistant Template
-          </Select.Option>
-          <Select.Option value="javascript">TS Eval</Select.Option>
-        </Select>
+        <Radio.Group
+          buttonStyle="solid"
+          value={type}
+          onChange={({ target }) => props.onUpdate({ type: target.value })}
+        >
+          <Radio.Button value="simple">Plain Text</Radio.Button>
+          <Radio.Button value="template">Home Assistant Template</Radio.Button>
+          <Radio.Button value="eval">TS Eval</Radio.Button>
+        </Radio.Group>
       </Form.Item>
       <Form.Item label=" " colon={false}>
         {type === 'simple' ? (
@@ -38,6 +40,7 @@ export function SendNotificationCommand(props: {
         {type === 'javascript' ? (
           <TypedEditor
             code={props.command.template}
+            secondaryText="Return text to send via notification"
             onUpdate={template => props.onUpdate({ template })}
           />
         ) : (

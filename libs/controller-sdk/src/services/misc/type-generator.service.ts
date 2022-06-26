@@ -19,6 +19,7 @@ import {
   SyntaxKind,
 } from 'typescript';
 
+import { EXTRA_UI_TYPINGS } from '../../typings';
 import { PersonService } from '../person.service';
 import { RoomService } from '../room.service';
 import { SecretsService } from '../secrets.service';
@@ -49,6 +50,8 @@ export class TypeGeneratorService {
 
   public async assemble(): Promise<string> {
     return [
+      EXTRA_UI_TYPINGS,
+      `declare const logger: iLogger = undefined;`,
       this.buildTypesFromEntities(),
       await this.buildTypesFromMetadata(),
       this.buildTypesFromSecrets(),

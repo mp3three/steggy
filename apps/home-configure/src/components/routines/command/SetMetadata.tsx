@@ -148,6 +148,7 @@ export function SetRoomMetadataCommand(props: {
           <Form.Item>
             <TypedEditor
               onUpdate={value => props.onUpdate({ value })}
+              secondaryText="return boolean value"
               defaultValue={`if (sensor.total_consumption > 350) {\n  return false;\n}\nreturn true;`}
               code={props.command.value as string}
             />
@@ -190,6 +191,7 @@ export function SetRoomMetadataCommand(props: {
         {command.valueType === 'eval' ? (
           <TypedEditor
             onUpdate={value => props.onUpdate({ value })}
+            secondaryText="return Date value"
             defaultValue={`const tomorrow = dayjs().add(1,'day');\n\nif (dayjs(person.date).isAfter(tomorrow)) {\n  return tomorrow.toDate();\n}\nreturn new Date();`}
             code={props.command.value as string}
           />
@@ -246,6 +248,7 @@ export function SetRoomMetadataCommand(props: {
           {command?.valueType === 'eval' ? (
             <TypedEditor
               onUpdate={value => props.onUpdate({ value })}
+              secondaryText="return number value"
               defaultValue={`if (sensor.total_consumption > 350) {\n  return 220;\n}\nreturn 654;`}
               code={props.command.value as string}
             />
@@ -274,23 +277,26 @@ export function SetRoomMetadataCommand(props: {
     return (
       <>
         <Form.Item label="Type">
-          <Select
-            style={{ width: '250px' }}
+          <Radio.Group
+            buttonStyle="solid"
             value={type}
-            onChange={valueType => props.onUpdate({ valueType })}
+            onChange={({ target }) =>
+              props.onUpdate({ valueType: target.value })
+            }
           >
-            <Select.Option value="simple">Plain Text</Select.Option>
-            <Select.Option value="template">
+            <Radio.Button value="simple">Plain Text</Radio.Button>
+            <Radio.Button value="template">
               Home Assistant Template
-            </Select.Option>
-            <Select.Option value="eval">TS Eval</Select.Option>
-          </Select>
+            </Radio.Button>
+            <Radio.Button value="eval">TS Eval</Radio.Button>
+          </Radio.Group>
         </Form.Item>
         <Form.Item>
           {command?.valueType === 'eval' ? (
             <TypedEditor
               onUpdate={value => props.onUpdate({ value })}
               defaultValue={`if (sensor.total_consumption > 350) {\n  return 'foo';\n}\nreturn 'bar';`}
+              secondaryText="return string value"
               code={props.command.value as string}
             />
           ) : (

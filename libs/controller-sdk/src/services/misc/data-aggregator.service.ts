@@ -3,7 +3,6 @@ import { AutoLogService } from '@steggy/boilerplate';
 import { ROOM_METADATA_TYPES, tNestedObject } from '@steggy/controller-shared';
 import { EntityManagerService } from '@steggy/home-assistant';
 import { is } from '@steggy/utilities';
-import { isNumberString } from 'class-validator';
 import { set } from 'object-path';
 
 import { PersonService } from '../person.service';
@@ -36,7 +35,7 @@ export class DataAggregatorService {
   public async load(type?: tMetadataType): Promise<tNestedObject> {
     try {
       return {
-        ...(await this.buildData(type)),
+        ...(await this.buildData()),
         ...this.fromSecrets(type),
       };
     } catch (error) {
@@ -45,9 +44,9 @@ export class DataAggregatorService {
     }
   }
 
-  private async buildData(type: tMetadataType): Promise<tNestedObject> {
-    const documents = await this.fromDatabase(type);
-    const entities = this.fromEntities(type);
+  private async buildData(): Promise<tNestedObject> {
+    const documents = await this.fromDatabase();
+    const entities = this.fromEntities();
     const domains = Object.keys(entities);
     Object.keys(documents).forEach(key => {
       if (domains.includes(key)) {
@@ -63,7 +62,7 @@ export class DataAggregatorService {
     };
   }
 
-  private async fromDatabase(type: tMetadataType): Promise<tNestedObject> {
+  private async fromDatabase(): Promise<tNestedObject> {
     const people = await this.personService.list({
       select: ['name', 'metadata'],
     });
@@ -73,44 +72,15 @@ export class DataAggregatorService {
       if (is.empty(name) || is.empty(metadata)) {
         return;
       }
-      if (type) {
-        metadata = metadata.filter(i => i.type === type);
-      }
       set(out, name, Object.fromEntries(metadata.map(i => [i.name, i.value])));
     });
     return out;
   }
 
-  private fromEntities(type: tMetadataType): tNestedObject {
+  private fromEntities(): tNestedObject {
     const out: tNestedObject = {};
-    this.entityManager.ENTITIES.forEach(({ state, attributes }, entity_id) => {
-      if (type === 'number') {
-        if (is.number(state) || (is.string(state) && isNumberString(state))) {
-          state = Number(state);
-          set(out, entity_id, Number(state));
-        }
-      } else {
-        set(out, entity_id, state);
-      }
-      Object.entries(attributes).forEach(([name, value]) => {
-        if (type === 'number') {
-          if (is.number(value) || (is.string(value) && isNumberString(value))) {
-            const [domain, id] = entity_id.split('.');
-            set(
-              out,
-              `${domain}_attributes.${id}.${name.replace(' ', '_')}`,
-              Number(value),
-            );
-          }
-        } else {
-          const [domain, id] = entity_id.split('.');
-          set(
-            out,
-            `${domain}_attributes.${id}.${name.replace(' ', '_')}`,
-            value,
-          );
-        }
-      });
+    this.entityManager.ENTITIES.forEach((entity, entity_id) => {
+      set(out, entity_id, entity);
     });
     return out;
   }
