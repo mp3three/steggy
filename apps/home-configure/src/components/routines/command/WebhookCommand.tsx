@@ -152,11 +152,10 @@ export function WebhookCommand(props: {
                 onUpdate={code => props.onUpdate({ code })}
                 type="execute"
                 extraTypes={
-                  ''
-                  // parse === 'text'
-                  //   ? `${STOP_TYPE}\nconst response: string = "";`
-                  //   : // TODO: It'd be cool to cast this
-                  //     `${STOP_TYPE}\nconst response: Record<string,unknown> = {};`
+                  parse === 'text'
+                    ? `${STOP_TYPE}\nconst response: string = "";`
+                    : // TODO: It'd be cool to cast this
+                      `${STOP_TYPE}\nconst response: Record<string,unknown> = {};`
                 }
               />
             </Form.Item>

@@ -53,9 +53,9 @@ export class TypeGeneratorService {
     return [
       this.buildTypesFromEntities(),
       EXTRA_UI_TYPINGS,
-      // `declare const logger: iLogger;`,
-      // await this.buildTypesFromMetadata(),
-      // this.buildTypesFromSecrets(),
+      `declare const logger: iLogger;`,
+      await this.buildTypesFromMetadata(),
+      this.buildTypesFromSecrets(),
     ].join(`\n`);
   }
 
