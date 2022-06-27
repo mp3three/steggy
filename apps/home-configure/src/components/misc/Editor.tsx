@@ -4,6 +4,7 @@ import { Alert, Space, Spin, Tooltip, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
+import { CodeCommandHelp } from './CodeCommandHelp';
 let timeout: NodeJS.Timeout;
 
 export function TypedEditor(props: {
@@ -66,8 +67,8 @@ export function TypedEditor(props: {
         <Typography.Text type="secondary">
           {props.secondaryText}
         </Typography.Text>
-        {(props.type ?? 'request') === 'request' ? (
-          <span style={{ float: 'right' }}>
+        <span style={{ float: 'right' }}>
+          {(props.type ?? 'request') === 'request' ? (
             <Tooltip
               placement="left"
               title="Code must return a value to be understood"
@@ -76,8 +77,10 @@ export function TypedEditor(props: {
               {/* Only if it bothers me enough to make a ticket */}
               {FD_ICONS.get('information')}
             </Tooltip>
-          </span>
-        ) : undefined}
+          ) : (
+            <CodeCommandHelp />
+          )}
+        </span>
       </div>
       <Editor
         theme="vs-dark"
@@ -95,7 +98,18 @@ export function TypedEditor(props: {
           );
           typescript.typescriptDefaults.setExtraLibs([
             {
-              content: extraTypes + (props.extraTypes ?? ''),
+              content:
+                extraTypes +
+                (props.extraTypes ?? '') +
+                (props.type === 'execute'
+                  ? [
+                      `/**`,
+                      ` * Execute function to stop routine execution`,
+                      ` */`,
+                      `const stop_processing:() => void;`,
+                      `const steggy: iVMBreakoutAPI = undefined;`,
+                    ].join(`\n`)
+                  : ''),
               filePath: 'dynamic-types.d.ts',
             },
           ]);

@@ -11,14 +11,6 @@ import { FD_ICONS, sendRequest } from '../../../types';
 import { TypedEditor } from '../../misc';
 import { WebhookRequestBuilder } from '../../misc/webhook';
 
-const STOP_TYPE = [
-  `/**`,
-  ` * Execute function to stop routine execution`,
-  ` */`,
-  `const stop_processing:() => void;`,
-  `const steggy: iVMBreakoutAPI = undefined;`,
-].join(`\n`);
-
 // eslint-disable-next-line radar/cognitive-complexity
 export function WebhookCommand(props: {
   command?: RoutineCommandWebhookDTO;
@@ -153,9 +145,9 @@ export function WebhookCommand(props: {
                 type="execute"
                 extraTypes={
                   parse === 'text'
-                    ? `${STOP_TYPE}\nconst response: string = "";`
+                    ? `const response: string = "";`
                     : // TODO: It'd be cool to cast this
-                      `${STOP_TYPE}\nconst response: Record<string,unknown> = {};`
+                      `const response: Record<string,unknown> = {};`
                 }
               />
             </Form.Item>

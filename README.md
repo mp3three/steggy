@@ -97,7 +97,7 @@ General purpose utilities and constants for `@steggy`
 
 ## Development goals by minor revision
 
-> - `0.12.x` Routine smartening
+> - `0.12.x` Typescript transpile madness
 > - `0.11.x` Configuration management & TTY upgrades
 > - `0.10.x` Buildout of people, additional focus on UI completeness / consistency
 > - `0.9.x` Focus on quality of life and platform stability updates

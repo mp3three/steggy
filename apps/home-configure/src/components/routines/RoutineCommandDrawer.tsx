@@ -1,5 +1,6 @@
 import {
   CallServiceCommandDTO,
+  RoutineCodeCommandDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
@@ -30,6 +31,7 @@ import {
 import { FD_ICONS, sendRequest } from '../../types';
 import {
   CallServiceCommand,
+  ExecuteCodeCommand,
   GroupActionCommand,
   GroupStateCommand,
   NodeRedCommand,
@@ -75,6 +77,13 @@ export function RoutineCommandDrawer(props: {
           <SetRoomMetadataCommand
             onUpdate={update => onUpdate(update)}
             command={props.command.command as SetRoomMetadataCommandDTO}
+          />
+        );
+      case 'execute_code':
+        return (
+          <ExecuteCodeCommand
+            onUpdate={update => onUpdate(update)}
+            command={props.command.command as RoutineCodeCommandDTO}
           />
         );
       case 'group_action':

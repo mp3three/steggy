@@ -64,7 +64,9 @@ export class TypeGeneratorService {
     this.entityManager.ENTITIES.forEach(entity =>
       set(home_assistant, entity.entity_id, entity),
     );
-    return `declare const home_assistant: ${JSON.stringify(
+    // Do not pass the json as a type
+    // All strings will need to be strictly whatever was passed, instead of "home" turning into string
+    return `const home_assistant = ${JSON.stringify(
       home_assistant,
       undefined,
       '  ',

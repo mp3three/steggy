@@ -123,6 +123,13 @@ export class RoutineCaptureCommandDTO {
   public key?: string;
 }
 
+export class RoutineCodeCommandDTO {
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  public code: string;
+}
+
 export class RoutineRestoreCommandDTO {
   @ApiProperty()
   @IsOptional()

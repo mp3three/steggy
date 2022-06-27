@@ -1,5 +1,6 @@
 export * from './call-service.service';
 export * from './capture-command.service';
+export * from './execute-code.service';
 export * from './group-action.service';
 export * from './group-state.service';
 export * from './light-flash-command.service';

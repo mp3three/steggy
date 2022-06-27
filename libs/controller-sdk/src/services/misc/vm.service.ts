@@ -102,6 +102,7 @@ export class VMService {
 
   private async transpile(code: string): Promise<string> {
     const start = Date.now();
+    // VM appears to return value provided by the final instruction to execute
     code = `const __wrapper = async function(){${code}};\n__wrapper();`;
 
     const hashed = this.hash(code);

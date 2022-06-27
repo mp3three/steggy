@@ -161,6 +161,18 @@ export const EXTRA_UI_TYPINGS = [
     */
    routineSuperFriendlyName(id: string): string;
    /**
+    * @deprecated temporary placeholder, expect to go away
+    */
+   sendNotification(
+     message: string,
+     optional?: {
+       data?: Record<string, unknown>;
+       target?: string;
+       title?: string;
+     },
+     waitForChange?: boolean,
+   ): Promise<void>;
+   /**
     * Modify the metadata for a room.
     * **DOES** perform type checking / coercion on the inside.
     * **DOES NOT** allow for the creation of new properties.
@@ -281,6 +293,18 @@ export interface iVMBreakoutAPI {
    * [Routine] > [Child] > [Target Grandchild]
    */
   routineSuperFriendlyName(id: string): string;
+  /**
+   * @deprecated temporary placeholder, expect to go away
+   */
+  sendNotification(
+    message: string,
+    optional?: {
+      data?: Record<string, unknown>;
+      target?: string;
+      title?: string;
+    },
+    waitForChange?: boolean,
+  ): Promise<void>;
   /**
    * Modify the metadata for a room.
    * **DOES** perform type checking / coercion on the inside.

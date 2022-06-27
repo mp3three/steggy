@@ -1,4 +1,5 @@
 export * from './ChronoExamples';
+export * from './CodeCommandHelp';
 export * from './CompareValue';
 export * from './comparisons';
 export * from './Editor';

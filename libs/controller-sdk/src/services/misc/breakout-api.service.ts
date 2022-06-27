@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { RoutineActivateOptionsDTO } from '@steggy/controller-shared';
+import { NotifyDomainService } from '@steggy/home-assistant';
 import { is, START } from '@steggy/utilities';
 
 import { iVMBreakoutAPI } from '../../typings';
@@ -26,6 +27,7 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
     private readonly roomService: RoomService,
     private readonly routineEnabled: RoutineEnabledService,
     private readonly routineService: RoutineService,
+    private readonly notifyService: NotifyDomainService,
   ) {}
 
   /**
@@ -148,6 +150,21 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
    */
   public routineSuperFriendlyName(id: string): string {
     return this.routineService.superFriendlyName(id);
+  }
+
+  /**
+   * @deprecated temporary placeholder, expect to go away
+   */
+  public async sendNotification(
+    message: string,
+    optional?: {
+      data?: Record<string, unknown>;
+      target?: string;
+      title?: string;
+    },
+    waitForChange = false,
+  ): Promise<void> {
+    await this.notifyService.notify(message, optional, waitForChange);
   }
 
   /**
