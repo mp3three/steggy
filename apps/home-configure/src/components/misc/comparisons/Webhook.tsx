@@ -19,6 +19,7 @@ export function WebhookComparison(props: {
   return (
     <>
       <Card type="inner" title="Webhook Comparison">
+        {/* Remove webhook request */}
         <WebhookRequest
           webhook={props.comparison?.webhook}
           onUpdate={webhook =>

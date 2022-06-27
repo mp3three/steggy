@@ -50,22 +50,22 @@ export class SendNotificationService
     runId: string,
   ): Promise<string> {
     const type = command.type ?? 'simple';
-    if (type === 'simple') {
-      return command.template;
-    }
     if (type === 'template') {
       return await this.socketService.renderTemplate(command.template ?? ``);
     }
-    const result = await this.vmService.exec(command.template, {
-      runId,
-    });
-    if (!is.string(result)) {
-      this.logger.error(
-        { command, result },
-        `Code did not return string result`,
-      );
-      return ``;
+    if (type === 'eval') {
+      const result = await this.vmService.exec(command.template, {
+        runId,
+      });
+      if (!is.string(result)) {
+        this.logger.error(
+          { command, result },
+          `Code did not return string result`,
+        );
+        return ``;
+      }
+      return result;
     }
-    return result;
+    return command.template;
   }
 }

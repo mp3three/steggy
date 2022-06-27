@@ -10,4 +10,5 @@ export * from './ItemPin';
 export * from './MathHelp';
 export * from './Metadata';
 export * from './MetadataEdit';
+export * from './SecretsSuffix';
 export * from './WebhookRequest';

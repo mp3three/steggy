@@ -2,6 +2,8 @@
 const { merge } = require('webpack-merge');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
+// FIXME: Using this breaks HMR
+// Also, add comments on what this is doing if used again
 module.exports = (config, context) => {
   return merge(config, {
     module: {

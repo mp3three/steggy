@@ -14,6 +14,7 @@ import {
   RoomMetadataDTO,
   RoutineCommandDTO,
   RoutineCommandWebhookDTO,
+  WebhookHeaderDTO,
 } from '@steggy/controller-shared';
 import { is, START } from '@steggy/utilities';
 import { isDateString, isNumberString } from 'class-validator';
@@ -48,7 +49,7 @@ export class WebhookService
       command.command;
     this.logger.debug({ command }, `Sending webhook`);
     let result = await this.fetchService.fetch<string>({
-      headers: this.buildHeaders(),
+      headers: this.buildHeaders(extra.headers),
       method: extra.method,
       process: 'text',
       url: extra.url,
@@ -99,11 +100,11 @@ export class WebhookService
   }
 
   private buildHeaders(
-    headers: Record<string, string> = {},
+    headers: WebhookHeaderDTO[] = [],
   ): Record<string, string> {
     return Object.fromEntries(
-      Object.entries(headers).map(([key, value]) => [
-        key,
+      headers.map(({ header, value }) => [
+        header,
         this.secretsService.tokenReplace(value),
       ]),
     );

@@ -3,10 +3,11 @@ import {
   RoomDTO,
   RoutineCommandWebhookDTO,
 } from '@steggy/controller-shared';
-import { Button, Form, Input, Select, Space, Table, Typography } from 'antd';
+import { Form, Input, Select, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
+import { WebhookRequestBuilder } from './webhook';
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function WebhookRequest(props: {
@@ -75,84 +76,10 @@ export function WebhookRequest(props: {
   const target = assignTarget();
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
-      <Form.Item label="URL">
-        <Input
-          placeholder="http://some.domain/api/target"
-          defaultValue={props.webhook?.url}
-          onBlur={({ target }) => props.onUpdate({ url: target.value })}
-        />
-      </Form.Item>
-      <Form.Item label="Method">
-        <Select
-          value={props.webhook?.method}
-          onChange={method => props.onUpdate({ method })}
-        >
-          <Select.Option value="get">GET</Select.Option>
-          <Select.Option value="post">POST</Select.Option>
-          <Select.Option value="put">PUT</Select.Option>
-          <Select.Option value="delete">DELETE</Select.Option>
-        </Select>
-      </Form.Item>
-      <Form.Item label="Headers">
-        <div style={{ marginBottom: '8px', textAlign: 'right' }}>
-          <Button
-            type="primary"
-            size="small"
-            onClick={() =>
-              props.onUpdate({
-                headers: [
-                  ...(props.webhook?.headers ?? []),
-                  { header: '', value: '' },
-                ],
-              })
-            }
-          >
-            Add
-          </Button>
-        </div>
-        <Table dataSource={props.webhook?.headers ?? []}>
-          <Table.Column
-            title="Header"
-            dataIndex="header"
-            key="header"
-            render={(i, record, index) => (
-              <Input
-                value={i}
-                onChange={({ target }) =>
-                  props.onUpdate({
-                    headers: props.webhook?.headers.map(
-                      ({ header, value }, index_) =>
-                        index_ === index
-                          ? { header: target.value, value }
-                          : { header, value },
-                    ),
-                  })
-                }
-              />
-            )}
-          />
-          <Table.Column
-            title="Value"
-            dataIndex="value"
-            key="value"
-            render={(i, record, index) => (
-              <Input
-                defaultValue={i}
-                onBlur={({ target }) =>
-                  props.onUpdate({
-                    headers: props.webhook.headers.map(
-                      ({ header, value }, index_) =>
-                        index_ === index
-                          ? { header, value: target.value }
-                          : { header, value },
-                    ),
-                  })
-                }
-              />
-            )}
-          />
-        </Table>
-      </Form.Item>
+      <WebhookRequestBuilder
+        webhook={props.webhook}
+        onUpdate={value => props.onUpdate(value)}
+      />
       <Form.Item label="Response">
         <Select value={parse} onChange={parse => props.onUpdate({ parse })}>
           <Select.Option value="none">Ignore</Select.Option>

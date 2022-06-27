@@ -30,14 +30,14 @@ export function SendNotificationCommand(props: {
             Process as template in Home Assistant, then send
           </Typography.Text>
         ) : undefined}
-        {type === 'javascript' ? (
+        {type === 'eval' ? (
           <Typography.Text type="secondary">
             Return result is sent as notification
           </Typography.Text>
         ) : undefined}
       </Form.Item>
       <Form.Item>
-        {type === 'javascript' ? (
+        {type === 'eval' ? (
           <TypedEditor
             code={props.command.template}
             secondaryText="Return text to send via notification"

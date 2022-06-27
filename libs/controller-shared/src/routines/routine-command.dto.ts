@@ -63,7 +63,7 @@ export class RoutineCommandSendNotificationDTO {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  public type?: 'simple' | 'javascript' | 'template';
+  public type?: 'simple' | 'eval' | 'template';
 }
 
 export class RoutineCommandSleepDTO {
@@ -203,6 +203,9 @@ export class RoutineCommandWebhookDTO {
   @ApiProperty()
   @IsString()
   public assignType?: 'person' | 'room';
+  @ApiProperty()
+  @IsString()
+  public code?: string;
   @ApiProperty()
   @ValidateNested({ each: true })
   public headers: WebhookHeaderDTO[];
