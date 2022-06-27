@@ -136,7 +136,7 @@ export class RoutineEnabledService {
    */
   public async onUpdate(id: string): Promise<void> {
     const routine = await this.routineService.get(id);
-    const name = this.superFriendlyName(id);
+    const name = this.routineService.superFriendlyName(id);
     const state = await this.isActive(routine);
     let updated = false;
     if (this.ACTIVE_ROUTINES.has(routine._id) && !state) {
@@ -179,11 +179,6 @@ export class RoutineEnabledService {
     this.initialLoad = false;
     await this.onApplicationBootstrap();
     await this.onApplicationReady();
-  }
-
-  public superFriendlyName(id: string): string {
-    const parts = this.routineService.superFriendlyName(id);
-    return parts.map(i => `[${i}]`).join(' > ');
   }
 
   /**
@@ -380,17 +375,23 @@ export class RoutineEnabledService {
     this.ACTIVE_ROUTINES.add(routine._id);
     if (is.empty(routine.command)) {
       this.logger.debug(
-        `${this.superFriendlyName(routine._id)} false start {(no commands)}`,
+        `${this.routineService.superFriendlyName(
+          routine._id,
+        )} false start {(no commands)}`,
       );
       return;
     }
     if (is.empty(routine.activate)) {
       this.logger.debug(
-        `${this.superFriendlyName(routine._id)} false start {(no activate)}`,
+        `${this.routineService.superFriendlyName(
+          routine._id,
+        )} false start {(no activate)}`,
       );
       return;
     }
-    this.logger.info(`${this.superFriendlyName(routine._id)} start`);
+    this.logger.info(
+      `${this.routineService.superFriendlyName(routine._id)} start`,
+    );
     if (!this.safeMode) {
       this.routineService.mount(routine);
     }

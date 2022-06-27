@@ -54,7 +54,7 @@ export class SendNotificationService
       return await this.socketService.renderTemplate(command.template ?? ``);
     }
     if (type === 'eval') {
-      const result = await this.vmService.exec(command.template, {
+      const result = await this.vmService.fetch(command.template, {
         runId,
       });
       if (!is.string(result)) {

@@ -1,3 +1,4 @@
+export * from './breakout-api.service';
 export * from './chrono.service';
 export * from './data-aggregator.service';
 export * from './debugger.service';

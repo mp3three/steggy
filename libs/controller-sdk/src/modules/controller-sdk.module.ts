@@ -24,6 +24,7 @@ import {
   VM_TIMEOUT,
 } from '../config';
 import {
+  BreakoutAPIService,
   ChronoService,
   CircadianService,
   DataAggregatorService,
@@ -62,11 +63,12 @@ import {
 } from '../services';
 
 const providers = [
+  BreakoutAPIService,
   ChronoService,
   CircadianService,
+  DataAggregatorService,
   DebuggerService,
   EntityCommandRouterService,
-  DataAggregatorService,
   EntityRenameService,
   EntityService,
   FanGroupService,
@@ -92,10 +94,10 @@ const providers = [
   SaveStateService,
   SecretsService,
   SolarCalcService,
+  StopProcessingCommandService,
   SwitchGroupService,
   TypeGeneratorService,
   VMService,
-  StopProcessingCommandService,
 ];
 
 @LibraryModule({

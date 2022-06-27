@@ -77,6 +77,9 @@ export class RoutineService {
     runId?: string,
   ): Promise<boolean> {
     routine = await this.get(routine);
+    if (!routine) {
+      return false;
+    }
     command = is.string(command)
       ? routine.command.find(({ id }) => id === command)
       : command;
@@ -102,7 +105,10 @@ export class RoutineService {
     if (!runId) {
       return;
     }
-    this.logger.info({ runId }, `[${routine.friendlyName}] activate`);
+    this.logger.info(
+      { runId },
+      `${this.superFriendlyName(routine._id)} activate`,
+    );
     this.eventEmitter.emit(ROUTINE_ACTIVATE, {
       routine: routine._id,
       runId,
@@ -124,7 +130,9 @@ export class RoutineService {
             aborted = true;
             this.logger.debug(
               { currentId, runId },
-              `[${friendlyName}] processing interrupted`,
+              `${this.superFriendlyNameParts(
+                routine._id,
+              )} processing interrupted`,
             );
             return;
           }
@@ -159,7 +167,7 @@ export class RoutineService {
     if (!source) {
       throw new NotFoundException();
     }
-    this.logger.info(`Clone [${source.friendlyName}]`);
+    this.logger.info(`Clone ${this.superFriendlyName(source._id)}`);
     const cloned = await this.create({
       activate: omitActivate
         ? []
@@ -184,7 +192,9 @@ export class RoutineService {
       });
       if (!is.empty(children)) {
         this.logger.info(
-          `[${source.friendlyName}] cloning {${children.length}} child routines`,
+          `${this.superFriendlyName(source._id)} cloning {${
+            children.length
+          }} child routines`,
         );
       }
       await eachSeries(children, async routine => {
@@ -209,11 +219,13 @@ export class RoutineService {
     });
     if (!is.empty(children)) {
       this.logger.info(
-        `[${routine.friendlyName}] removing {${children.length}} child routines`,
+        `${this.superFriendlyName(routine._id)} removing {${
+          children.length
+        }} child routines`,
       );
     }
     await each(children, async child => await this.delete(child));
-    this.logger.info(`[${routine.friendlyName}] Delete routine`);
+    this.logger.info(`${this.superFriendlyName(routine._id)} Delete routine`);
     return await this.routinePersistence.delete(routine);
   }
 
@@ -230,10 +242,12 @@ export class RoutineService {
 
   public mount(routine: RoutineDTO): void {
     if (is.empty(routine.activate)) {
-      this.logger.warn(`[${routine.friendlyName}] no activation events`);
+      this.logger.warn(
+        `${this.superFriendlyName(routine._id)} no activation events`,
+      );
       return;
     }
-    this.logger.debug(`[${routine.friendlyName}] building`);
+    this.logger.debug(`${this.superFriendlyName(routine._id)} building`);
     routine.activate.forEach(activate => {
       if (!activate.activate) {
         this.logger.error(` - {${activate.friendlyName}} INVALID`);
@@ -249,6 +263,11 @@ export class RoutineService {
     });
   }
 
+  public superFriendlyName(id: string): string {
+    const parts = this.superFriendlyNameParts(id);
+    return parts.map(i => `[${i}]`).join(' > ');
+  }
+
   /**
    * Create an excessively readable label that shows full ancestors.
    *
@@ -256,11 +275,11 @@ export class RoutineService {
    * 🧓 Grandparent Routine > 🧑 Parent Routine > "👶 I'm doing a thing!"
    * ```
    */
-  public superFriendlyName(id: string, built = []): string[] {
+  public superFriendlyNameParts(id: string, built = []): string[] {
     const routine = this.routineEnabled.RAW_LIST.get(id);
     built.unshift(routine.friendlyName);
     if (routine.parent) {
-      return this.superFriendlyName(routine.parent, built);
+      return this.superFriendlyNameParts(routine.parent, built);
     }
     return built;
   }
@@ -269,7 +288,7 @@ export class RoutineService {
     if (is.empty(routine.activate)) {
       return;
     }
-    this.logger.debug(`[${routine.friendlyName}] unmount`);
+    this.logger.debug(`${this.superFriendlyName(routine._id)} unmount`);
     routine.activate.forEach(activate => {
       this.logger.debug(` - ${activate.friendlyName}`);
       this.getActivation(activate.type).clearRoutine(routine);
@@ -335,7 +354,9 @@ export class RoutineService {
     const isActive = this.routineEnabled.ACTIVE_ROUTINES.has(routine._id);
     if (!isActive && !options.force) {
       this.logger.debug(
-        `[${routine.friendlyName}] is disabled, blocking activation`,
+        `${this.superFriendlyName(
+          routine._id,
+        )} is disabled, blocking activation`,
       );
       return undefined;
     }

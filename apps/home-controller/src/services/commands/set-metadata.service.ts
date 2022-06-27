@@ -176,7 +176,7 @@ export class SetMetadataService
     runId: string,
   ): Promise<string | number | boolean> {
     if (command.valueType === 'eval') {
-      return await this.vmService.exec((command.value as string) || '', {
+      return await this.vmService.fetch((command.value as string) || '', {
         runId,
       });
     }

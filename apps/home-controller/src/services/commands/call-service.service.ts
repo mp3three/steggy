@@ -84,7 +84,7 @@ export class CallServiceService
       }
       type ||= 'simple';
       if (type === 'eval') {
-        out[key] = await this.vmService.exec(value as string);
+        out[key] = await this.vmService.fetch(value as string);
         return;
       }
       if (type === 'template') {

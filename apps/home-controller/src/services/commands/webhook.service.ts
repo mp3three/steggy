@@ -84,7 +84,7 @@ export class WebhookService
     // * Process
     if (assignTo === 'eval') {
       let stop = false;
-      await this.vmService.exec(command.command.code, {
+      await this.vmService.fetch(command.command.code, {
         // ? should be possible to access the raw response headers?
         response: result,
         stop_processing: () => (stop = true),

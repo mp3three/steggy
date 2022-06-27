@@ -11,6 +11,7 @@ import { ModuleKind, transpileModule } from 'typescript';
 import { VM } from 'vm2';
 
 import { VM_TIMEOUT } from '../../config';
+import { BreakoutAPIService } from './breakout-api.service';
 import { DataAggregatorService } from './data-aggregator.service';
 
 const SHIFT = 5;
@@ -24,41 +25,64 @@ export class VMService {
     @InjectConfig(VM_TIMEOUT) private readonly timeout: number,
     @InjectCache()
     private readonly cache: CacheManagerService,
+    private readonly breakoutApi: BreakoutAPIService,
   ) {}
 
   /**
-   * Execute the user provided code inside a wrapper function.
-   * Whatever the user returns (via the normal return keyword), will be returned by this function.
+   * Execute user provided typescript code
+   *
+   * Intended for situations where the code is the action itself.
+   * Does not return a value, but does have access to the extended command API
    */
-  public async exec<T>(
+  public async command(
+    code: string,
+    parameters: Record<string, unknown> = {},
+  ): Promise<void> {
+    code = await this.transpile(code);
+    await new VM({
+      allowAsync: true,
+      eval: false,
+      sandbox: {
+        ...(await this.baseSandbox()),
+        ...parameters,
+        steggy: this.breakoutApi,
+      },
+      timeout: this.timeout,
+      wasm: false,
+    }).run(code);
+  }
+
+  /**
+   * Execute user provided typescript code
+   *
+   * Intended for retrieving values, extended command API not provided
+   */
+  public async fetch<T>(
     code: string,
     parameters: Record<string, unknown> = {},
   ): Promise<T> {
-    code = await this.transpile(
-      `const __wrapper = async function(){${code}};\n__wrapper();`,
-    );
+    code = await this.transpile(code);
     return await new VM({
-      // Should allow for dealing with some async work
-      // I'm really not sure what async work there is to do though in this context
       allowAsync: true,
-      // Already doing something that's kinda dangerous
-      // Let's not 🦶🔫
       eval: false,
-      // Data going into the global object
       sandbox: {
-        // Load all dynamic data, and provide
-        ...(await this.dataAggregator.load()),
-        // Variables related to the local flow
+        ...(await this.baseSandbox()),
         ...parameters,
-        // libraries & utils
-        dayjs,
-        is,
-        logger: this.logger,
       },
       timeout: this.timeout,
-      // No web assembly... seriously, why?
       wasm: false,
     }).run(code);
+  }
+
+  private async baseSandbox() {
+    return {
+      // Load all dynamic data, and provide
+      ...(await this.dataAggregator.load()),
+      // libraries & utils
+      dayjs,
+      is,
+      logger: this.logger,
+    };
   }
 
   /**
@@ -78,6 +102,8 @@ export class VMService {
 
   private async transpile(code: string): Promise<string> {
     const start = Date.now();
+    code = `const __wrapper = async function(){${code}};\n__wrapper();`;
+
     const hashed = this.hash(code);
     const key = CACHE_KEY(hashed.toString());
     const data = await this.cache.get<string>(key);

@@ -57,8 +57,8 @@ export class DataAggregatorService {
       }
     });
     return {
-      ...entities,
       ...documents,
+      home_assistant: entities,
     };
   }
 

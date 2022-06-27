@@ -93,14 +93,12 @@ export function TypedEditor(props: {
             // This isn't really "top level", these aren't relevant
             { diagnosticCodesToIgnore: [1108, 1375, 1378] },
           );
-          typescript.typescriptDefaults.addExtraLib(
-            extraTypes,
-            'home-controller-vm.d.ts',
-          );
-          typescript.typescriptDefaults.addExtraLib(
-            props.extraTypes ?? '',
-            'local.d.ts',
-          );
+          typescript.typescriptDefaults.setExtraLibs([
+            {
+              content: extraTypes + (props.extraTypes ?? ''),
+              filePath: 'dynamic-types.d.ts',
+            },
+          ]);
         }}
         options={{ minimap: { enabled: false } }}
         onChange={value => sendUpdate(value)}

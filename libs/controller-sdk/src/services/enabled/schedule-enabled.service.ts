@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import { StopProcessingCommandService } from '../../commands';
 import { iRoutineEnabled, RoutineEnabled } from '../../decorators';
 import { ChronoService } from '../misc';
+import { RoutineService } from '../routine.service';
 import { RoutineEnabledService } from '../routine-enabled.service';
 
 @RoutineEnabled({ type: [STOP_PROCESSING_TYPE.date] })
@@ -23,6 +24,7 @@ export class ScheduleEnabledService
     @Inject(forwardRef(() => StopProcessingCommandService))
     private readonly stopProcessing: StopProcessingCommandService,
     private readonly routineEnabled: RoutineEnabledService,
+    private readonly routineService: RoutineService,
   ) {}
 
   public watch(
@@ -36,7 +38,7 @@ export class ScheduleEnabledService
     if (is.boolean(parsed)) {
       this.logger.error(
         { comparison },
-        `[${this.routineEnabled.superFriendlyName(
+        `[${this.routineService.superFriendlyName(
           routine._id,
         )}] Expression failed parsing`,
       );
@@ -54,7 +56,7 @@ export class ScheduleEnabledService
     const result = this.stopProcessing.dateComparison(comparison);
     if (result !== currentState) {
       this.logger.info(
-        `${this.routineEnabled.superFriendlyName(routine._id)} State changed`,
+        `${this.routineService.superFriendlyName(routine._id)} State changed`,
       );
       return result;
     }

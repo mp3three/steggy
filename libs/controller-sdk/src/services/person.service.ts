@@ -533,7 +533,9 @@ export class PersonService {
           const routine = await this.routineService.get(pin.target);
           out.push({
             description: routine.description,
-            extraContext: this.routineService.superFriendlyName(pin.target),
+            extraContext: this.routineService.superFriendlyNameParts(
+              pin.target,
+            ),
             friendlyName: [routine.friendlyName],
             id: pin.target,
             type: pin.type,
@@ -600,7 +602,7 @@ export class PersonService {
 
   public async updateMetadata(
     target: string | PersonDTO,
-    id: string,
+    idOrName: string,
     update: Partial<RoomMetadataDTO>,
   ): Promise<PersonDTO> {
     const person = await this.load(target);
@@ -609,25 +611,27 @@ export class PersonService {
     }
     person.metadata ??= [];
     const metadata = person.metadata.find(item =>
-      [item.id, item.name].includes(id),
+      [item.id, item.name].includes(idOrName),
     );
     if (is.undefined(metadata)) {
       this.logger.error(
-        `[${person.friendlyName}] cannot find metadata {${id}}`,
+        `[${person.friendlyName}] cannot find metadata {${idOrName}}`,
       );
       return person;
     }
     if (!is.undefined(update.value)) {
       update.value = this.metadataService.resolveValue(
-        person.metadata.find(item => [item.id, item.name].includes(id)),
+        person.metadata.find(item => [item.id, item.name].includes(idOrName)),
         update.value,
       );
     }
     person.metadata = person.metadata.map(i =>
-      i.id === id ? { ...i, ...update, id } : i,
+      i.id === idOrName ? { ...i, ...update, id: idOrName } : i,
     );
     const out = await this.update(person, person._id);
-    update = person.metadata.find(item => [item.id, item.name].includes(id));
+    update = person.metadata.find(item =>
+      [item.id, item.name].includes(idOrName),
+    );
     this.eventEmitter.emit(PERSON_METADATA_UPDATED, {
       name: update.name,
       room: person._id,

@@ -2,8 +2,9 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { PersonDTO, RoomDTO, RoomMetadataDTO } from '@steggy/controller-shared';
 import { EntityManagerService } from '@steggy/home-assistant';
-import { domain, HassStateDTO } from '@steggy/home-assistant-shared';
-import { is, TitleCase, VALUE } from '@steggy/utilities';
+import { HassStateDTO } from '@steggy/home-assistant-shared';
+import { is } from '@steggy/utilities';
+import { set } from 'object-path';
 import {
   addSyntheticLeadingComment,
   createPrinter,
@@ -50,46 +51,24 @@ export class TypeGeneratorService {
 
   public async assemble(): Promise<string> {
     return [
-      EXTRA_UI_TYPINGS,
-      `declare const logger: iLogger = undefined;`,
       this.buildTypesFromEntities(),
-      await this.buildTypesFromMetadata(),
-      this.buildTypesFromSecrets(),
+      EXTRA_UI_TYPINGS,
+      // `declare const logger: iLogger;`,
+      // await this.buildTypesFromMetadata(),
+      // this.buildTypesFromSecrets(),
     ].join(`\n`);
   }
 
-  /**
-   *
-   * ```text
-   * ? MULTILINE TSDOC: "## Home Assistant {Domain} Domain"
-   * const {DOMAIN} = {
-   *    [entity_id_suffix]:HassStateDTO,
-   *    [entity_id_suffix]:HassStateDTO,
-   *    [entity_id_suffix]:HassStateDTO
-   * }
-   * ```
-   */
   private buildTypesFromEntities(): string {
-    const exportTypes: string[] = [];
-    const domainMap = new Map<string, HassStateDTO[]>();
-    this.entityManager.ENTITIES.forEach(entity => {
-      const list = domainMap.get(domain(entity.entity_id)) ?? [];
-      // ? Is there any constructive tsdoc I can add here?
-      list.push(entity);
-      domainMap.set(domain(entity.entity_id), list);
-    });
-    domainMap.forEach((elements, domain) => {
-      exportTypes.push(
-        `/**\n * ## Home Assistant ${TitleCase(
-          domain,
-        )} Domain\n */\n const ${domain} = ${JSON.stringify(
-          Object.fromEntries(
-            elements.map(i => [i.entity_id.split('.')[VALUE], i]),
-          ),
-        )}`,
-      );
-    });
-    return exportTypes.join(`\n`);
+    const home_assistant: Record<string, Record<string, HassStateDTO>> = {};
+    this.entityManager.ENTITIES.forEach(entity =>
+      set(home_assistant, entity.entity_id, entity),
+    );
+    return `declare const home_assistant: ${JSON.stringify(
+      home_assistant,
+      undefined,
+      '  ',
+    )};`;
   }
 
   /**
@@ -163,11 +142,7 @@ export class TypeGeneratorService {
     ]
       .map(i => ` * ${i}`)
       .join(`\n`)}\n */\n`;
-    return `${tsdoc}const secrets = ${JSON.stringify(
-      secrets,
-      undefined,
-      '  ',
-    )}`;
+    return `${tsdoc}const secrets: ${JSON.stringify(secrets, undefined, '  ')}`;
   }
 
   /**

@@ -60,7 +60,7 @@ export class InternalEventChangeService
   ): void {
     const process = async (data: Record<string, unknown>) => {
       if (!is.empty(activate.validate)) {
-        const result = await this.vmService.exec(activate.validate, data);
+        const result = await this.vmService.fetch(activate.validate, data);
         if (!result) {
           return;
         }
