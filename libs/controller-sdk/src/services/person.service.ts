@@ -578,6 +578,19 @@ export class PersonService {
     return await this.personPersistence.findMany(control);
   }
 
+  public async load(
+    person: PersonDTO | string,
+    control: ResultControlDTO = {},
+  ): Promise<PersonDTO> {
+    if (is.string(person)) {
+      person = await this.personPersistence.findById(person, { control });
+    }
+    if (!person) {
+      throw new NotFoundException();
+    }
+    return person;
+  }
+
   public async update(
     person: Omit<Partial<PersonDTO>, keyof BaseSchemaDTO>,
     id: string,
@@ -638,18 +651,5 @@ export class PersonService {
     );
     await this.update(person, person._id);
     return person.save_states.find(state => state.id === id);
-  }
-
-  private async load(
-    person: PersonDTO | string,
-    control: ResultControlDTO = {},
-  ): Promise<PersonDTO> {
-    if (is.string(person)) {
-      person = await this.personPersistence.findById(person, { control });
-    }
-    if (!person) {
-      throw new NotFoundException();
-    }
-    return person;
   }
 }

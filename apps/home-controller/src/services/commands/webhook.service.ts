@@ -9,12 +9,12 @@ import {
   RoomService,
   RoutineCommand,
   SecretsService,
+  VMService,
 } from '@steggy/controller-sdk';
 import {
   RoomMetadataDTO,
   RoutineCommandDTO,
   RoutineCommandWebhookDTO,
-  WebhookHeaderDTO,
 } from '@steggy/controller-shared';
 import { is, START } from '@steggy/utilities';
 import { isDateString, isNumberString } from 'class-validator';
@@ -37,6 +37,7 @@ export class WebhookService
     @Inject(forwardRef(() => PersonService))
     private readonly personService: PersonService,
     private readonly eventEmitter: EventEmitter,
+    private readonly vmService: VMService,
     private readonly secretsService: SecretsService,
   ) {}
 
@@ -44,36 +45,60 @@ export class WebhookService
     command,
   }: {
     command: RoutineCommandDTO<RoutineCommandWebhookDTO>;
-  }): Promise<void> {
-    const { assignProperty, assignTo, assignType, objectPath, ...extra } =
+  }): Promise<boolean> {
+    const { assignProperty, assignTo, assignType, objectPath, url, ...extra } =
       command.command;
+    // * Validation:
+    // - Make sure a URL is defined
+    if (is.empty(url)) {
+      this.logger.error({ command }, `URL not provided`);
+      return false;
+    }
+    // * Send request
     this.logger.debug({ command }, `Sending webhook`);
     let result = await this.fetchService.fetch<string>({
-      headers: this.buildHeaders(extra.headers),
+      headers: Object.fromEntries(
+        extra.headers.map(({ header, value }) => [
+          header,
+          this.secretsService.tokenReplace(value),
+        ]),
+      ),
       method: extra.method,
       process: 'text',
-      url: extra.url,
+      url: this.secretsService.tokenReplace(url),
     });
     const parse = extra.parse ?? 'none';
-    if (parse === 'none') {
-      return;
+    if (assignTo === 'none') {
+      return false;
     }
     if (parse === 'json') {
       try {
         const data = JSON.parse(result);
-        result = get(data, objectPath);
+        // * Empty object path = whole object
+        result = is.empty(objectPath) ? data : get(data, objectPath);
       } catch (error) {
         this.logger.error({ error }, 'Webhook response parsing failed');
-        return;
+        return false;
       }
     }
+    // * Process
+    if (assignTo === 'eval') {
+      let stop = false;
+      await this.vmService.exec(command.command.code, {
+        // ? should be possible to access the raw response headers?
+        response: result,
+        stop_processing: () => (stop = true),
+      });
+      return stop;
+    }
+    // * Assign information to a person / room metadata
     const target =
       assignType === 'person'
-        ? await this.personService.getWithStates(assignTo)
-        : await this.roomService.getWithStates(assignTo);
+        ? await this.personService.load(assignTo)
+        : await this.roomService.load(assignTo);
     if (!target) {
       this.logger.error(`Could not load {${assignType}} {${assignTo}}`);
-      return;
+      return false;
     }
     const metadata = target.metadata.find(
       ({ name }) => name === assignProperty,
@@ -82,32 +107,30 @@ export class WebhookService
       this.logger.error(
         `[${target.friendlyName}] does not have metadata {${assignProperty}}`,
       );
-      return;
+      return false;
     }
+    // Make sure the value is what we think it should be
     const value = this.getValue(result, metadata);
     await (assignType === 'person'
       ? this.personService.update({ metadata: target.metadata }, assignTo)
       : this.roomService.update({ metadata: target.metadata }, assignTo));
     this.logger.debug(`${target.friendlyName}#${assignProperty} = ${target}`);
-    this.eventEmitter.emit(
-      assignType === 'person' ? PERSON_METADATA_UPDATED : ROOM_METADATA_UPDATED,
-      {
-        name: assignProperty,
-        room: assignTo,
-        value,
-      } as MetadataUpdate,
-    );
-  }
 
-  private buildHeaders(
-    headers: WebhookHeaderDTO[] = [],
-  ): Record<string, string> {
-    return Object.fromEntries(
-      headers.map(({ header, value }) => [
-        header,
-        this.secretsService.tokenReplace(value),
-      ]),
-    );
+    // Announce the change
+    // This may trigger additional routines
+    process.nextTick(() => {
+      this.eventEmitter.emit(
+        assignType === 'person'
+          ? PERSON_METADATA_UPDATED
+          : ROOM_METADATA_UPDATED,
+        {
+          name: assignProperty,
+          room: assignTo,
+          value,
+        } as MetadataUpdate,
+      );
+    });
+    return false;
   }
 
   private coerceBoolean(value: boolean | string | unknown): boolean {

@@ -11,6 +11,8 @@ import { FD_ICONS, sendRequest } from '../../../types';
 import { TypedEditor } from '../../misc';
 import { WebhookRequestBuilder } from '../../misc/webhook';
 
+const STOP_TYPE = `/**\n * Execute function to stop routine execution\n */\nconst stop_processing:() => void; = undefined;`;
+
 // eslint-disable-next-line radar/cognitive-complexity
 export function WebhookCommand(props: {
   command?: RoutineCommandWebhookDTO;
@@ -145,18 +147,18 @@ export function WebhookCommand(props: {
                 type="execute"
                 extraTypes={
                   parse === 'text'
-                    ? `const response: string = "";`
+                    ? `${STOP_TYPE}\nconst response: string = "";`
                     : // TODO: It'd be cool to cast this
-                      `const response: Record<string,unknown> = {};`
+                      `${STOP_TYPE}\nconst response: Record<string,unknown> = {};`
                 }
               />
             </Form.Item>
           ) : (
             <>
               {parse === 'json' ? (
-                <Form.Item label="Data Path" required>
+                <Form.Item label="Data Path">
                   <Input
-                    placeholder="object.path.to.value"
+                    placeholder="object.path.to.value (blank for whole object)"
                     defaultValue={props.command?.objectPath}
                     onBlur={({ target }) =>
                       props.onUpdate({ objectPath: target.value })

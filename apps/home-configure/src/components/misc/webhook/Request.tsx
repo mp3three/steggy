@@ -20,9 +20,9 @@ export function WebhookRequestBuilder(props: {
           onBlur={({ target }) => props.onUpdate({ url: target.value })}
         />
       </Form.Item>
-      <Form.Item label="Method" required>
+      <Form.Item label="Method">
         <Select
-          value={props.webhook?.method}
+          value={props.webhook?.method || 'get'}
           onChange={method => props.onUpdate({ method })}
         >
           <Select.Option value="get">GET</Select.Option>
