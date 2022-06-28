@@ -5,7 +5,7 @@ import {
   InjectCache,
   InjectConfig,
 } from '@steggy/boilerplate';
-import { is, START } from '@steggy/utilities';
+import { is, sleep, START } from '@steggy/utilities';
 import dayjs from 'dayjs';
 import { ModuleKind, transpileModule } from 'typescript';
 import { VM } from 'vm2';
@@ -45,6 +45,12 @@ export class VMService {
       sandbox: {
         ...(await this.baseSandbox()),
         ...parameters,
+        cacheManager: {
+          del: key => this.cache.del(key),
+          get: key => this.cache.get(key),
+          set: (key, value, ttl) => this.cache.set(key, value, { ttl }),
+        },
+        sleep,
         steggy: this.breakoutApi,
       },
       timeout: this.timeout,

@@ -106,8 +106,9 @@ export function TypedEditor(props: {
                       `/**`,
                       ` * Execute function to stop routine execution`,
                       ` */`,
-                      `const stop_processing:() => void;`,
-                      `const steggy: iVMBreakoutAPI = undefined;`,
+                      `declare const stop_processing: () => void;`,
+                      `declare const cacheManager: iCacheManager;`,
+                      `declare const steggy: iVMBreakoutAPI;`,
                     ].join(`\n`)
                   : ''),
               filePath: 'dynamic-types.d.ts',

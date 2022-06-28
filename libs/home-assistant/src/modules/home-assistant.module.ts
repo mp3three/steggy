@@ -1,5 +1,5 @@
 import { Provider } from '@nestjs/common';
-import { LibraryModule } from '@steggy/boilerplate';
+import { LibraryModule, RegisterCache } from '@steggy/boilerplate';
 
 import {
   BASE_URL,
@@ -104,6 +104,7 @@ const services: Provider[] = [
     },
   },
   exports: services,
+  imports: [RegisterCache()],
   library: LIB_HOME_ASSISTANT,
   providers: services,
 })

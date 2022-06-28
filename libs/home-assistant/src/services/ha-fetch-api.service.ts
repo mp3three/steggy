@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
+  CacheManagerService,
   FetchService,
+  InjectCache,
   InjectConfig,
 } from '@steggy/boilerplate';
 import {
@@ -13,6 +15,8 @@ import { FetchWith, SECOND } from '@steggy/utilities';
 
 import { BASE_URL, TOKEN } from '../config';
 
+const CACHE_KEY = `HOME_ASSISTANT_SERVICES`;
+
 @Injectable()
 export class HomeAssistantFetchAPIService {
   constructor(
@@ -22,6 +26,8 @@ export class HomeAssistantFetchAPIService {
     @InjectConfig(TOKEN)
     private readonly bearer: string,
     private readonly fetchService: FetchService,
+    @InjectCache()
+    private readonly cacheService: CacheManagerService,
   ) {}
 
   /**
@@ -108,8 +114,14 @@ export class HomeAssistantFetchAPIService {
   }
 
   public async listServices(): Promise<ServiceListItemDTO[]> {
-    return await this.fetch({
+    const cached = await this.cacheService.get<ServiceListItemDTO[]>(CACHE_KEY);
+    if (cached) {
+      return cached;
+    }
+    const result = await this.fetch<ServiceListItemDTO[]>({
       url: `/api/services`,
     });
+    await this.cacheService.set(CACHE_KEY, result);
+    return result;
   }
 }

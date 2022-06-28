@@ -8,6 +8,12 @@
  * - logger interface
  */
 export const EXTRA_UI_TYPINGS = [
+  `/**`,
+  ` * Pause execution for \`n\` ms (default \`1000\`)`,
+  ` * `,
+  ` * @example \`await sleep(2000)\``,
+  ` */`,
+  `declare const sleep: (duration?:number) => Promise<void>;`,
   `type LogLevels = 'info' | 'debug' | 'warn' | 'trace' | 'error' | 'fatal';`,
   `type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
@@ -197,6 +203,11 @@ export const EXTRA_UI_TYPINGS = [
      value: unknown,
    ): Promise<void>;
  }`,
+  `interface iCacheManager {
+  del<T extends unknown>(key: string): Promise<T>;
+  get<T extends unknown>(key: string): Promise<T>;
+  set<T extends unknown>(key: string, value: unknown, ttl?: number): Promise<T>;
+}`,
 ].join(`\n`);
 
 /**
