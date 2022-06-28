@@ -39,6 +39,28 @@ export function CodeCommandHelp() {
               associated metadata. Is only defined if there are metadata
               properties to look up.
             </Descriptions.Item>
+            <Descriptions.Item
+              span={3}
+              label={<Typography.Text code>call_service</Typography.Text>}
+            >
+              Call a service for a domain in Home Assistant. All capabilites +
+              intellisense information provided by your personal Home Assistant
+              install.
+            </Descriptions.Item>
+            <Descriptions.Item
+              span={3}
+              label={<Typography.Text code>cacheManager</Typography.Text>}
+            >
+              <Typography.Paragraph>
+                Directly interact with the server cache. Store arbitrary data
+                for later usage.
+              </Typography.Paragraph>
+              <Typography.Text type="secondary">
+                Note: Specific operation depends on server configuration.
+                Intended for short term (minutes to days) storage of data. Use
+                room / person metadata for long term storage
+              </Typography.Text>
+            </Descriptions.Item>
           </Descriptions>
         </Space>
       }

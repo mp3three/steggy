@@ -12,11 +12,6 @@ import { RoomService } from '../room.service';
 import { RoutineService } from '../routine.service';
 import { RoutineEnabledService } from '../routine-enabled.service';
 
-/**
- * The underlying services are technically accessible inside the VM with a little bit of work
- *
- * They're also available via the rest api, so I
- */
 @Injectable()
 export class BreakoutAPIService implements iVMBreakoutAPI {
   constructor(
