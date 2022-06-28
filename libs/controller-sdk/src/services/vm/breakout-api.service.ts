@@ -6,11 +6,11 @@ import { is, START } from '@steggy/utilities';
 
 import { iVMBreakoutAPI } from '../../typings';
 import { GroupService } from '../group.service';
+import { ChronoService } from '../misc';
 import { PersonService } from '../person.service';
 import { RoomService } from '../room.service';
 import { RoutineService } from '../routine.service';
 import { RoutineEnabledService } from '../routine-enabled.service';
-import { ChronoService } from './chrono.service';
 
 /**
  * The underlying services are technically accessible inside the VM with a little bit of work

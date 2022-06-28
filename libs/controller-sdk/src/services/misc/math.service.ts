@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { parse } from 'mathjs';
 
-import { DataAggregatorService } from './data-aggregator.service';
+import { DataAggregatorService } from '../vm';
 
 @Injectable()
 export class MathService {

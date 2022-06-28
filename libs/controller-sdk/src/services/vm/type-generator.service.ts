@@ -1,7 +1,10 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { PersonDTO, RoomDTO, RoomMetadataDTO } from '@steggy/controller-shared';
-import { EntityManagerService } from '@steggy/home-assistant';
+import {
+  EntityManagerService,
+  HomeAssistantFetchAPIService,
+} from '@steggy/home-assistant';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import { set } from 'object-path';
@@ -47,6 +50,7 @@ export class TypeGeneratorService {
     private readonly personService: PersonService,
     private readonly secretsService: SecretsService,
     private readonly entityManager: EntityManagerService,
+    private readonly fetchApi: HomeAssistantFetchAPIService,
   ) {}
 
   public async assemble(): Promise<string> {
@@ -57,6 +61,17 @@ export class TypeGeneratorService {
       await this.buildTypesFromMetadata(),
       this.buildTypesFromSecrets(),
     ].join(`\n`);
+  }
+
+  public async serviceApi(): Promise<string> {
+    const domains = await this.fetchApi.listServices();
+    const out: string[] = [];
+    domains.forEach(({ domain, services }) => {
+      Object.entries(services).forEach(([key, value]) => {
+        //
+      });
+    });
+    return out.join(`\n`);
   }
 
   private buildTypesFromEntities(): string {

@@ -13,3 +13,4 @@ export * from './routine.service';
 export * from './routine-enabled.service';
 export * from './save-state.service';
 export * from './secrets.service';
+export * from './vm';
