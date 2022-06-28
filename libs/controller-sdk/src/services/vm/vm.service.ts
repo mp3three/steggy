@@ -10,9 +10,10 @@ import dayjs from 'dayjs';
 import { ModuleKind, transpileModule } from 'typescript';
 import { VM } from 'vm2';
 
-import { VM_TIMEOUT } from '../../config';
+import { VM_COMMAND_TIMEOUT, VM_FETCH_TIMEOUT } from '../../config';
 import { BreakoutAPIService } from './breakout-api.service';
 import { DataAggregatorService } from './data-aggregator.service';
+import { HACallTypeGenerator } from './ha-call-type-generator.service';
 
 const SHIFT = 5;
 const CACHE_KEY = key => `TRANSPILE_CACHE_${key}`;
@@ -22,10 +23,12 @@ export class VMService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly dataAggregator: DataAggregatorService,
-    @InjectConfig(VM_TIMEOUT) private readonly timeout: number,
+    @InjectConfig(VM_FETCH_TIMEOUT) private readonly fetchTimeout: number,
+    @InjectConfig(VM_COMMAND_TIMEOUT) private readonly commandTimeout: number,
     @InjectCache()
     private readonly cache: CacheManagerService,
     private readonly breakoutApi: BreakoutAPIService,
+    private readonly callProxy: HACallTypeGenerator,
   ) {}
 
   /**
@@ -39,23 +42,33 @@ export class VMService {
     parameters: Record<string, unknown> = {},
   ): Promise<void> {
     code = await this.transpile(code);
-    await new VM({
-      allowAsync: true,
-      eval: false,
-      sandbox: {
-        ...(await this.baseSandbox()),
-        ...parameters,
-        cacheManager: {
-          del: key => this.cache.del(key),
-          get: key => this.cache.get(key),
-          set: (key, value, ttl) => this.cache.set(key, value, { ttl }),
+    try {
+      const call_service = this.callProxy.buildProxy();
+      await new VM({
+        allowAsync: true,
+        eval: false,
+        sandbox: {
+          ...(await this.baseSandbox()),
+          ...parameters,
+          cacheManager: {
+            del: key => this.cache.del(key),
+            get: key => this.cache.get(key),
+            keys: pattern => this.cache.store.keys(pattern),
+            set: (key, value, ttl) => this.cache.set(key, value, { ttl }),
+          },
+          call_service,
+          sleep,
+          steggy: this.breakoutApi,
         },
-        sleep,
-        steggy: this.breakoutApi,
-      },
-      timeout: this.timeout,
-      wasm: false,
-    }).run(code);
+        timeout: this.commandTimeout,
+        wasm: false,
+      }).run(code);
+    } catch (error) {
+      const response = error.response ? error.response : error;
+      const message = response.message;
+      delete response.message;
+      this.logger.error({ response }, message || `Code evaluation threw error`);
+    }
   }
 
   /**
@@ -68,16 +81,24 @@ export class VMService {
     parameters: Record<string, unknown> = {},
   ): Promise<T> {
     code = await this.transpile(code);
-    return await new VM({
-      allowAsync: true,
-      eval: false,
-      sandbox: {
-        ...(await this.baseSandbox()),
-        ...parameters,
-      },
-      timeout: this.timeout,
-      wasm: false,
-    }).run(code);
+    try {
+      return await new VM({
+        allowAsync: true,
+        eval: false,
+        sandbox: {
+          ...(await this.baseSandbox()),
+          ...parameters,
+        },
+        timeout: this.fetchTimeout,
+        wasm: false,
+      }).run(code);
+    } catch (error) {
+      const response = error.response ? error.response : error;
+      const message = response.message;
+      delete response.message;
+      this.logger.error({ response }, message || `Code evaluation threw error`);
+      return undefined;
+    }
   }
 
   private async baseSandbox() {

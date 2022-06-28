@@ -15,7 +15,6 @@ import {
   AbstractConfig,
   AutoLogService,
   CONFIG_DEFAULTS,
-  GlobalErrorInit,
   LIB_BOILERPLATE,
   LifecycleService,
   NEST_NOOP_LOGGER,
@@ -52,7 +51,6 @@ export interface BootstrapOptions extends Pick<ModuleMetadata, 'imports'> {
    * Disable nestjs log messages
    */
   nestNoopLogger?: boolean;
-  noGlobalError?: boolean;
   /**
    * Additional functions to run postInit.
    * Run before those in providers
@@ -122,7 +120,7 @@ export async function Bootstrap(
   globals.providers.push(...append);
 
   let { preInit, postInit } = bootOptions;
-  const { prettyLog, nestNoopLogger, http, noGlobalError } = bootOptions;
+  const { prettyLog, nestNoopLogger, http } = bootOptions;
 
   if (prettyLog && chalk.supportsColor) {
     UsePrettyLogger();
@@ -148,9 +146,9 @@ export async function Bootstrap(
   logger.setContext(LIB_BOILERPLATE, { name: 'Bootstrap' });
   // onPreInit
   preInit ??= [];
-  if (noGlobalError !== true) {
-    preInit.push(GlobalErrorInit);
-  }
+  // if (noGlobalError !== true) {
+  //   preInit.push(GlobalErrorInit);
+  // }
   await eachSeries(preInit, async item => {
     await item(app, server, bootOptions);
   });

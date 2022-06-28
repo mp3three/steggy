@@ -8,6 +8,8 @@
  * - logger interface
  */
 export const EXTRA_UI_TYPINGS = [
+  // `setTimeout` & `setInterval` are not defined within the vm
+  // sleep does have the desired effect
   `/**`,
   ` * Pause execution for \`n\` ms (default \`1000\`)`,
   ` * `,
@@ -204,8 +206,9 @@ export const EXTRA_UI_TYPINGS = [
    ): Promise<void>;
  }`,
   `interface iCacheManager {
-  del<T extends unknown>(key: string): Promise<T>;
+  del(key: string): Promise<void>;
   get<T extends unknown>(key: string): Promise<T>;
+  keys(pattern?: string): Promise<string[]>;
   set<T extends unknown>(key: string, value: unknown, ttl?: number): Promise<T>;
 }`,
 ].join(`\n`);

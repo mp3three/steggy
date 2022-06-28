@@ -1,10 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { PersonDTO, RoomDTO, RoomMetadataDTO } from '@steggy/controller-shared';
-import {
-  EntityManagerService,
-  HomeAssistantFetchAPIService,
-} from '@steggy/home-assistant';
+import { EntityManagerService } from '@steggy/home-assistant';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import { set } from 'object-path';
@@ -27,6 +24,7 @@ import { EXTRA_UI_TYPINGS } from '../../typings';
 import { PersonService } from '../person.service';
 import { RoomService } from '../room.service';
 import { SecretsService } from '../secrets.service';
+import { HACallTypeGenerator } from './ha-call-type-generator.service';
 
 const printer = createPrinter({ newLine: NewLineKind.LineFeed });
 const resultFile = createSourceFile(
@@ -50,7 +48,7 @@ export class TypeGeneratorService {
     private readonly personService: PersonService,
     private readonly secretsService: SecretsService,
     private readonly entityManager: EntityManagerService,
-    private readonly fetchApi: HomeAssistantFetchAPIService,
+    private readonly callService: HACallTypeGenerator,
   ) {}
 
   public async assemble(): Promise<string> {
@@ -60,18 +58,8 @@ export class TypeGeneratorService {
       `declare const logger: iLogger;`,
       await this.buildTypesFromMetadata(),
       this.buildTypesFromSecrets(),
+      await this.callService.buildTypes(),
     ].join(`\n`);
-  }
-
-  public async serviceApi(): Promise<string> {
-    const domains = await this.fetchApi.listServices();
-    const out: string[] = [];
-    domains.forEach(({ domain, services }) => {
-      Object.entries(services).forEach(([key, value]) => {
-        //
-      });
-    });
-    return out.join(`\n`);
   }
 
   private buildTypesFromEntities(): string {
@@ -159,7 +147,11 @@ export class TypeGeneratorService {
     ]
       .map(i => ` * ${i}`)
       .join(`\n`)}\n */\n`;
-    return `${tsdoc}const secrets: ${JSON.stringify(secrets, undefined, '  ')}`;
+    return `${tsdoc}declare const secrets: ${JSON.stringify(
+      secrets,
+      undefined,
+      '  ',
+    )};`;
   }
 
   /**

@@ -13,6 +13,7 @@ import { MongoPersistenceModule } from '@steggy/persistence';
 
 import { StopProcessingCommandService } from '../commands';
 import {
+  CALL_PROXY_DEBUG,
   CIRCADIAN_ENABLED,
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
@@ -21,7 +22,8 @@ import {
   RECENT_ROUTINE_TTL,
   SAFE_MODE,
   SECRETS,
-  VM_TIMEOUT,
+  VM_COMMAND_TIMEOUT,
+  VM_FETCH_TIMEOUT,
 } from '../config';
 import {
   BreakoutAPIService,
@@ -37,6 +39,7 @@ import {
   GroupGroupService,
   GroupPersistenceService,
   GroupService,
+  HACallTypeGenerator,
   LightGroupService,
   LightManagerService,
   LockGroupService,
@@ -75,6 +78,7 @@ const providers = [
   GroupGroupService,
   GroupPersistenceService,
   GroupService,
+  HACallTypeGenerator,
   LightGroupService,
   LightManagerService,
   LockGroupService,
@@ -102,6 +106,12 @@ const providers = [
 
 @LibraryModule({
   configuration: {
+    [CALL_PROXY_DEBUG]: {
+      default: true,
+      description:
+        'Add debug logs for all calls through the vm call service proxy',
+      type: 'boolean',
+    },
     [CIRCADIAN_ENABLED]: {
       default: true,
       description:
@@ -141,7 +151,13 @@ const providers = [
       description: 'Key / value pairs',
       type: 'record',
     },
-    [VM_TIMEOUT]: {
+    [VM_COMMAND_TIMEOUT]: {
+      default: 1000,
+      description:
+        'When evaluating user provided javascript code, this determines maximum runtime',
+      type: 'number',
+    },
+    [VM_FETCH_TIMEOUT]: {
       default: 250,
       description:
         'When evaluating user provided javascript code, this determines maximum runtime',

@@ -1,9 +1,12 @@
+export const CALL_PROXY_DEBUG = 'CALL_PROXY_DEBUG';
+export const CIRCADIAN_ENABLED = 'CIRCADIAN_ENABLED';
 export const CIRCADIAN_MAX_TEMP = 'CIRCADIAN_MAX_TEMP';
 export const CIRCADIAN_MIN_TEMP = 'CIRCADIAN_MIN_TEMP';
-export const CIRCADIAN_ENABLED = 'CIRCADIAN_ENABLED';
 export const MIN_BRIGHTNESS = 'MIN_BRIGHTNESS';
-export const SECRETS = 'SECRETS';
-export const SAFE_MODE = 'SAFE_MODE';
 export const RECENT_ROUTINE_TTL = 'RECENT_ROUTINE_TTL';
+export const SAFE_MODE = 'SAFE_MODE';
+export const SECRETS = 'SECRETS';
+export const VM_COMMAND_TIMEOUT = 'VM_COMMAND_TIMEOUT';
+export const VM_FETCH_TIMEOUT = 'VM_FETCH_TIMEOUT';
+
 export const LIB_CONTROLLER_SDK = Symbol('controller-sdk');
-export const VM_TIMEOUT = 'VM_TIMEOUT';

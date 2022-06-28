@@ -2,10 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class ServiceListSelector {
   public boolean?: null;
-  public entity?: {
-    domain?: string;
-    integration?: string;
-  };
+  public entity?: ServiceListEntityTarget;
   public number?: {
     max: number;
     min: number;
@@ -23,16 +20,29 @@ export class ServiceListSelector {
 
 export class ServiceListFieldDescription {
   public advanced?: boolean;
+  public default?: unknown;
   public description?: string;
+  public example?: string | number;
   public name?: string;
+  public required?: boolean;
   public selector?: ServiceListSelector;
+}
+
+export class ServiceListEntityTarget {
+  public domain?: string;
+  public integration?: string;
+}
+
+export class ServiceListServiceTarget {
+  public entity?: ServiceListEntityTarget;
+  public integration?: string;
 }
 
 export class ServiceListField {
   public description?: string;
-  public example?: string | number;
   public fields?: Record<string, ServiceListFieldDescription>;
   public name?: string;
+  public target?: ServiceListServiceTarget;
 }
 
 export class ServiceListItemDTO {

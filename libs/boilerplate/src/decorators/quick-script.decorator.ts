@@ -69,7 +69,6 @@ export function QuickScript({
     setTimeout(() => {
       let BOOTSTRAP_OPTIONS: BootstrapOptions = {
         nestNoopLogger: true,
-        noGlobalError: true,
         postInit: [
           app =>
             setTimeout(async () => {

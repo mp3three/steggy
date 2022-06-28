@@ -178,11 +178,11 @@ export function CallServiceCommand(props: {
                     content={
                       <>
                         {field.description}
-                        {is.undefined(service.example) ? undefined : (
+                        {is.undefined(field.example) ? undefined : (
                           <>
                             <Divider />
                             <Typography.Text code>
-                              {JSON.stringify(service.example)}
+                              {JSON.stringify(field.example)}
                             </Typography.Text>
                           </>
                         )}
@@ -290,7 +290,7 @@ export function CallServiceCommand(props: {
                         props.command?.attributes[fieldName]?.value as string
                       }
                       placeholder={
-                        (service.example as string) ?? 'Enter value as json'
+                        (field.example as string) ?? 'Enter value as json'
                       }
                     />
                   ) : undefined}
