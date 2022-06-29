@@ -6,7 +6,9 @@
 
 Standalone automation driver with integrations for Home Assistant, Node Red, and more.
 
-![example](./apps/home-configure/docs/images/main.png)
+| Main UI | Code |
+| --- | --- |
+| ![example](./apps/home-configure/docs/images/main.png) | ![example](./apps/home-controller/docs/images/secondary.png) |
 
 ### [Node Red Contrib](libs/node-red-contrib-steggy)
 
@@ -97,7 +99,7 @@ General purpose utilities and constants for `@steggy`
 
 ## Development goals by minor revision
 
-> - `0.12.x` Typescript transpile madness
+> - `0.12.x` User provided Typescript tools, and general routine improvements
 > - `0.11.x` Configuration management & TTY upgrades
 > - `0.10.x` Buildout of people, additional focus on UI completeness / consistency
 > - `0.9.x` Focus on quality of life and platform stability updates
