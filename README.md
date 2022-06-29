@@ -1,4 +1,4 @@
-# 🦕 [@steggy](https://github.com/ccontour/steggy) monorepo
+# 🦕 [@steggy](https://github.com/mp3three/steggy) monorepo
 
 ## Applications
 

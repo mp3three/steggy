@@ -69,4 +69,4 @@ This request would be re-phrased like this
 
 ## Related Code Definitions
 
-The [ResultControl](https://github.com/ccontour/steggy/tree/master/libs/utilities/src/query.ts) definition describes the standard typescript interface for querying. It can be adapted for transmission via HTTP calls (described above), mongo queries (via [persistence](https://github.com/ccontour/steggy/tree/master//libs/persistence/src/includes/mongo.ts) library), and some direct processing (via [JSONFilterService](https://github.com/ccontour/steggy/tree/master/libs/boilerplate/src/services/json-filter.service.ts))
+The [ResultControl](https://github.com/mp3three/steggy/tree/master/libs/utilities/src/query.ts) definition describes the standard typescript interface for querying. It can be adapted for transmission via HTTP calls (described above), mongo queries (via [persistence](https://github.com/mp3three/steggy/tree/master//libs/persistence/src/includes/mongo.ts) library), and some direct processing (via [JSONFilterService](https://github.com/mp3three/steggy/tree/master/libs/boilerplate/src/services/json-filter.service.ts))

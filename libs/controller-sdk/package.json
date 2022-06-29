@@ -2,11 +2,11 @@
   "name": "@steggy/controller-sdk",
   "displayName": "Controller SDK",
   "license": "MIT",
-  "version": "0.12.8",
-  "homepage": "https://github.com/ccontour/steggy",
+  "version": "0.12.9",
+  "homepage": "https://github.com/mp3three/steggy",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccontour/steggy.git"
+    "url": "git+https://github.com/mp3three/steggy.git"
   },
   "engines": {
     "node": ">=16.0.0"

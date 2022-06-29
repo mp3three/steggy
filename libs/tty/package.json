@@ -1,10 +1,10 @@
 {
   "author": {
-    "email": "git@programmable.work",
-    "name": "Cameron Contour"
+    "name": "mp3three",
+    "url": "https://github.com/mp3three/steggy"
   },
   "name": "@steggy/tty",
   "license": "MIT",
-  "version": "0.12.8",
+  "version": "0.12.9",
   "displayName": "TTY"
 }

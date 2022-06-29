@@ -1,15 +1,14 @@
 {
   "author": {
-    "email": "git@programmable.work",
-    "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/steggy"
+    "name": "mp3three",
+    "url": "https://github.com/mp3three/steggy"
   },
   "name": "@steggy/mqtt",
   "license": "MIT",
-  "version": "0.12.8",
-  "homepage": "https://github.com/ccontour/steggy",
+  "version": "0.12.9",
+  "homepage": "https://github.com/mp3three/steggy",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccontour/steggy.git"
+    "url": "git+https://github.com/mp3three/steggy.git"
   }
 }

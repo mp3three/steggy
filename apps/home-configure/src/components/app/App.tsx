@@ -147,7 +147,7 @@ export function App() {
               </Content>
               <Layout.Footer style={{ textAlign: 'center' }}>
                 <Typography.Link
-                  href="https://github.com/ccontour/steggy"
+                  href="https://github.com/mp3three/steggy"
                   target="_blank"
                 >
                   {'@steggy '}

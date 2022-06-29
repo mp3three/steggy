@@ -2,8 +2,8 @@
   "name": "home-controller",
   "license": "MIT",
   "displayName": "Home Controller",
-  "description": "[Visit the wiki](https://github.com/ccontour/steggy/wiki) for more information",
-  "version": "0.12.12",
+  "description": "[Visit the wiki](https://github.com/mp3three/steggy/wiki) for more information",
+  "version": "0.12.13",
   "engines": {
     "node": ">=16.0.0"
   }
