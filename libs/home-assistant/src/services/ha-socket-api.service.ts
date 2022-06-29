@@ -85,7 +85,7 @@ export class HASocketAPIService {
     // Note: DID observe the issue with this configuration but w/ this.caught (+related log statements) deleted
     //
     this.logger.debug('Received all entity update');
-    this.eventEmitter.emit(ALL_ENTITIES_UPDATED, states);
+    this.eventEmitter.emit(ALL_ENTITIES_UPDATED, { states });
     this.logger.debug('AFTER ALL_ENTITIES_UPDATED');
     // this.caught = true;
     if (!this.subscribeEvents) {

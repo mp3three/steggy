@@ -154,8 +154,8 @@ export class EntityManagerService {
    * Aldo does a great job of initial population of the data
    */
   @OnEvent(ALL_ENTITIES_UPDATED)
-  protected onAllEntitiesUpdated(allEntities: HassStateDTO[]): void {
-    allEntities.forEach(entity => {
+  protected onAllEntitiesUpdated({ states }: { states: HassStateDTO[] }): void {
+    states.forEach(entity => {
       this.createObservable(entity.entity_id);
       const state = this.ENTITIES.get(entity.entity_id);
       if (state?.last_changed === entity.last_changed) {

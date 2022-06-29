@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { AutoLogService, CastResult } from '@steggy/boilerplate';
-import type { ROOM_ENTITY_EXTRAS } from '@steggy/controller-shared';
+import { GROUP_UPDATE, ROOM_ENTITY_EXTRAS } from '@steggy/controller-shared';
 import { GroupDTO } from '@steggy/controller-shared';
 import { BaseMongoService, BaseSchemaDTO } from '@steggy/persistence';
 import { is, ResultControlDTO } from '@steggy/utilities';
+import EventEmitter from 'eventemitter3';
 import { Model } from 'mongoose';
 
 @Injectable()
 export class GroupPersistenceService extends BaseMongoService {
   constructor(
+    private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
     @InjectModel(GroupDTO.name)
     private readonly model: Model<GroupDTO>,
@@ -21,7 +23,11 @@ export class GroupPersistenceService extends BaseMongoService {
   public async create<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(state: GroupDTO<GROUP_TYPE>): Promise<GroupDTO<GROUP_TYPE>> {
-    return (await this.model.create(state)).toObject() as GroupDTO<GROUP_TYPE>;
+    const group = (
+      await this.model.create(state)
+    ).toObject() as GroupDTO<GROUP_TYPE>;
+    this.eventEmitter.emit(GROUP_UPDATE, { created: group });
+    return group;
   }
 
   public async delete(state: GroupDTO | string): Promise<boolean> {
@@ -32,6 +38,9 @@ export class GroupPersistenceService extends BaseMongoService {
         deleted: Date.now(),
       })
       .exec();
+    this.eventEmitter.emit(GROUP_UPDATE, {
+      deleted: is.string(state) ? state : state._id,
+    });
     return result.acknowledged;
   }
 
@@ -99,6 +108,8 @@ export class GroupPersistenceService extends BaseMongoService {
       },
       `Update group {${id}}`,
     );
-    return await this.findById(id);
+    const group = await this.findById<GROUP_TYPE>(id);
+    this.eventEmitter.emit(GROUP_UPDATE, { created: group });
+    return group;
   }
 }

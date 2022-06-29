@@ -225,7 +225,7 @@ export class RoutineEnabledService {
       this.ancestors.set(parent, list);
       this.watch(routine);
     });
-    await each(root, async routine => await this.remount(routine));
+    await each(root, async routine => await this.remount({ updated: routine }));
   }
 
   /**
@@ -284,13 +284,20 @@ export class RoutineEnabledService {
    * - repeat process child routines
    */
   @OnEvent(ROUTINE_UPDATE)
-  protected async remount(routine: RoutineDTO): Promise<void> {
+  protected async remount({
+    deleted,
+    created,
+    updated,
+  }: Partial<
+    Record<'created' | 'updated', RoutineDTO> & { deleted?: string }
+  >): Promise<void> {
+    const routine = created || updated || this.RAW_LIST.get(deleted);
     // Stop + GC
     this.stop(routine);
     const watchers = this.ENABLE_WATCHERS.get(routine._id) ?? [];
     watchers.forEach(callback => callback());
     this.ENABLE_WATCHERS.delete(routine._id);
-    if (routine.deleted) {
+    if (deleted) {
       // Clean up more if deleted
       // Don't need to worry about descendant routines, separate events will be emitted for those
       this.RAW_LIST.delete(routine._id);
@@ -314,7 +321,7 @@ export class RoutineEnabledService {
       }
       list.push(child);
     });
-    await each(list, async child => await this.remount(child));
+    await each(list, async child => await this.remount({ updated: child }));
   }
 
   /**

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsObject, ValidateNested } from 'class-validator';
+import { IsObject, IsString, ValidateNested } from 'class-validator';
 
 import { ContextDTO } from './hass-event.dto';
 
@@ -16,11 +16,11 @@ export class HassStateDTO<
   @ApiProperty()
   public entity_id: string;
   @ApiProperty()
-  @IsDate()
-  public last_changed: Date;
-  @IsDate()
+  @IsString()
+  public last_changed: string;
+  @IsString()
   @ApiProperty()
-  public last_updated: Date;
+  public last_updated: string;
   @ApiProperty({ type: 'string' })
   public state: STATE;
 }

@@ -18,12 +18,12 @@ export abstract class EntityService {
   protected readonly logger: AutoLogService;
 
   @OnEvent(ALL_ENTITIES_UPDATED)
-  protected async onAllEntitiesUpdated(
-    allEntities: HassStateDTO[],
-  ): Promise<void> {
-    await allEntities.forEach(entity =>
-      this.ENTITIES.set(entity.entity_id, entity),
-    );
+  protected async onAllEntitiesUpdated({
+    states,
+  }: {
+    states: HassStateDTO[];
+  }): Promise<void> {
+    await states.forEach(entity => this.ENTITIES.set(entity.entity_id, entity));
   }
 
   @OnEvent(HA_EVENT_STATE_CHANGE)

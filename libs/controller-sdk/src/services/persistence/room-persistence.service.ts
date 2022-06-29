@@ -30,7 +30,7 @@ export class RoomPersistenceService extends BaseMongoService {
     room = this.encrypt(room);
     // eslint-disable-next-line unicorn/no-await-expression-member
     room = (await this.roomModel.create(room)).toObject();
-    this.eventEmitter.emit(ROOM_UPDATE);
+    this.eventEmitter.emit(ROOM_UPDATE, { created: room });
     return room;
   }
 
@@ -43,7 +43,9 @@ export class RoomPersistenceService extends BaseMongoService {
         deleted: Date.now(),
       })
       .exec();
-    this.eventEmitter.emit(ROOM_UPDATE);
+    this.eventEmitter.emit(ROOM_UPDATE, {
+      _id: is.string(state) ? state : state._id,
+    });
     return result.acknowledged;
   }
 
@@ -75,8 +77,9 @@ export class RoomPersistenceService extends BaseMongoService {
     const query = this.merge(id);
     const result = await this.roomModel.updateOne(query, state).exec();
     if (result.acknowledged) {
-      this.eventEmitter.emit(ROOM_UPDATE);
-      return await this.findById(id);
+      const out = await this.findById(id);
+      this.eventEmitter.emit(ROOM_UPDATE, { updated: out });
+      return out;
     }
   }
 

@@ -29,7 +29,7 @@ export class PersonPersistenceService extends BaseMongoService {
   ): Promise<PersonDTO> {
     // eslint-disable-next-line unicorn/no-await-expression-member
     person = (await this.PersonModel.create(person)).toObject();
-    this.eventEmitter.emit(PERSON_UPDATE);
+    this.eventEmitter.emit(PERSON_UPDATE, { created: person });
     return person;
   }
 
@@ -40,7 +40,9 @@ export class PersonPersistenceService extends BaseMongoService {
     const result = await this.PersonModel.updateOne(query, {
       deleted: Date.now(),
     }).exec();
-    this.eventEmitter.emit(PERSON_UPDATE);
+    this.eventEmitter.emit(PERSON_UPDATE, {
+      created: is.string(state) ? state : state._id,
+    });
     return result.acknowledged;
   }
 
@@ -72,8 +74,9 @@ export class PersonPersistenceService extends BaseMongoService {
     const query = this.merge(id);
     const result = await this.PersonModel.updateOne(query, state).exec();
     if (result.acknowledged) {
-      this.eventEmitter.emit(PERSON_UPDATE);
-      return await this.findById(id);
+      const person = await this.findById(id);
+      this.eventEmitter.emit(PERSON_UPDATE, { updated: person });
+      return person;
     }
   }
 }
