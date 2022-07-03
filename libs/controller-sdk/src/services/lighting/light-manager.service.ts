@@ -248,7 +248,7 @@ export class LightManagerService {
     if (domain(entity_id) !== 'light') {
       return;
     }
-    if (old_state.state !== 'unavailable') {
+    if (!(is.empty(old_state?.state) || old_state.state === 'unavailable')) {
       return;
     }
     if (new_state.state !== 'on') {
