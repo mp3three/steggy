@@ -531,10 +531,17 @@ export class MenuComponentService<VALUE = unknown>
    * Rendering for search mode
    */
   private renderFind(updateValue = false): void {
-    const message = [
+    let message = [
       ...this.textRender.searchBox(this.searchText),
       ...this.renderSide(undefined, false, updateValue),
     ].join(`\n`);
+    const selectedItem = this.getSelected();
+    if (!is.empty(selectedItem?.helpText)) {
+      message += chalk`\n \n {blue ?} ${selectedItem.helpText
+        .split(`\n`)
+        .map(line => line.replace(new RegExp('^ -'), chalk.cyan('   -')))
+        .join(`\n`)}`;
+    }
     this.screen.render(message, this.keymap.keymapHelp({ message }));
   }
 
