@@ -1,0 +1,37 @@
+{
+  "extends": ["../../.eslintrc.json"],
+  "ignorePatterns": ["!**/*"],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+        "@typescript-eslint/no-magic-numbers": [
+          "warn",
+          // The numbers really are magic here
+          { "ignoreArrayIndexes": true }
+        ],
+        "spellcheck/spell-checker": [
+          "warn",
+          {
+            // CSS selectors are a headache
+            "strings": false,
+            "templates": false,
+            // Wish these would inherit
+            "skipWords": ["lang", "bitrate", "ansi", "ellipsize", "execa"]
+          }
+        ]
+      },
+      "parserOptions": {
+        "project": ["apps/abb-cli/tsconfig.app.json"]
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {}
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "rules": {}
+    }
+  ]
+}

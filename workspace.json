@@ -1,6 +1,7 @@
 {
   "version": 2,
   "projects": {
+    "abb-cli": "apps/abb-cli",
     "build-pipeline": "apps/build-pipeline",
     "boilerplate": "libs/boilerplate",
     "config-builder": "apps/config-builder",

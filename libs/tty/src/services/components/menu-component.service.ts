@@ -82,9 +82,10 @@ export interface MenuComponentOptions<T = unknown> {
    */
   keyMap?: KeyMap<T>;
   /**
-   * Only run against keyMap activations
+   * When provided, all keymap commands will be passed through this first.
    *
-   * Passes in currently selected value
+   * - `return true` to use default handler logic
+   * - `return string` to report back a status message to the user (for background operations)
    */
   keyMapCallback?: MainMenuCB;
   /**

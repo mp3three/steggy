@@ -38,6 +38,12 @@
         "type": "node",
         "request": "attach",
         "port": 33340
+      },
+      {
+        "name": "ABB CLI",
+        "type": "node",
+        "request": "attach",
+        "port": 33341
       }
     ]
   },
@@ -213,6 +219,7 @@
     },
     "files.associations": {
       ".pino-prettyrc": "json",
+      "abb-cli": "ini",
       "build-pipeline": "ini",
       "home-controller": "ini",
       "home-cli": "ini",

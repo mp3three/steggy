@@ -1,15 +1,31 @@
-import { EMPTY, EVEN } from './utilities';
+import { EMPTY, EVEN, START } from './utilities';
 
 // TODO: declaration merging to allow other libs to create definitions here
+/**
+ * type testing and basic conversion tools
+ */
+export class is {
+  public static hash = {
+    string(text: string): string {
+      let hash = START;
+      for (let i = START; i < text.length; i++) {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        hash = (hash << 5) - hash + text.codePointAt(i);
+        hash = Math.trunc(hash);
+      }
+      return hash.toString();
+    },
+  };
 
-export const is = {
-  boolean(test: unknown): test is boolean {
+  public static boolean(test: unknown): test is boolean {
     return typeof test === 'boolean';
-  },
-  date(test: unknown): test is Date {
+  }
+
+  public static date(test: unknown): test is Date {
     return test instanceof Date;
-  },
-  empty(
+  }
+
+  public static empty(
     type:
       | string
       | Array<unknown>
@@ -27,34 +43,42 @@ export const is = {
       return Object.keys(type).length === EMPTY;
     }
     return true;
-  },
-  even(test: number): boolean {
+  }
+
+  public static even(test: number): boolean {
     return test % EVEN === EMPTY;
-  },
-  function<
+  }
+
+  public static function<
     T extends (
       ...parameters: unknown[]
     ) => unknown | void | Promise<unknown | void>,
   >(test: unknown): test is T {
     return typeof test === 'function';
-  },
-  number(test: unknown): test is number {
+  }
+
+  public static number(test: unknown): test is number {
     return typeof test === 'number' && !Number.isNaN(test);
-  },
-  object(test: unknown): test is object {
+  }
+
+  public static object(test: unknown): test is object {
     return typeof test === 'object' && test !== null && !Array.isArray(test);
-  },
-  string(test: unknown): test is string {
+  }
+
+  public static string(test: unknown): test is string {
     return typeof test === 'string';
-  },
-  symbol(test: unknown): test is symbol {
+  }
+
+  public static symbol(test: unknown): test is symbol {
     return typeof test === 'symbol';
-  },
-  undefined(test: unknown): test is undefined {
+  }
+
+  public static undefined(test: unknown): test is undefined {
     return typeof test === 'undefined';
-  },
-  unique<T>(out: T[]): T[] {
+  }
+
+  public static unique<T>(out: T[]): T[] {
     // Technically this isn't an "is"... but close enough
     return out.filter((item, index, array) => array.indexOf(item) === index);
-  },
-};
+  }
+}

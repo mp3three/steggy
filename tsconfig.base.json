@@ -43,6 +43,7 @@
   },
   "exclude": ["node_modules", "tmp"],
   "references": [
+    { "path": "./apps/abb-cli/tsconfig.json" },
     { "path": "./apps/build-pipeline/tsconfig.json" },
     { "path": "./apps/config-builder/tsconfig.json" },
     { "path": "./apps/home-cli/tsconfig.json" },

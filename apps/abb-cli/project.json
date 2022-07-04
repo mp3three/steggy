@@ -1,0 +1,108 @@
+{
+  "root": "apps/abb-cli",
+  "sourceRoot": "apps/abb-cli/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "abb-cli:build",
+        "inspect": "inspect",
+        "port": 33341
+      }
+    },
+    "prepare": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          { "command": "npx nx build abb-cli --configuration=config-scanner" }
+        ]
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/abb-cli",
+        "generatePackageJson": true,
+        "fileReplacements": [
+          {
+            "replace": "apps/abb-cli/src/environments/environment.ts",
+            "with": "apps/abb-cli/src/environments/develop.environment.ts"
+          }
+        ],
+        "main": "apps/abb-cli/src/entrypoints/main.ts",
+        "tsConfig": "apps/abb-cli/tsconfig.app.json"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "inspect": false,
+          "fileReplacements": []
+        },
+        "scan-config": {
+          "outputPath": "dist/config-scanner/abb-cli",
+          "fileReplacements": [
+            {
+              "replace": "apps/abb-cli/src/environments/environment.ts",
+              "with": "apps/abb-cli/src/environments/scanner.environment.ts"
+            }
+          ]
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/abb-cli/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga ABB CLI",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build abb-cli --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "npx terser dist/apps/abb-cli/main.js -c -m --keep-classnames --module > dist/apps/abb-cli/minified.js",
+            "description": "Minify it"
+          },
+          {
+            "command": "echo '#!/usr/bin/env node' > dist/apps/abb-cli/main.js; cat dist/apps/abb-cli/minified.js >> dist/apps/abb-cli/main.js",
+            "description": "Replace output (can't be done in previous step)"
+          },
+          {
+            "command": "npx yarn publish --cwd dist/apps/abb-cli --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    },
+    "scan-config": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build abb-cli --configuration=scan-config",
+            "description": "Create standard production build"
+          },
+          {
+            "command": "mkdir -p dist/configs; node dist/config-scanner/abb-cli/main.js > dist/configs/abb-cli.json",
+            "description": "Scan config, output to dist"
+          }
+        ]
+      }
+    }
+  },
+  "tags": ["terminal"]
+}

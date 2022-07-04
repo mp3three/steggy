@@ -24,8 +24,15 @@ const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim('|');
 const BUFFER_SIZE = 3;
 const MIN_SIZE = 2;
-//
+const INDENT = '  ';
 const MAX_STRING_LENGTH = 300;
+const NESTING_LEVELS = [
+  chalk.cyan(' - '),
+  chalk.magenta(' * '),
+  chalk.green(' # '),
+  chalk.yellow(' > '),
+  chalk.red(' ~ '),
+];
 
 /**
  * Common utils for inqurirer prompt rendering
@@ -183,7 +190,7 @@ export class TextRenderingService {
     );
   }
 
-  public typePrinter(item: unknown): string {
+  public typePrinter(item: unknown, nested = START): string {
     if (is.undefined(item)) {
       return chalk.gray(`undefined`);
     }
@@ -203,19 +210,37 @@ export class TextRenderingService {
       );
     }
     if (Array.isArray(item)) {
-      return item.map(i => this.typePrinter(i)).join(`, `);
+      return (
+        `\n` +
+        item
+          .map(
+            i =>
+              INDENT.repeat(nested) +
+              NESTING_LEVELS[nested] +
+              this.typePrinter(i, nested + INCREMENT),
+          )
+          .join(`\n`)
+      );
     }
     if (item === null) {
       return chalk.gray(`null`);
     }
     if (is.object(item)) {
-      return Object.keys(item)
-        .sort((a, b) => (a > b ? UP : DOWN))
-        .map(
-          key =>
-            chalk`{bold ${TitleCase(key)}:} ${this.typePrinter(item[key])}`,
-        )
-        .join(`\n`);
+      return (
+        (nested ? `\n` : '') +
+        Object.keys(item)
+          .sort((a, b) => (a > b ? UP : DOWN))
+          .map(
+            key =>
+              chalk`${INDENT.repeat(nested)}{bold ${
+                NESTING_LEVELS[nested]
+              }${TitleCase(key)}:} ${this.typePrinter(
+                item[key],
+                nested + INCREMENT,
+              )}`,
+          )
+          .join(`\n`)
+      );
     }
     return chalk.gray(JSON.stringify(item));
   }

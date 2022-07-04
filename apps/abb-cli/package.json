@@ -1,0 +1,14 @@
+{
+  "bin": {
+    "abb-cli": "main.js"
+  },
+  "name": "@steggy/abb-cli",
+  "license": "MIT",
+  "main": "main.js",
+  "displayName": "ABB CLI",
+  "version": "0.12.0",
+  "homepage": "https://github.com/mp3three/steggy",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
