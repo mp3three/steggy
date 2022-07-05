@@ -7,7 +7,6 @@ import {
   tKeyMap,
 } from '../../contracts';
 import { Editor, iBuilderEditor } from '../../decorators';
-import { ansiPadEnd, ansiStrip } from '../../includes';
 import { KeyboardManagerService, ScreenService } from '../meta';
 import { KeymapService, TextRenderingService } from '../render';
 
@@ -108,7 +107,9 @@ export class PasswordEditorService
     this.value = this.config.current;
   }
 
+  // FIXME: this
   private renderBox(bgColor: string): void {
+    bgColor;
     // let value = is.empty(this.value)
     //   ? this.config.placeholder ?? DEFAULT_PLACEHOLDER
     //   : this.value;

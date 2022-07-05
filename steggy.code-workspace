@@ -79,6 +79,7 @@
       ".ebextensions": "plugin",
       ".gitsecret": "git",
       ".well-known": "public",
+      "abb-cli": "benchmark",
       "action": "azure-pipelines",
       "activate": "examples",
       "adapters": "custom",

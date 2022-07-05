@@ -18,7 +18,7 @@ import { cwd, env } from 'process';
 import { inc } from 'semver';
 
 import { NXAffected } from '../contracts';
-import { SyncLoggerService } from './meta';
+import { ScreenService, SyncLoggerService } from './meta';
 import { PromptService } from './prompt.service';
 
 /**
@@ -29,7 +29,8 @@ import { PromptService } from './prompt.service';
 export class SystemService {
   constructor(
     private readonly logger: SyncLoggerService,
-    private readonly promptService: PromptService,
+    private readonly prompt: PromptService,
+    private readonly screen: ScreenService,
     private readonly workspace: WorkspaceService,
   ) {}
 
@@ -72,11 +73,13 @@ export class SystemService {
           action === 'rc'
             ? inc(version, 'prerelease', 'rc')
             : inc(version, action);
-        console.log(
-          chalk.blueBright(application),
-          version,
-          chalk.green(`=>`),
-          updated,
+        this.screen.print(
+          [
+            chalk.blueBright(application),
+            version,
+            chalk.green(`=>`),
+            updated,
+          ].join(' '),
         );
         this.packageWriteVersion(application, updated);
         callback();
@@ -92,7 +95,7 @@ export class SystemService {
         const currentVersion = data.version;
         data.version = inc(data.version, 'patch');
         this.packageWriteVersion(value, data.version);
-        console.log(
+        this.screen.print(
           chalk`{yellow library} ${value} ${currentVersion} {green =>} ${data.version}`,
         );
       });
@@ -105,11 +108,13 @@ export class SystemService {
     const current = rootPackage.version;
     rootPackage.version = inc(rootPackage.version, 'patch');
     writeFileSync(PACKAGE_FILE, JSON.stringify(rootPackage, undefined, '  '));
-    console.log(
-      chalk.magenta('root'),
-      current,
-      chalk.green(`=>`),
-      rootPackage.version,
+    this.screen.print(
+      [
+        chalk.magenta('root'),
+        current,
+        chalk.green(`=>`),
+        rootPackage.version,
+      ].join(' '),
     );
     return rootPackage.version;
   }
@@ -191,16 +196,15 @@ export class SystemService {
     config: AbstractConfig,
   ): Promise<void> {
     const file = this.configPath(application);
-    console.log(chalk.green('path'), file);
+    this.screen.print([chalk.green('path'), file].join(' '));
     if (
       existsSync(file) &&
-      (await this.promptService.confirm('Overwrite existing config file?')) ===
-        false
+      (await this.prompt.confirm('Overwrite existing config file?')) === false
     ) {
       return;
     }
     writeFileSync(file, encode(config));
-    console.log(chalk.inverse(chalk.green(`${file} written`)));
+    this.screen.print(chalk.inverse(chalk.green(`${file} written`)));
   }
 
   private packageWriteVersion(project: string, version: string): void {

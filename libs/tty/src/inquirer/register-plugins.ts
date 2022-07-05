@@ -7,7 +7,7 @@ import { CronPrompt } from './cron';
 import { SelectLinePrompt } from './select-line';
 import { TimeoutPrompt } from './timeout';
 
-// @ts-expect-error Probably related to missing ts defs or something
+// @ts-expect-error Probably related to missing ts definitions or something
 inquirer.registerPrompt('date', datePrompt);
 inquirer.registerPrompt('cron', CronPrompt);
 inquirer.registerPrompt('selectLine', SelectLinePrompt);

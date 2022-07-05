@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { INestApplication } from '@nestjs/common';
 import { is } from '@steggy/utilities';
 import chalk from 'chalk';

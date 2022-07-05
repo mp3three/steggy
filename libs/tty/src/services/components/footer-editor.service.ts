@@ -54,7 +54,8 @@ export class FooterEditorService {
     width: number,
     type: string,
   ): void {
-    const instance = this.editorExplorer.findServiceByType(type);
+    // const instance =
+    this.editorExplorer.findServiceByType(type);
     // return instance.render({
     //   ...(config as { current: T }),
     //   ...element.extra,

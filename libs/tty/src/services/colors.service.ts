@@ -44,58 +44,6 @@ export class ColorsService {
     };
   }
 
-  /**
-   * Reference code: https://gist.github.com/mjackson/5311256#gistcomment-2789005
-   */
-  public hsvToRGB({ h, s, v }: HSV): RGB {
-    const hprime = h / 60;
-    hprime.toString(2);
-    const c = v * s;
-    const x = c * (1 - Math.abs((hprime % 2) - 1));
-    const m = v - c;
-    let r, g, b;
-    if (!hprime) {
-      r = 0;
-      g = 0;
-      b = 0;
-    }
-    if (hprime >= 0 && hprime < 1) {
-      r = c;
-      g = x;
-      b = 0;
-    }
-    if (hprime >= 1 && hprime < 2) {
-      r = x;
-      g = c;
-      b = 0;
-    }
-    if (hprime >= 2 && hprime < 3) {
-      r = 0;
-      g = c;
-      b = x;
-    }
-    if (hprime >= 3 && hprime < 4) {
-      r = 0;
-      g = x;
-      b = c;
-    }
-    if (hprime >= 4 && hprime < 5) {
-      r = x;
-      g = 0;
-      b = c;
-    }
-    if (hprime >= 5 && hprime < 6) {
-      r = c;
-      g = 0;
-      b = x;
-    }
-    return {
-      b: Math.round((b + m) * 255),
-      g: Math.round((g + m) * 255),
-      r: Math.round((r + m) * 255),
-    };
-  }
-
   public isBright(color: string): boolean {
     const { r, g, b } = this.hexToRGB(color);
     return r * R_LUMINANCE + g * G_LUMINANCE + b * B_LUMINANCE < 255 / 2;
