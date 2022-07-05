@@ -92,8 +92,6 @@ export class ABBCli {
     this.fetch.BASE_URL = base;
   }
 
-  private lastSearch = '';
-
   public async exec(value?: string): Promise<void> {
     this.application.setHeader('ABB CLI');
     const recent = (await this.cache.get<string[]>(RECENT_SEARCHES)) ?? [];
@@ -103,20 +101,26 @@ export class ABBCli {
       keyMap: {
         d: ['done', 'done'],
         f12: ['clear cache', 'clear-cache'],
+        f4: ['clear recent searches', 'clear-recent'],
         s: ['search', 'search'],
       },
       left: is
         .unique(recent)
         .reverse()
+        .filter(i => !is.empty(i))
         .slice(START, this.recent)
         .map(i => ({ entry: [i, i] })),
       leftHeader: 'Recent Searches',
       right: [{ entry: ['Search', 'search'] }],
       rightHeader: 'Commands',
       showHeaders: true,
+      sort: false,
       value,
     });
     switch (action) {
+      case 'clear-recent':
+        await this.cache.set(RECENT_SEARCHES, []);
+        return await this.exec(action);
       case 'done':
         return;
       case 'search':
@@ -135,15 +139,10 @@ export class ABBCli {
     const headerText = `Audiobook Search`;
     this.application.setHeader(headerText);
     // * Prompt for search text
-    text ??= (
-      await this.prompt.string('Search text', this.lastSearch)
-    ).toLocaleLowerCase();
+    text ??= (await this.prompt.string('Search text')).toLocaleLowerCase();
     if (is.empty(text)) {
       return;
     }
-
-    // * Store last search
-    this.lastSearch = text;
 
     // * Append search to list of recent search
     const recent = (await this.cache.get<string[]>(RECENT_SEARCHES)) ?? [];
