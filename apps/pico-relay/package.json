@@ -3,7 +3,7 @@
   "license": "MIT",
   "description": "",
   "main": "main.js",
-  "version": "0.12.10",
+  "version": "0.12.11",
   "displayName": "Pico Relay",
   "author": {
     "name": "mp3three",

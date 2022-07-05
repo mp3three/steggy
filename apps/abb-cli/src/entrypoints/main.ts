@@ -57,6 +57,7 @@ export class ABBCli {
   constructor(
     private readonly application: ApplicationManagerService,
     @InjectConfig('BASE', {
+      default: 'http://audiobookbay.se',
       description: 'Page target to pull information from',
       type: 'string',
     })
