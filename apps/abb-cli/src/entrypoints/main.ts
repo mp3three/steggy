@@ -41,7 +41,6 @@ import {
   Pagination,
 } from '../types';
 
-const LAST_SEARCH = 'LAST_SEARCH';
 const SEARCH_RESULTS = (text: string) =>
   `SEARCH_RESULTS:${is.hash.string(text)}`;
 const BOOK_CACHE = (text: string) => `BOOK_CACHE:${is.hash.string(text)}`;
@@ -93,15 +92,18 @@ export class ABBCli {
     this.fetch.BASE_URL = base;
   }
 
+  private lastSearch = '';
+
   public async exec(value?: string): Promise<void> {
     this.application.setHeader('ABB CLI');
     const recent = (await this.cache.get<string[]>(RECENT_SEARCHES)) ?? [];
 
     const action = await this.prompt.menu({
+      hideSearch: true,
       keyMap: {
-        d: ['Done', 'done'],
-        f12: ['Clear cache', 'clear-cache'],
-        s: ['Search', 'search'],
+        d: ['done', 'done'],
+        f12: ['clear cache', 'clear-cache'],
+        s: ['search', 'search'],
       },
       left: is
         .unique(recent)
@@ -134,14 +136,14 @@ export class ABBCli {
     this.application.setHeader(headerText);
     // * Prompt for search text
     text ??= (
-      await this.prompt.string(
-        'Search text',
-        await this.cache.get<string>(LAST_SEARCH),
-      )
+      await this.prompt.string('Search text', this.lastSearch)
     ).toLocaleLowerCase();
+    if (is.empty(text)) {
+      return;
+    }
 
     // * Store last search
-    await this.cache.set(LAST_SEARCH, text);
+    this.lastSearch = text;
 
     // * Append search to list of recent search
     const recent = (await this.cache.get<string[]>(RECENT_SEARCHES)) ?? [];
@@ -180,7 +182,7 @@ export class ABBCli {
       ]),
       keyMapCallback: async (action, [, value]: [string, BookListItem]) => {
         if (action !== 'quick-magnet') {
-          return;
+          return true;
         }
         const book = await this.getBook(value.url);
         await execa(this.launch, [this.createMagnet(book)]);
