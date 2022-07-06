@@ -42,7 +42,7 @@ import {
 } from '../types';
 
 const SEARCH_RESULTS = (text: string) =>
-  `SEARCH_RESULTS:${is.hash.string(text)}`;
+  `SEARCH_RESULT:${is.hash.string(text)}`;
 const BOOK_CACHE = (text: string) => `BOOK_CACHE:${is.hash.string(text)}`;
 const RECENT_SEARCHES = 'RECENT_SEARCHES';
 const NBSP = 160;
@@ -56,7 +56,7 @@ export class ABBCli {
   constructor(
     private readonly application: ApplicationManagerService,
     @InjectConfig('BASE', {
-      default: 'http://audiobookbay.se',
+      default: 'http://audiobookbay.fi',
       description: 'Page target to pull information from',
       type: 'string',
     })
@@ -190,7 +190,7 @@ export class ABBCli {
       right,
       value: right.find(i => i.entry[VALUE].url === lastValue)?.entry[VALUE],
     });
-    if (is.string(item)) {
+    if (is.string(item) || is.undefined(item)) {
       return;
     }
     await this.lookup(item.url);
@@ -515,7 +515,7 @@ export class ABBCli {
    */
   private async clearCache(): Promise<void> {
     const keys = [
-      ...(await this.cache.store.keys('SEARCH_RESULTS*')),
+      ...(await this.cache.store.keys('SEARCH_RESULT*')),
       ...(await this.cache.store.keys('BOOK_CACHE*')),
     ];
     await this.cache.del('LAST_SEARCH');
