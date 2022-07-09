@@ -1,3 +1,4 @@
+export * from './code.dto';
 export * from './entity-metadata.dto';
 export * from './group.dto';
 export * from './person.dto';

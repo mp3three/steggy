@@ -23,6 +23,8 @@ export enum ROUTINE_SCOPE {
   public,
   http,
 }
+const each = true;
+const index = true;
 
 @Schema({
   collection: `routines`,
@@ -39,13 +41,13 @@ export class RoutineDTO {
   public _id?: string;
 
   @IsOptional()
-  @ValidateNested({ each: true })
+  @ValidateNested({ each })
   @ApiProperty({ required: false, type: [RoutineActivateDTO] })
   @Prop()
   public activate?: RoutineActivateDTO[];
 
   @IsOptional()
-  @ValidateNested({ each: true })
+  @ValidateNested({ each })
   @ApiProperty({ required: false, type: [RoutineCommandDTO] })
   @Prop()
   public command?: RoutineCommandDTO[];
@@ -56,7 +58,7 @@ export class RoutineDTO {
   @IsOptional()
   @IsDateString()
   @ApiProperty({ required: false })
-  @Prop({ index: true })
+  @Prop({ index })
   public created?: Date;
 
   @IsNumber()
@@ -92,7 +94,7 @@ export class RoutineDTO {
   @IsOptional()
   @IsDateString()
   @ApiProperty({ required: false })
-  @Prop({ index: true })
+  @Prop({ index })
   public modified?: Date;
 
   /**
@@ -102,7 +104,7 @@ export class RoutineDTO {
   @IsString()
   @ApiProperty({ required: false })
   @TransformObjectId()
-  @Prop({ index: true })
+  @Prop({ index })
   public parent?: string;
 
   @IsOptional()
@@ -115,4 +117,10 @@ export class RoutineDTO {
   @ApiProperty({ required: false })
   @IsBoolean()
   public sync?: boolean;
+
+  @Prop()
+  @IsOptional()
+  @ApiProperty({ type: [String] })
+  @IsString({ each })
+  public tags?: string[];
 }

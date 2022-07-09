@@ -114,6 +114,7 @@ export enum FILTER_OPERATIONS {
   gt = 'gt',
   gte = 'gte',
   exists = 'exists',
+  empty = 'empty',
   ne = 'ne',
   eq = 'eq',
 }
@@ -124,6 +125,7 @@ export class ComparisonDTO {
 }
 
 export class FilterDTO extends ComparisonDTO {
+  public empty?: boolean;
   public exists?: boolean;
   public field?: string;
 }

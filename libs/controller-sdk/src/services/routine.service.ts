@@ -153,6 +153,22 @@ export class RoutineService {
     );
   }
 
+  public async allTags(): Promise<string[]> {
+    const routines = await this.list({
+      filters: new Set([
+        {
+          field: 'routine.tag',
+          operation: 'empty',
+          value: false,
+        },
+      ]),
+      select: ['tags'] as (keyof RoutineDTO)[],
+    });
+    return is
+      .unique(routines.flatMap(({ tags }) => tags))
+      .filter(i => is.string(i));
+  }
+
   public async clone(
     target: string,
     {

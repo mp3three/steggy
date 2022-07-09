@@ -32,6 +32,10 @@ export class JSONFilterService {
       const exists = is.undefined(value);
       return (exists && filter.exists) || (!filter.exists && !exists);
     }
+    if (is.boolean(filter.empty)) {
+      const empty = is.empty(value);
+      return (empty && filter.empty) || (!filter.empty && !empty);
+    }
     switch (filter.operation) {
       case FILTER_OPERATIONS.gt:
         return this.gt(value, filter.value as RelativeCompare);

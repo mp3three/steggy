@@ -81,7 +81,6 @@ export class RoomDTO {
   @IsString()
   @Prop({ required: true, type: 'string' })
   @ApiProperty()
-  @Expose()
   @MinLength(MINIMUM_NAME_SIZE)
   public friendlyName: string;
 

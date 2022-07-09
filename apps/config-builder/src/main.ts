@@ -49,7 +49,6 @@ export class ConfigScanner implements iQuickScript {
     @InjectConfig('DEFINITION_FILE', {
       default: './config.json',
       description: 'File path to file containing an application scanned config',
-      required: true,
       type: 'string',
     })
     private readonly definitionFile: string,

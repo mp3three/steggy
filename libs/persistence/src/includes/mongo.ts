@@ -26,6 +26,10 @@ export function filtersToMongoQuery(
         return out.set(filter.field, {
           $exists: ['true', '1'].includes(filter.value.toString()),
         });
+      case 'empty':
+        return out.set(filter.field, {
+          [filter.value ? `$nin` : '$in']: [[], '', null, undefined],
+        });
       case 'regex':
         if (filter.value instanceof RegExp) {
           return out.set(filter.field, {
