@@ -20,13 +20,18 @@ export class LoggingInterceptor implements NestInterceptor {
   ): Observable<unknown> {
     const prettyLogger = AutoLogService.prettyLogger;
     const request = context.switchToHttp().getRequest<APIRequest>();
-    const extra = prettyLogger ? {} : { route: [request.method, request.path] };
+    const extra: Record<string, unknown> = prettyLogger
+      ? {}
+      : { route: [request.method, request.path] };
     const { locals } = context.switchToHttp().getResponse<APIResponse>();
     return next.handle().pipe(
       tap(response => {
         if (this.ignorePath(request.path)) {
           // Request counter is still incremented, even if no logs are ever printed for request
-          return undefined;
+          return response;
+        }
+        if (locals.authMethod) {
+          extra.auth = locals.authMethod;
         }
         const responseTime = Date.now() - locals.start.getTime();
         const message = prettyLogger

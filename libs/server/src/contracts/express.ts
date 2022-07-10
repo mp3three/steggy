@@ -1,10 +1,6 @@
 import { REQUEST } from '@nestjs/core';
 import { AutoLogService } from '@steggy/boilerplate';
-import {
-  FetchAuth,
-  HTTP_METHODS,
-  ResultControlDTO,
-} from '@steggy/utilities';
+import { FetchAuth, HTTP_METHODS, ResultControlDTO } from '@steggy/utilities';
 import { Request, Response } from 'express';
 import pino from 'pino';
 
@@ -41,6 +37,10 @@ export class CrudOptions {
 }
 
 export class ResponseLocals extends CrudOptions {
+  /**
+   * If authenticated, what mechanism granted access?
+   */
+  authMethod?: string;
   /**
    * Did one of the auth guards say no?
    */

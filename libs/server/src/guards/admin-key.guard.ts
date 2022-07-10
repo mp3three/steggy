@@ -29,7 +29,7 @@ export class AdminKeyGuard implements CanActivate {
     locals.flags.add(ResponseFlags.ADMIN_KEY);
     locals.flags.add(ResponseFlags.ADMIN);
     locals.authenticated = true;
-    this.logger.debug(`Authenticated using {ADMIN_KEY}`);
+    locals.authMethod = 'ADMIN_KEY';
     return true;
   }
 
