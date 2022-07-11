@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TransformObjectId } from '@steggy/utilities';
 import {
   IsDateString,
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -14,6 +15,11 @@ import { MINIMUM_NAME_SIZE } from '../constants';
 
 export class CodeEnableDTO {
   public type?: 'enable' | 'disable';
+}
+
+export enum CodeType {
+  request = 'request',
+  execute = 'execute',
 }
 
 @Schema({
@@ -74,9 +80,15 @@ export class CodeDTO {
   @Prop({ index: true })
   public modified?: Date;
 
-  @IsString()
+  @Prop()
+  @IsOptional()
+  @ApiProperty({ type: [String] })
+  @IsString({ each: true })
+  public tags?: string[];
+
+  @IsEnum(CodeType)
   @Prop()
   @ApiProperty()
   @IsOptional()
-  public source?: string;
+  public type?: `${CodeType}`;
 }

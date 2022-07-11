@@ -1,3 +1,4 @@
+export const CODE_UPDATE = 'CODE_UPDATE';
 export const GROUP_UPDATE = 'GROUP_UPDATE';
 export const ROOM_UPDATE = 'ROOM_UPDATE';
 export const PERSON_UPDATE = 'PERSON_UPDATE';

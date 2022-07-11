@@ -11,6 +11,7 @@ export function TypedEditor(props: {
   code: string;
   defaultValue?: string;
   extraTypes?: string;
+  height?: string;
   onUpdate: (update: string) => void;
   secondaryText?: string | JSX.Element;
   type?: 'request' | 'execute';
@@ -28,7 +29,7 @@ export function TypedEditor(props: {
       setForceHide(false);
     }
     refresh();
-  }, [props.extraTypes]);
+  }, [props.extraTypes, props.type]);
 
   useEffect(() => {
     async function loadTypes() {
@@ -84,7 +85,7 @@ export function TypedEditor(props: {
       </div>
       <Editor
         theme="vs-dark"
-        height="50vh"
+        height={props.height ?? '50vh'}
         value={code ?? ''}
         beforeMount={({ languages: { typescript } }) => {
           typescript.typescriptDefaults.setDiagnosticsOptions(

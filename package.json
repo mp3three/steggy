@@ -8,7 +8,8 @@
     "url": "https://github.com/mp3three/steggy"
   },
   "scripts": {
-    "dev-controller": "npx nx serve home-controller & npx nx serve home-configure",
+    "backend": "npx nx serve home-controller",
+    "frontend": "npx nx serve home-configure",
     "dirty-bump": "node tools/scripts/pipeline.js --non-interactive --bump-only",
     "pipeline": "node tools/scripts/pipeline.js",
     "pipeline:all": "node tools/scripts/pipeline.js --non-interactive",

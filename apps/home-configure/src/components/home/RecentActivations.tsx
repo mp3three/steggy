@@ -4,7 +4,7 @@ import {
   RoutineDTO,
   RoutineTriggerEvent,
 } from '@steggy/controller-shared';
-import { is } from '@steggy/utilities';
+import { DOWN, is, UP } from '@steggy/utilities';
 import { Button, Card, Table, Tag, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
@@ -28,14 +28,10 @@ export function RecentActivations() {
   }
 
   async function refresh(): Promise<void> {
-    setEvents(
-      await sendRequest<RoutineTriggerEvent[]>({
-        control: {
-          sort: ['-time'],
-        },
-        url: `/debug/recent-activations`,
-      }),
-    );
+    const list = await sendRequest<RoutineTriggerEvent[]>({
+      url: `/debug/recent-activations`,
+    });
+    setEvents(list.sort((a, b) => (a.time < b.time ? UP : DOWN)));
     setRoutines(
       await sendRequest<RoutineDTO[]>({
         url: `/routine`,

@@ -112,6 +112,8 @@ export const EXTRA_UI_TYPINGS = [
      state: string,
      waitForChange?: boolean,
    ): Promise<void>;
+  ids<DOMAIN extends keyof typeof home_assistant>(domain:DOMAIN): \`\${DOMAIN}.\${typeof home_assistant[DOMAIN]}\`[];
+
    /**
     * Activate a routine, taking into account current disabled state, and race condition modifiers.
     * Depending on the options passed, and the current state of the routine, it is not guaranteed that it will execute

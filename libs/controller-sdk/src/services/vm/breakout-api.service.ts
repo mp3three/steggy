@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { RoutineActivateOptionsDTO } from '@steggy/controller-shared';
-import { NotifyDomainService } from '@steggy/home-assistant';
+import {
+  EntityManagerService,
+  NotifyDomainService,
+} from '@steggy/home-assistant';
+import { domain } from '@steggy/home-assistant-shared';
 import { is, START } from '@steggy/utilities';
 
 import { iVMBreakoutAPI } from '../../typings';
@@ -17,6 +21,7 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
   constructor(
     private readonly logger: AutoLogService,
     private readonly chronoService: ChronoService,
+    private readonly entityManager: EntityManagerService,
     private readonly groupService: GroupService,
     private readonly personService: PersonService,
     private readonly roomService: RoomService,
@@ -122,6 +127,12 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
     const dv = Symbol();
     const out = this.chronoService.parse(text, dv);
     return out[START] == dv ? undefined : (out as [Date] | [Date, Date]);
+  }
+
+  public ids(target: string): string[] {
+    return [...this.entityManager.ENTITIES.keys()].filter(
+      i => domain(i) === target,
+    );
   }
 
   /**

@@ -1,3 +1,4 @@
+export * from './code.service';
 export * from './enabled';
 export * from './entities';
 export * from './group.service';

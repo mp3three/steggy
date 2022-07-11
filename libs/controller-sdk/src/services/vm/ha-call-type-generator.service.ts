@@ -219,10 +219,10 @@ export class HACallTypeGenerator {
                 ]),
               ]
             : [
-                // factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
-                // factory.createArrayTypeNode(
-                //   factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
-                // ),
+                factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
+                factory.createArrayTypeNode(
+                  factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
+                ),
                 factory.createTemplateLiteralType(
                   factory.createTemplateHead(
                     `${target.entity.domain}.`,
@@ -273,7 +273,7 @@ export class HACallTypeGenerator {
       return addSyntheticLeadingComment(
         property,
         SyntaxKind.MultiLineCommentTrivia,
-        '',
+        'Assisted definition',
         true,
       );
     }
@@ -307,25 +307,31 @@ export class HACallTypeGenerator {
     else if (!is.undefined(selector.entity))
       node = is.empty(domain)
         ? factory.createKeywordTypeNode(SyntaxKind.StringKeyword)
-        : factory.createArrayTypeNode(
-            factory.createTemplateLiteralType(
-              factory.createTemplateHead(`${domain}.`, `${domain}.`),
-              [
-                factory.createTemplateLiteralTypeSpan(
-                  factory.createTypeOperatorNode(
-                    SyntaxKind.KeyOfKeyword,
-                    factory.createTypeQueryNode(
-                      factory.createQualifiedName(
-                        factory.createIdentifier('home_assistant'),
-                        factory.createIdentifier(domain),
+        : factory.createUnionTypeNode([
+            factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
+            factory.createArrayTypeNode(
+              factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
+            ),
+            factory.createArrayTypeNode(
+              factory.createTemplateLiteralType(
+                factory.createTemplateHead(`${domain}.`, `${domain}.`),
+                [
+                  factory.createTemplateLiteralTypeSpan(
+                    factory.createTypeOperatorNode(
+                      SyntaxKind.KeyOfKeyword,
+                      factory.createTypeQueryNode(
+                        factory.createQualifiedName(
+                          factory.createIdentifier('home_assistant'),
+                          factory.createIdentifier(domain),
+                        ),
                       ),
                     ),
+                    factory.createTemplateTail('', ''),
                   ),
-                  factory.createTemplateTail('', ''),
-                ),
-              ],
+                ],
+              ),
             ),
-          );
+          ]);
     // : "option" | "option" | "option" | "option"
     else if (!is.undefined(selector.select))
       node = factory.createUnionTypeNode(

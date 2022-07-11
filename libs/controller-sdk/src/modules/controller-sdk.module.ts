@@ -2,6 +2,7 @@ import { Type } from '@nestjs/common';
 import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
 import { LibraryModule, RegisterCache } from '@steggy/boilerplate';
 import {
+  CodeDTO,
   GroupDTO,
   MetadataDTO,
   PersonDTO,
@@ -29,6 +30,8 @@ import {
   BreakoutAPIService,
   ChronoService,
   CircadianService,
+  CodePersistenceService,
+  CodeService,
   DataAggregatorService,
   DebuggerService,
   EntityCommandRouterService,
@@ -69,6 +72,8 @@ const providers = [
   BreakoutAPIService,
   ChronoService,
   CircadianService,
+  CodePersistenceService,
+  CodeService,
   DataAggregatorService,
   DebuggerService,
   EntityCommandRouterService,
@@ -170,7 +175,7 @@ const providers = [
     MongoPersistenceModule,
     RegisterCache(),
     MongooseModule.forFeature(
-      [GroupDTO, MetadataDTO, PersonDTO, RoomDTO, RoutineDTO].map(
+      [CodeDTO, GroupDTO, MetadataDTO, PersonDTO, RoomDTO, RoutineDTO].map(
         (i: Type) => ({
           name: i.name,
           schema: SchemaFactory.createForClass(i),

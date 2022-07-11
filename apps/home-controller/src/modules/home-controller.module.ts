@@ -13,6 +13,7 @@ import {
 } from '../config';
 import {
   AdminController,
+  CodeController,
   DebugController,
   DeviceController,
   EntityController,
@@ -71,6 +72,7 @@ const APPLICATION = Symbol('home-controller');
   },
   controllers: [
     AdminController,
+    CodeController,
     DebugController,
     DeviceController,
     EntityController,

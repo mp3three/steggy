@@ -20,9 +20,9 @@ export class LoggingInterceptor implements NestInterceptor {
   ): Observable<unknown> {
     const prettyLogger = AutoLogService.prettyLogger;
     const request = context.switchToHttp().getRequest<APIRequest>();
-    const extra: Record<string, unknown> = prettyLogger
-      ? {}
-      : { route: [request.method, request.path] };
+    const extra = prettyLogger
+      ? { auth: undefined }
+      : { auth: undefined, route: [request.method, request.path] };
     const { locals } = context.switchToHttp().getResponse<APIResponse>();
     return next.handle().pipe(
       tap(response => {

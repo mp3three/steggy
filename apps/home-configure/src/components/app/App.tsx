@@ -14,6 +14,7 @@ import {
   PROFILE_ID,
   sendRequest,
 } from '../../types';
+import { CodePage } from '../code';
 import { EntityPage } from '../entities';
 import { GroupPage } from '../groups';
 import { HomePage } from '../home';
@@ -134,6 +135,7 @@ export function App() {
                   <SettingsPage />
                 ) : (
                   <Switch>
+                    <Route path="/code" component={CodePage} />
                     <Route path="/entities" component={EntityPage} />
                     <Route path="/groups" component={GroupPage} />
                     <Route path="/people" component={PeoplePage} />

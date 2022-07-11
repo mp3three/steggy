@@ -25,6 +25,9 @@ function getSelected(isConfigured: boolean): string[] {
   if (window.location.href.includes('/settings')) {
     return ['settings'];
   }
+  if (window.location.href.includes('/code')) {
+    return ['code'];
+  }
   return ['home'];
 }
 
@@ -58,6 +61,11 @@ export function ApplicationMenu(props: { isConfigured: boolean }) {
                   icon: FD_ICONS.get('people'),
                   key: 'people',
                   label: <Link to="/people">People</Link>,
+                },
+                {
+                  icon: FD_ICONS.get('code'),
+                  key: 'code',
+                  label: <Link to="/code">Code</Link>,
                 },
                 {
                   icon: FD_ICONS.get('routines'),

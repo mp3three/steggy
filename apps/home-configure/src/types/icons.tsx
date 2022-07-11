@@ -2,6 +2,7 @@ import AlarmBell from '@2fd/ant-design-icons/lib/AlarmBell';
 import ApplicationVariable from '@2fd/ant-design-icons/lib/ApplicationVariable';
 import BulletinBoard from '@2fd/ant-design-icons/lib/BulletinBoard';
 import CardRemove from '@2fd/ant-design-icons/lib/CardRemove';
+import CodeJson from '@2fd/ant-design-icons/lib/CodeJson';
 import ContentCopy from '@2fd/ant-design-icons/lib/ContentCopy';
 import DebugStepInto from '@2fd/ant-design-icons/lib/DebugStepInto';
 import FilterVariant from '@2fd/ant-design-icons/lib/FilterVariant';
@@ -29,16 +30,19 @@ import {
   MenuOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
+
 type iconTypes =
   | 'capture'
   | 'clone'
+  | 'code'
   | 'delete'
   | 'drag_handle'
   | 'entities'
+  | 'error'
   | 'execute'
   | 'filter'
-  | 'folder'
   | 'folder_open'
+  | 'folder'
   | 'groups'
   | 'home'
   | 'information'
@@ -57,13 +61,13 @@ type iconTypes =
   | 'rooms'
   | 'routines'
   | 'run'
-  | 'warning'
-  | 'error'
-  | 'settings';
+  | 'settings'
+  | 'warning';
 
 export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['capture', <CameraOutlined />],
   ['clone', <ContentCopy />],
+  ['code', <CodeJson />],
   ['delete', <ExclamationOutlined style={{ color: 'red' }} />],
   ['drag_handle', <MenuOutlined style={{ color: '#999', cursor: 'grab' }} />],
   ['entities', <AlarmBell />],

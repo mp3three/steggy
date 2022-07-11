@@ -109,7 +109,7 @@ export class GroupPersistenceService extends BaseMongoService {
       `Update group {${id}}`,
     );
     const group = await this.findById<GROUP_TYPE>(id);
-    this.eventEmitter.emit(GROUP_UPDATE, { created: group });
+    this.eventEmitter.emit(GROUP_UPDATE, { updated: group });
     return group;
   }
 }

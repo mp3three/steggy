@@ -1,3 +1,4 @@
+export * from './code-persistence.service';
 export * from './group-persistence.service';
 export * from './metadata-persistence.service';
 export * from './person-persistence.service';
