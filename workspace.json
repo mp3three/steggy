@@ -5,6 +5,7 @@
     "build-pipeline": "apps/build-pipeline",
     "boilerplate": "libs/boilerplate",
     "config-builder": "apps/config-builder",
+    "controller-backup": "apps/controller-backup",
     "controller-shared": "libs/controller-shared",
     "controller-sdk": "libs/controller-sdk",
     "home-assistant-shared": "libs/home-assistant-shared",

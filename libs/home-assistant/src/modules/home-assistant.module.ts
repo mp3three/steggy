@@ -88,8 +88,8 @@ const services: Provider[] = [
       type: 'number',
     },
     [TOKEN]: {
+      // Not absolutely required, if the app does not intend to open a connection
       description: 'Long lived access token to Home Assistant.',
-      required: true,
       type: 'password',
     },
     [WARN_REQUESTS_PER_SEC]: {

@@ -2,6 +2,7 @@
 /dist
 /build
 /tmp
+/backup
 /out-tsc
 .VSCodeCounter
 apps/**/yarn.lock

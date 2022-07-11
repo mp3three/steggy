@@ -44,6 +44,12 @@
         "type": "node",
         "request": "attach",
         "port": 33341
+      },
+      {
+        "name": "Controller Backup",
+        "type": "node",
+        "request": "attach",
+        "port": 33342
       }
     ]
   },
@@ -92,6 +98,7 @@
       "conf.d": "routes",
       "config-builder": "template",
       "contracts": "contract",
+      "controller-backup": "download",
       "controller-logic": "custom",
       "controller-sdk": "tools",
       "controller-shared": "components",
@@ -221,6 +228,7 @@
     "files.associations": {
       ".pino-prettyrc": "json",
       "abb-cli": "ini",
+      "controller-backup": "ini",
       "build-pipeline": "ini",
       "home-controller": "ini",
       "home-cli": "ini",

@@ -8,6 +8,7 @@
     "url": "https://github.com/mp3three/steggy"
   },
   "scripts": {
+    "backup": "npx nx serve controller-backup",
     "backend": "npx nx serve home-controller",
     "frontend": "npx nx serve home-configure",
     "dirty-bump": "node tools/scripts/pipeline.js --non-interactive --bump-only",

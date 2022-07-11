@@ -1,0 +1,110 @@
+{
+  "root": "apps/controller-backup",
+  "sourceRoot": "apps/controller-backup/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "controller-backup:build",
+        "inspect": "inspect",
+        "port": 33342
+      }
+    },
+    "prepare": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "npx nx build controller-backup --configuration=config-scanner"
+          }
+        ]
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/controller-backup",
+        "generatePackageJson": true,
+        "fileReplacements": [
+          {
+            "replace": "apps/controller-backup/src/environments/environment.ts",
+            "with": "apps/controller-backup/src/environments/develop.environment.ts"
+          }
+        ],
+        "main": "apps/controller-backup/src/entrypoints/main.ts",
+        "tsConfig": "apps/controller-backup/tsconfig.app.json"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "inspect": false,
+          "fileReplacements": []
+        },
+        "scan-config": {
+          "outputPath": "dist/config-scanner/controller-backup",
+          "fileReplacements": [
+            {
+              "replace": "apps/controller-backup/src/environments/environment.ts",
+              "with": "apps/controller-backup/src/environments/scanner.environment.ts"
+            }
+          ]
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/controller-backup/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga ABB CLI",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build controller-backup --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "npx terser dist/apps/controller-backup/main.js -c -m --keep-classnames --module > dist/apps/controller-backup/minified.js",
+            "description": "Minify it"
+          },
+          {
+            "command": "echo '#!/usr/bin/env node' > dist/apps/controller-backup/main.js; cat dist/apps/controller-backup/minified.js >> dist/apps/controller-backup/main.js",
+            "description": "Replace output (can't be done in previous step)"
+          },
+          {
+            "command": "npx yarn publish --cwd dist/apps/controller-backup --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    },
+    "scan-config": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build controller-backup --configuration=scan-config",
+            "description": "Create standard production build"
+          },
+          {
+            "command": "mkdir -p dist/configs; node dist/config-scanner/controller-backup/main.js > dist/configs/controller-backup.json",
+            "description": "Scan config, output to dist"
+          }
+        ]
+      }
+    }
+  },
+  "tags": ["terminal"]
+}
