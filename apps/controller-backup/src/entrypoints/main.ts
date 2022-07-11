@@ -26,7 +26,7 @@ import {
   TextRenderingService,
   TTYModule,
 } from '@steggy/tty';
-import { INCREMENT, TitleCase } from '@steggy/utilities';
+import { TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import { gunzipSync, gzipSync } from 'zlib';
@@ -83,25 +83,25 @@ export class ControllerBackup {
   ) {}
 
   public async exec(): Promise<void> {
-    if (this.restore) {
-      this.performRestore();
-      return;
-    }
-    const raw = {
-      code: await this.code.findMany({ select: [] }),
-      group: await this.group.findMany({ select: [] }),
-      metadata: await this.metadata.findMany({ select: [] }),
-      person: await this.person.findMany({ select: [] }),
-      room: await this.room.findMany({ select: [] }),
-      routine: await this.routine.findMany({ select: [] }),
-    };
-    const data = await this.serialize(raw);
-    const headerText = await this.serialize({
-      contents: Object.entries(raw).map(([i, values]) => [i, values.length]),
-      timestamp: Date.now(),
-    } as BackupHeader);
-    console.log(headerText);
-    console.log(data);
+    // if (this.restore) {
+    await this.performRestore();
+    // return;
+    // }
+    // const raw = {
+    //   code: await this.code.findMany({ select: [] }),
+    //   group: await this.group.findMany({ select: [] }),
+    //   metadata: await this.metadata.findMany({ select: [] }),
+    //   person: await this.person.findMany({ select: [] }),
+    //   room: await this.room.findMany({ select: [] }),
+    //   routine: await this.routine.findMany({ select: [] }),
+    // };
+    // const data = await this.serialize(raw);
+    // const headerText = await this.serialize({
+    //   contents: Object.entries(raw).map(([i, values]) => [i, values.length]),
+    //   timestamp: Date.now(),
+    // } as BackupHeader);
+    // console.log(headerText);
+    // console.log(data);
   }
 
   private async performRestore(): Promise<void> {
@@ -111,12 +111,15 @@ export class ControllerBackup {
       .split(`\n`);
     const header = this.unserialize<BackupHeader>(headerText);
     const action = await this.prompt.menu({
+      headerMessage: chalk`{bold Backup created on:} ${new Date(
+        header.timestamp,
+      ).toLocaleString()}`,
       right: header.contents.map(([label, count]) => ({
         entry: [TitleCase(label), label],
         helpText: `${this.textRendering.typePrinter(count)} items`,
       })),
     });
-    other.join(`\n`);
+    // other.join(`\n`);
   }
 
   /**

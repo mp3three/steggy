@@ -511,7 +511,7 @@ export class MenuComponentService<VALUE = unknown>
     const item = this.selectedEntry();
     let message = '';
     if (!is.empty(item?.helpText)) {
-      message += chalk`{blue ?} ${item.helpText
+      message += chalk`{blue.dim ?} ${item.helpText
         .split(`\n`)
         .map(line => line.replace(new RegExp('^ -'), chalk.cyan('   -')))
         .join(`\n`)}\n`;
@@ -538,7 +538,7 @@ export class MenuComponentService<VALUE = unknown>
     ].join(`\n`);
     const selectedItem = this.getSelected();
     if (!is.empty(selectedItem?.helpText)) {
-      message += chalk`\n \n {blue ?} ${selectedItem.helpText
+      message += chalk`\n \n {blue.dim ?} ${selectedItem.helpText
         .split(`\n`)
         .map(line => line.replace(new RegExp('^ -'), chalk.cyan('   -')))
         .join(`\n`)}`;
@@ -571,7 +571,7 @@ export class MenuComponentService<VALUE = unknown>
     message += out.map(i => `  ${i}`).join(`\n`);
     const selectedItem = this.getSelected();
     if (!is.empty(selectedItem?.helpText)) {
-      message += chalk`\n \n {blue ?} ${selectedItem.helpText
+      message += chalk`\n \n {blue.dim ?} ${selectedItem.helpText
         .split(`\n`)
         .map(line => line.replace(new RegExp('^ -'), chalk.cyan('   -')))
         .join(`\n`)}`;

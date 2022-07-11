@@ -185,7 +185,7 @@ export class ABBCli {
         }
         const book = await this.getBook(value.url);
         await execa(this.launch, [this.createMagnet(book)]);
-        return chalk`{blue ? } Launched magnet for {cyan ${book.title}}`;
+        return chalk`{blue.dim ? } Launched magnet for {cyan ${book.title}}`;
       },
       right,
       value: right.find(i => i.entry[VALUE].url === lastValue)?.entry[VALUE],
