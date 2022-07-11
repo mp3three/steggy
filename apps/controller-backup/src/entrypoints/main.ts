@@ -114,10 +114,13 @@ export class ControllerBackup {
       headerMessage: chalk`{bold Backup created on:} ${new Date(
         header.timestamp,
       ).toLocaleString()}`,
+      keyMap: {},
       right: header.contents.map(([label, count]) => ({
         entry: [TitleCase(label), label],
         helpText: `${this.textRendering.typePrinter(count)} items`,
       })),
+      rightHeader: 'Restore single item',
+      showHeaders: true,
     });
     // other.join(`\n`);
   }
