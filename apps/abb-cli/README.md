@@ -1,3 +1,3 @@
 # ABB CLI
 
-![demo](./docs/demo.mp4)
+![demo](./docs/demo.webm)
