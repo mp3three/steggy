@@ -91,16 +91,16 @@ export class ServerControlService {
       url: `/admin/server/check`,
     });
     if (result === 'valid') {
-      this.screenService.print(
+      this.screenService.printLine(
         chalk.green.bold`${ICONS.EVENT} Configuration valid!`,
       );
       await this.promptService.acknowledge();
       return;
     }
-    this.screenService.print(
+    this.screenService.printLine(
       chalk.red.bold`${ICONS.WARNING} Configuration invalid`,
     );
-    this.screenService.print(errors);
+    this.screenService.printLine(errors);
     await this.promptService.acknowledge();
   }
 }

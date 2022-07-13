@@ -16,7 +16,7 @@ export function VersionPrinter(app: INestApplication): void {
     const application = app.get<symbol>(ACTIVE_APPLICATION);
     workspace.initMetadata();
     const { projects: versions } = workspace.version();
-    prompt.print(
+    prompt.printLine(
       dump({
         ['Application Version']: versions[application.description],
       }),

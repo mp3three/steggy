@@ -58,11 +58,11 @@ export class ScreenService {
   }
 
   public cursorLeft(amount = SINGLE): void {
-    this.print(ansiEscapes.cursorBackward(amount));
+    this.printLine(ansiEscapes.cursorBackward(amount));
   }
 
   public cursorRight(amount = SINGLE): void {
-    this.print(ansiEscapes.cursorForward(amount));
+    this.printLine(ansiEscapes.cursorForward(amount));
   }
 
   /**
@@ -80,10 +80,10 @@ export class ScreenService {
   public down(amount = SINGLE): void {
     this.rl.output.unmute();
     if (amount === SINGLE) {
-      this.print();
+      this.printLine();
       return;
     }
-    this.print(ansiEscapes.cursorDown(amount));
+    this.printLine(ansiEscapes.cursorDown(amount));
     this.rl.output.mute();
   }
 
@@ -91,7 +91,7 @@ export class ScreenService {
    * Delete line(s) and move cursor up
    */
   public eraseLine(amount = SINGLE): void {
-    this.print(ansiEscapes.eraseLines(amount));
+    this.printLine(ansiEscapes.eraseLines(amount));
   }
 
   /**
@@ -109,7 +109,9 @@ export class ScreenService {
     return await this.keyboardService.wrap(async () => {
       this.render();
       const result = await callback();
-      this.print(ansiEscapes.eraseLines(height(this.sticky[START]) + PADDING));
+      this.printLine(
+        ansiEscapes.eraseLines(height(this.sticky[START]) + PADDING),
+      );
       this.sticky = undefined;
       this.height = PADDING;
       // Next-render up to the calling service
@@ -125,10 +127,16 @@ export class ScreenService {
     await child;
   }
 
+  public print(text: string): void {
+    this.rl.output.unmute();
+    this.rl.output.write(text);
+    this.rl.output.mute();
+  }
+
   /**
    * console.log, with less options
    */
-  public print(line: unknown = ''): void {
+  public printLine(line: unknown = ''): void {
     this.rl.output.unmute();
     console.log(line);
     // Muting prevents user interactions from presenting to the screen directly
@@ -169,7 +177,7 @@ export class ScreenService {
     }
 
     if (is.empty(content)) {
-      this.print(ansiEscapes.eraseLines(this.height) + stickyContent);
+      this.printLine(ansiEscapes.eraseLines(this.height) + stickyContent);
       this.height = 0;
       return;
     }
@@ -186,7 +194,7 @@ export class ScreenService {
 
     const fullContent = content + (bottomContent ? '\n' + bottomContent : '');
 
-    this.print(ansiEscapes.eraseLines(this.height) + fullContent);
+    this.printLine(ansiEscapes.eraseLines(this.height) + fullContent);
     // Increment to account for `eraseLines` being output at the same time as the new content
     this.height = height(fullContent) - INCREMENT;
   }
@@ -195,7 +203,7 @@ export class ScreenService {
    * Move the rendering cursor up 1 line
    */
   public up(amount = SINGLE): void {
-    this.print(ansiEscapes.cursorUp(amount));
+    this.printLine(ansiEscapes.cursorUp(amount));
   }
 
   protected onModuleDestroy(): void {
@@ -203,7 +211,7 @@ export class ScreenService {
   }
 
   protected onModuleInit(): void {
-    this.print(ansiEscapes.cursorHide);
+    this.printLine(ansiEscapes.cursorHide);
   }
 
   /**

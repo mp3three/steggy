@@ -101,7 +101,7 @@ export class ApplicationManagerService implements iStackProvider {
 
   public setHeader(primary: string, secondary = ''): number {
     this.screenService.clear();
-    this.screenService.print();
+    this.screenService.printLine();
     let max = 0;
     if (!is.empty(secondary)) {
       primary = figlet.textSync(primary, {
@@ -113,7 +113,7 @@ export class ApplicationManagerService implements iStackProvider {
         .map(i => `  ${i}`)
         .join(`\n`);
       max = ansiMaxLength(text);
-      this.screenService.print(`\n` + text);
+      this.screenService.printLine(`\n` + text);
     } else {
       secondary = primary;
       primary = '';
@@ -131,7 +131,7 @@ export class ApplicationManagerService implements iStackProvider {
       .map(i => `  ${i}`)
       .join(`\n`);
     max = Math.max(max, ansiMaxLength(secondary));
-    this.screenService.print(secondary);
+    this.screenService.printLine(secondary);
     this.header = `${primary}\n${secondary}`;
     return max;
   }

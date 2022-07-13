@@ -319,7 +319,7 @@ export class GroupCommandService {
         group = await this.update(group);
         return this.process(group, list, action);
       case 'entities':
-        this.screenService.print(`Select entities to keep`);
+        this.screenService.printLine(`Select entities to keep`);
         group.entities = await this.promptService.listBuild({
           current: group.entities.map(i => [i, i]),
           source: [],

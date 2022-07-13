@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { FetchService, InjectConfig } from '@steggy/boilerplate';
-import { FetchWith, is, sleep, START } from '@steggy/utilities';
+import { DEFAULT_LIMIT, FetchWith, is, sleep, START } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { ADMIN_KEY, CONTROLLER_API } from '../config';
 
-const MAX_TRY = 5;
 const PREFIX = '/api';
 @Injectable()
 export class HomeFetchService {
@@ -21,7 +20,7 @@ export class HomeFetchService {
     fetch: FetchWith<Record<never, string>, BODY>,
     counter = START,
   ): Promise<OUTPUT> {
-    if (counter > MAX_TRY) {
+    if (counter > DEFAULT_LIMIT) {
       throw new Error(`Could not connect to controller`);
     }
     fetch.adminKey = this.adminKey;

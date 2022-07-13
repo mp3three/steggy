@@ -13,7 +13,7 @@ export class CodePersistenceService extends BaseMongoService {
     private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
     @InjectModel(CodeDTO.name)
-    private readonly model: Model<CodeDTO>,
+    protected readonly model: Model<CodeDTO>,
   ) {
     super();
   }

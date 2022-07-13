@@ -118,7 +118,7 @@ export class ConfigScanner implements iQuickScript {
       case 'done':
         return;
       case 'print':
-        this.screenService.print(this.config);
+        this.screenService.printLine(this.config);
         await this.promptService.acknowledge();
         return await this.exec(action);
       case 'list-files':
@@ -310,27 +310,27 @@ export class ConfigScanner implements iQuickScript {
     }
     const list = this.workspaceService.configFilePaths(this.loadedApplication);
     this.applicationManager.setHeader('Config Files');
-    this.screenService.print(
+    this.screenService.printLine(
       chalk`Potential configuration files for {blue.bold ${this.loadedApplication}}`,
     );
     list.forEach(item =>
-      this.screenService.print(
+      this.screenService.printLine(
         chalk`  {${existsSync(item) ? 'green' : 'red'} ${item}}`,
       ),
     );
-    this.screenService.print(
+    this.screenService.printLine(
       `\nAt runtime, final configuration values are resolved using these priorities:`,
     );
-    this.screenService.print(
+    this.screenService.printLine(
       chalk` {yellow -} values from developer as defaults`,
     );
-    this.screenService.print(
+    this.screenService.printLine(
       chalk` {yellow -} values from files (loaded in descending order and merged)`,
     );
-    this.screenService.print(
+    this.screenService.printLine(
       chalk` {yellow -} values from environment variables`,
     );
-    this.screenService.print(
+    this.screenService.printLine(
       chalk` {yellow -} values from command line switches`,
     );
   }
@@ -363,11 +363,11 @@ export class ConfigScanner implements iQuickScript {
     });
     this.screenService.down();
     if (is.empty(environment)) {
-      this.screenService.print(chalk`  {yellow No variables to provide}`);
+      this.screenService.printLine(chalk`  {yellow No variables to provide}`);
       this.screenService.down();
       return;
     }
-    this.screenService.print(environment.join(`\n`));
+    this.screenService.printLine(environment.join(`\n`));
     this.screenService.down();
   }
 

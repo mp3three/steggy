@@ -184,13 +184,13 @@ export class RoutineActivateService {
 
   private header(routine: RoutineDTO): void {
     this.applicationManager.setHeader(`Activations`, routine.friendlyName);
-    this.screenService.print();
+    this.screenService.printLine();
     if (is.empty(routine.activate)) {
-      this.screenService.print(
+      this.screenService.printLine(
         chalk.bold`{cyan >>> }${ICONS.EVENT}{yellow No activation events}`,
       );
     } else {
-      this.screenService.print(chalk`  {blue.bold Activation Events}`);
+      this.screenService.printLine(chalk`  {blue.bold Activation Events}`);
       const table = new Table({
         head: ['Name', 'Type', 'Details'],
       });
@@ -198,10 +198,10 @@ export class RoutineActivateService {
         table.push([
           activate.friendlyName,
           TitleCase(activate.type),
-          this.textRender.typePrinter(activate.activate),
+          this.textRender.type(activate.activate),
         ]);
       });
-      this.screenService.print(table.toString());
+      this.screenService.printLine(table.toString());
     }
   }
 }

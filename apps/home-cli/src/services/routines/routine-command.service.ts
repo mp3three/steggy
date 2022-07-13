@@ -63,9 +63,9 @@ export class RoutineCommandService {
         );
         return chalk`{bold Routine:} ${triggerRoutine.friendlyName}`;
       case 'sleep':
-        return this.textRender.typePrinter(current.command);
+        return this.textRender.type(current.command);
       case 'send_notification':
-        return this.textRender.typePrinter(current.command);
+        return this.textRender.type(current.command);
       case 'room_state':
         const roomStateCommand = (current?.command ??
           {}) as RoutineCommandRoomStateDTO;
@@ -145,7 +145,7 @@ export class RoutineCommandService {
     }
     switch (action) {
       case 'describe':
-        this.screenService.print(dump(command));
+        this.screenService.printLine(dump(command));
         return await this.process(
           routine,
           routine.command.find(({ id }) => id === command.id),

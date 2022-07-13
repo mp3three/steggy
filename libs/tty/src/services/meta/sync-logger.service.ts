@@ -179,7 +179,7 @@ export class SyncLoggerService {
       is.number((parameters[START] as Record<string, number>).time)
         ? (parameters[START] as Record<string, number>).time
         : undefined;
-    this.screenService.print(
+    this.screenService.printLine(
       `[${dayjs(timestamp).format(
         'ddd HH:mm:ss.SSS',
       )}]: ${context} ${chalk.cyan(message)} ${data}`,

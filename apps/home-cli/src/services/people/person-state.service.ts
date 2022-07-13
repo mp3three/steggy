@@ -83,7 +83,7 @@ export class PersonStateService {
     ];
     // This log mostly exists to provide visual context after building group states
     // Easy to totally get lost
-    this.screenService.print(chalk.gray`Saving state ${current.friendlyName}`);
+    this.screenService.printLine(chalk.gray`Saving state ${current.friendlyName}`);
     current.states = states;
     if (!current.id) {
       return await this.fetchService.fetch({
@@ -332,7 +332,7 @@ export class PersonStateService {
   }
 
   private async header(person: PersonDTO, state: RoomStateDTO): Promise<void> {
-    this.screenService.print(
+    this.screenService.printLine(
       chalk`  ${
         ICONS.LINK
       }{bold.magenta POST} {underline ${this.fetchService.getUrl(
@@ -341,7 +341,7 @@ export class PersonStateService {
     );
     const entities = state.states.filter(({ type }) => type === 'entity');
     if (is.empty(entities)) {
-      this.screenService.print(
+      this.screenService.printLine(
         chalk`  ${ICONS.ENTITIES} {blue No entities included in save state}\n`,
       );
     } else {
@@ -354,7 +354,7 @@ export class PersonStateService {
           table.push([
             entity.ref ?? '',
             entity.state ?? '',
-            this.textRender.typePrinter(entity.extra),
+            this.textRender.type(entity.extra),
           ]);
         });
       console.log(
@@ -367,7 +367,7 @@ export class PersonStateService {
     }
     const groupStates = state.states.filter(({ type }) => type === 'group');
     if (is.empty(groupStates)) {
-      this.screenService.print(
+      this.screenService.printLine(
         chalk`  ${ICONS.GROUPS}{blue No groups included in save state}\n`,
       );
       return;
@@ -390,7 +390,7 @@ export class PersonStateService {
       const saveState = group.save_states.find(({ id }) => id === state.state);
       table.push([group.friendlyName, saveState?.friendlyName]);
     });
-    this.screenService.print(
+    this.screenService.printLine(
       [
         ``,
         chalk`  ${ICONS.GROUPS}{blue.bold Group States}`,

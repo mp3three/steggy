@@ -17,7 +17,7 @@ export class PersonPersistenceService extends BaseMongoService {
     private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
     @InjectModel(PersonDTO.name)
-    private readonly PersonModel: Model<PersonDTO>,
+    protected readonly model: Model<PersonDTO>,
     private readonly encryptService: EncryptionService,
   ) {
     super();
@@ -28,7 +28,7 @@ export class PersonPersistenceService extends BaseMongoService {
     person: Omit<PersonDTO, keyof BaseSchemaDTO>,
   ): Promise<PersonDTO> {
     // eslint-disable-next-line unicorn/no-await-expression-member
-    person = (await this.PersonModel.create(person)).toObject();
+    person = (await this.model.create(person)).toObject();
     this.eventEmitter.emit(PERSON_UPDATE, { created: person });
     return person;
   }
@@ -37,9 +37,11 @@ export class PersonPersistenceService extends BaseMongoService {
     const query = this.merge(is.string(state) ? state : state._id);
     this.logger.debug({ query }, `delete query`);
     delete query.deleted;
-    const result = await this.PersonModel.updateOne(query, {
-      deleted: Date.now(),
-    }).exec();
+    const result = await this.model
+      .updateOne(query, {
+        deleted: Date.now(),
+      })
+      .exec();
     this.eventEmitter.emit(PERSON_UPDATE, {
       created: is.string(state) ? state : state._id,
     });
@@ -52,7 +54,7 @@ export class PersonPersistenceService extends BaseMongoService {
     { control }: { control?: ResultControlDTO } = {},
   ): Promise<PersonDTO> {
     const query = this.merge(state, control);
-    const out = await this.modifyQuery(control, this.PersonModel.findOne(query))
+    const out = await this.modifyQuery(control, this.model.findOne(query))
       .lean()
       .exec();
     return out;
@@ -61,7 +63,7 @@ export class PersonPersistenceService extends BaseMongoService {
   @CastResult(PersonDTO)
   public async findMany(control: ResultControlDTO = {}): Promise<PersonDTO[]> {
     const query = this.merge(control);
-    const out = await this.modifyQuery(control, this.PersonModel.find(query))
+    const out = await this.modifyQuery(control, this.model.find(query))
       .lean()
       .exec();
     return out;
@@ -72,7 +74,7 @@ export class PersonPersistenceService extends BaseMongoService {
     id: string,
   ): Promise<PersonDTO> {
     const query = this.merge(id);
-    const result = await this.PersonModel.updateOne(query, state).exec();
+    const result = await this.model.updateOne(query, state).exec();
     if (result.acknowledged) {
       const person = await this.findById(id);
       this.eventEmitter.emit(PERSON_UPDATE, { updated: person });

@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "main.js",
   "displayName": "Controller Backup",
-  "version": "0.12.15",
+  "version": "0.12.17",
   "homepage": "https://github.com/mp3three/steggy",
   "engines": {
     "node": ">=16.0.0"

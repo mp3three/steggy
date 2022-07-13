@@ -1,8 +1,9 @@
 import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Divider, Select } from 'antd';
-import { sendRequest } from 'apps/home-configure/src/types';
 import { useEffect, useState } from 'react';
+
+import { sendRequest } from '../../../types';
 
 export function RoutineTags(props: {
   onUpdate: (routine: Partial<RoutineDTO>) => void;

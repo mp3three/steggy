@@ -1,7 +1,6 @@
-/* eslint-disable no-console */
 import { Type } from '@nestjs/common';
 import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
-import { InjectConfig, QuickScript } from '@steggy/boilerplate';
+import { InjectConfig, QuickScript, SERIALIZE } from '@steggy/boilerplate';
 import {
   CodePersistenceService,
   GroupPersistenceService,
@@ -18,20 +17,40 @@ import {
   RoomDTO,
   RoutineDTO,
 } from '@steggy/controller-shared';
-import { ConnectService, MongoPersistenceModule } from '@steggy/persistence';
 import {
+  BaseMongoService,
+  BaseSchemaDTO,
+  ConnectService,
+  LIB_PERSISTENCE,
+  MONGO_URI,
+  MongoPersistenceModule,
+} from '@steggy/persistence';
+import {
+  ansiEscapes,
   ApplicationManagerService,
   PromptService,
   ScreenService,
+  SyncLoggerService,
   TextRenderingService,
   TTYModule,
 } from '@steggy/tty';
-import { TitleCase } from '@steggy/utilities';
+import { eachSeries, is, TitleCase } from '@steggy/utilities';
+import { eachLimit } from 'async';
 import chalk from 'chalk';
-import { readFileSync } from 'fs';
-import { gunzipSync, gzipSync } from 'zlib';
+import { existsSync, readFileSync } from 'fs';
+import { exit } from 'process';
 
 import { BackupHeader } from '../types';
+
+const { unserialize, serialize } = SERIALIZE;
+const ALL_COLLECTIONS = new Set([
+  'code',
+  'group',
+  'metadata',
+  'room',
+  'person',
+  'routine',
+]);
 
 @QuickScript({
   application: Symbol('controller-backup'),
@@ -54,6 +73,7 @@ import { BackupHeader } from '../types';
   ],
   providers: [
     // Big brain idea: Stealing providers from other modules
+    // It works 🤷
     CodePersistenceService,
     GroupPersistenceService,
     MetadataPersistenceService,
@@ -64,82 +84,140 @@ import { BackupHeader } from '../types';
 })
 export class ControllerBackup {
   constructor(
+    private readonly logger: SyncLoggerService,
     private readonly terminal: ApplicationManagerService,
     private readonly code: CodePersistenceService,
     private readonly group: GroupPersistenceService,
     private readonly metadata: MetadataPersistenceService,
+    @InjectConfig(MONGO_URI, LIB_PERSISTENCE) private readonly mongoUri: string,
     private readonly person: PersonPersistenceService,
     private readonly prompt: PromptService,
     private readonly room: RoomPersistenceService,
     private readonly routine: RoutinePersistenceService,
     @InjectConfig('RESTORE_FROM', {
-      default: './backup',
       description: 'Path to file containing backup',
       type: 'string',
     })
     private readonly restore: string,
+    @InjectConfig('RESTORE_SPEED', {
+      default: 100,
+      description: 'Path to file containing backup',
+      type: 'number',
+    })
+    private readonly restoreSpeed: number,
     private readonly screen: ScreenService,
-    private readonly textRendering: TextRenderingService,
+    private readonly text: TextRenderingService,
   ) {}
 
   public async exec(): Promise<void> {
-    // if (this.restore) {
-    await this.performRestore();
-    // return;
-    // }
-    // const raw = {
-    //   code: await this.code.findMany({ select: [] }),
-    //   group: await this.group.findMany({ select: [] }),
-    //   metadata: await this.metadata.findMany({ select: [] }),
-    //   person: await this.person.findMany({ select: [] }),
-    //   room: await this.room.findMany({ select: [] }),
-    //   routine: await this.routine.findMany({ select: [] }),
-    // };
-    // const data = await this.serialize(raw);
-    // const headerText = await this.serialize({
-    //   contents: Object.entries(raw).map(([i, values]) => [i, values.length]),
-    //   timestamp: Date.now(),
-    // } as BackupHeader);
-    // console.log(headerText);
-    // console.log(data);
-  }
-
-  private async performRestore(): Promise<void> {
     this.terminal.setHeader('Restoring from file');
+    if (!existsSync(this.restore)) {
+      this.logger.error(`File does not exist {${this.restore}}`);
+      return;
+    }
     const [headerText, ...other] = readFileSync(this.restore, 'utf8')
       .trim()
       .split(`\n`);
-    const header = this.unserialize<BackupHeader>(headerText);
+    const header = unserialize(headerText, BackupHeader);
     const action = await this.prompt.menu({
-      headerMessage: chalk`{bold Backup created on:} ${new Date(
-        header.timestamp,
-      ).toLocaleString()}`,
-      keyMap: {},
-      right: header.contents.map(([label, count]) => ({
-        entry: [TitleCase(label), label],
-        helpText: `${this.textRendering.typePrinter(count)} items`,
+      headerMessage: [
+        ['Backup created on', this.text.type(new Date(header.timestamp))],
+        [
+          'Restore target',
+          ansiEscapes.link(this.text.type(this.mongoUri), this.mongoUri),
+        ],
+      ],
+      keyMap: {
+        a: [chalk.green.dim`restore all`, 'all'],
+        d: [`done`, 'done'],
+      },
+      right: header.contents.map(({ collection, count }) => ({
+        entry: [TitleCase(collection), collection],
+        helpText: `${this.text.type(count)} items`,
       })),
       rightHeader: 'Restore single item',
       showHeaders: true,
     });
-    // other.join(`\n`);
+    if (action === 'done') {
+      return;
+    }
+    const data = unserialize<Record<string, BaseSchemaDTO[]>>(other.join(`\n`));
+    if (ALL_COLLECTIONS.has(action)) {
+      if (is.undefined(data[action])) {
+        this.logger.fatal(`{${action}} not included in data payload`);
+        return;
+      }
+      await this.restoreCollection(action, data[action]);
+      return;
+    }
+    if (action === 'all') {
+      await eachSeries(
+        ALL_COLLECTIONS,
+        async (item: keyof typeof data) =>
+          await this.restoreCollection(item, data[item]),
+      );
+      return;
+    }
+    this.logger.error(`Unknown action {${action}}`);
   }
 
   /**
-   * My local testing had:
-   *
-   * - json size: 140559 characters
-   * - base64 size: 36616 characters
-   *
-   * almost 75% reduction!
+   * If this isn't a restore, then assume it's a backup request.
    */
-  private serialize(data: unknown): string {
-    const buffer = Buffer.from(JSON.stringify(data), 'utf8');
-    return gzipSync(buffer).toString('base64');
+  protected async onPreInit(): Promise<void> {
+    if (!is.empty(this.restore)) {
+      return;
+    }
+    const raw = {
+      code: await this.code.findMany({ select: [] }),
+      group: await this.group.findMany({ select: [] }),
+      metadata: await this.metadata.findMany({ select: [] }),
+      person: await this.person.findMany({ select: [] }),
+      room: await this.room.findMany({ select: [] }),
+      routine: await this.routine.findMany({ select: [] }),
+    };
+    // Header line
+    this.screen.printLine(
+      serialize({
+        contents: Object.entries(raw).map(([i, values]) => ({
+          collection: i,
+          count: values.length,
+        })),
+        timestamp: Date.now(),
+      } as BackupHeader),
+    );
+    // Full body
+    this.screen.printLine(serialize(raw));
+    exit();
   }
 
-  private unserialize<T>(data: string): T {
-    const buffer = gunzipSync(Buffer.from(data, 'base64'));
-    return JSON.parse(buffer.toString());
+  private getDriver(collection: string): BaseMongoService {
+    return {
+      code: this.code,
+      group: this.group,
+      metadata: this.metadata,
+      person: this.person,
+      room: this.room,
+      routine: this.routine,
+    }[collection];
+  }
+
+  private async restoreCollection(
+    collection: string,
+    items: BaseSchemaDTO[],
+  ): Promise<void> {
+    const driver = this.getDriver(collection);
+    if (is.undefined(driver)) {
+      return;
+    }
+    this.logger.warn(`Truncate {${collection}}`);
+    await driver.truncate();
+    this.logger.info(`[${collection}] inserting {${items.length}} documents`);
+    await eachLimit(items, this.restoreSpeed, async item => {
+      await driver.restore(item);
+      this.screen.print('.');
+    });
+    this.screen.printLine();
+    this.logger.info(`Done!`);
   }
 }

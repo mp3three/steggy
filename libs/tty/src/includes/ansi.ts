@@ -13,21 +13,13 @@ import { cwd, env, platform } from 'process';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 const ELLIPSES = '...';
+const ANSIREGEX_PATTERN = [
+  '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
+  '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))',
+].join('|');
 
-/**
- * Regex from ansi-regex package
- */
-export function ansiRegex({ onlyFirst = false } = {}) {
-  const pattern = [
-    '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
-    '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))',
-  ].join('|');
-  return new RegExp(pattern, onlyFirst ? undefined : 'g');
-}
-
-export function ansiStrip(text = ''): string {
-  return text.replace(ansiRegex(), '');
-}
+export const ansiStrip = (text = ''): string =>
+  text.replace(new RegExp(ANSIREGEX_PATTERN, 'g'), '');
 
 export function ansiPadEnd(
   text: string,
@@ -55,32 +47,30 @@ export function ansiPadStart(text: string, amount: number): string {
   return text + padding;
 }
 
-export function ansiSort(text: string[]): string[] {
-  return text.sort((a, b) =>
+export const ansiSort = (text: string[]): string[] =>
+  text.sort((a, b) =>
     ansiStrip(a).replace(UNSORTABLE, '') > ansiStrip(b).replace(UNSORTABLE, '')
       ? UP
       : DOWN,
   );
-}
 
 /**
  * Return back the ansi-stripped longest element / line
  */
-export function ansiMaxLength(...items: (string[] | string)[]): number {
-  return Math.max(
+export const ansiMaxLength = (...items: (string[] | string)[]): number =>
+  Math.max(
     ...items.flatMap(list =>
       (Array.isArray(list) ? list : (list ?? '').split(`\n`)).map(
         line => ansiStrip(String(line)).length,
       ),
     ),
   );
-}
 const ESC = '\u001B[';
 const OSC = '\u001B]';
 const BEL = '\u0007';
 const SEP = ';';
 const isTerminalApp = env.TERM_PROGRAM === 'Apple_Terminal';
-const eraseScreen = ESC + '2J';
+const eraseScreen = `${ESC}2J`;
 export const ansiEscapes = {
   beep: BEL,
   clearScreen: '\u001Bc',
@@ -101,9 +91,9 @@ export const ansiEscapes = {
   cursorForward(count = SINGLE) {
     return ESC + count + 'C';
   },
-  cursorGetPosition: ESC + '6n',
-  cursorHide: ESC + '?25l',
-  cursorLeft: ESC + 'G',
+  cursorGetPosition: `${ESC}6n`,
+  cursorHide: `${ESC}?25l`,
+  cursorLeft: `${ESC}G`,
   cursorMove(x: number, y: number) {
     if (!is.number(x)) {
       throw new TypeError('The `x` argument is required');
@@ -121,11 +111,11 @@ export const ansiEscapes = {
     }
     return returnValue;
   },
-  cursorNextLine: ESC + 'E',
-  cursorPrevLine: ESC + 'F',
-  cursorRestorePosition: isTerminalApp ? '\u001B8' : ESC + 'u',
-  cursorSavePosition: isTerminalApp ? '\u001B7' : ESC + 's',
-  cursorShow: ESC + '?25h',
+  cursorNextLine: `${ESC}E`,
+  cursorPrevLine: `${ESC}F`,
+  cursorRestorePosition: isTerminalApp ? '\u001B8' : `${ESC}u`,
+  cursorSavePosition: isTerminalApp ? '\u001B7' : `${ESC}s`,
+  cursorShow: `${ESC}?25h`,
   cursorTo(x: number, y?: number) {
     if (!is.number(x)) {
       throw new TypeError('The `x` argument is required');
@@ -140,9 +130,9 @@ export const ansiEscapes = {
   cursorUp(count = SINGLE) {
     return ESC + count + 'A';
   },
-  eraseDown: ESC + 'J',
-  eraseEndLine: ESC + 'K',
-  eraseLine: ESC + '2K',
+  eraseDown: `${ESC}J`,
+  eraseEndLine: `${ESC}K`,
+  eraseLine: `${ESC}2K`,
   eraseLines(count) {
     let clear = '';
     for (let i = 0; i < count; i++) {
@@ -156,8 +146,8 @@ export const ansiEscapes = {
     return clear;
   },
   eraseScreen,
-  eraseStartLine: ESC + '1K',
-  eraseUp: ESC + '1J',
+  eraseStartLine: `${ESC}1K`,
+  eraseUp: `${ESC}1J`,
   iTerm: {
     annotation(
       message,
@@ -218,11 +208,8 @@ export const ansiEscapes = {
     }
     return returnValue + ':' + buffer.toString('base64') + BEL;
   },
-  link(text, url) {
-    return [OSC, '8', SEP, SEP, url, BEL, text, OSC, '8', SEP, SEP, BEL].join(
-      '',
-    );
-  },
-  scrollDown: ESC + 'T',
-  scrollUp: ESC + 'S',
+  link: (text, url) =>
+    [OSC, '8', SEP, SEP, url, BEL, text, OSC, '8', SEP, SEP, BEL].join(''),
+  scrollDown: `${ESC}T`,
+  scrollUp: `${ESC}S`,
 };

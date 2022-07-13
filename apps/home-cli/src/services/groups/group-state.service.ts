@@ -277,10 +277,10 @@ export class GroupStateService {
       table.push([
         state.ref || '',
         state.state || '',
-        this.textRender.typePrinter(state.extra) || '',
+        this.textRender.type(state.extra) || '',
       ]);
     });
-    this.screenService.print(
+    this.screenService.printLine(
       [
         chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
           `/group/${group._id}/state/${state.id}`,

@@ -5,4 +5,5 @@ export * from './global-error';
 export * from './logger';
 export * from './pino-serializers';
 export * from './pretty-logger';
+export * from './serialize';
 export * from './storage';

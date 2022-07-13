@@ -1,8 +1,9 @@
 import { RoutineDTO } from '@steggy/controller-shared';
 import { Descriptions, Popover, Space, Typography } from 'antd';
-import { FD_ICONS, sendRequest } from 'apps/home-configure/src/types';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+import { FD_ICONS, sendRequest } from '../../../types';
 
 export function SettingsHeader(props: { routine: RoutineDTO }) {
   return (

@@ -190,7 +190,7 @@ export class TextRenderingService {
     );
   }
 
-  public typePrinter(item: unknown, nested = START): string {
+  public type(item: unknown, nested = START): string {
     if (is.undefined(item)) {
       return chalk.gray(`undefined`);
     }
@@ -217,7 +217,7 @@ export class TextRenderingService {
             i =>
               INDENT.repeat(nested) +
               NESTING_LEVELS[nested] +
-              this.typePrinter(i, nested + INCREMENT),
+              this.type(i, nested + INCREMENT),
           )
           .join(`\n`)
       );
@@ -234,7 +234,7 @@ export class TextRenderingService {
             key =>
               chalk`${INDENT.repeat(nested)}{bold ${
                 NESTING_LEVELS[nested]
-              }${TitleCase(key)}:} ${this.typePrinter(
+              }${TitleCase(key)}:} ${this.type(
                 item[key],
                 nested + INCREMENT,
               )}`,

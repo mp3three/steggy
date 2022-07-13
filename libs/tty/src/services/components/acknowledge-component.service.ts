@@ -20,7 +20,7 @@ export class AcknowledgeComponentService implements iComponent {
   }
 
   public render(): void {
-    this.screenService.print(this.message ?? chalk.bold`Any key to continue`);
+    this.screenService.printLine(this.message ?? chalk.bold`Any key to continue`);
   }
 
   protected complete(): void {

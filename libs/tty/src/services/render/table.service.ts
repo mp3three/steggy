@@ -176,7 +176,7 @@ export class TableService {
           const value = get(i, element.path);
           const content =
             ' '.repeat(PADDING) +
-            this.textRender.typePrinter(
+            this.textRender.type(
               element.format ? element.format(value) : value,
             );
           const cell = ansiPadEnd(content, this.columns[colIndex].maxWidth);

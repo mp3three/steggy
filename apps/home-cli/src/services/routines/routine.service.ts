@@ -269,7 +269,7 @@ export class RoutineService {
         await this.activate(routine);
         return;
       case 'timeout':
-        this.screenService.print(
+        this.screenService.printLine(
           chalk.yellow`${ICONS.WARNING}Timers not persisted across controller reboots`,
         );
         await this.fetchService.fetch({
@@ -282,7 +282,7 @@ export class RoutineService {
         });
         return;
       case 'datetime':
-        this.screenService.print(
+        this.screenService.printLine(
           chalk.yellow`${ICONS.WARNING}Timers not persisted across controller reboots`,
         );
         await this.fetchService.fetch({
@@ -318,15 +318,15 @@ export class RoutineService {
   private async header(routine: RoutineDTO): Promise<void> {
     this.applicationManager.setHeader(`Routine`, routine.friendlyName);
     const url = this.fetchService.getUrl(`/routine/${routine._id}`);
-    this.screenService.print(chalk`${ICONS.LINK} {bold.magenta POST} ${url}`);
+    this.screenService.printLine(chalk`${ICONS.LINK} {bold.magenta POST} ${url}`);
     if (!is.empty(routine.description)) {
-      this.screenService.print(
+      this.screenService.printLine(
         chalk`${ICONS.DESCRIBE} {bold.blue ?} ${routine.description}`,
       );
     }
-    this.screenService.print();
+    this.screenService.printLine();
     if (!is.empty(routine.activate)) {
-      this.screenService.print(chalk`  {blue.bold Activation Events}`);
+      this.screenService.printLine(chalk`  {blue.bold Activation Events}`);
       const table = new Table({
         head: ['Name', 'Type', 'Details'],
       });
@@ -334,10 +334,10 @@ export class RoutineService {
         table.push([
           activate.friendlyName,
           TitleCase(activate.type),
-          this.textRender.typePrinter(activate.activate),
+          this.textRender.type(activate.activate),
         ]);
       });
-      this.screenService.print(table.toString());
+      this.screenService.printLine(table.toString());
     }
     if (is.empty(routine.command)) {
       return;
@@ -346,7 +346,7 @@ export class RoutineService {
       routine.command.length === SOLO
         ? ``
         : chalk`{yellowBright (${routine.sync ? 'Series' : 'Parallel'})}`;
-    this.screenService.print(chalk`  {bold.blue Commands} ${activation}`);
+    this.screenService.printLine(chalk`  {bold.blue Commands} ${activation}`);
     const table = new Table({
       head: ['Name', 'Type', 'Details'],
     });
@@ -360,8 +360,8 @@ export class RoutineService {
         await this.routineCommand.commandDetails(routine, command),
       ]);
     });
-    this.screenService.print(table.toString());
-    this.screenService.print();
+    this.screenService.printLine(table.toString());
+    this.screenService.printLine();
   }
 
   private async menuList(): Promise<MainMenuEntry<RoutineDTO>[]> {

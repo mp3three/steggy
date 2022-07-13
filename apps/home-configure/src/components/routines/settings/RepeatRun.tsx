@@ -1,7 +1,8 @@
 import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Divider, Select, Tooltip, Typography } from 'antd';
-import { FD_ICONS } from 'apps/home-configure/src/types';
+
+import { FD_ICONS } from '../../../types';
 
 export function RepeatRun(props: {
   onUpdate: (routine: Partial<RoutineDTO>) => void;

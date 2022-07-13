@@ -13,7 +13,7 @@ export class RoutinePersistenceService extends BaseMongoService {
     private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
     @InjectModel(RoutineDTO.name)
-    private readonly model: Model<RoutineDTO>,
+    protected readonly model: Model<RoutineDTO>,
   ) {
     super();
   }

@@ -57,7 +57,7 @@ export class KeyboardManagerService implements iStackProvider {
     this.activeKeymaps.set(target, map);
     map.forEach(key => {
       if (is.string(key) && !is.function(target[key])) {
-        this.screenService.print(
+        this.screenService.printLine(
           chalk.yellow.inverse` MISSING CALLBACK {bold ${key}} `,
         );
       }

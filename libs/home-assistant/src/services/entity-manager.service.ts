@@ -11,14 +11,12 @@ import {
   HASSIO_WS_COMMAND,
   HassStateDTO,
 } from '@steggy/home-assistant-shared';
-import { is, SECOND, sleep } from '@steggy/utilities';
+import { DEFAULT_LIMIT, is, SECOND, sleep } from '@steggy/utilities';
 import EventEmitter from 'eventemitter3';
 import { Observable, Subscriber } from 'rxjs';
 
 import { RETRY_INTERVAL } from '../config';
 import { HASocketAPIService } from './ha-socket-api.service';
-
-const TIMEOUT = 5;
 
 /**
  * Global entity tracking, the source of truth for anything needing to retrieve the current state of anything
@@ -199,7 +197,7 @@ export class EntityManagerService {
         return !is.empty(entities);
       },
       async () => {
-        await sleep(TIMEOUT * SECOND);
+        await sleep(DEFAULT_LIMIT * SECOND);
         return false;
       },
     ]);

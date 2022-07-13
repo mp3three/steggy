@@ -133,21 +133,21 @@ export class BuildPipelineService {
     if (!this.nonInteractive) {
       this.screenService.down(2);
     }
-    this.screenService.print(chalk.bold.cyan`APPS`);
+    this.screenService.printLine(chalk.bold.cyan`APPS`);
     affected.apps.forEach(line => {
       const file = join('apps', line, PACKAGE_FILE);
       if (!existsSync(file)) {
-        this.screenService.print(chalk` {yellow - } ${line}`);
+        this.screenService.printLine(chalk` {yellow - } ${line}`);
         return;
       }
       const { version } = JSON.parse(readFileSync(file, 'utf8')) as PACKAGE;
-      this.screenService.print(
+      this.screenService.printLine(
         chalk` {yellow - } ${version ? chalk` {gray ${version}} ` : ''}${line}`,
       );
     });
     if (!this.nonInteractive) {
       this.screenService.down();
-      this.screenService.print(chalk`Select applications to rebuild`);
+      this.screenService.printLine(chalk`Select applications to rebuild`);
     }
     return this.nonInteractive
       ? affected.apps
@@ -292,10 +292,10 @@ export class BuildPipelineService {
   ) {
     this.applicationManager.setHeader(`Bump Library Versions`);
     this.screenService.down();
-    this.screenService.print(
+    this.screenService.printLine(
       chalk.bold`{cyan LIBS} {blue ${oldVersion}} {white =>} {blue ${newVersion}}`,
     );
-    libs.forEach(line => this.screenService.print(chalk` {yellow - } ${line}`));
+    libs.forEach(line => this.screenService.printLine(chalk` {yellow - } ${line}`));
     this.screenService.down();
     return await this.promptService.confirm('Upgrade libraries?', true);
   }

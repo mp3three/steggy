@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { SequenceActivateDTO } from '@steggy/controller-shared';
 import { PromptService, SyncLoggerService, ToMenuEntry } from '@steggy/tty';
-import { is } from '@steggy/utilities';
+import { DEFAULT_LIMIT, is } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { EntityService } from '../../home-assistant/entity.service';
 import { HomeFetchService } from '../../home-fetch.service';
-
-const DEFAULT_RECORD_DURATION = 5;
 
 @Injectable()
 export class KunamiBuilderService {
@@ -95,7 +93,7 @@ export class KunamiBuilderService {
   private async recordEvents(sensor: string): Promise<string[]> {
     const duration = await this.promptService.number(
       `Seconds to record`,
-      DEFAULT_RECORD_DURATION,
+      DEFAULT_LIMIT,
     );
     console.log(chalk.green(`Recording`));
     const match = await this.fetchService.fetch<string[]>({

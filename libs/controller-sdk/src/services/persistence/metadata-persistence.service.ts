@@ -11,7 +11,7 @@ export class MetadataPersistenceService extends BaseMongoService {
   constructor(
     private readonly logger: AutoLogService,
     @InjectModel(MetadataDTO.name)
-    private readonly ServerMetadataModel: Model<MetadataDTO>,
+    protected readonly model: Model<MetadataDTO>,
   ) {
     super();
   }
@@ -21,9 +21,7 @@ export class MetadataPersistenceService extends BaseMongoService {
     item: Omit<MetadataDTO<T>, keyof BaseSchemaDTO>,
   ): Promise<MetadataDTO<T>> {
     // eslint-disable-next-line unicorn/no-await-expression-member
-    item = (
-      await this.ServerMetadataModel.create(item)
-    ).toObject() as MetadataDTO<T>;
+    item = (await this.model.create(item)).toObject() as MetadataDTO<T>;
     return item;
   }
 
@@ -31,9 +29,11 @@ export class MetadataPersistenceService extends BaseMongoService {
     const query = this.merge(is.string(state) ? state : state._id);
     this.logger.debug({ query }, `delete query`);
     delete query.deleted;
-    const result = await this.ServerMetadataModel.updateOne(query, {
-      deleted: Date.now(),
-    }).exec();
+    const result = await this.model
+      .updateOne(query, {
+        deleted: Date.now(),
+      })
+      .exec();
     return result.acknowledged;
   }
 
@@ -43,10 +43,7 @@ export class MetadataPersistenceService extends BaseMongoService {
     { control }: { control?: ResultControlDTO } = {},
   ): Promise<MetadataDTO<T>> {
     const query = this.merge(state, control);
-    const out = await this.modifyQuery(
-      control,
-      this.ServerMetadataModel.findOne(query),
-    )
+    const out = await this.modifyQuery(control, this.model.findOne(query))
       .lean()
       .exec();
     return out as MetadataDTO<T>;
@@ -57,10 +54,7 @@ export class MetadataPersistenceService extends BaseMongoService {
     control: ResultControlDTO = {},
   ): Promise<MetadataDTO<T>[]> {
     const query = this.merge(control);
-    const out = await this.modifyQuery(
-      control,
-      this.ServerMetadataModel.find(query),
-    )
+    const out = await this.modifyQuery(control, this.model.find(query))
       .lean()
       .exec();
     return out as MetadataDTO<T>[];
@@ -78,10 +72,7 @@ export class MetadataPersistenceService extends BaseMongoService {
     id: string,
   ): Promise<MetadataDTO<T>> {
     const query = this.merge(id);
-    const result = await this.ServerMetadataModel.updateOne(
-      query,
-      state,
-    ).exec();
+    const result = await this.model.updateOne(query, state).exec();
     if (result.acknowledged) {
       return await this.findById<T>(id);
     }

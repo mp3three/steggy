@@ -120,9 +120,9 @@ export class BaseDomainService {
     });
     const content = await this.getState(id);
     this.applicationManager.setHeader(content.attributes.friendly_name, id);
-    this.screenService.print(`\n\n`);
-    this.screenService.print(result);
-    this.screenService.print(
+    this.screenService.printLine(`\n\n`);
+    this.screenService.printLine(result);
+    this.screenService.printLine(
       [
         chalk`  {blue -} {cyan.bold From:} ${dayjs(from).format(
           `MMM D, YYYY h:mm A`,
@@ -134,13 +134,13 @@ export class BaseDomainService {
       ].join(`\n`),
     );
     attributes.forEach((key, index) =>
-      this.screenService.print(
+      this.screenService.printLine(
         chalk`    {${GRAPH_COLORS[index % GRAPH_COLORS.length]} ${TitleCase(
           key,
         )}}`,
       ),
     );
-    this.screenService.print('');
+    this.screenService.printLine('');
     await this.promptService.acknowledge();
   }
 
@@ -257,7 +257,7 @@ export class BaseDomainService {
         }),
       ),
     );
-    this.screenService.print(table.toString());
+    this.screenService.printLine(table.toString());
     await this.promptService.acknowledge();
   }
 
@@ -269,7 +269,7 @@ export class BaseDomainService {
     await sleep(this.refreshSleep);
     const content = await this.getState<T>(id);
     this.applicationManager.setHeader(content.attributes.friendly_name, id);
-    this.screenService.print(
+    this.screenService.printLine(
       chalk`\n {blue +-> }{inverse.bold.blueBright State} {cyan ${content.state}}`,
     );
     const keys = Object.keys(content.attributes)
@@ -277,7 +277,7 @@ export class BaseDomainService {
       .sort((a, b) => (a > b ? UP : DOWN));
     if (!is.empty(keys)) {
       const header = 'Attributes';
-      this.screenService.print(
+      this.screenService.printLine(
         chalk` {blue +${''.padEnd(
           Math.max(...keys.map(i => i.length)) -
             Math.floor(header.length / HALF) -
@@ -290,9 +290,9 @@ export class BaseDomainService {
 
     const max = Math.max(...keys.map(i => i.length));
     keys.forEach(key =>
-      this.screenService.print(this.printItem(content, key, max)),
+      this.screenService.printLine(this.printItem(content, key, max)),
     );
-    this.screenService.print('');
+    this.screenService.printLine('');
     return content;
   }
 
@@ -351,7 +351,9 @@ export class BaseDomainService {
         CACHE_KEY(data[START].entity_id, type),
       )) || attributeList;
     const source = attributeList.filter(i => !lastUsed.includes(i));
-    this.screenService.print(chalk` {cyan > }{blue Plot which attributes?}`);
+    this.screenService.printLine(
+      chalk` {cyan > }{blue Plot which attributes?}`,
+    );
     attributeList = await this.promptService.listBuild({
       current: lastUsed.map(i => [i, i]),
       items: 'Attributes',

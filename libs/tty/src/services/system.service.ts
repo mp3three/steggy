@@ -73,7 +73,7 @@ export class SystemService {
           action === 'rc'
             ? inc(version, 'prerelease', 'rc')
             : inc(version, action);
-        this.screen.print(
+        this.screen.printLine(
           [
             chalk.blueBright(application),
             version,
@@ -95,7 +95,7 @@ export class SystemService {
         const currentVersion = data.version;
         data.version = inc(data.version, 'patch');
         this.packageWriteVersion(value, data.version);
-        this.screen.print(
+        this.screen.printLine(
           chalk`{yellow library} ${value} ${currentVersion} {green =>} ${data.version}`,
         );
       });
@@ -108,7 +108,7 @@ export class SystemService {
     const current = rootPackage.version;
     rootPackage.version = inc(rootPackage.version, 'patch');
     writeFileSync(PACKAGE_FILE, JSON.stringify(rootPackage, undefined, '  '));
-    this.screen.print(
+    this.screen.printLine(
       [
         chalk.magenta('root'),
         current,
@@ -196,7 +196,7 @@ export class SystemService {
     config: AbstractConfig,
   ): Promise<void> {
     const file = this.configPath(application);
-    this.screen.print([chalk.green('path'), file].join(' '));
+    this.screen.printLine([chalk.green('path'), file].join(' '));
     if (
       existsSync(file) &&
       (await this.prompt.confirm('Overwrite existing config file?')) === false
@@ -204,7 +204,7 @@ export class SystemService {
       return;
     }
     writeFileSync(file, encode(config));
-    this.screen.print(chalk.inverse(chalk.green(`${file} written`)));
+    this.screen.printLine(chalk.inverse(chalk.green(`${file} written`)));
   }
 
   private packageWriteVersion(project: string, version: string): void {

@@ -1,5 +1,5 @@
 import { Controller, Injectable, Provider } from '@nestjs/common';
-import { is } from '@steggy/utilities';
+import { DEFAULT_LIMIT, is } from '@steggy/utilities';
 import { ClassConstructor } from 'class-transformer';
 import minimist from 'minimist';
 import { argv, exit } from 'process';
@@ -16,7 +16,6 @@ import { LibraryModule } from './library-module.decorator';
  * Magic timeout makes things work. Don't know why process.nextTick() isn't sufficient
  */
 const WAIT_BOOTSTRAP = 10;
-const ADDITIONAL_WAIT = 5;
 
 const CREATE_BOOT_MODULE = (metadata: ApplicationModuleMetadata) =>
   ApplicationModule(metadata)(class {}) as unknown as ClassConstructor<unknown>;
@@ -32,7 +31,7 @@ export interface iQuickScript extends iSteggyProvider {
  * Intended for quick / minimal scripts, where it is preferable to keep all application code inside a single file
  */
 export function QuickScript({
-  WAIT_TIME = WAIT_BOOTSTRAP * ADDITIONAL_WAIT,
+  WAIT_TIME = WAIT_BOOTSTRAP * DEFAULT_LIMIT,
   bootstrap,
   controller,
   PERSISTENT,

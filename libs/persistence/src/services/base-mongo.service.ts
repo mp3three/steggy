@@ -1,11 +1,25 @@
 import { FILTER_OPERATIONS, is, ResultControlDTO } from '@steggy/utilities';
-import { Document, Query, Types } from 'mongoose';
+import { Document, Model, Query, Types } from 'mongoose';
 
 import { filtersToMongoQuery } from '../includes';
+import { BaseSchemaDTO } from '../schemas';
 
 const SELECTED = 1;
 
 export class BaseMongoService {
+  protected model: Model<unknown>;
+
+  /**
+   * Like create, but less thinking. Intended for non-standard flows
+   */
+  public async restore<T extends BaseSchemaDTO>(item: T): Promise<T> {
+    return (await this.model.create(item)).toObject();
+  }
+
+  public async truncate(): Promise<void> {
+    await this.model.deleteMany();
+  }
+
   protected merge(
     query: ResultControlDTO | string,
     merge: ResultControlDTO = {},

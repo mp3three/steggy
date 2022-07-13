@@ -14,7 +14,7 @@ export class GroupPersistenceService extends BaseMongoService {
     private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
     @InjectModel(GroupDTO.name)
-    private readonly model: Model<GroupDTO>,
+    protected readonly model: Model<GroupDTO>,
   ) {
     super();
   }

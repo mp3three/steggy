@@ -17,7 +17,7 @@ export class RoomPersistenceService extends BaseMongoService {
     private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
     @InjectModel(RoomDTO.name)
-    private readonly roomModel: Model<RoomDTO>,
+    protected readonly model: Model<RoomDTO>,
     private readonly encryptService: EncryptionService,
   ) {
     super();
@@ -29,7 +29,7 @@ export class RoomPersistenceService extends BaseMongoService {
   ): Promise<RoomDTO> {
     room = this.encrypt(room);
     // eslint-disable-next-line unicorn/no-await-expression-member
-    room = (await this.roomModel.create(room)).toObject();
+    room = (await this.model.create(room)).toObject();
     this.eventEmitter.emit(ROOM_UPDATE, { created: room });
     return room;
   }
@@ -38,7 +38,7 @@ export class RoomPersistenceService extends BaseMongoService {
     const query = this.merge(is.string(state) ? state : state._id);
     this.logger.debug({ query }, `delete query`);
     delete query.deleted;
-    const result = await this.roomModel
+    const result = await this.model
       .updateOne(query, {
         deleted: Date.now(),
       })
@@ -55,7 +55,7 @@ export class RoomPersistenceService extends BaseMongoService {
     { control }: { control?: ResultControlDTO } = {},
   ): Promise<RoomDTO> {
     const query = this.merge(state, control);
-    const out = await this.modifyQuery(control, this.roomModel.findOne(query))
+    const out = await this.modifyQuery(control, this.model.findOne(query))
       .lean()
       .exec();
     return this.decrypt(out);
@@ -64,7 +64,7 @@ export class RoomPersistenceService extends BaseMongoService {
   @CastResult(RoomDTO)
   public async findMany(control: ResultControlDTO = {}): Promise<RoomDTO[]> {
     const query = this.merge(control);
-    const out = await this.modifyQuery(control, this.roomModel.find(query))
+    const out = await this.modifyQuery(control, this.model.find(query))
       .lean()
       .exec();
     return this.decrypt(out);
@@ -75,7 +75,7 @@ export class RoomPersistenceService extends BaseMongoService {
     id: string,
   ): Promise<RoomDTO> {
     const query = this.merge(id);
-    const result = await this.roomModel.updateOne(query, state).exec();
+    const result = await this.model.updateOne(query, state).exec();
     if (result.acknowledged) {
       const out = await this.findById(id);
       this.eventEmitter.emit(ROOM_UPDATE, { updated: out });

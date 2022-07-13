@@ -77,7 +77,7 @@ For loop example getting entity values in the weather domain:
     switch (action) {
       case 'version':
         const version = await this.fetchService.fetch({ url: `/version` });
-        this.screenService.print(`\n\n` + dump(version));
+        this.screenService.printLine(`\n\n` + dump(version));
         await this.promptService.acknowledge();
         return await this.exec(action);
       case 'notifications':
@@ -90,7 +90,7 @@ For loop example getting entity values in the weather domain:
         const result = await this.fetchService.fetch({
           url: `/debug/hass-config`,
         });
-        this.screenService.print(dump(result));
+        this.screenService.printLine(dump(result));
         await this.promptService.acknowledge();
         return await this.exec(action);
       case 'lightManagerCache':
@@ -144,7 +144,7 @@ For loop example getting entity values in the weather domain:
   //     url: `/debug/render-template`,
   //   })) as Response;
   //   const text = await rendered.text();
-  //   this.screenService.print(text);
+  //   this.screenService.printLine(text);
   // }
 
   // private async sendNotification(): Promise<void> {

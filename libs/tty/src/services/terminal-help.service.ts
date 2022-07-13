@@ -60,7 +60,7 @@ export class TerminalHelpService {
     configuration: Record<string, ConfigItem>,
     LONGEST: number,
   ) {
-    this.screenService.print(
+    this.screenService.printLine(
       chalk`Provided by {magenta.bold ${TitleCase(project)}}`,
     );
     Object.entries(configuration)
@@ -98,7 +98,7 @@ export class TerminalHelpService {
         ? ''
         : chalk`, {gray default}: {bold.green ${config.default}}`
     }{gray ]} `;
-    this.screenService.print(
+    this.screenService.printLine(
       this.formatDescription(prefix, config.description),
     );
   }
@@ -124,7 +124,7 @@ export class TerminalHelpService {
         ? ''
         : chalk`, {gray default}: {bold.yellow ${config.default}}`
     }{gray ]} `;
-    this.screenService.print(
+    this.screenService.printLine(
       this.formatDescription(prefix, config.description),
     );
   }
@@ -139,7 +139,7 @@ export class TerminalHelpService {
             config.default,
           )}}`
     }{gray ]} `;
-    this.screenService.print(
+    this.screenService.printLine(
       this.formatDescription(prefix, config.description),
     );
   }
@@ -161,7 +161,7 @@ export class TerminalHelpService {
             .map(item => chalk.blue(item))
             .join(chalk`{yellow.dim  | }`)}`
     }{gray ]} `;
-    this.screenService.print(
+    this.screenService.printLine(
       this.formatDescription(prefix, config.description),
     );
   }

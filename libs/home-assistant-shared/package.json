@@ -6,7 +6,7 @@
   "name": "@steggy/home-assistant-shared",
   "displayName": "Home Assistant Shared",
   "license": "MIT",
-  "version": "0.12.11",
+  "version": "0.12.12",
   "homepage": "https://github.com/mp3three/steggy",
   "repository": {
     "type": "git",

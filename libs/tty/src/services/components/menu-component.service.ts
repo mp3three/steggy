@@ -65,9 +65,11 @@ export type MainMenuCB<T = unknown> = (
 export interface MenuComponentOptions<T = unknown> {
   condensed?: boolean;
   /**
-   * Static text to stick at the top of the component
+   * Static text to stick at the top of the component.
+   *
+   * If passed as array, each item is it's own line
    */
-  headerMessage?: string;
+  headerMessage?: string | [string, string][];
   /**
    * Extra padding to shift the header over by
    */
@@ -555,7 +557,21 @@ export class MenuComponentService<VALUE = unknown>
       message += this.callbackOutput + `\n\n`;
     }
     if (!is.empty(this.opt.headerMessage)) {
-      message += this.opt.headerMessage + `\n\n`;
+      let headerMessage = this.opt.headerMessage;
+      if (Array.isArray(headerMessage)) {
+        const max =
+          ansiMaxLength(headerMessage.map(([label]) => label)) + INCREMENT;
+        headerMessage = headerMessage
+          .map(
+            ([label, value]) =>
+              chalk`{bold ${ansiPadEnd(label + ':', max)}} ${value}`,
+          )
+          .join(`\n`);
+      }
+      // const headerMessage = is.string(this.opt.headerMessage)
+      //   ? this.opt.headerMessage
+      //   : this.opt.headerMessage.map(([label,value]) => chalk``).join(`\n`);
+      message += headerMessage + `\n\n`;
     }
     const out = !is.empty(this.opt.left)
       ? this.textRender.assemble(

@@ -3,6 +3,10 @@ export const EVEN = 2;
 export const PAIR = 2;
 export const HALF = 0.5;
 export const TWO_THIRDS = 2 / 3;
+/**
+ * Good for a surprising number of situations
+ */
+export const DEFAULT_LIMIT = 5;
 export const INVERT_VALUE = -1;
 // Sort
 export const UP = 1;

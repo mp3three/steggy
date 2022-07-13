@@ -13,9 +13,12 @@ export async function each<T = unknown>(
 }
 
 export async function eachSeries<T = unknown>(
-  item: T[],
+  item: T[] | Set<T>,
   callback: (item: T) => Promise<void>,
 ): Promise<void> {
+  if (item instanceof Set) {
+    item = [...item.values()];
+  }
   if (!Array.isArray(item)) {
     throw new TypeError(`Not provided an array`);
   }

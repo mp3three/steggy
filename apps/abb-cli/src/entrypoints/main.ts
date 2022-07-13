@@ -6,6 +6,7 @@ import {
   QuickScript,
 } from '@steggy/boilerplate';
 import {
+  ansiEscapes,
   ansiStrip,
   ApplicationManagerService,
   EnvironmentService,
@@ -222,9 +223,12 @@ export class ABBCli {
     }
     this.application.setHeader('Lookup');
     const headerMessage = [
-      chalk`{blue.bold URL} ${id}`,
+      chalk`{blue.bold URL} ${ansiEscapes.link(
+        id,
+        `${this.base}/audio-books/${encodeURI(id)}/`,
+      )}`,
       ' ',
-      this.rendering.typePrinter(
+      this.rendering.type(
         Object.fromEntries(
           Object.entries(book)
             .sort(([a], [b]) => (a > b ? UP : DOWN))
@@ -259,7 +263,7 @@ export class ABBCli {
       case 'done':
         return;
       case 'magnet':
-        this.screen.print(`🧲 ${this.createMagnet(book)}`);
+        this.screen.printLine(`🧲 ${this.createMagnet(book)}`);
         await this.prompt.acknowledge();
         break;
       case 'exec-magnet':
@@ -269,7 +273,7 @@ export class ABBCli {
       case 'description':
         const { width } = await this.environment.getDimensions();
         const maxWidth = Math.floor(width * TWO_THIRDS);
-        this.screen.print(
+        this.screen.printLine(
           book.description
             .split(`\n`)
             .map(line =>

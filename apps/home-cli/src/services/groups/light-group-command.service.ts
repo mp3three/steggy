@@ -202,7 +202,7 @@ export class LightGroupCommandService {
       // , , , ,
       .sort(([, a], [, b]) => (a > b ? UP : DOWN))
       .forEach(line =>
-        this.screenService.print(
+        this.screenService.printLine(
           line.length === SINGLE
             ? line[START]
             : chalk` {cyan -} ${line
@@ -212,7 +212,7 @@ export class LightGroupCommandService {
                 .padEnd(maxId, ' ')}} ${line.shift()}`,
         ),
       );
-    this.screenService.print();
+    this.screenService.printLine();
   }
 
   public async processAction(group: GroupDTO, action: string): Promise<void> {
