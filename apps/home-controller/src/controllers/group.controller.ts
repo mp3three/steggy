@@ -9,6 +9,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SERIALIZE } from '@steggy/boilerplate';
 import { GroupService } from '@steggy/controller-sdk';
 import {
   CloneGroupDTO,
@@ -192,7 +193,6 @@ export class GroupController {
 
   @Get('/:group')
   @ApiResponse({ type: GroupDTO })
-  @ApiBody({ type: GroupDTO })
   @ApiOperation({
     description: `Retrieve group info by id`,
   })
@@ -212,6 +212,16 @@ export class GroupController {
   ): Promise<GroupDTO> {
     await this.groupService.expandState(group, state);
     return await this.groupService.getWithStates(group);
+  }
+
+  @Get('/:group/export')
+  @ApiOperation({
+    description: `Retrieve group info by id`,
+  })
+  public async export(
+    @Param('group') group: string,
+  ): Promise<{ text: string }> {
+    return { text: SERIALIZE.serialize(await this.describe(group)) };
   }
 
   @Get(`/`)

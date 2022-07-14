@@ -31,7 +31,7 @@ export class RoutinePersistenceService extends BaseMongoService {
     this.logger.debug({ query }, `delete query`);
     const deleted = Date.now();
     const result = await this.model.updateOne(query, { deleted }).exec();
-    this.eventEmitter.emit(ROUTINE_UPDATE, { deleted: state });
+    this.eventEmitter.emit(ROUTINE_UPDATE, { deleted: state._id });
     return result.acknowledged;
   }
 

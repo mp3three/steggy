@@ -15,10 +15,13 @@ export function RoutinePage() {
   useEffect(() => {
     refresh();
     refreshEnabled();
-    const interval = setInterval(
-      async () => await refreshEnabled(),
-      SECOND * 10,
-    );
+    const interval = setInterval(async () => {
+      try {
+        await refreshEnabled();
+      } catch (error) {
+        console.error(error);
+      }
+    }, SECOND * 10);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -55,6 +58,9 @@ export function RoutinePage() {
     const enabled = await sendRequest<string[]>({
       url: `/debug/enabled-routines`,
     });
+    if (!enabled) {
+      return;
+    }
     setEnabled(enabled);
   }
 

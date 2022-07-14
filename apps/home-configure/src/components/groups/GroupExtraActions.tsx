@@ -1,5 +1,13 @@
 import { GroupDTO } from '@steggy/controller-shared';
-import { Button, Dropdown, Menu, Popconfirm } from 'antd';
+import {
+  Button,
+  Dropdown,
+  Input,
+  Menu,
+  Modal,
+  Popconfirm,
+  Typography,
+} from 'antd';
 
 import { FD_ICONS, MenuItem, sendRequest } from '../../types';
 import { ItemPin } from '../misc';
@@ -27,12 +35,46 @@ export function GroupExtraActions(props: {
     props.onUpdate();
   }
 
+  async function exportGroup(): Promise<void> {
+    const { text } = await sendRequest<{ text: string }>({
+      url: `/group/${props.group._id}/export`,
+    });
+    Modal.info({
+      content: (
+        <Input.TextArea
+          value={text}
+          readOnly
+          style={{ minHeight: '30vh', width: '100%', wordBreak: 'break-all' }}
+        />
+      ),
+      maskClosable: true,
+      title: (
+        <Typography>
+          {'Exported group '}
+          <Typography.Text code>{props.group.friendlyName}</Typography.Text>
+        </Typography>
+      ),
+      width: '40vw',
+    });
+  }
+
   return (
     <Dropdown
       overlay={
         <Menu
           items={
             [
+              {
+                label: (
+                  <Button
+                    style={{ textAlign: 'start', width: '100%' }}
+                    onClick={() => exportGroup()}
+                    icon={FD_ICONS.get('export')}
+                  >
+                    Export
+                  </Button>
+                ),
+              },
               {
                 label: (
                   <Popconfirm

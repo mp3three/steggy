@@ -1,13 +1,10 @@
-import { RoutineDTO } from '@steggy/controller-shared';
+import { GenericImport, RoutineDTO } from '@steggy/controller-shared';
 import { DOWN, is, UP } from '@steggy/utilities';
 import {
-  Button,
   Card,
   Descriptions,
   Empty,
-  Form,
-  Input,
-  Popconfirm,
+  notification,
   Popover,
   Tooltip,
   Tree,
@@ -19,6 +16,7 @@ import { Key } from 'rc-tree/lib/interface';
 import { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
+import { ImportCreate } from '../misc';
 
 type tRoutineMap = Map<string, { item: DataNode; routine: RoutineDTO }>;
 
@@ -41,7 +39,6 @@ export function RoutineTree(props: {
   const [treeData, setTreeData] = useState<DataNode[]>([]);
   const [pureFolders, setPureFolders] = useState<number>(0);
   const [conditionalFolders, setConditionalFolders] = useState<string[]>([]);
-  const [friendlyName, setFriendlyName] = useState('');
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
   useEffect(() => {
@@ -179,7 +176,7 @@ export function RoutineTree(props: {
     return aRoutine.friendlyName > bRoutine.friendlyName ? UP : DOWN;
   }
 
-  async function validate(): Promise<void> {
+  async function create(friendlyName: string): Promise<void> {
     try {
       const routine = await sendRequest<RoutineDTO>({
         body: { friendlyName },
@@ -188,7 +185,26 @@ export function RoutineTree(props: {
       });
       props.onUpdate();
       props.onSelect(routine);
-      setFriendlyName('');
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function createImport(body: GenericImport): Promise<void> {
+    try {
+      const routine = await sendRequest<RoutineDTO>({
+        body,
+        method: 'post',
+        url: `/routine/import`,
+      });
+      if (!routine) {
+        notification.error({
+          message: `Invalid import text`,
+        });
+        return;
+      }
+      props.onUpdate();
+      props.onSelect(routine);
     } catch (error) {
       console.error(error);
     }
@@ -240,30 +256,17 @@ export function RoutineTree(props: {
         </>
       }
       extra={
-        <Popconfirm
-          icon=""
-          onConfirm={() => validate()}
-          title={
-            <Form.Item
-              label="Friendly Name"
-              name="friendlyName"
-              rules={[{ required: true }]}
-            >
-              <Input
-                value={friendlyName}
-                onChange={({ target }) => setFriendlyName(target.value)}
-              />
-            </Form.Item>
-          }
-        >
-          <Button
-            size="small"
-            type={!is.empty(treeData) ? 'text' : 'primary'}
-            icon={FD_ICONS.get('plus_box')}
-          >
-            Create new
-          </Button>
-        </Popconfirm>
+        <ImportCreate
+          primary={is.empty(treeData)}
+          type="routine"
+          onCreate={async body => {
+            if (is.empty(body.import)) {
+              await create(body.friendlyName);
+              return;
+            }
+            await createImport(body);
+          }}
+        />
       }
     >
       {is.empty(treeData) ? (

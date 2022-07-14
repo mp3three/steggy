@@ -289,9 +289,9 @@ export class RoutineEnabledService {
     created,
     updated,
   }: Partial<
-    Record<'created' | 'updated', RoutineDTO> & { deleted?: string }
+    Record<'created' | 'updated', RoutineDTO> & { deleted?: RoutineDTO }
   >): Promise<void> {
-    const routine = created || updated || this.RAW_LIST.get(deleted);
+    const routine = created || updated || deleted;
     // Stop + GC
     this.stop(routine);
     const watchers = this.ENABLE_WATCHERS.get(routine._id) ?? [];

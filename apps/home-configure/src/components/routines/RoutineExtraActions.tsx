@@ -3,7 +3,15 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Button, Dropdown, Menu, Popconfirm } from 'antd';
+import {
+  Button,
+  Dropdown,
+  Input,
+  Menu,
+  Modal,
+  Popconfirm,
+  Typography,
+} from 'antd';
 
 import { FD_ICONS, MenuItem, sendRequest } from '../../types';
 import { ItemPin } from '../misc';
@@ -52,12 +60,46 @@ export function RoutineExtraActions(props: {
     }
   }
 
+  async function exportRoutine(): Promise<void> {
+    const { text } = await sendRequest<{ text: string }>({
+      url: `/routine/${props.routine._id}/export`,
+    });
+    Modal.info({
+      content: (
+        <Input.TextArea
+          value={text}
+          readOnly
+          style={{ minHeight: '30vh', width: '100%', wordBreak: 'break-all' }}
+        />
+      ),
+      maskClosable: true,
+      title: (
+        <Typography>
+          {'Exported routine '}
+          <Typography.Text code>{props.routine.friendlyName}</Typography.Text>
+        </Typography>
+      ),
+      width: '40vw',
+    });
+  }
+
   return (
     <Dropdown
       overlay={
         <Menu
           items={
             [
+              {
+                label: (
+                  <Button
+                    style={{ textAlign: 'start', width: '100%' }}
+                    onClick={() => exportRoutine()}
+                    icon={FD_ICONS.get('export')}
+                  >
+                    Export
+                  </Button>
+                ),
+              },
               {
                 label: (
                   <Button

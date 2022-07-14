@@ -56,7 +56,7 @@ export class EventsExplorerService {
     this.eventEmitter.removeAllListeners();
   }
 
-  private subscribe<T extends Record<string, Type>>(instance: T, key: keyof T) {
+  private subscribe<T extends Record<string, Type>>(instance: T, key: string) {
     const eventListenerMetadata = this.getEventHandlerMetadata(instance[key]);
     if (!eventListenerMetadata) {
       return;

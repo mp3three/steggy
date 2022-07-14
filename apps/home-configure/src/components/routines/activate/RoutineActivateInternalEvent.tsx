@@ -71,7 +71,7 @@ const types = new Map<
       types: [
         'declare const updated: RoutineDTO;',
         'declare const created: RoutineDTO;',
-        'declare const deleted: string',
+        'declare const deleted: RoutineDTO',
       ].join(`\n`),
     },
   ],

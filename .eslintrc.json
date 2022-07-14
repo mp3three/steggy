@@ -87,7 +87,6 @@
               "debounce",
               "decipheriv",
               "decrement",
-              "gunzip",
               "decrypt",
               "decrypted",
               "derp",
@@ -103,7 +102,6 @@
               "enum",
               "enums",
               "errored",
-
               "eventemitter",
               "execa",
               "fallthrough",
@@ -115,6 +113,7 @@
               "gi",
               "globals",
               "gte",
+              "gunzip",
               "gzip",
               "hass",
               "homeassistant",
@@ -131,6 +130,7 @@
               "integrations",
               "javascript",
               "jpg",
+              "jsx",
               "keybind",
               "keymap",
               "keymaps",
@@ -177,6 +177,7 @@
               "pageup",
               "pagga",
               "paginator",
+              "closable",
               "parsable",
               "pathname",
               "pdf",
@@ -434,7 +435,10 @@
     {
       "files": ["*.controller.ts"],
       "rules": {
-        "radar/no-duplicate-string": "off"
+        // 🤕
+        "radar/no-duplicate-string": "off",
+        // route order matters, not method name
+        "@typescript-eslint/member-ordering": "off"
       }
     },
     {

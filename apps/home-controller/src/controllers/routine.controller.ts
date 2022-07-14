@@ -15,10 +15,12 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { SERIALIZE } from '@steggy/boilerplate';
 import { RoutineService } from '@steggy/controller-sdk';
 import {
   CloneRoutineDTO,
   GeneralSaveStateDTO,
+  GenericImport,
   RoutineActivateDTO,
   RoutineActivateOptionsDTO,
   RoutineCommandDTO,
@@ -40,7 +42,7 @@ import {
   Locals,
   ResponseLocals,
 } from '@steggy/server';
-import { NOT_FOUND } from '@steggy/utilities';
+import { is, NOT_FOUND } from '@steggy/utilities';
 import { nextTick } from 'process';
 import { v4 as uuid } from 'uuid';
 
@@ -62,6 +64,23 @@ import { v4 as uuid } from 'uuid';
 export class RoutineController {
   constructor(private readonly routineService: RoutineService) {}
 
+  @Post('/import')
+  public async import(@Body() body: GenericImport): Promise<RoutineDTO> {
+    if (is.empty(body.import)) {
+      return await this.create({ friendlyName: body.friendlyName });
+    }
+    return await this.routineService.import(body.import, body.friendlyName);
+  }
+
+  @Get('/:routine/export')
+  public async export(@Param('routine') id: string): Promise<{ text: string }> {
+    const routine = await this.routineService.get(id);
+    if (!routine) {
+      throw new NotFoundException();
+    }
+    return { text: SERIALIZE.serialize(routine) };
+  }
+
   @Post('/:routine')
   @ApiGenericResponse()
   @ApiOperation({
@@ -71,9 +90,6 @@ export class RoutineController {
     @Param('routine') routine: string,
     @Body() options: RoutineActivateOptionsDTO,
   ): typeof GENERIC_SUCCESS_RESPONSE {
-    // if( options.force === 'false') {
-    // options
-    // }
     nextTick(
       async () => await this.routineService.activateRoutine(routine, options),
     );

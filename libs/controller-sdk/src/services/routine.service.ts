@@ -12,6 +12,7 @@ import {
   CacheManagerService,
   InjectCache,
   ModuleScannerService,
+  SERIALIZE,
 } from '@steggy/boilerplate';
 import {
   ActivationEventSettings,
@@ -32,7 +33,7 @@ import {
 } from '@steggy/utilities';
 import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';
-import { v4 as uuid, v4 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import {
   ACTIVATION_EVENT,
@@ -187,10 +188,10 @@ export class RoutineService {
     const cloned = await this.create({
       activate: omitActivate
         ? []
-        : source.activate.map(activate => ({ ...activate, id: v4() })),
+        : source.activate.map(activate => ({ ...activate, id: uuid() })),
       command: omitCommand
         ? []
-        : source.command.map(command => ({ ...command, id: v4() })),
+        : source.command.map(command => ({ ...command, id: uuid() })),
       enable: source.enable,
       friendlyName: name ?? `Copy of ${source.friendlyName}`,
       parent: replaceParent ?? source.parent,
@@ -230,6 +231,10 @@ export class RoutineService {
 
   public async delete(routine: string | RoutineDTO): Promise<boolean> {
     routine = await this.get(routine);
+    if (!routine) {
+      //🤷 It's not there now
+      return true;
+    }
     const children = await this.routinePersistence.findMany({
       filters: new Set([{ field: 'parent', value: routine._id }]),
     });
@@ -249,7 +254,40 @@ export class RoutineService {
     if (is.object(routine)) {
       return routine;
     }
-    return await this.routinePersistence.findById(routine);
+    const out = await this.routinePersistence.findById(routine);
+    return out;
+  }
+
+  public async import(
+    text: string,
+    friendlyName?: string,
+  ): Promise<RoutineDTO> {
+    const routine = SERIALIZE.unserialize(text, RoutineDTO);
+    if (!routine) {
+      this.logger.error(`Failed to unserialize text`);
+      return undefined;
+    }
+    // * Replace ids on activate + command
+    routine.activate = (routine.activate ?? []).map(activate => ({
+      ...activate,
+      id: uuid(),
+    }));
+    routine.command = (routine.command ?? []).map(command => ({
+      ...command,
+      id: uuid(),
+    }));
+    // * Use a new name if provided
+    routine.friendlyName = is.empty(friendlyName)
+      ? routine.friendlyName
+      : friendlyName;
+    // * Needs a new id
+    // ALL IDS SHALL BE DISCARDED
+    delete routine._id;
+    // ? Currently undecided on this.
+    // It feels more natural for the UI to have an import pop in at the same spot a new routine would get created
+    // but... it also feels wrong. Maybe add a toggle?
+    delete routine.parent;
+    return await this.routinePersistence.create(routine);
   }
 
   public async list(control?: ResultControlDTO): Promise<RoutineDTO[]> {
@@ -293,6 +331,9 @@ export class RoutineService {
    */
   public superFriendlyNameParts(id: string, built = []): string[] {
     const routine = this.routineEnabled.RAW_LIST.get(id);
+    if (!routine) {
+      return built;
+    }
     built.unshift(routine.friendlyName);
     if (routine.parent) {
       return this.superFriendlyNameParts(routine.parent, built);

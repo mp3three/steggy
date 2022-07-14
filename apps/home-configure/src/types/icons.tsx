@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import AlarmBell from '@2fd/ant-design-icons/lib/AlarmBell';
 import ApplicationVariable from '@2fd/ant-design-icons/lib/ApplicationVariable';
 import BulletinBoard from '@2fd/ant-design-icons/lib/BulletinBoard';
@@ -5,6 +6,7 @@ import CardRemove from '@2fd/ant-design-icons/lib/CardRemove';
 import CodeJson from '@2fd/ant-design-icons/lib/CodeJson';
 import ContentCopy from '@2fd/ant-design-icons/lib/ContentCopy';
 import DebugStepInto from '@2fd/ant-design-icons/lib/DebugStepInto';
+import Export from '@2fd/ant-design-icons/lib/Export';
 import FilterVariant from '@2fd/ant-design-icons/lib/FilterVariant';
 import HomeAutomation from '@2fd/ant-design-icons/lib/HomeAutomation';
 import InformationIcon from '@2fd/ant-design-icons/lib/Information';
@@ -40,6 +42,7 @@ type iconTypes =
   | 'entities'
   | 'error'
   | 'execute'
+  | 'export'
   | 'filter'
   | 'folder_open'
   | 'folder'
@@ -52,6 +55,7 @@ type iconTypes =
   | 'magnify'
   | 'menu'
   | 'metadata'
+  | 'no_icon'
   | 'people'
   | 'pin_off'
   | 'pin'
@@ -73,9 +77,10 @@ export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['entities', <AlarmBell />],
   ['error', <ExclamationCircleOutlined style={{ color: '#AA0000' }} />],
   ['execute', <StepForward />],
+  ['export', <Export />],
   ['filter', <FilterVariant />],
-  ['folder', <FolderFilled />],
   ['folder_open', <FolderOpenFilled />],
+  ['folder', <FolderFilled />],
   ['groups', <LightbulbGroupOutline />],
   ['home', <HomeOutlined />],
   ['information', <InformationIcon />],
@@ -85,6 +90,7 @@ export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['magnify', <Magnify />],
   ['menu', <Menu />],
   ['metadata', <ApplicationVariable />],
+  ['no_icon', <></>],
   ['people', <NaturePeople />],
   ['pin_off', <PinOutline />],
   ['pin', <Pin />],

@@ -22,10 +22,16 @@ export const SERIALIZE = {
      * */
     dto?: ClassConstructor<T>,
   ): T => {
-    const out = JSON.parse(gunzipSync(Buffer.from(data, 'base64')).toString());
-    if (dto) {
-      return plainToInstance(dto, out);
+    try {
+      const out = JSON.parse(
+        gunzipSync(Buffer.from(data, 'base64')).toString(),
+      );
+      if (dto) {
+        return plainToInstance(dto, out);
+      }
+      return out;
+    } catch {
+      return undefined;
     }
-    return out;
   },
 };
