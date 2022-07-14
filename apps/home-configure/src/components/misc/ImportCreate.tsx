@@ -16,11 +16,18 @@ export function ImportCreate(props: {
   const [importText, setImportText] = useState<string>();
   const [visible, setVisible] = useState(false);
 
+  function close() {
+    setVisible(false);
+    setImportText('');
+    setFriendlyName('');
+  }
+
   return (
     <>
       <Modal
         visible={visible}
         maskClosable
+        forceRender
         okText="Create"
         okButtonProps={{
           disabled: is.empty(friendlyName) && is.empty(importText),
@@ -31,43 +38,48 @@ export function ImportCreate(props: {
             friendlyName,
             import: importText,
           });
-          setVisible(false);
+          close();
         }}
-        onCancel={() => setVisible(false)}
+        onCancel={() => close()}
         centered
         title={`Create new ${TitleCase(props.type)}`}
       >
-        <Form.Item label="Friendly Name" name="friendlyName">
-          <Input
-            value={friendlyName}
-            onChange={({ target }) => setFriendlyName(target.value)}
-          />
-        </Form.Item>
-        <Form.Item
-          label={
-            <Tooltip
-              title={
-                <Typography>
-                  <Typography.Paragraph>
-                    Paste in a previously exported routine to load it's data.
-                  </Typography.Paragraph>
-                  <Typography.Text type="secondary">
-                    Note: identifiers will not be preserved
-                  </Typography.Text>
-                </Typography>
+        {visible ? (
+          <>
+            <Form.Item label="Friendly Name" name="friendlyName">
+              <Input
+                value={friendlyName}
+                onChange={({ target }) => setFriendlyName(target.value)}
+              />
+            </Form.Item>
+            <Form.Item
+              label={
+                <Tooltip
+                  title={
+                    <Typography>
+                      <Typography.Paragraph>
+                        Paste in a previously exported routine to load it's
+                        data.
+                      </Typography.Paragraph>
+                      <Typography.Text type="secondary">
+                        Note: identifiers will not be preserved
+                      </Typography.Text>
+                    </Typography>
+                  }
+                >
+                  Import
+                </Tooltip>
               }
+              name="import"
             >
-              Import
-            </Tooltip>
-          }
-          name="import"
-        >
-          <Input.TextArea
-            value={importText}
-            style={{ minHeight: '10vh' }}
-            onChange={({ target }) => setImportText(target.value)}
-          />
-        </Form.Item>
+              <Input.TextArea
+                value={importText}
+                style={{ minHeight: '10vh' }}
+                onChange={({ target }) => setImportText(target.value)}
+              />
+            </Form.Item>
+          </>
+        ) : undefined}
       </Modal>
       <Button
         size="small"
