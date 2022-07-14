@@ -1,5 +1,6 @@
 import Editor from '@monaco-editor/react';
-import { HALF, is, SECOND, sleep } from '@steggy/utilities';
+import { CodeDTO } from '@steggy/controller-shared';
+import { FilterDTO, HALF, is, SECOND } from '@steggy/utilities';
 import { Alert, Space, Spin, Tooltip, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
@@ -7,8 +8,10 @@ import { FD_ICONS, sendRequest } from '../../types';
 import { CodeCommandHelp } from './CodeCommandHelp';
 let timeout: NodeJS.Timeout;
 
+// eslint-disable-next-line radar/cognitive-complexity
 export function TypedEditor(props: {
   code: string;
+  customExclude?: string[];
   defaultValue?: string;
   extraTypes?: string;
   height?: string;
@@ -17,19 +20,14 @@ export function TypedEditor(props: {
   type?: 'request' | 'execute';
 }) {
   const [extraTypes, setExtraTypes] = useState<string>('');
-  const [forceHide, setForceHide] = useState<boolean>(false);
+  /**
+   * Current code in editor
+   */
   const [code, setCode] = useState<string>(props.code);
-
-  // ? Is there may be a better way to accomplish this effect?
-  // Updating `extraTypes` means the editor needs an update
-  useEffect(() => {
-    async function refresh() {
-      setForceHide(true);
-      await sleep(0);
-      setForceHide(false);
-    }
-    refresh();
-  }, [props.extraTypes, props.type]);
+  /**
+   * Types defined by user in database
+   */
+  const [customCode, setCustomCode] = useState<CodeDTO[]>([]);
 
   useEffect(() => {
     async function loadTypes() {
@@ -41,6 +39,28 @@ export function TypedEditor(props: {
     loadTypes();
   }, []);
 
+  useEffect(() => {
+    async function loadCustomCode(): Promise<void> {
+      const filters = new Set<FilterDTO>();
+      if (props.type === 'request') {
+        filters.add({ field: 'type', value: 'request' });
+      }
+      if (!is.empty(props.customExclude)) {
+        filters.add({
+          field: '_id',
+          operation: 'nin',
+          value: props.customExclude,
+        });
+      }
+      const result = await sendRequest<CodeDTO[]>({
+        control: { filters },
+        url: `/code`,
+      });
+      setCustomCode(result);
+    }
+    loadCustomCode();
+  }, [props.customExclude, props.type]);
+
   function sendUpdate(update: string): void {
     setCode(update);
     if (timeout) {
@@ -50,7 +70,7 @@ export function TypedEditor(props: {
   }
 
   // The race condition stopper
-  if (forceHide || is.empty(extraTypes)) {
+  if (is.empty(extraTypes)) {
     return (
       <Spin tip="Loading...">
         <Alert
@@ -87,7 +107,36 @@ export function TypedEditor(props: {
         theme="vs-dark"
         height={props.height ?? '50vh'}
         value={code ?? ''}
-        beforeMount={({ languages: { typescript } }) => {
+        beforeMount={monaco => {
+          // monaco.
+          const {
+            languages: { typescript },
+          } = monaco;
+          const dynamicContent = [
+            extraTypes,
+            props.extraTypes ?? '',
+            ...(props.type === 'execute'
+              ? [
+                  `/**`,
+                  ` * Execute function to stop routine execution`,
+                  ` */`,
+                  `declare const stop_processing: () => void;`,
+                  `/**`,
+                  ` * Access the application cache. Useful for temporary storage of whatever`,
+                  ` */`,
+                  `declare const cacheManager: iCacheManager;`,
+                  `/**`,
+                  ` * Access internal methods from @steggy`,
+                  ` */`,
+                  `declare const steggy: iVMBreakoutAPI;`,
+                  `/**`,
+                  ` * Execute a service call through the home assistant api`,
+                  ` */`,
+                  `declare const call_service: iCallService;`,
+                ]
+              : []),
+            ...customCode.map(({ code }) => code),
+          ].join(`\n`);
           typescript.typescriptDefaults.setDiagnosticsOptions(
             // ? 1108 = top level return
             // This is needed because we are only typing the function body, not a whole file
@@ -99,29 +148,7 @@ export function TypedEditor(props: {
           );
           typescript.typescriptDefaults.setExtraLibs([
             {
-              content:
-                extraTypes +
-                (props.extraTypes ?? '') +
-                (props.type === 'execute'
-                  ? [
-                      `/**`,
-                      ` * Execute function to stop routine execution`,
-                      ` */`,
-                      `declare const stop_processing: () => void;`,
-                      `/**`,
-                      ` * Access the application cache. Useful for temporary storage of whatever`,
-                      ` */`,
-                      `declare const cacheManager: iCacheManager;`,
-                      `/**`,
-                      ` * Access internal methods from @steggy`,
-                      ` */`,
-                      `declare const steggy: iVMBreakoutAPI;`,
-                      `/**`,
-                      ` * Execute a service call through the home assistant api`,
-                      ` */`,
-                      `declare const call_service: iCallService;`,
-                    ].join(`\n`)
-                  : ''),
+              content: dynamicContent,
               filePath: 'dynamic-types.d.ts',
             },
           ]);

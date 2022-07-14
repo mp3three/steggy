@@ -30,18 +30,22 @@ export function CodeEdit(props: {
       title={
         <Typography.Text
           strong
-          editable={{ onChange: text => console.log(text) }}
+          editable={{
+            onChange: friendlyName => props.onUpdate({ friendlyName }),
+          }}
         >
-          Code
+          {props.code.friendlyName}
         </Typography.Text>
       }
     >
       <Tabs>
         <Tabs.TabPane tab="Code" key="code">
           <TypedEditor
+            key={props.code?._id}
             code={props.code?.code ?? ''}
             type={props.code.type}
             onUpdate={code => props.onUpdate({ code })}
+            customExclude={[props.code._id]}
           />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Settings" key="settings">

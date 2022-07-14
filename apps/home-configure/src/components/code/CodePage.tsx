@@ -11,7 +11,14 @@ export function CodePage() {
   const [selected, setSelected] = useState<CodeDTO>();
 
   async function refresh() {
-    setCodeList(await sendRequest({ url: '/code' }));
+    setCodeList(
+      await sendRequest({
+        control: {
+          select: ['friendlyName', 'modified'],
+        },
+        url: '/code',
+      }),
+    );
   }
 
   async function update(code: Partial<CodeDTO>) {
@@ -22,6 +29,10 @@ export function CodePage() {
     });
     setSelected(item);
     setCodeList(codeList.map(i => (i._id === selected._id ? item : i)));
+  }
+
+  async function load(id: string) {
+    setSelected(await sendRequest({ url: `/code/${id}` }));
   }
 
   useEffect(() => {
@@ -36,7 +47,7 @@ export function CodePage() {
             <CodeList
               onUpdate={() => refresh()}
               code={codeList}
-              onSelect={item => setSelected(item)}
+              onSelect={item => load(item._id)}
             />
           </Col>
           <Col span={12}>

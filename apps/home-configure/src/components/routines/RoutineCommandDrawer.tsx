@@ -76,14 +76,16 @@ export function RoutineCommandDrawer(props: {
         return (
           <SetRoomMetadataCommand
             onUpdate={update => onUpdate(update)}
-            command={props.command.command as SetRoomMetadataCommandDTO}
+            command={
+              props.command as RoutineCommandDTO<SetRoomMetadataCommandDTO>
+            }
           />
         );
       case 'execute_code':
         return (
           <ExecuteCodeCommand
             onUpdate={update => onUpdate(update)}
-            command={props.command.command as RoutineCodeCommandDTO}
+            command={props.command as RoutineCommandDTO<RoutineCodeCommandDTO>}
           />
         );
       case 'group_action':
@@ -154,7 +156,9 @@ export function RoutineCommandDrawer(props: {
         return (
           <WebhookCommand
             onUpdate={update => onUpdate(update)}
-            command={props.command.command as RoutineCommandWebhookDTO}
+            command={
+              props.command as RoutineCommandDTO<RoutineCommandWebhookDTO>
+            }
           />
         );
     }

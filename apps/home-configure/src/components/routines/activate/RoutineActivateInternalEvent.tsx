@@ -1,5 +1,8 @@
 /* eslint-disable radar/no-duplicate-string */
-import { InternalEventActivateDTO } from '@steggy/controller-shared';
+import {
+  InternalEventActivateDTO,
+  RoutineActivateDTO,
+} from '@steggy/controller-shared';
 import { is, LABEL, VALUE } from '@steggy/utilities';
 import { Form, Select, Space, Typography } from 'antd';
 
@@ -112,15 +115,16 @@ const types = new Map<
 ]);
 
 export function RoutineActivateInternalEvent(props: {
-  activate: InternalEventActivateDTO;
+  activate: RoutineActivateDTO;
+  activateProperties: InternalEventActivateDTO;
   onUpdate: (activate: Partial<InternalEventActivateDTO>) => void;
 }) {
-  const details = types.get(props.activate.event);
+  const details = types.get(props.activateProperties.event);
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
       <Form.Item label="Event Stream">
         <Select
-          value={props.activate?.event}
+          value={props.activateProperties?.event}
           onChange={event => props.onUpdate({ event })}
         >
           {ALL_EVENTS.map(event => (
@@ -135,6 +139,7 @@ export function RoutineActivateInternalEvent(props: {
       </Form.Item>
       <Form.Item>
         <TypedEditor
+          key={props.activate.id}
           secondaryText={
             <Space direction="vertical">
               {details ? (
@@ -157,8 +162,8 @@ export function RoutineActivateInternalEvent(props: {
               </Typography>
             </Space>
           }
-          extraTypes={types.get(props.activate.event)?.types}
-          code={props.activate?.validate}
+          extraTypes={types.get(props.activateProperties.event)?.types}
+          code={props.activateProperties?.validate}
           onUpdate={validate => props.onUpdate({ validate })}
         />
       </Form.Item>

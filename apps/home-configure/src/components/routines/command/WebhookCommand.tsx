@@ -1,6 +1,7 @@
 import {
   PersonDTO,
   RoomDTO,
+  RoutineCommandDTO,
   RoutineCommandWebhookDTO,
 } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
@@ -13,18 +14,22 @@ import { WebhookRequestBuilder } from '../../misc/webhook';
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function WebhookCommand(props: {
-  command?: RoutineCommandWebhookDTO;
+  command?: RoutineCommandDTO<RoutineCommandWebhookDTO>;
   onUpdate: (command: Partial<RoutineCommandWebhookDTO>) => void;
 }) {
   const [people, setPeople] = useState<PersonDTO[]>([]);
   const [rooms, setRooms] = useState<RoomDTO[]>([]);
 
   function assignTarget() {
-    const room = rooms.find(({ _id }) => _id === props.command?.assignTo);
+    const room = rooms.find(
+      ({ _id }) => _id === props.command?.command?.assignTo,
+    );
     if (room) {
       return room.metadata;
     }
-    const person = people.find(({ _id }) => _id === props.command?.assignTo);
+    const person = people.find(
+      ({ _id }) => _id === props.command?.command?.assignTo,
+    );
     if (person) {
       return person.metadata;
     }
@@ -74,17 +79,17 @@ export function WebhookCommand(props: {
     props.onUpdate({ assignTo, assignType });
   }
 
-  const parse = props.command?.parse ?? 'none';
+  const parse = props.command?.command?.parse ?? 'none';
   const target = assignTarget();
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
       <WebhookRequestBuilder
-        webhook={props.command}
+        webhook={props.command.command}
         onUpdate={value => props.onUpdate(value)}
       />
       <Form.Item label="Handler">
         <Select
-          value={props.command.assignTo || 'none'}
+          value={props.command.command.assignTo || 'none'}
           onChange={to => assignTo(to)}
         >
           <Select.Option value="none">
@@ -109,12 +114,12 @@ export function WebhookCommand(props: {
           </Select.OptGroup>
         </Select>
       </Form.Item>
-      {props.command.assignTo === 'none' ||
-      is.empty(props.command.assignTo) ? undefined : (
+      {props.command.command.assignTo === 'none' ||
+      is.empty(props.command.command.assignTo) ? undefined : (
         <>
           <Form.Item
             label={
-              props.command.assignTo === 'eval' ? (
+              props.command.command.assignTo === 'eval' ? (
                 <Tooltip
                   title={
                     <Typography>
@@ -137,10 +142,11 @@ export function WebhookCommand(props: {
               <Select.Option value="json">JSON</Select.Option>
             </Select>
           </Form.Item>
-          {props.command.assignTo === 'eval' ? (
+          {props.command.command.assignTo === 'eval' ? (
             <Form.Item>
               <TypedEditor
-                code={props.command.code}
+                code={props.command.command.code}
+                key={props.command.id}
                 onUpdate={code => props.onUpdate({ code })}
                 type="execute"
                 extraTypes={
@@ -157,7 +163,7 @@ export function WebhookCommand(props: {
                 <Form.Item label="Data Path">
                   <Input
                     placeholder="object.path.to.value (blank for whole object)"
-                    defaultValue={props.command?.objectPath}
+                    defaultValue={props.command?.command?.objectPath}
                     onBlur={({ target }) =>
                       props.onUpdate({ objectPath: target.value })
                     }

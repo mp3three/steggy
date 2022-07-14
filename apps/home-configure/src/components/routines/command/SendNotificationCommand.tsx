@@ -1,5 +1,7 @@
 import { RoutineCommandSendNotificationDTO } from '@steggy/controller-shared';
 import { Form, Input, Radio, Typography } from 'antd';
+import { useEffect, useState } from 'react';
+import { v4 } from 'uuid';
 
 import { TypedEditor } from '../../misc';
 
@@ -8,6 +10,12 @@ export function SendNotificationCommand(props: {
   onUpdate: (command: Partial<RoutineCommandSendNotificationDTO>) => void;
 }) {
   const type = props.command?.type ?? 'simple';
+  const [id, setId] = useState('');
+
+  useEffect(() => {
+    setId(v4());
+  }, [props.command]);
+
   return (
     <>
       <Form.Item label="Type">
@@ -39,6 +47,7 @@ export function SendNotificationCommand(props: {
       <Form.Item>
         {type === 'eval' ? (
           <TypedEditor
+            key={id}
             code={props.command.template}
             secondaryText="Return text to send via notification"
             onUpdate={template => props.onUpdate({ template })}

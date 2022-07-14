@@ -2,6 +2,7 @@ import {
   PersonDTO,
   RoomDTO,
   RoomMetadataDTO,
+  RoutineCommandDTO,
   SetRoomMetadataCommandDTO,
 } from '@steggy/controller-shared';
 import { is, SINGLE } from '@steggy/utilities';
@@ -18,10 +19,10 @@ import {
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function SetRoomMetadataCommand(props: {
-  command?: SetRoomMetadataCommandDTO;
+  command?: RoutineCommandDTO<SetRoomMetadataCommandDTO>;
   onUpdate: (command: Partial<SetRoomMetadataCommandDTO>) => void;
 }) {
-  const command = props.command ?? ({} as SetRoomMetadataCommandDTO);
+  const command = props.command?.command ?? ({} as SetRoomMetadataCommandDTO);
   const [people, setPeople] = useState<
     Pick<PersonDTO, '_id' | 'friendlyName' | 'metadata'>[]
   >([]);
@@ -46,11 +47,11 @@ export function SetRoomMetadataCommand(props: {
       });
       setParsedExpression(parsed);
     }
-    if (props?.command?.valueType !== 'date') {
+    if (props.command?.command?.valueType !== 'date') {
       return;
     }
     refresh();
-  }, [expression, props?.command]);
+  }, [expression, props.command?.command?.valueType, props.command.id]);
 
   const room =
     rooms.find(({ _id }) => _id === command?.room) ||
@@ -147,10 +148,11 @@ export function SetRoomMetadataCommand(props: {
         {command?.valueType === 'eval' ? (
           <Form.Item>
             <TypedEditor
+              key={props.command.id}
               onUpdate={value => props.onUpdate({ value })}
               secondaryText="return boolean value"
               defaultValue={`if (sensor.total_consumption > 350) {\n  return false;\n}\nreturn true;`}
-              code={props.command.value as string}
+              code={props.command?.command?.value as string}
             />
           </Form.Item>
         ) : undefined}
@@ -190,10 +192,11 @@ export function SetRoomMetadataCommand(props: {
         </Form.Item>
         {command.valueType === 'eval' ? (
           <TypedEditor
+            key={props.command.id}
             onUpdate={value => props.onUpdate({ value })}
             secondaryText="return Date value"
             defaultValue={`const tomorrow = dayjs().add(1,'day');\n\nif (dayjs(person.date).isAfter(tomorrow)) {\n  return tomorrow.toDate();\n}\nreturn new Date();`}
-            code={props.command.value as string}
+            code={props.command?.command?.value as string}
           />
         ) : undefined}
         {command.valueType === 'expression' ? <ChronoExamples /> : undefined}
@@ -248,9 +251,10 @@ export function SetRoomMetadataCommand(props: {
           {command?.valueType === 'eval' ? (
             <TypedEditor
               onUpdate={value => props.onUpdate({ value })}
+              key={props.command.id}
               secondaryText="return number value"
               defaultValue={`if (sensor.total_consumption > 350) {\n  return 220;\n}\nreturn 654;`}
-              code={props.command.value as string}
+              code={props.command?.command?.value as string}
             />
           ) : undefined}
           {!['formula', 'eval'].includes(command.valueType) ? (
@@ -295,9 +299,10 @@ export function SetRoomMetadataCommand(props: {
           {command?.valueType === 'eval' ? (
             <TypedEditor
               onUpdate={value => props.onUpdate({ value })}
+              key={props.command.id}
               defaultValue={`if (sensor.total_consumption > 350) {\n  return 'foo';\n}\nreturn 'bar';`}
               secondaryText="return string value"
-              code={props.command.value as string}
+              code={props.command?.command?.value as string}
             />
           ) : (
             <Input.TextArea

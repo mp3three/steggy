@@ -56,7 +56,12 @@ export function RoutineActivateDrawer(props: {
     if (props.activate.type === 'internal_event') {
       return (
         <RoutineActivateInternalEvent
-          activate={props.activate.activate as InternalEventActivateDTO}
+          activateProperties={
+            props.activate.activate as InternalEventActivateDTO
+          }
+          activate={
+            props.activate as RoutineActivateDTO<InternalEventActivateDTO>
+          }
           onUpdate={activate =>
             updateActivate(activate as Partial<InternalEventActivateDTO>)
           }
