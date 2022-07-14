@@ -106,6 +106,7 @@ export function Header() {
     return (
       <Descriptions.Item
         span={3}
+        key={metadata.id}
         label={<Tooltip title={metadata.description}>{metadata.name}</Tooltip>}
       >
         {renderInput(metadata)}

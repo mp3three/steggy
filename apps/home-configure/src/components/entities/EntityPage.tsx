@@ -113,12 +113,12 @@ export function EntityPage() {
         const [domain, id] = i.split('.');
         return {
           text: (
-            <>
+            <span key={i}>
               <Typography.Text type="secondary" code>
                 {TitleCase(domain)}
               </Typography.Text>
               {id}
-            </>
+            </span>
           ),
           value: i,
         };

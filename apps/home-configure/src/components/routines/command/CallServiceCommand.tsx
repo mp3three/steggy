@@ -168,6 +168,7 @@ export function CallServiceCommand(props: {
             !is.undefined(field.selector.entity) ? undefined : (
               <Form.Item
                 labelCol={{ span: 8 }}
+                key={field.name}
                 label={
                   <Popover
                     title={
