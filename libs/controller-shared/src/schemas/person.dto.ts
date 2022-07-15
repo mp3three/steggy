@@ -50,7 +50,7 @@ export class PersonDTO {
 
   @Expose()
   @ApiProperty({ required: false, type: [RoomEntityDTO] })
-  @Prop()
+  @Prop({ default: [] })
   @IsString({ each: true })
   public entities?: RoomEntityDTO[];
 
@@ -72,14 +72,14 @@ export class PersonDTO {
    * Reference to group entries
    */
   @IsOptional()
-  @Prop({ type: [String] })
+  @Prop({ default: [], type: [String] })
   @IsString({ each: true })
   @ApiProperty({ required: false })
   @Expose()
   public groups?: string[];
 
   @IsOptional()
-  @Prop({ type: MongooseSchema.Types.Mixed })
+  @Prop({ default: [], type: MongooseSchema.Types.Mixed })
   @ValidateNested({ each: true })
   @Expose()
   public metadata?: RoomMetadataDTO[];
@@ -106,7 +106,7 @@ export class PersonDTO {
    * For UI purposes. Track frequently accessed items
    */
   @IsOptional()
-  @Prop()
+  @Prop({ default: [] })
   @ApiProperty({ required: false })
   @ValidateNested({ each: true })
   public pinned_items?: PinnedItemDTO[];
@@ -115,7 +115,7 @@ export class PersonDTO {
    * Reference to room entries
    */
   @IsOptional()
-  @Prop({ type: [String] })
+  @Prop({ default: [], type: [String] })
   @IsString({ each: true })
   @ApiProperty({ required: false })
   @Expose()
@@ -124,6 +124,6 @@ export class PersonDTO {
   @IsOptional()
   @ApiProperty({ required: false, type: [RoomStateDTO] })
   @ValidateNested()
-  @Prop()
+  @Prop({ default: [] })
   public save_states?: RoomStateDTO[];
 }

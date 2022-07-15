@@ -1,14 +1,25 @@
 import { CodeDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Button, Card, Form, Input, List, Popconfirm, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  List,
+  Popconfirm,
+  Space,
+  Typography,
+} from 'antd';
 import { useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
+import { CodeSearch, CodeSearchUpdateProps } from './CodeSearch';
 
 export function CodeList(props: {
   code: CodeDTO[];
   onSelect: (code: CodeDTO) => void;
   onUpdate: () => void;
+  searchUpdate: (props: CodeSearchUpdateProps) => void;
 }) {
   const [friendlyName, setFriendlyName] = useState('');
 
@@ -37,7 +48,12 @@ export function CodeList(props: {
 
   return (
     <Card
-      title={<Typography.Text strong>Code</Typography.Text>}
+      title={
+        <Space>
+          <CodeSearch onUpdate={search => props.searchUpdate(search)} />
+          <Typography.Text strong>Code</Typography.Text>
+        </Space>
+      }
       extra={
         <Popconfirm
           icon=""

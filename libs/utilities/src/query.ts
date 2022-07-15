@@ -124,10 +124,10 @@ export class ComparisonDTO {
   public value?: FilterValueType | FilterValueType[];
 }
 
-export class FilterDTO extends ComparisonDTO {
+export class FilterDTO<FIELDS = string> extends ComparisonDTO {
   public empty?: boolean;
   public exists?: boolean;
-  public field?: string;
+  public field?: FIELDS;
 }
 
 export class ResultControlDTO {

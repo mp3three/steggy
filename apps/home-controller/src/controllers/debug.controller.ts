@@ -216,24 +216,6 @@ export class DebugController {
     return await this.socketService.renderTemplate(template);
   }
 
-  @Get('/routine-tags')
-  @ApiResponse({
-    schema: {
-      properties: {
-        tags: { items: { type: 'string' }, type: 'array' },
-      },
-      type: 'object',
-    },
-  })
-  @ApiOperation({
-    description: `List all tags currently in use for routines`,
-  })
-  public async routineTags(): Promise<{ tags: string[] }> {
-    return {
-      tags: await this.routineService.allTags(),
-    };
-  }
-
   @Post(`/send-notification`)
   @ApiResponse({ schema: { type: 'string' } })
   @ApiBody({

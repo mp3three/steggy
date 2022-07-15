@@ -39,17 +39,24 @@ export function TypedEditor(props: {
     loadTypes();
   }, []);
 
+  /**
+   * Utilize it as a string with `useEffect`.
+   * Each render has `customExclude` passed in as a new array, but will shallow equals
+   */
+  const exclude = props.customExclude?.join(',') || '';
+
   useEffect(() => {
     async function loadCustomCode(): Promise<void> {
       const filters = new Set<FilterDTO>();
       if (props.type === 'request') {
         filters.add({ field: 'type', value: 'request' });
       }
-      if (!is.empty(props.customExclude)) {
+      if (!is.empty(exclude)) {
         filters.add({
           field: '_id',
           operation: 'nin',
-          value: props.customExclude,
+          // Send it through as an array of values to not include
+          value: exclude.split(','),
         });
       }
       const result = await sendRequest<CodeDTO[]>({
@@ -59,7 +66,8 @@ export function TypedEditor(props: {
       setCustomCode(result);
     }
     loadCustomCode();
-  }, [props.customExclude, props.type]);
+    console.log(exclude, props.type);
+  }, [exclude, props.type]);
 
   function sendUpdate(update: string): void {
     setCode(update);

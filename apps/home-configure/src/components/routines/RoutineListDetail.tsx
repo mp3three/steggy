@@ -57,7 +57,7 @@ export function RoutineListDetail(props: {
             span={3}
           >
             Routine is enabled, but is missing activation events or commands. If
-            children are present, then this will be used if activations OR
+            children are present, then this color will be used if activations OR
             commands are present, but not both.
           </Descriptions.Item>
           <Descriptions.Item

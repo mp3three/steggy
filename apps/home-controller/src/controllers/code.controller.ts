@@ -28,6 +28,23 @@ export class CodeController {
     private readonly codeService: CodeService,
   ) {}
 
+  @Get('/tags')
+  @ApiResponse({
+    schema: {
+      properties: {
+        tags: { items: { type: 'string' }, type: 'array' },
+      },
+      type: 'object',
+    },
+  })
+  @ApiOperation({
+    description: `List all tags currently in use for code`,
+  })
+  public async routineTags(): Promise<{ tags: string[] }> {
+    return {
+      tags: await this.codeService.allTags(),
+    };
+  }
   @Post(`/`)
   @ApiBody({ type: CodeDTO })
   @ApiResponse({ type: CodeDTO })

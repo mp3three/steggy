@@ -15,7 +15,7 @@ export function RoutineTags(props: {
   useEffect(() => {
     async function refresh() {
       const response = await sendRequest<{ tags: string[] }>({
-        url: `/debug/routine-tags`,
+        url: `/routine/tags`,
       });
       setAllTags(response.tags);
     }
@@ -28,7 +28,6 @@ export function RoutineTags(props: {
       <Select
         mode="tags"
         style={{ width: '100%' }}
-        placeholder="Tags Mode"
         value={[...tags]}
         onChange={value => props.onUpdate({ tags: is.unique(value) })}
       >

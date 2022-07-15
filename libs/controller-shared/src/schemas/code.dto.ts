@@ -13,6 +13,8 @@ import {
 
 import { MINIMUM_NAME_SIZE } from '../constants';
 
+const DEFAULT_CODE_PRIORITY = 1000;
+
 export class CodeEnableDTO {
   public type?: 'enable' | 'disable';
 }
@@ -40,7 +42,7 @@ export class CodeDTO {
   public _id?: string;
 
   @IsString()
-  @Prop()
+  @Prop({ default: '' })
   @ApiProperty()
   public code: string;
 
@@ -62,7 +64,7 @@ export class CodeDTO {
   @ValidateNested()
   @IsOptional()
   @ApiProperty({ required: false, type: [CodeEnableDTO] })
-  @Prop({ index: true })
+  @Prop({ default: { type: 'enable' }, index: true })
   public enable?: CodeEnableDTO;
 
   @IsString()
@@ -80,15 +82,24 @@ export class CodeDTO {
   @Prop({ index: true })
   public modified?: Date;
 
-  @Prop()
+  /**
+   * Loading order for VM
+   */
+  @Prop({ default: DEFAULT_CODE_PRIORITY })
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  public priority?: number;
+
+  @Prop({ default: [] })
   @IsOptional()
   @ApiProperty({ type: [String] })
   @IsString({ each: true })
   public tags?: string[];
 
   @IsEnum(CodeType)
-  @Prop()
+  @Prop({ default: CodeType.request })
   @ApiProperty()
   @IsOptional()
-  public type?: `${CodeType}`;
+  public type?: `${CodeType}` = CodeType.request;
 }

@@ -64,6 +64,24 @@ import { v4 as uuid } from 'uuid';
 export class RoutineController {
   constructor(private readonly routineService: RoutineService) {}
 
+  @Get('/tags')
+  @ApiResponse({
+    schema: {
+      properties: {
+        tags: { items: { type: 'string' }, type: 'array' },
+      },
+      type: 'object',
+    },
+  })
+  @ApiOperation({
+    description: `List all tags currently in use for routines`,
+  })
+  public async routineTags(): Promise<{ tags: string[] }> {
+    return {
+      tags: await this.routineService.allTags(),
+    };
+  }
+
   @Post('/import')
   public async import(@Body() body: GenericImport): Promise<RoutineDTO> {
     if (is.empty(body.import)) {

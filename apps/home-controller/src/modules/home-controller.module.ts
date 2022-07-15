@@ -26,7 +26,6 @@ import {
 import {
   ApplicationService,
   AttributeChangeActivateService,
-  CallServiceService,
   CaptureCommandService,
   ExecuteCodeCommandService,
   GroupActionCommandService,
@@ -94,7 +93,6 @@ const APPLICATION = Symbol('home-controller');
   providers: [
     ApplicationService,
     AttributeChangeActivateService,
-    CallServiceService,
     CaptureCommandService,
     ExecuteCodeCommandService,
     GroupActionCommandService,

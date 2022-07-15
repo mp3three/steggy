@@ -19,6 +19,7 @@ import PinOutline from '@2fd/ant-design-icons/lib/PinOutline';
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import RefreshCircle from '@2fd/ant-design-icons/lib/RefreshCircle';
 import StepForward from '@2fd/ant-design-icons/lib/StepForward';
+import TextBoxSearchOutline from '@2fd/ant-design-icons/lib/TextBoxSearchOutline';
 import TimelinePlus from '@2fd/ant-design-icons/lib/TimelinePlus';
 import {
   CameraOutlined,
@@ -65,6 +66,7 @@ type iconTypes =
   | 'rooms'
   | 'routines'
   | 'run'
+  | 'search'
   | 'settings'
   | 'warning';
 
@@ -100,6 +102,7 @@ export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['rooms', <BulletinBoard />],
   ['routines', <HomeAutomation />],
   ['run', <DebugStepInto />],
+  ['search', <TextBoxSearchOutline />],
   ['settings', <SettingOutlined />],
   ['warning', <ExclamationCircleOutlined style={{ color: '#AAAA00' }} />],
 ]);

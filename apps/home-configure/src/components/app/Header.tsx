@@ -86,6 +86,7 @@ export function Header() {
       return (
         <Input
           type="number"
+          key={metadata.id}
           defaultValue={Number(metadata.value ?? 0)}
           onBlur={({ target }) => updateValue(metadata, target.value)}
         />
@@ -94,6 +95,7 @@ export function Header() {
     if (metadata.type === 'string') {
       return (
         <Input
+          key={metadata.id}
           defaultValue={metadata.value as string}
           onBlur={({ target }) => updateValue(metadata, target.value)}
         />

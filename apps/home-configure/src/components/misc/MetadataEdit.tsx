@@ -39,7 +39,7 @@ export function MetadataEdit(props: {
   }
 
   function renderValue() {
-    const { type, value, options } = props.metadata;
+    const { type, value, options, id } = props.metadata;
     if (type === 'boolean') {
       return (
         <Checkbox
@@ -52,6 +52,7 @@ export function MetadataEdit(props: {
       return (
         <Input
           type="number"
+          key={id}
           defaultValue={Number(value)}
           onBlur={({ target }) => onUpdate({ value: target.value })}
         />
@@ -81,6 +82,7 @@ export function MetadataEdit(props: {
     }
     return (
       <Input
+        key={id}
         defaultValue={String(value)}
         onBlur={({ target }) => props.onUpdate({ value: target.value })}
       />
@@ -101,6 +103,7 @@ export function MetadataEdit(props: {
         <Space direction="vertical" style={{ width: '100%' }}>
           <Form.Item label="Property name">
             <Input
+              key={props.metadata.id}
               defaultValue={props.metadata.name}
               onBlur={({ target }) => onUpdate({ name: target.value })}
             />
@@ -122,6 +125,7 @@ export function MetadataEdit(props: {
             <>
               <Divider orientation="left">Enum options (1 per line)</Divider>
               <Input.TextArea
+                key={props.metadata.id}
                 defaultValue={(props.metadata.options ?? []).join(`\n`)}
                 style={{ minHeight: '150px' }}
                 onBlur={({ target }) =>
@@ -139,6 +143,7 @@ export function MetadataEdit(props: {
           <Form.Item>
             <Input.TextArea
               style={{ minHeight: '150px' }}
+              key={props.metadata.id}
               defaultValue={props.metadata.description}
               onBlur={({ target }) => onUpdate({ description: target.value })}
               placeholder={DESCRIPTION_PLACEHOLDER(

@@ -5,12 +5,14 @@ import {
   InjectCache,
   InjectConfig,
 } from '@steggy/boilerplate';
+import { CodeType } from '@steggy/controller-shared';
 import { is, sleep, START } from '@steggy/utilities';
 import dayjs from 'dayjs';
 import { ModuleKind, transpileModule } from 'typescript';
 import { VM } from 'vm2';
 
 import { VM_COMMAND_TIMEOUT, VM_FETCH_TIMEOUT } from '../../config';
+import { CodeService } from '../code.service';
 import { BreakoutAPIService } from './breakout-api.service';
 import { DataAggregatorService } from './data-aggregator.service';
 import { HACallTypeGenerator } from './ha-call-type-generator.service';
@@ -29,6 +31,7 @@ export class VMService {
     private readonly cache: CacheManagerService,
     private readonly breakoutApi: BreakoutAPIService,
     private readonly callProxy: HACallTypeGenerator,
+    private readonly codeService: CodeService,
   ) {}
 
   /**
@@ -41,7 +44,7 @@ export class VMService {
     code: string,
     parameters: Record<string, unknown> = {},
   ): Promise<void> {
-    code = await this.transpile(code);
+    code = await this.transpile(code, CodeType.execute);
     try {
       const call_service = this.callProxy.buildProxy();
       await new VM({
@@ -80,7 +83,7 @@ export class VMService {
     code: string,
     parameters: Record<string, unknown> = {},
   ): Promise<T> {
-    code = await this.transpile(code);
+    code = await this.transpile(code, CodeType.request);
     try {
       return await new VM({
         allowAsync: true,
@@ -127,15 +130,30 @@ export class VMService {
     return hash.toString();
   }
 
-  private async transpile(code: string): Promise<string> {
+  /**
+   * Prepend relevant user code, then request that typescript transpiles it into normal js.
+   *
+   * Then, cache the result against the string hash of the script version of the code.
+   * If the code changes, or any of the dependencies change, it will automatically invalidate the cache and rebuild.
+   *
+   * Don't currently see a need to pre-emptively clear cache.
+   * The memory cache MAY be an issue in the future, but sane usage with redis should be fine
+   */
+  private async transpile(code: string, type: CodeType): Promise<string> {
     const start = Date.now();
     // VM appears to return value provided by the final instruction to execute
-    code = `const __wrapper = async function(){${code}};\n__wrapper();`;
+    code = [
+      await this.codeService.code(type),
+      'const __wrapper = async function() {',
+      code,
+      '};',
+      '__wrapper();',
+    ].join(`\n`);
 
     const hashed = this.hash(code);
     const key = CACHE_KEY(hashed.toString());
     const data = await this.cache.get<string>(key);
-    // A cache hit is dramatically faster
+
     if (!is.empty(data)) {
       this.logger.debug({ key }, `Loaded transpile cache`);
       return data;

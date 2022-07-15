@@ -43,13 +43,13 @@ export class RoutineDTO {
   @IsOptional()
   @ValidateNested({ each })
   @ApiProperty({ required: false, type: [RoutineActivateDTO] })
-  @Prop()
+  @Prop({ default: [] })
   public activate?: RoutineActivateDTO[];
 
   @IsOptional()
   @ValidateNested({ each })
   @ApiProperty({ required: false, type: [RoutineCommandDTO] })
-  @Prop()
+  @Prop({ default: [] })
   public command?: RoutineCommandDTO[];
 
   /**
@@ -79,7 +79,7 @@ export class RoutineDTO {
   @ValidateNested()
   @IsOptional()
   @ApiProperty({ required: false, type: [RoutineEnableDTO] })
-  @Prop()
+  @Prop({ default: { type: 'enable' } as RoutineEnableDTO })
   public enable?: RoutineEnableDTO;
 
   @IsString()
@@ -112,13 +112,13 @@ export class RoutineDTO {
   @IsEnum(['normal', 'queue', 'block', 'interrupt'])
   public repeat?: 'normal' | 'queue' | 'block' | 'interrupt';
 
-  @Prop()
+  @Prop({ default: false })
   @IsOptional()
   @ApiProperty({ required: false })
   @IsBoolean()
   public sync?: boolean;
 
-  @Prop()
+  @Prop({ default: [] })
   @IsOptional()
   @ApiProperty({ type: [String] })
   @IsString({ each })
