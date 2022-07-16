@@ -24,37 +24,6 @@ export class TerminalHelpService {
     @InjectConfig(HELP) private readonly showHelp: boolean,
   ) {}
 
-  protected onPreInit(): void {
-    if (!this.showHelp) {
-      return;
-    }
-    const application = this.application.description;
-    this.applicationManager.setHeader('Help');
-    const ALL_SWITCHES: string[] = [];
-    const { configs } = LibraryModule;
-
-    configs.forEach(({ configuration }) =>
-      ALL_SWITCHES.push(
-        ...Object.entries(configuration).map(([property]) => property),
-      ),
-    );
-    this.screenService.down();
-    const LONGEST =
-      Math.max(...ALL_SWITCHES.map(line => line.length)) + INCREMENT;
-    this.printProject(
-      application,
-      configs.get(application).configuration,
-      LONGEST,
-    );
-    configs.forEach(({ configuration }, project) => {
-      if (project === application) {
-        return;
-      }
-      this.printProject(project, configuration, LONGEST);
-    });
-    exit();
-  }
-
   protected printProject(
     project: string,
     configuration: Record<string, ConfigItem>,
@@ -88,6 +57,37 @@ export class TerminalHelpService {
         }
         this.screenService.down();
       });
+  }
+
+  protected rewire(): void {
+    if (!this.showHelp) {
+      return;
+    }
+    const application = this.application.description;
+    this.applicationManager.setHeader('Help');
+    const ALL_SWITCHES: string[] = [];
+    const { configs } = LibraryModule;
+
+    configs.forEach(({ configuration }) =>
+      ALL_SWITCHES.push(
+        ...Object.entries(configuration).map(([property]) => property),
+      ),
+    );
+    this.screenService.down();
+    const LONGEST =
+      Math.max(...ALL_SWITCHES.map(line => line.length)) + INCREMENT;
+    this.printProject(
+      application,
+      configs.get(application).configuration,
+      LONGEST,
+    );
+    configs.forEach(({ configuration }, project) => {
+      if (project === application) {
+        return;
+      }
+      this.printProject(project, configuration, LONGEST);
+    });
+    exit();
   }
 
   private booleanSwitch(property: string, config: ConfigItem): void {

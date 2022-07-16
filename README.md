@@ -96,15 +96,3 @@ Utilities for creating terminal applications.
 ### [Utilities](libs/utilities)
 
 General purpose utilities and constants for `@steggy`
-
-## Development goals by minor revision
-
-> - `0.12.x` User provided Typescript tools, and general routine improvements
-> - `0.11.x` Configuration management & TTY upgrades
-> - `0.10.x` Buildout of people, additional focus on UI completeness / consistency
-> - `0.9.x` Focus on quality of life and platform stability updates
-> - `0.8.x` Build out of metadata, which enales virtual states that can be set / watched
-> - `0.7.x` Buildout of dynamic enabling of routines, which allows routines to decide if they should allow activation requests
-> - `<= 0.6.x`: Proof of concept + prepping repo to be open sourced
-
-<!-- - [MQTT](libs/mqtt) -->

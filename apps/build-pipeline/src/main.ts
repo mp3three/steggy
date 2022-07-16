@@ -17,6 +17,7 @@ import {
 import { eachSeries, is, TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
 import JSON from 'comment-json';
+import dayjs from 'dayjs';
 import execa from 'execa';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
@@ -53,31 +54,6 @@ export class BuildPipelineService {
       type: 'boolean',
     })
     private readonly nonInteractive: boolean,
-    @InjectConfig('BUMP_ONLY', {
-      default: false,
-      description: 'Bump versions, do not publish',
-      type: 'boolean',
-    })
-    private readonly bumpOnly: boolean,
-    @InjectConfig('CONTAINERIZED', {
-      default: false,
-      description:
-        'Build all code inside standardized containers. Adds complexity, implies NON_INTERACTIVE, but can create repeatable builds across different host systems',
-      type: 'boolean',
-    })
-    private readonly containerizedBuild: boolean,
-    @InjectConfig('BASE', {
-      description:
-        'Reference to base commit to measure affected from. Argument passed through to NX, commit SHA is a good value4',
-      type: 'string',
-    })
-    private readonly base: string,
-    @InjectConfig('HEAD', {
-      description:
-        'Latest commit to measure from. Argument passed through to NX, commit SHA is a good value',
-      type: 'string',
-    })
-    private readonly head: string,
     @InjectConfig('ALL', {
       default: false,
       description: 'Do not look for affected, just run everything',
@@ -91,8 +67,7 @@ export class BuildPipelineService {
     })
     private readonly runProject: string[],
   ) {
-    this.nonInteractive =
-      containerizedBuild || runAll || nonInteractive || !is.empty(runProject);
+    this.nonInteractive = runAll || nonInteractive || !is.empty(runProject);
   }
 
   private readonly BUILT_APPS: string[] = [];
@@ -106,12 +81,10 @@ export class BuildPipelineService {
     if (!is.empty(affected.apps)) {
       apps = await this.build(affected);
     }
-    if (!is.empty(affected.libs)) {
-      await this.bumpLibraries(affected);
-    }
+    const version = await this.bumpLibraries();
     apps = apps.filter(name => !this.BUILT_APPS.includes(name));
     if (!is.empty(apps)) {
-      await this.bumpApplications(apps);
+      await this.bumpApplications(apps, version);
     }
     try {
       if (!is.empty(this.runAfter)) {
@@ -160,50 +133,10 @@ export class BuildPipelineService {
         });
   }
 
-  private async buildInDocker(
-    { libs, apps }: AffectedList,
-    libraries: string[],
+  private async bumpApplications(
+    apps: string[],
+    update: string,
   ): Promise<void> {
-    const projects: string[] = [];
-    if (!is.empty(libs)) {
-      // * Add ALL libraries if any are modified
-      projects.push(...libraries);
-    }
-    apps.forEach(app => {
-      // Also add apps that have a publish target, AND a bin entry in the package.json
-      // Projects with bin entries need to be published to npm in order to be installed
-      const workspace = JSON.parse(
-        readFileSync(join('apps', app, 'project.json'), 'utf8'),
-      ) as { targets: Record<string, unknown> };
-      if (!workspace?.targets?.publish) {
-        return;
-      }
-      const packageFile = join('apps', app, PACKAGE_FILE);
-      if (!existsSync(packageFile)) {
-        return;
-      }
-      const packageJson = JSON.parse(
-        readFileSync(packageFile, 'utf8'),
-      ) as PackageJsonDTO;
-      if (!is.empty(Object.entries(packageJson.bin ?? {}))) {
-        projects.push(app);
-        this.BUILT_APPS.push(app);
-      }
-    });
-    // docker build -f apps/build-pipeline/Dockerfile --build-arg PROJECT_LIST=build-pipeline,boilerplate .
-    await this.screenService.pipe(
-      execa(`docker`, [
-        `build`,
-        `-f`,
-        `apps/${this.application.description}/Dockerfile`,
-        `--build-arg`,
-        `PROJECT_LIST=${projects.join(',')}`,
-        `.`,
-      ]),
-    );
-  }
-
-  private async bumpApplications(apps: string[]): Promise<void> {
     apps.forEach(application => {
       const file = join('apps', application, PACKAGE_FILE);
       if (!existsSync(file)) {
@@ -215,26 +148,20 @@ export class BuildPipelineService {
       if (!is.string(packageJSON.version)) {
         return;
       }
-      const update = inc(packageJSON.version, 'patch');
       this.logger.info(
         `[${application}] {${packageJSON.version}} => {${update}}`,
       );
       packageJSON.version = update;
       writeFileSync(file, JSON.stringify(packageJSON, undefined, '  ') + `\n`);
     });
-    if (!this.bumpOnly) {
-      await eachSeries(apps, async app => {
-        this.logger.info(`[${app}] publishing`);
-        await this.screenService.pipe(execa(`npx`, [`nx`, `publish`, app]));
-      });
-    }
+    await eachSeries(apps, async app => {
+      this.logger.info(`[${app}] publishing`);
+      await this.screenService.pipe(execa(`npx`, [`nx`, `publish`, app]));
+    });
   }
 
-  private async bumpLibraries(list: AffectedList) {
-    const root = await this.bumpRoot(list);
-    if (!root) {
-      return;
-    }
+  private async bumpLibraries() {
+    const root = await this.bumpRoot();
     const { projects } = this.WORKSPACE;
     const libraries = Object.entries(projects)
       .filter(([, path]) => path?.startsWith('lib'))
@@ -248,56 +175,31 @@ export class BuildPipelineService {
       packageJSON.version = root;
       writeFileSync(file, JSON.stringify(packageJSON, undefined, '  ') + `\n`);
     });
-    if (!this.bumpOnly) {
-      if (this.containerizedBuild) {
-        return await this.buildInDocker(list, libraries);
+    await eachSeries(libraries, async library => {
+      this.logger.info(`[${library}] publishing`);
+      try {
+        await this.screenService.pipe(execa(`npx`, [`nx`, `publish`, library]));
+      } catch (error) {
+        this.logger.error(error.stderr);
+        exit();
       }
-      await eachSeries(libraries, async library => {
-        this.logger.info(`[${library}] publishing`);
-        try {
-          await this.screenService.pipe(
-            execa(`npx`, [`nx`, `publish`, library]),
-          );
-        } catch (error) {
-          this.logger.error(error.stderr);
-          exit();
-        }
-      });
-    }
+    });
+    return root;
   }
 
-  private async bumpRoot(affected: AffectedList): Promise<string> {
+  private bumpRoot(): string {
     const packageJSON = JSON.parse(
       readFileSync(PACKAGE_FILE, 'utf8'),
     ) as PACKAGE;
-    const newVersion = inc(packageJSON.version, 'patch');
-    const proceed =
-      this.nonInteractive ||
-      (await this.confirmActions(affected, newVersion, packageJSON.version));
-    packageJSON.version = newVersion;
-    if (!proceed) {
-      return ``;
-    }
+    const prefix = dayjs().format('YY.ww');
+    packageJSON.version = packageJSON.version.startsWith(prefix)
+      ? inc(packageJSON.version, 'patch')
+      : `${prefix}.0`;
     writeFileSync(
       PACKAGE_FILE,
       JSON.stringify(packageJSON, undefined, '  ') + `\n`,
     );
     return packageJSON.version;
-  }
-
-  private async confirmActions(
-    { libs }: AffectedList,
-    newVersion: string,
-    oldVersion: string,
-  ) {
-    this.applicationManager.setHeader(`Bump Library Versions`);
-    this.screenService.down();
-    this.screenService.printLine(
-      chalk.bold`{cyan LIBS} {blue ${oldVersion}} {white =>} {blue ${newVersion}}`,
-    );
-    libs.forEach(line => this.screenService.printLine(chalk` {yellow - } ${line}`));
-    this.screenService.down();
-    return await this.promptService.confirm('Upgrade libraries?', true);
   }
 
   private hasPublish(name: string): boolean {
@@ -333,20 +235,8 @@ export class BuildPipelineService {
           : [],
       };
     }
-    const rawApps = await execa(`npx`, [
-      'nx',
-      'affected:apps',
-      '--plain',
-      ...(is.empty(this.base) ? [] : ['--base', this.base]),
-      ...(is.empty(this.base) ? [] : ['--head', this.head]),
-    ]);
-    const rawLibs = await execa(`npx`, [
-      'nx',
-      'affected:libs',
-      '--plain',
-      ...(is.empty(this.base) ? [] : ['--base', this.base]),
-      ...(is.empty(this.base) ? [] : ['--head', this.head]),
-    ]);
+    const rawApps = await execa(`npx`, ['nx', 'affected:apps', '--plain']);
+    const rawLibs = await execa(`npx`, ['nx', 'affected:libs', '--plain']);
     const libs: string[] = rawLibs.stdout
       .split(' ')
       .filter(line => !is.empty(line.trim()));
