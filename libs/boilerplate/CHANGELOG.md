@@ -1,5 +1,12 @@
 # Changelog
 
+## 22.29.1
+
+- Added custom methods to compress and serialize / unserialize objects
+  - Utilizes gzip to achieve far smaller strings than normal JSON
+- Added new lifecycle event: `rewire`
+  - Called prior to pre-init, is intended for overriding the entire application flow for some purpose
+
 ## 0.12.0
 
 - Pretty logger: added new lightlight symbol `>`

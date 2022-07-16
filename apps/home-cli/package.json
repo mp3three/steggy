@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "main.js",
   "displayName": "Home CLI",
-  "version": "22.29.1",
+  "version": "22.29.2",
   "homepage": "https://github.com/mp3three/steggy",
   "engines": {
     "node": ">=16.0.0"

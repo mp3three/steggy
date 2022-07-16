@@ -60,6 +60,7 @@ export function CodeEdit(props: {
             key={props.code?._id}
             code={props.code?.code ?? ''}
             type={props.code.type}
+            noTopLevelReturn
             onUpdate={code => props.onUpdate({ code })}
             customExclude={[props.code._id]}
           />

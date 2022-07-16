@@ -4,7 +4,7 @@ import {
   RoutineActivateDTO,
 } from '@steggy/controller-shared';
 import { is, LABEL, VALUE } from '@steggy/utilities';
-import { Form, Select, Space, Typography } from 'antd';
+import { Form, Input, Select, Space, Tabs, Typography } from 'antd';
 
 import { TypedEditor } from '../../misc';
 
@@ -114,6 +114,7 @@ const types = new Map<
   ],
 ]);
 
+const VALIDATION = new RegExp('^[A-Za-z0-9_-]*$', 'g');
 export function RoutineActivateInternalEvent(props: {
   activate: RoutineActivateDTO;
   activateProperties: InternalEventActivateDTO;
@@ -137,36 +138,57 @@ export function RoutineActivateInternalEvent(props: {
           {details?.help[LABEL]}
         </Typography.Text>
       </Form.Item>
-      <Form.Item>
-        <TypedEditor
-          key={props.activate.id}
-          secondaryText={
-            <Space direction="vertical">
-              {details ? (
-                <Space>
-                  <Typography.Text strong>
-                    Available variables:{' '}
-                  </Typography.Text>
-                  {is.string(details?.help[VALUE])
-                    ? details?.help[VALUE]
-                    : (details?.help[VALUE] as string[]).map(i => (
-                        <Typography.Text key={i} code>
-                          {i}
-                        </Typography.Text>
-                      ))}
+      <Tabs>
+        <Tabs.TabPane tab="Editor" key="editor">
+          <Form.Item>
+            <TypedEditor
+              key={props.activate.id}
+              noTopLevelReturn
+              secondaryText={
+                <Space direction="vertical">
+                  {details ? (
+                    <Space>
+                      <Typography.Text strong>
+                        {'Available variables: '}
+                      </Typography.Text>
+                      {is.string(details?.help[VALUE])
+                        ? details?.help[VALUE]
+                        : (details?.help[VALUE] as string[]).map(i => (
+                            <Typography.Text key={i} code>
+                              {i}
+                            </Typography.Text>
+                          ))}
+                    </Space>
+                  ) : undefined}
+                  <Typography>
+                    <Typography.Text code>return true</Typography.Text>
+                    {` to trigger routine`}
+                  </Typography>
                 </Space>
-              ) : undefined}
-              <Typography>
-                <Typography.Text code>return true</Typography.Text>
-                {` to trigger routine`}
-              </Typography>
-            </Space>
-          }
-          extraTypes={types.get(props.activateProperties.event)?.types}
-          code={props.activateProperties?.validate}
-          onUpdate={validate => props.onUpdate({ validate })}
-        />
-      </Form.Item>
+              }
+              extraTypes={types.get(props.activateProperties.event)?.types}
+              code={props.activateProperties?.validate}
+              onUpdate={validate => props.onUpdate({ validate })}
+            />
+          </Form.Item>
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Settings" key="settings">
+          <Form.Item
+            labelCol={{ span: 6 }}
+            label="Custom log context"
+            rules={[{ pattern: VALIDATION, type: 'regexp' }]}
+          >
+            <Input
+              placeholder="execute"
+              prefix="VM:"
+              defaultValue={props.activateProperties.logContext}
+              onBlur={({ target }) =>
+                props.onUpdate({ logContext: target.value })
+              }
+            />
+          </Form.Item>
+        </Tabs.TabPane>
+      </Tabs>
     </Space>
   );
 }

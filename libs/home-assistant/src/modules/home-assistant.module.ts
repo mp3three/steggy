@@ -67,7 +67,6 @@ const services: Provider[] = [
     [BASE_URL]: {
       default: 'http://localhost:8123',
       description: 'Url to reach Home Assistant at',
-      required: true,
       type: 'url',
     },
     [CRASH_REQUESTS_PER_SEC]: {

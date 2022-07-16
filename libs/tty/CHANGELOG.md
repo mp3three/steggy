@@ -1,5 +1,11 @@
 # Changelog
 
+## 22.29.1
+
+- FIX: Menu component includes help text while fuzzy searching
+- TextRedering#typePrinter provides colored nesting levels
+- `--help` command processing moved to the `rewire` lifecycle event (from `onPreInit`)
+
 ## 0.12.0
 
 - Fixed rendering errors that happen with modifier + key combos for keymaps

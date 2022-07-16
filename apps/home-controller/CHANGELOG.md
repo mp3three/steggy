@@ -1,5 +1,16 @@
 # Changelog
 
+## 22.29.1
+
+- Upgraded UI to React 18
+- Central application feature: Monaco Edito + sandboxed script running
+  - The monaco editor (which powers VSCode) has been implemented in various locations across the UI
+  - Typings for relevant variables are provided to the UI for a full editing experience
+  - Code can be input as typescript, and the backend will be able to transpile and execute that code in a custom sandbox
+- Added new main menu item: Code
+  - This page can be used to create custom types / variables / functions / etc that can be made available in other editors
+- Internal Events + Code Command support custom logging contexts
+
 ## 0.12.0
 
 - Added Routine Command: Call Service

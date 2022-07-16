@@ -1,5 +1,10 @@
 # Build Pipeline
 
+## 22.29.1
+
+- Moved to date based versioning
+  - All package.json files share the same version when published
+
 ## 0.12.0
 
 - Added support for logs containing color codes

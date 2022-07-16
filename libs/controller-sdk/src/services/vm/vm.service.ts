@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { INestApplication, Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
@@ -34,6 +34,8 @@ export class VMService {
     private readonly codeService: CodeService,
   ) {}
 
+  private app: INestApplication;
+
   /**
    * Execute user provided typescript code
    *
@@ -43,6 +45,7 @@ export class VMService {
   public async command(
     code: string,
     parameters: Record<string, unknown> = {},
+    context?: string,
   ): Promise<void> {
     code = await this.transpile(code, CodeType.execute);
     try {
@@ -51,13 +54,14 @@ export class VMService {
         allowAsync: true,
         eval: false,
         sandbox: {
-          ...(await this.baseSandbox()),
+          ...(await this.baseSandbox(context, CodeType.execute)),
           ...parameters,
           cacheManager: {
-            del: key => this.cache.del(key),
-            get: key => this.cache.get(key),
-            keys: pattern => this.cache.store.keys(pattern),
-            set: (key, value, ttl) => this.cache.set(key, value, { ttl }),
+            del: async key => await this.cache.del(key),
+            get: async key => await this.cache.get(key),
+            keys: async pattern => await this.cache.store.keys(pattern),
+            set: async (key, value, ttl) =>
+              await this.cache.set(key, value, { ttl }),
           },
           call_service,
           sleep,
@@ -67,7 +71,7 @@ export class VMService {
         wasm: false,
       }).run(code);
     } catch (error) {
-      const response = error.response ? error.response : error;
+      const response = error.response || error;
       const message = response.message;
       delete response.message;
       this.logger.error({ response }, message || `Code evaluation threw error`);
@@ -82,6 +86,7 @@ export class VMService {
   public async fetch<T>(
     code: string,
     parameters: Record<string, unknown> = {},
+    context?: string,
   ): Promise<T> {
     code = await this.transpile(code, CodeType.request);
     try {
@@ -89,14 +94,14 @@ export class VMService {
         allowAsync: true,
         eval: false,
         sandbox: {
-          ...(await this.baseSandbox()),
+          ...(await this.baseSandbox(context, CodeType.request)),
           ...parameters,
         },
         timeout: this.fetchTimeout,
         wasm: false,
       }).run(code);
     } catch (error) {
-      const response = error.response ? error.response : error;
+      const response = error.response || error;
       const message = response.message;
       delete response.message;
       this.logger.error({ response }, message || `Code evaluation threw error`);
@@ -104,14 +109,20 @@ export class VMService {
     }
   }
 
-  private async baseSandbox() {
+  protected onPostInit(app: INestApplication): void {
+    this.app = app;
+  }
+
+  private async baseSandbox(context: string, type: CodeType) {
+    const logger = await this.app.resolve(AutoLogService);
+    logger['context'] = `VM:${context || type}`;
     return {
       // Load all dynamic data, and provide
       ...(await this.dataAggregator.load()),
       // libraries & utils
       dayjs,
       is,
-      logger: this.logger,
+      logger,
     };
   }
 

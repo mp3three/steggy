@@ -7,6 +7,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Matches,
   MinLength,
   ValidateNested,
 } from 'class-validator';
@@ -127,7 +128,12 @@ export class RoutineCodeCommandDTO {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  public code: string;
+  public code?: string;
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  @Matches(new RegExp('^[A-Za-z0-9_-]*$', 'g'))
+  public logContext?: string;
 }
 
 export class RoutineRestoreCommandDTO {

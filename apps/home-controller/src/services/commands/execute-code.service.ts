@@ -26,10 +26,14 @@ export class ExecuteCodeCommandService
     waitForChange: boolean;
   }): Promise<boolean> {
     let stop = false;
-    await this.vmService.command(command.command.code, {
-      stop_processing: () => (stop = true),
-      waitForChange,
-    });
+    await this.vmService.command(
+      command.command.code,
+      {
+        stop_processing: () => (stop = true),
+        waitForChange,
+      },
+      command.command.logContext,
+    );
     return stop;
   }
 }

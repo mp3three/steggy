@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react';
 import { FD_ICONS, sendRequest } from '../../types';
 import { CodeCommandHelp } from './CodeCommandHelp';
 let timeout: NodeJS.Timeout;
-
 // eslint-disable-next-line radar/cognitive-complexity
 export function TypedEditor(props: {
   code: string;
@@ -15,6 +14,7 @@ export function TypedEditor(props: {
   defaultValue?: string;
   extraTypes?: string;
   height?: string;
+  noTopLevelReturn?: boolean;
   onUpdate: (update: string) => void;
   secondaryText?: string | JSX.Element;
   type?: 'request' | 'execute';
@@ -98,14 +98,16 @@ export function TypedEditor(props: {
         </Typography.Text>
         <span style={{ float: 'right' }}>
           {(props.type ?? 'request') === 'request' ? (
-            <Tooltip
-              placement="left"
-              title="Code must return a value to be understood"
-            >
-              {/* TODO: Click to hide / never show again. Tracked against `person` profile */}
-              {/* Only if it bothers me enough to make a ticket */}
-              {FD_ICONS.get('information')}
-            </Tooltip>
+            props.noTopLevelReturn ? undefined : (
+              <Tooltip
+                placement="left"
+                title="Code must return a value to be understood"
+              >
+                {/* TODO: Click to hide / never show again. Tracked against `person` profile */}
+                {/* Only if it bothers me enough to make a ticket */}
+                {FD_ICONS.get('information')}
+              </Tooltip>
+            )
           ) : (
             <CodeCommandHelp />
           )}
@@ -116,7 +118,6 @@ export function TypedEditor(props: {
         height={props.height ?? '50vh'}
         value={code ?? ''}
         beforeMount={monaco => {
-          // monaco.
           const {
             languages: { typescript },
           } = monaco;
@@ -152,7 +153,11 @@ export function TypedEditor(props: {
             // ? 1375 = top level await
             // ? 1378 = related compiler complaining
             // This isn't really "top level", these aren't relevant
-            { diagnosticCodesToIgnore: [1108, 1375, 1378] },
+            {
+              diagnosticCodesToIgnore: props.noTopLevelReturn
+                ? [1375, 1378]
+                : [1108, 1375, 1378],
+            },
           );
           typescript.typescriptDefaults.setExtraLibs([
             {

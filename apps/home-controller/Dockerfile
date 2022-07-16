@@ -86,5 +86,8 @@ COPY --from=build /app/dist/apps/home-controller/assets ./assets
 COPY --from=build /app/config.json ./config.json
 
 HEALTHCHECK CMD curl --fail http://localhost:7000/api/health
-CMD ["node", "./main.js"]
+# The port MUST match the health check
+# Consumers should be changing the port using port mappings anyways
+# No support for host mounting, unless you like port 7000
+CMD ["node", "./main.js", "--port", "7000"]
 # </STAGE 3>
