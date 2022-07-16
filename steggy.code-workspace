@@ -134,7 +134,6 @@
       "home-controller": "home",
       "injectors": "expo",
       "inputs": "font",
-      "inquirer": "layout",
       "interceptors": "hook",
       "interfaces": "mappings",
       "jest": "test",

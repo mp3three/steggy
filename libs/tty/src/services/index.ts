@@ -7,5 +7,4 @@ export * from './git.service';
 export * from './meta';
 export * from './prompt.service';
 export * from './render';
-export * from './system.service';
 export * from './terminal-help.service';

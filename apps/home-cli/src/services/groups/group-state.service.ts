@@ -26,8 +26,6 @@ import { is, LABEL } from '@steggy/utilities';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
-import inquirer from 'inquirer';
-import { dump, load } from 'js-yaml';
 
 import { MENU_ITEMS } from '../../includes';
 import { ICONS } from '../../types';
@@ -168,7 +166,6 @@ export class GroupStateService {
       ToMenuEntry([
         [`${ICONS.CREATE}Manual create`, 'create'],
         ...this.promptService.conditionalEntries(!is.empty(group.save_states), [
-          new inquirer.Separator(chalk.white(`Current states`)),
           ...(group.save_states.map(state => [
             state.friendlyName,
             state,

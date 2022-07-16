@@ -13,7 +13,7 @@ import { parse, parseDate } from 'chrono-node';
 import dayjs from 'dayjs';
 
 import {
-  InquirerKeypressOptions,
+  TTYKeypressOptions,
   KeyModifiers,
   tKeyMap,
 } from '../../contracts';
@@ -694,20 +694,20 @@ export class DateEditorService
   }
 
   private setKeymap() {
-    const FUZZY_KEYMAP: tKeyMap = new Map<InquirerKeypressOptions, string>([
+    const FUZZY_KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
       [{ catchAll: true, noHelp: true }, 'onKeyPress'],
       [{ description: 'done', key: 'enter' }, 'onEnd'],
       [{ description: 'clear', key: 'escape' }, 'reset'],
       ...(this.config.fuzzy === 'user'
         ? [
             [{ description: 'input formatted', key: 'f3' }, 'toggleChrono'] as [
-              InquirerKeypressOptions,
+              TTYKeypressOptions,
               string,
             ],
           ]
         : []),
     ]);
-    const NORMAL_KEYMAP: tKeyMap = new Map<InquirerKeypressOptions, string>([
+    const NORMAL_KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
       [{ description: 'done', key: 'enter' }, 'onEnd'],
       [{ key: 'escape' }, 'reset'],
       [{ description: 'down', key: 'down' }, 'onDown'],
@@ -721,7 +721,7 @@ export class DateEditorService
       this.config.fuzzy === 'user'
         ? [
             [{ description: 'natural parser', key: 'f3' }, 'toggleChrono'] as [
-              InquirerKeypressOptions,
+              TTYKeypressOptions,
               string,
             ],
           ]
@@ -731,7 +731,7 @@ export class DateEditorService
             [
               { description: 'toggle from / to', key: 'tab' },
               'toggleRangeSide',
-            ] as [InquirerKeypressOptions, string],
+            ] as [TTYKeypressOptions, string],
           ]
         : []),
       // "power user features"

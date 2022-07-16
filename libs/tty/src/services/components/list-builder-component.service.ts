@@ -16,7 +16,7 @@ import {
 } from '@steggy/utilities';
 import chalk from 'chalk';
 
-import { InquirerKeypressOptions, MenuEntry, tKeyMap } from '../../contracts';
+import { TTYKeypressOptions, MenuEntry, tKeyMap } from '../../contracts';
 import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { KeyboardManagerService, ScreenService } from '../meta';
@@ -30,7 +30,7 @@ export interface ListBuilderOptions<T = unknown> {
   source: MenuEntry<T | string>[];
 }
 
-const KEYMAP_FIND: tKeyMap = new Map<InquirerKeypressOptions, string>([
+const KEYMAP_FIND: tKeyMap = new Map<TTYKeypressOptions, string>([
   [{ key: 'backspace', noHelp: true }, 'searchBack'],
   [{ description: 'toggle selected', key: ['`', 'f4'] }, 'toggle'],
   [{ description: 'current', key: 'left' }, 'onLeft'],

@@ -4,7 +4,6 @@ import { domain } from '@steggy/home-assistant-shared';
 import { KeyMap, PromptEntry, ToMenuEntry } from '@steggy/tty';
 import { sleep, TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
 
 import { ICONS } from '../../types';
 import { BaseDomainService } from './base-domain.service';
@@ -84,7 +83,6 @@ export class SwitchService extends BaseDomainService {
 
   protected getMenuOptions(): PromptEntry[] {
     return [
-      new inquirer.Separator(`Switch commands`),
       [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
       [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
       [`${ICONS.TOGGLE_ON}Toggle`, 'toggle'],

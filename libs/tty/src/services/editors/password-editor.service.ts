@@ -2,7 +2,7 @@ import { INVERT_VALUE, is, SINGLE, START } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import {
-  InquirerKeypressOptions,
+  TTYKeypressOptions,
   KeyModifiers,
   tKeyMap,
 } from '../../contracts';
@@ -17,7 +17,7 @@ export interface PasswordEditorRenderOptions {
   width?: number;
 }
 
-const KEYMAP: tKeyMap = new Map<InquirerKeypressOptions, string>([
+const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
   [{ catchAll: true, noHelp: true }, 'onKeyPress'],
   [{ description: 'done', key: 'enter' }, 'onEnd'],
   [{ key: 'escape' }, 'reset'],

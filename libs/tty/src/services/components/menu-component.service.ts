@@ -18,10 +18,10 @@ import chalk from 'chalk';
 
 import {
   DirectCB,
-  InquirerKeypressOptions,
   MainMenuEntry,
   MenuEntry,
   tKeyMap,
+  TTYKeypressOptions,
 } from '../../contracts';
 import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../../includes';
@@ -30,22 +30,10 @@ import { PromptEntry } from '../prompt.service';
 import { KeymapService, TextRenderingService } from '../render';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
-type tMenuItem = [InquirerKeypressOptions, string | DirectCB];
+type tMenuItem = [TTYKeypressOptions, string | DirectCB];
 
 export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
-  const out: MainMenuEntry<T>[] = [];
-  let header = '';
-  entries.forEach(i => {
-    if (Array.isArray(i)) {
-      out.push({
-        entry: i as MenuEntry<T>,
-        type: ansiStrip(header),
-      });
-      return;
-    }
-    header = i.line;
-  });
-  return out;
+  return entries.map(entry => ({ entry } as MainMenuEntry<T>));
 }
 export type KeyMap<VALUE = string> = Record<string, PromptEntry<VALUE>>;
 
@@ -240,12 +228,12 @@ export class MenuComponentService<VALUE = unknown>
       return false;
     }
     if (is.undefined(callback)) {
-      this.value = keyMap[mixed][VALUE];
+      this.value = keyMap[mixed][VALUE] as VALUE;
       this.onEnd();
       return false;
     }
     const result = await callback(
-      keyMap[mixed][VALUE],
+      keyMap[mixed][VALUE] as string,
       this.getSelected()?.entry,
     );
     if (is.string(result)) {
@@ -253,7 +241,7 @@ export class MenuComponentService<VALUE = unknown>
       return;
     }
     if (result) {
-      this.value = keyMap[mixed][VALUE];
+      this.value = keyMap[mixed][VALUE] as VALUE;
       this.onEnd();
       return false;
     }
@@ -407,7 +395,7 @@ export class MenuComponentService<VALUE = unknown>
     }
     if (key.length > SINGLE) {
       if (!is.undefined(this.opt.keyMap[key])) {
-        this.value = this.opt.keyMap[key][VALUE];
+        this.value = this.opt.keyMap[key][VALUE] as VALUE;
         this.onEnd();
       }
       return;

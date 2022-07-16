@@ -6,7 +6,6 @@ import {
 } from '@steggy/home-assistant-shared';
 import { ColorsService, KeyMap, PromptEntry } from '@steggy/tty';
 import { START } from '@steggy/utilities';
-import inquirer from 'inquirer';
 
 import { ICONS } from '../../types';
 import { SwitchService } from './switch.service';
@@ -173,7 +172,6 @@ export class LightService extends SwitchService {
     const parent = super.getMenuOptions();
     return [
       ...parent.slice(START, SHIFT_AMOUNT),
-      new inquirer.Separator(`Light commands`),
       [`${ICONS.CIRCADIAN}Circadian Light`, 'circadianLight'],
       [`${ICONS.UP}Dim Up`, 'dimUp'],
       [`${ICONS.DOWN}Dim Down`, 'dimDown'],

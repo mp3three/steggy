@@ -3,8 +3,6 @@ import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { FanAttributesDTO, FanStateDTO } from '@steggy/home-assistant-shared';
 import { KeyMap, PromptEntry, ToMenuEntry } from '@steggy/tty';
 import { TitleCase } from '@steggy/utilities';
-import chalk from 'chalk';
-import inquirer from 'inquirer';
 
 import { ICONS } from '../../types';
 import { SwitchService } from './switch.service';
@@ -22,10 +20,8 @@ export class FanService extends SwitchService {
     const speed = await this.promptService.pickOne(
       entity_id,
       ToMenuEntry([
-        new inquirer.Separator(chalk.white`Relative change`),
         [`${ICONS.UP}Speed Up`, 'fanSpeedUp'],
         [`${ICONS.DOWN}Speed Down`, 'fanSpeedDown'],
-        new inquirer.Separator(chalk.white`Absolute speeds`),
         ...entity.attributes.speed_list.map(speed => [TitleCase(speed), speed]),
       ] as PromptEntry<string>[]),
       current?.extra?.speed,

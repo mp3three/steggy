@@ -1,7 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { DOWN, is, LABEL, UP, VALUE } from '@steggy/utilities';
 import chalk from 'chalk';
-import Separator from 'inquirer/lib/objects/separator';
 
 import {
   MainMenuEntry,
@@ -21,9 +20,7 @@ import {
 import { ApplicationManagerService, SyncLoggerService } from './meta';
 
 export type PROMPT_WITH_SHORT = { name: string; short: string };
-export type PromptEntry<T = string> =
-  | [string | PROMPT_WITH_SHORT, string | T]
-  | Separator;
+export type PromptEntry<T = string> = [string | PROMPT_WITH_SHORT, string | T];
 const DEFAULT_WIDTH = 50;
 
 @Injectable()

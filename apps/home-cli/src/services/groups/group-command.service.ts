@@ -33,7 +33,6 @@ import {
   UP,
 } from '@steggy/utilities';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
 
 import { MENU_ITEMS } from '../../includes';
 import { ICONS, IS_PROBABLY_ID } from '../../types';
@@ -116,7 +115,6 @@ export class GroupCommandService {
       ToMenuEntry([
         [`${ICONS.CREATE}Create new state`, `create`],
         ...this.promptService.conditionalEntries(!is.empty(group.save_states), [
-          new inquirer.Separator(chalk.white`Existing states`),
           ...(group.save_states.map(i => [
             i.friendlyName,
             i,
@@ -416,9 +414,6 @@ export class GroupCommandService {
     [...map.keys()]
       .sort((a, b) => (a > b ? UP : DOWN))
       .forEach(key => {
-        out.push(
-          new inquirer.Separator(chalk.white(`${TitleCase(key)} Groups`)),
-        );
         map
           .get(key)
           .sort((a, b) => (a.friendlyName > b.friendlyName ? UP : DOWN))

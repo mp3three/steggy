@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { PromptEntry, ToMenuEntry } from '@steggy/tty';
-import inquirer from 'inquirer';
 
 import { ICONS } from '../../types';
 import { BaseDomainService } from './base-domain.service';
@@ -58,7 +57,6 @@ export class LockService extends BaseDomainService {
     return [
       [`${ICONS.TURN_ON}Lock`, 'lock'],
       [`${ICONS.TURN_OFF}Unlock`, 'unlock'],
-      new inquirer.Separator(),
       ...super.getMenuOptions(),
     ];
   }

@@ -1,7 +1,7 @@
 import { EMPTY, INCREMENT, INVERT_VALUE, is, START } from '@steggy/utilities';
 import chalk from 'chalk';
 
-import { InquirerKeypressOptions, tKeyMap } from '../../contracts';
+import { TTYKeypressOptions, tKeyMap } from '../../contracts';
 import { Editor, iBuilderEditor } from '../../decorators';
 import { ansiPadEnd, ansiStrip } from '../../includes';
 import { KeyboardManagerService, ScreenService } from '../meta';
@@ -21,7 +21,7 @@ const ELLIPSES = '...';
 const PADDING = 4;
 const DEFAULT_PLACEHOLDER = 'enter value';
 const INTERNAL_PADDING = ' ';
-const KEYMAP: tKeyMap = new Map<InquirerKeypressOptions, string>([
+const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
   [{ catchAll: true, noHelp: true }, 'onKeyPress'],
   [{ description: 'done', key: 'enter' }, 'onEnd'],
   [{ key: 'escape' }, 'reset'],

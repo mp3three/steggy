@@ -7,7 +7,6 @@ import {
   ToMenuEntry,
 } from '@steggy/tty';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
 
 import { MENU_ITEMS } from '../../includes';
 import { ICONS } from '../../types';
@@ -34,12 +33,9 @@ export class ServerControlService {
         d: MENU_ITEMS.DONE,
       },
       right: ToMenuEntry([
-        new inquirer.Separator(chalk.white`Configuration validation`),
         [`Check configuration yaml`, 'check'],
-        new inquirer.Separator(chalk.white`Server management`),
         [`Restart`, 'restart'],
         ['Stop', 'stop'],
-        new inquirer.Separator(chalk.white`YAML configuration reloading`),
         ['Location & Customizations', 'location'],
         ['Automations', 'automation'],
         ['Input Boolean', 'input_boolean'],

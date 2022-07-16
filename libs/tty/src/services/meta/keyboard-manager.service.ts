@@ -118,7 +118,6 @@ export class KeyboardManagerService implements iStackProvider {
     // Otherwise, use all the catchall callbacks
     const list = is.empty(direct) ? catchAll : direct;
     // Do not re-render if no listeners are present at all
-    // This happens when the application releases control for inquirer to take over
     let render = !is.empty(list);
     await each(is.empty(direct) ? catchAll : direct, async ([target, key]) => {
       const result = await (is.string(key) ? target[key].bind(target) : key)(

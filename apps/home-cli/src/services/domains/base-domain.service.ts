@@ -34,8 +34,6 @@ import {
 import chalk from 'chalk';
 import Table from 'cli-table';
 import dayjs from 'dayjs';
-import inquirer from 'inquirer';
-import Separator from 'inquirer/lib/objects/separator';
 
 import { MAX_GRAPH_WIDTH, REFRESH_SLEEP } from '../../config';
 import { MENU_ITEMS } from '../../includes';
@@ -43,7 +41,6 @@ import { ICONS } from '../../types';
 import { DeviceService, EntityHistoryService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';
 
-const HEADER_SEPARATOR = 0;
 const FIRST = 0;
 const A_FEW = 3;
 const HALF = 2;
@@ -172,13 +169,7 @@ export class BaseDomainService {
       await this.baseHeader(id);
     }
     const options = this.getMenuOptions();
-    if (!(options[HEADER_SEPARATOR] as Separator)?.line) {
-      options.unshift(
-        new inquirer.Separator(
-          chalk.white(`${TitleCase(domain(id))} commands`),
-        ),
-      );
-    }
+
     const action = await this.promptService.menu({
       keyMap: this.buildKeymap(),
       leftHeader: 'Base options',

@@ -4,7 +4,7 @@ import { get, set } from 'object-path';
 
 import {
   DirectCB,
-  InquirerKeypressOptions,
+  TTYKeypressOptions,
   TableBuilderElement,
   TableBuilderOptions,
   tKeyMap,
@@ -30,7 +30,7 @@ const KEYMAP: tKeyMap = new Map([
   [{ description: 'add row', key: '+' }, 'add'],
   [{ description: 'delete row', key: ['-', 'delete'] }, 'delete'],
   [{ description: 'edit cell', key: 'enter' }, 'enableEdit'],
-] as [InquirerKeypressOptions, string | DirectCB][]);
+] as [TTYKeypressOptions, string | DirectCB][]);
 
 @Component({ type: 'table' })
 export class TableBuilderComponentService<VALUE = unknown>
