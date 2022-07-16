@@ -1,14 +1,11 @@
 /* eslint-disable radar/no-duplicate-string */
-import { Inject } from '@nestjs/common';
 import {
-  ACTIVE_APPLICATION,
   InjectConfig,
   PACKAGE_FILE,
   PackageJsonDTO,
   QuickScript,
 } from '@steggy/boilerplate';
 import {
-  ApplicationManagerService,
   PromptService,
   ScreenService,
   SyncLoggerService,
@@ -37,8 +34,6 @@ type PACKAGE = { version: string };
 })
 export class BuildPipelineService {
   constructor(
-    @Inject(ACTIVE_APPLICATION) private readonly application: symbol,
-    private readonly applicationManager: ApplicationManagerService,
     private readonly logger: SyncLoggerService,
     private readonly promptService: PromptService,
     private readonly screenService: ScreenService,

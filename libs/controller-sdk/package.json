@@ -2,7 +2,7 @@
   "name": "@steggy/controller-sdk",
   "displayName": "Controller SDK",
   "license": "MIT",
-  "version": "22.29.0",
+  "version": "22.29.1",
   "homepage": "https://github.com/mp3three/steggy",
   "repository": {
     "type": "git",
