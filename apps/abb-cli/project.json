@@ -1,5 +1,5 @@
 {
-  "root": "apps/abb-cli",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/abb-cli/src",
   "projectType": "application",
   "targets": {

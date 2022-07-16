@@ -134,7 +134,6 @@
     "@nrwl/web": "14.4.3",
     "@nrwl/workspace": "14.4.3",
     "@testing-library/react": "13.3.0",
-    "@testing-library/react-hooks": "8.0.1",
     "@types/async": "^3.2.15",
     "@types/bluebird": "^3.5.36",
     "@types/cache-manager": "^4.0.1",

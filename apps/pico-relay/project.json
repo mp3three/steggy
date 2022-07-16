@@ -1,5 +1,5 @@
 {
-  "root": "apps/pico-relay",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/pico-relay/src",
   "projectType": "application",
   "targets": {

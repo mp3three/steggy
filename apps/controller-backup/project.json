@@ -1,5 +1,5 @@
 {
-  "root": "apps/controller-backup",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/controller-backup/src",
   "projectType": "application",
   "targets": {

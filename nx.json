@@ -39,17 +39,6 @@
     "appsDir": "apps",
     "libsDir": "libs"
   },
-  "targetDependencies": {
-    "build": [
-      {
-        "target": "build",
-        "projects": "dependencies"
-      }
-    ]
-  },
-  "cli": {
-    "defaultCollection": "@nrwl/nest"
-  },
   "generators": {
     "@nrwl/react": {
       "application": {
@@ -66,5 +55,11 @@
       }
     }
   },
-  "defaultProject": "home-controller"
+  "defaultProject": "home-controller",
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"]
+    }
+  }
 }

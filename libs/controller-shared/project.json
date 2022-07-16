@@ -1,5 +1,5 @@
 {
-  "root": "libs/controller-shared",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/controller-shared/src",
   "projectType": "library",
   "targets": {

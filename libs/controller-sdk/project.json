@@ -1,5 +1,5 @@
 {
-  "root": "libs/controller-sdk",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/controller-sdk/src",
   "projectType": "library",
   "targets": {

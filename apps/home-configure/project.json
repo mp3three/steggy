@@ -1,5 +1,5 @@
 {
-  "root": "apps/home-configure",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/home-configure/src",
   "projectType": "application",
   "targets": {
@@ -22,7 +22,6 @@
         "styles": ["apps/home-configure/src/styles.css"],
         "scripts": [],
         "webpackConfig": "@nrwl/react/plugins/webpack"
-        // "webpackConfig": "apps/home-configure/webpack.config.js"
       },
       "configurations": {
         "production": {
@@ -39,8 +38,15 @@
           "namedChunks": false,
           "extractLicenses": true,
           "vendorChunk": false
+        },
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
         }
-      }
+      },
+      "defaultConfiguration": "production"
     },
     "serve": {
       "executor": "@nrwl/web:dev-server",
@@ -55,8 +61,12 @@
         "production": {
           "buildTarget": "home-configure:build:production",
           "hmr": false
+        },
+        "development": {
+          "buildTarget": "home-configure:build:development"
         }
-      }
+      },
+      "defaultConfiguration": "development"
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
@@ -69,7 +79,7 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/apps/home-configure"],
       "options": {
-        "jestConfig": "apps/home-configure/jest.config.js",
+        "jestConfig": "apps/home-configure/jest.config.ts",
         "passWithNoTests": true
       }
     }

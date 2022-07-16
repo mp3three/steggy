@@ -1,5 +1,5 @@
 {
-  "root": "libs/home-assistant-shared",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/home-assistant-shared/src",
   "projectType": "library",
   "targets": {

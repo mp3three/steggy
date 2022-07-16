@@ -1,5 +1,5 @@
 {
-  "root": "libs/tty",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/tty/src",
   "projectType": "library",
   "targets": {

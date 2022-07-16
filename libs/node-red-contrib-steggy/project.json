@@ -1,5 +1,5 @@
 {
-  "root": "libs/node-red-contrib-steggy",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/node-red-contrib-steggy/src",
   "projectType": "library",
   "targets": {

@@ -2,24 +2,25 @@
   "version": 2,
   "projects": {
     "abb-cli": "apps/abb-cli",
-    "build-pipeline": "apps/build-pipeline",
     "boilerplate": "libs/boilerplate",
+    "build-pipeline": "apps/build-pipeline",
     "config-builder": "apps/config-builder",
     "controller-backup": "apps/controller-backup",
-    "controller-shared": "libs/controller-shared",
     "controller-sdk": "libs/controller-sdk",
-    "home-assistant-shared": "libs/home-assistant-shared",
+    "controller-shared": "libs/controller-shared",
     "home-assistant": "libs/home-assistant",
+    "home-assistant-shared": "libs/home-assistant-shared",
     "home-cli": "apps/home-cli",
     "home-configure": "apps/home-configure",
     "home-controller": "apps/home-controller",
     "log-formatter": "apps/log-formatter",
-    "pico-relay": "apps/pico-relay",
     "mqtt": "libs/mqtt",
     "node-red-contrib-steggy": "libs/node-red-contrib-steggy",
     "persistence": "libs/persistence",
+    "pico-relay": "apps/pico-relay",
     "server": "libs/server",
     "tty": "libs/tty",
     "utilities": "libs/utilities"
-  }
+  },
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }
