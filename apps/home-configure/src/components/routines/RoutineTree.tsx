@@ -20,8 +20,8 @@ import { ImportCreate } from '../misc';
 
 type tRoutineMap = Map<string, { item: DataNode; routine: RoutineDTO }>;
 
-type DropOptions = NodeDragEventParams<HTMLDivElement> & {
-  dragNode: EventDataNode;
+type DropOptions = NodeDragEventParams<unknown> & {
+  dragNode: EventDataNode<unknown>;
   dragNodesKeys: Key[];
   dropPosition: number;
   dropToGap: boolean;
@@ -111,7 +111,7 @@ export function RoutineTree(props: {
         </Tooltip>
       );
     }
-    return <Tooltip title={'Hello world'}>{item.title}</Tooltip>;
+    return <Tooltip title={'Hello world'}>{item.title as string}</Tooltip>;
   }
 
   function refresh(): void {

@@ -156,6 +156,9 @@ export abstract class BaseGroupService {
   protected validateState<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(state: GroupSaveStateDTO<GROUP_TYPE>): GroupSaveStateDTO<GROUP_TYPE> {
-    return plainToInstance(GroupSaveStateDTO, state);
+    return plainToInstance(
+      GroupSaveStateDTO,
+      state,
+    ) as GroupSaveStateDTO<GROUP_TYPE>;
   }
 }

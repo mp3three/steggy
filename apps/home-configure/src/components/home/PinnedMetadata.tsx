@@ -67,7 +67,7 @@ export function PinnedMetadata() {
             }
             description={TitleCase(item.type)}
           />
-          <Space>{renderValue(data)}</Space>
+          <Space>{renderValue(data) as string}</Space>
         </List.Item>
       );
     }
@@ -97,7 +97,7 @@ export function PinnedMetadata() {
           }
           description={TitleCase(item.type)}
         />
-        <Space>{renderValue(data)}</Space>
+        <Space>{renderValue(data) as string}</Space>
       </List.Item>
     );
   }

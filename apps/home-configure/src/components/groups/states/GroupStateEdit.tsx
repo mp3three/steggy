@@ -86,7 +86,7 @@ export function GroupStateEdit(props: {
         message: (
           <Typography>
             {'Unable to load information for group state: '}
-            <Typography.Text code>{props.state}</Typography.Text>
+            <Typography.Text code>{props.state as string}</Typography.Text>
           </Typography>
         ),
       });

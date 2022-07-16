@@ -19,7 +19,7 @@ import {
   Typography,
 } from 'antd';
 import React from 'react';
-import { ChromePicker, ColorResult } from 'react-color';
+import { ColorResult } from 'react-color';
 
 import { FD_ICONS, sendRequest } from '../../../types';
 
@@ -181,7 +181,7 @@ export class LightEntityCard extends React.Component<
         {entityState === 'turnOn' && !disabled ? (
           <>
             <Divider />
-            <ChromePicker
+            {/* <ChromePicker
               color={
                 color ?? {
                   b: (rgb_color || [])[B],
@@ -192,7 +192,7 @@ export class LightEntityCard extends React.Component<
               onChange={this.updateColor.bind(this)}
               onChangeComplete={this.sendColorChange.bind(this)}
               disableAlpha={true}
-            />
+            />  */}
           </>
         ) : undefined}
       </Card>

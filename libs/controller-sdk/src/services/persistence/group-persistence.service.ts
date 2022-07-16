@@ -52,10 +52,13 @@ export class GroupPersistenceService extends BaseMongoService {
     { control }: { control?: ResultControlDTO } = {},
   ): Promise<GroupDTO<GROUP_TYPE>> {
     const query = this.merge(state, control);
-    const out = (await this.modifyQuery(control, this.model.findOne(query))
+    const out: unknown = await this.modifyQuery(
+      control,
+      this.model.findOne(query),
+    )
       .lean()
-      .exec()) as GroupDTO<GROUP_TYPE>;
-    return out;
+      .exec();
+    return out as GroupDTO<GROUP_TYPE>;
   }
 
   @CastResult(GroupDTO)
@@ -76,9 +79,13 @@ export class GroupPersistenceService extends BaseMongoService {
       },
       control,
     );
-    return (await this.modifyQuery(control, this.model.findOne(query))
+    const out: unknown = await this.modifyQuery(
+      control,
+      this.model.findOne(query),
+    )
       .lean()
-      .exec()) as GroupDTO<GROUP_TYPE>;
+      .exec();
+    return out as GroupDTO<GROUP_TYPE>;
   }
 
   @CastResult(GroupDTO)
