@@ -1,0 +1,13 @@
+{
+  "license": "MIT",
+  "description": "",
+  "main": "main.js",
+  "version": "22.29.2",
+  "author": {
+    "name": "mp3three",
+    "url": "https://github.com/mp3three/steggy"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

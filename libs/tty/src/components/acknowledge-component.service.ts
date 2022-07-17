@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 
-import { Component, iComponent } from '../../decorators';
-import { KeyboardManagerService, ScreenService } from '../meta';
+import { Component, iComponent } from '../decorators';
+import { KeyboardManagerService, ScreenService } from '../services';
 
 @Component({ type: 'acknowledge' })
 export class AcknowledgeComponentService implements iComponent {
@@ -20,7 +20,9 @@ export class AcknowledgeComponentService implements iComponent {
   }
 
   public render(): void {
-    this.screenService.printLine(this.message ?? chalk.bold`Any key to continue`);
+    this.screenService.printLine(
+      this.message ?? chalk.bold`Any key to continue`,
+    );
   }
 
   protected complete(): void {

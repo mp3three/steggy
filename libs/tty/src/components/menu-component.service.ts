@@ -22,12 +22,16 @@ import {
   MenuEntry,
   tKeyMap,
   TTYKeypressOptions,
-} from '../../contracts';
-import { Component, iComponent } from '../../decorators';
-import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../../includes';
-import { KeyboardManagerService, ScreenService } from '../meta';
-import { PromptEntry } from '../prompt.service';
-import { KeymapService, TextRenderingService } from '../render';
+} from '../contracts';
+import { Component, iComponent } from '../decorators';
+import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
+import {
+  KeyboardManagerService,
+  KeymapService,
+  PromptEntry,
+  ScreenService,
+  TextRenderingService,
+} from '../services';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 type tMenuItem = [TTYKeypressOptions, string | DirectCB];
@@ -51,6 +55,11 @@ export type MainMenuCB<T = unknown> = (
 ) => (string | boolean) | Promise<string | boolean>;
 
 export interface MenuComponentOptions<T = unknown> {
+  /**
+   * Remove the page up / page down keypress options
+   *
+   * Doing this is mostly for UI aesthetics, removing a bit of extra help text for smaller menus
+   */
   condensed?: boolean;
   /**
    * Static text to stick at the top of the component.
@@ -79,8 +88,8 @@ export interface MenuComponentOptions<T = unknown> {
    */
   keyMapCallback?: MainMenuCB;
   /**
-   * Don't freak out if menu entries are not provided.
-   * Set to true if deliberately using the menu as a keyboard navigation tool only
+   * Set to true if deliberately using the menu as a keyboard navigation tool only.
+   * Hides keyboard navigation help entries, and warning related to no entries provided
    */
   keyOnly?: boolean;
   /**
@@ -128,6 +137,16 @@ export interface MenuComponentOptions<T = unknown> {
 const DEFAULT_HEADER_PADDING = 4;
 const EMPTY_TEXT = ' ';
 
+// oof
+function GV<T = string>(item: PromptEntry<T>): T {
+  if (is.empty(item)) {
+    return undefined;
+  }
+  return item.length === SINGLE
+    ? (item[LABEL] as unknown as T)
+    : (item[VALUE] as T);
+}
+
 const SEARCH_KEYMAP: tKeyMap = new Map([
   [{ catchAll: true, noHelp: true }, 'onSearchKeyPress'],
   [{ description: 'next', key: 'down' }, 'navigateSearch'],
@@ -139,7 +158,7 @@ const SEARCH_KEYMAP: tKeyMap = new Map([
 ]);
 
 @Component({ type: 'menu' })
-export class MenuComponentService<VALUE = unknown>
+export class MenuComponentService<VALUE = unknown | string>
   implements iComponent<MenuComponentOptions, VALUE>
 {
   constructor(
@@ -186,12 +205,12 @@ export class MenuComponentService<VALUE = unknown>
     this.rightHeader = this.opt.rightHeader ?? 'Menu';
     this.leftHeader = this.opt.leftHeader ?? 'Secondary';
 
-    const defaultValue = this.side('right')[START]?.entry[VALUE];
+    const defaultValue = GV(this.side('right')[START]?.entry);
     this.value ??= defaultValue;
     this.detectSide();
     this.done = done;
     this.setKeymap();
-    const contained = this.side().find(i => i.entry[VALUE] === this.value);
+    const contained = this.side().find(i => GV(i.entry) === this.value);
     if (!contained) {
       this.value = defaultValue;
     }
@@ -228,12 +247,12 @@ export class MenuComponentService<VALUE = unknown>
       return false;
     }
     if (is.undefined(callback)) {
-      this.value = keyMap[mixed][VALUE] as VALUE;
+      this.value = GV(keyMap[mixed]);
       this.onEnd();
       return false;
     }
     const result = await callback(
-      keyMap[mixed][VALUE] as string,
+      GV(keyMap[mixed]) as unknown as string,
       this.getSelected()?.entry,
     );
     if (is.string(result)) {
@@ -241,7 +260,7 @@ export class MenuComponentService<VALUE = unknown>
       return;
     }
     if (result) {
-      this.value = keyMap[mixed][VALUE] as VALUE;
+      this.value = GV(keyMap[mixed]);
       this.onEnd();
       return false;
     }
@@ -252,7 +271,7 @@ export class MenuComponentService<VALUE = unknown>
    */
   protected bottom(): void {
     const list = this.side();
-    this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
+    this.value = GV(list[list.length - ARRAY_OFFSET].entry);
   }
 
   /**
@@ -265,29 +284,26 @@ export class MenuComponentService<VALUE = unknown>
       available = all;
     }
     if (['pageup', 'home'].includes(key)) {
-      this.value = available[START].entry[VALUE];
+      this.value = GV(available[START].entry);
       return;
     }
     if (['pagedown', 'end'].includes(key)) {
-      this.value = available[available.length - ARRAY_OFFSET].entry[VALUE];
+      this.value = GV(available[available.length - ARRAY_OFFSET].entry);
       return;
     }
-    const index = available.findIndex(
-      ({ entry }) => entry[VALUE] === this.value,
-    );
+    const index = available.findIndex(({ entry }) => GV(entry) === this.value);
     if (index === NOT_FOUND) {
-      this.value = available[START].entry[VALUE];
+      this.value = GV(available[START].entry);
       return;
     }
     if (index === START && key === 'up') {
-      this.value = available[available.length - ARRAY_OFFSET].entry[VALUE];
+      this.value = GV(available[available.length - ARRAY_OFFSET].entry);
     } else if (index === available.length - ARRAY_OFFSET && key === 'down') {
-      this.value = available[START].entry[VALUE];
+      this.value = GV(available[START].entry);
     } else {
-      this.value =
-        available[key === 'up' ? index - INCREMENT : index + INCREMENT].entry[
-          VALUE
-        ];
+      this.value = GV(
+        available[key === 'up' ? index - INCREMENT : index + INCREMENT].entry,
+      );
     }
   }
 
@@ -296,26 +312,27 @@ export class MenuComponentService<VALUE = unknown>
    */
   protected next(): void {
     const list = this.side();
-    const index = list.findIndex(i => i.entry[VALUE] === this.value);
+    const index = list.findIndex(i => GV(i.entry) === this.value);
     if (index === NOT_FOUND) {
-      this.value = list[FIRST].entry[VALUE];
+      this.value = GV(list[FIRST].entry);
       return;
     }
     if (index === list.length - ARRAY_OFFSET) {
       // Loop around
-      this.value = list[FIRST].entry[VALUE];
+      this.value = GV(list[FIRST].entry);
       return;
     }
-    this.value = list[index + INCREMENT].entry[VALUE];
+    this.value = GV(list[index + INCREMENT].entry);
   }
 
   protected numberSelect(mixed: string): void {
     this.numericSelection = mixed;
-    this.value =
+    const entry =
       this.side()[
         Number(is.empty(this.numericSelection) ? '1' : this.numericSelection) -
           ARRAY_OFFSET
-      ]?.entry[VALUE] ?? this.value;
+      ]?.entry;
+    this.value = is.object(entry) ? GV(entry) : this.value;
   }
 
   /**
@@ -338,7 +355,7 @@ export class MenuComponentService<VALUE = unknown>
       return;
     }
     this.selectedType = 'left';
-    let current = right.findIndex(i => i.entry[VALUE] === this.value);
+    let current = right.findIndex(i => GV(i.entry) === this.value);
     if (current === NOT_FOUND) {
       current = START;
     }
@@ -347,8 +364,8 @@ export class MenuComponentService<VALUE = unknown>
     }
     this.value =
       left.length - ARRAY_OFFSET < current
-        ? left[left.length - ARRAY_OFFSET].entry[VALUE]
-        : left[current].entry[VALUE];
+        ? GV(left[left.length - ARRAY_OFFSET].entry)
+        : GV(left[current].entry);
   }
 
   /**
@@ -360,7 +377,7 @@ export class MenuComponentService<VALUE = unknown>
     }
     const [right, left] = [this.side('right'), this.side('left')];
     this.selectedType = 'right';
-    let current = left.findIndex(i => i.entry[VALUE] === this.value);
+    let current = left.findIndex(i => GV(i.entry) === this.value);
     if (current === NOT_FOUND) {
       current = START;
     }
@@ -369,8 +386,8 @@ export class MenuComponentService<VALUE = unknown>
     }
     this.value =
       right.length - ARRAY_OFFSET < current
-        ? right[right.length - ARRAY_OFFSET].entry[VALUE]
-        : right[current].entry[VALUE];
+        ? GV(right[right.length - ARRAY_OFFSET].entry)
+        : GV(right[current].entry);
   }
 
   /**
@@ -395,7 +412,7 @@ export class MenuComponentService<VALUE = unknown>
     }
     if (key.length > SINGLE) {
       if (!is.undefined(this.opt.keyMap[key])) {
-        this.value = this.opt.keyMap[key][VALUE] as VALUE;
+        this.value = GV(this.opt.keyMap[key]);
         this.onEnd();
       }
       return;
@@ -410,17 +427,17 @@ export class MenuComponentService<VALUE = unknown>
    */
   protected previous(): void {
     const list = this.side();
-    const index = list.findIndex(i => i.entry[VALUE] === this.value);
+    const index = list.findIndex(i => GV(i.entry) === this.value);
     if (index === NOT_FOUND) {
-      this.value = list[FIRST].entry[VALUE];
+      this.value = GV(list[FIRST].entry);
       return;
     }
     if (index === FIRST) {
       // Loop around
-      this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
+      this.value = GV(list[list.length - ARRAY_OFFSET].entry);
       return;
     }
-    this.value = list[index - INCREMENT].entry[VALUE];
+    this.value = GV(list[index - INCREMENT].entry);
   }
 
   /**
@@ -442,16 +459,14 @@ export class MenuComponentService<VALUE = unknown>
    */
   protected top(): void {
     const list = this.side();
-    this.value = list[FIRST].entry[VALUE];
+    this.value = GV(list[FIRST].entry);
   }
 
   /**
    * Auto detect selectedType based on the current value
    */
   private detectSide(): void {
-    const isLeftSide = this.side('left').some(
-      i => i.entry[VALUE] === this.value,
-    );
+    const isLeftSide = this.side('left').some(i => GV(i.entry) === this.value);
     this.selectedType = isLeftSide ? 'left' : 'right';
   }
 
@@ -468,7 +483,7 @@ export class MenuComponentService<VALUE = unknown>
         data.map(({ entry }) => entry) as MenuEntry<VALUE>[],
       )
       .map(i => {
-        const item = data.find(({ entry }) => entry[VALUE] === i[VALUE]);
+        const item = data.find(({ entry }) => GV(entry) === GV(i));
         return {
           ...item,
           entry: i,
@@ -477,7 +492,7 @@ export class MenuComponentService<VALUE = unknown>
     if (updateValue) {
       this.value = is.empty(highlighted)
         ? undefined
-        : highlighted[START].entry[VALUE];
+        : GV(highlighted[START].entry);
     }
     return highlighted;
   }
@@ -493,7 +508,7 @@ export class MenuComponentService<VALUE = unknown>
         entry => ({ entry } as MainMenuEntry),
       ),
     ];
-    const out = list.find(i => i.entry[VALUE] === this.value);
+    const out = list.find(i => GV(i.entry) === this.value);
     return out ?? list[START];
   }
 
@@ -620,9 +635,7 @@ export class MenuComponentService<VALUE = unknown>
       menu.map(({ entry }) => entry),
       this.value,
     );
-    menu = temporary.map(i =>
-      menu.find(({ entry }) => i[VALUE] === entry[VALUE]),
-    );
+    menu = temporary.map(i => menu.find(({ entry }) => GV(i) === GV(entry)));
 
     const maxType = ansiMaxLength(...menu.map(({ type }) => type));
     let last = '';
@@ -655,7 +668,7 @@ export class MenuComponentService<VALUE = unknown>
       if (this.mode === 'find') {
         prefix = ``;
       }
-      const inverse = item.entry[VALUE] === this.value;
+      const inverse = GV(item.entry) === this.value;
       const padded = ansiPadEnd(
         (is.empty(item.icon) ? '' : `${item.icon} `) + item.entry[LABEL],
         maxLabel,
@@ -700,20 +713,28 @@ export class MenuComponentService<VALUE = unknown>
       ...Object.values(this.opt.keyMap).map((entry: MenuEntry<VALUE>) => ({
         entry,
       })),
-    ].find(item => item.entry[VALUE] === this.value);
+    ].find(item => GV(item.entry) === this.value);
   }
 
   private setKeymap(): void {
     const PARTIAL_LIST: tMenuItem[] = [
       [{ catchAll: true, noHelp: true }, 'activateKeyMap'],
-      [{ key: 'down' }, 'next'],
-      [{ description: 'select entry', key: 'enter' }, 'onEnd'],
-      [{ key: 'up' }, 'previous'],
-      [
-        { description: 'select item', key: [...'0123456789'], noHelp: true },
-        'numberSelect',
-      ],
-      ...((this.opt.condensed
+      ...(this.opt.keyOnly
+        ? []
+        : ([
+            [{ key: 'down' }, 'next'],
+            [{ description: 'select entry', key: 'enter' }, 'onEnd'],
+            [{ key: 'up' }, 'previous'],
+            [
+              {
+                description: 'select item',
+                key: [...'0123456789'],
+                noHelp: true,
+              },
+              'numberSelect',
+            ],
+          ] as tMenuItem[])),
+      ...((this.opt.condensed || this.opt.keyOnly
         ? []
         : [
             [{ key: ['end', 'pagedown'] }, 'bottom'],
@@ -733,7 +754,7 @@ export class MenuComponentService<VALUE = unknown>
       ...(is.empty(this.opt.left) || is.empty(this.opt.right)
         ? []
         : LEFT_RIGHT),
-      ...(this.opt.hideSearch ? [] : SEARCH),
+      ...(this.opt.hideSearch || this.opt.keyOnly ? [] : SEARCH),
     ]);
     this.keyboardService.setKeyMap(this, keymap);
   }

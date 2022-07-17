@@ -12,23 +12,34 @@ import chalk from 'chalk';
 import { parse, parseDate } from 'chrono-node';
 import dayjs from 'dayjs';
 
+import { KeyModifiers, tKeyMap, TTYKeypressOptions } from '../contracts';
+import { Editor, iBuilderEditor } from '../decorators';
+import { ansiPadEnd, ansiStrip } from '../includes';
 import {
-  TTYKeypressOptions,
-  KeyModifiers,
-  tKeyMap,
-} from '../../contracts';
-import { Editor, iBuilderEditor } from '../../decorators';
-import { ansiPadEnd, ansiStrip } from '../../includes';
-import { KeyboardManagerService, ScreenService } from '../meta';
-import { KeymapService, TextRenderingService } from '../render';
+  KeyboardManagerService,
+  KeymapService,
+  ScreenService,
+  TextRenderingService,
+} from '../services';
 
-type tDateType = 'datetime' | 'date' | 'time' | 'range';
+export enum TTYDateTypes {
+  datetime = 'datetime',
+  date = 'date',
+  time = 'time',
+  range = 'range',
+}
+type tDateType = `${TTYDateTypes}`;
+export enum TTYFuzzyTypes {
+  always = 'always',
+  never = 'never',
+  user = 'user',
+}
 export interface DateEditorEditorOptions {
   current?: string;
   /**
    * Interpret values with chrono-node
    */
-  fuzzy?: 'always' | 'never' | 'user';
+  fuzzy?: `${TTYFuzzyTypes}`;
   label?: string;
   type?: tDateType;
 }

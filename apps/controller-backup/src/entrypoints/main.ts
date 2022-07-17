@@ -129,7 +129,7 @@ export class ControllerBackup {
       ],
       keyMap: {
         a: [chalk.green.dim`restore all`, 'all'],
-        d: [`done`, 'done'],
+        d: ['done'],
       },
       right: header.contents.map(({ collection, count }) => ({
         entry: [TitleCase(collection), collection],

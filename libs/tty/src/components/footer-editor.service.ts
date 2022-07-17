@@ -1,6 +1,6 @@
-import { TableBuilderElement } from '../../contracts';
-import { Component } from '../../decorators';
-import { EditorExplorerService } from '../explorers';
+import { TableBuilderElement } from '../contracts';
+import { Component } from '../decorators';
+import { EditorExplorerService } from '../services';
 
 @Component({ type: 'footer' })
 export class FooterEditorService {

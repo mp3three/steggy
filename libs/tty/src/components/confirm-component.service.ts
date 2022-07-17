@@ -1,5 +1,5 @@
-import { Component, iComponent } from '../../decorators';
-import { KeyboardManagerService, ScreenService } from '../meta';
+import { Component, iComponent } from '../decorators';
+import { KeyboardManagerService, ScreenService } from '../services';
 
 @Component({ type: 'confirm' })
 export class ConfirmComponentService implements iComponent {

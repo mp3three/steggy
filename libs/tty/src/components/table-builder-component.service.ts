@@ -4,19 +4,21 @@ import { get, set } from 'object-path';
 
 import {
   DirectCB,
-  TTYKeypressOptions,
   TableBuilderElement,
   TableBuilderOptions,
   tKeyMap,
-} from '../../contracts';
-import { Component, iComponent } from '../../decorators';
+  TTYKeypressOptions,
+} from '../contracts';
+import { Component, iComponent } from '../decorators';
 import {
   ApplicationManagerService,
   KeyboardManagerService,
+  KeymapService,
+  PromptService,
   ScreenService,
-} from '../meta';
-import { PromptService } from '../prompt.service';
-import { KeymapService, TableService, TextRenderingService } from '../render';
+  TableService,
+  TextRenderingService,
+} from '../services';
 import { FooterEditorService } from './footer-editor.service';
 import { ToMenuEntry } from './menu-component.service';
 

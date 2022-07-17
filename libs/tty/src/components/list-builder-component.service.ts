@@ -16,11 +16,15 @@ import {
 } from '@steggy/utilities';
 import chalk from 'chalk';
 
-import { TTYKeypressOptions, MenuEntry, tKeyMap } from '../../contracts';
-import { Component, iComponent } from '../../decorators';
-import { ansiMaxLength, ansiPadEnd } from '../../includes';
-import { KeyboardManagerService, ScreenService } from '../meta';
-import { KeymapService, TextRenderingService } from '../render';
+import { MenuEntry, tKeyMap, TTYKeypressOptions } from '../contracts';
+import { Component, iComponent } from '../decorators';
+import { ansiMaxLength, ansiPadEnd } from '../includes';
+import {
+  KeyboardManagerService,
+  KeymapService,
+  ScreenService,
+  TextRenderingService,
+} from '../services';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 

@@ -20,6 +20,7 @@
     "pico-relay": "apps/pico-relay",
     "server": "libs/server",
     "tty": "libs/tty",
+    "sampler-app": "apps/sampler-app",
     "utilities": "libs/utilities"
   },
   "$schema": "./node_modules/nx/schemas/workspace-schema.json"

@@ -1,14 +1,14 @@
 import { INVERT_VALUE, is, SINGLE, START } from '@steggy/utilities';
 import chalk from 'chalk';
 
+import { KeyModifiers, tKeyMap, TTYKeypressOptions } from '../contracts';
+import { Editor, iBuilderEditor } from '../decorators';
 import {
-  TTYKeypressOptions,
-  KeyModifiers,
-  tKeyMap,
-} from '../../contracts';
-import { Editor, iBuilderEditor } from '../../decorators';
-import { KeyboardManagerService, ScreenService } from '../meta';
-import { KeymapService, TextRenderingService } from '../render';
+  KeyboardManagerService,
+  KeymapService,
+  ScreenService,
+  TextRenderingService,
+} from '../services';
 
 export interface PasswordEditorRenderOptions {
   current: string;

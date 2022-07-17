@@ -100,10 +100,10 @@ export class ABBCli {
     const action = await this.prompt.menu({
       hideSearch: true,
       keyMap: {
-        d: ['done', 'done'],
+        d: ['done'],
         f12: ['clear cache', 'clear-cache'],
         f4: ['clear recent searches', 'clear-recent'],
-        s: ['search', 'search'],
+        s: ['search'],
       },
       left: is
         .unique(recent)
@@ -250,7 +250,7 @@ export class ABBCli {
     const action = await this.prompt.menu({
       headerMessage,
       keyMap: Object.fromEntries([
-        ['d', ['Done', 'done']],
+        ['d', ['done']],
         ...(is.empty(this.launch) ? [] : [['m', ['🧲 Exec', 'exec-magnet']]]),
       ]),
       right: [

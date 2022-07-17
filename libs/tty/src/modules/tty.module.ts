@@ -2,6 +2,14 @@ import { DiscoveryModule } from '@nestjs/core';
 import { LibraryModule, RegisterCache } from '@steggy/boilerplate';
 
 import {
+  AcknowledgeComponentService,
+  ConfirmComponentService,
+  FooterEditorService,
+  ListBuilderComponentService,
+  MenuComponentService,
+  TableBuilderComponentService,
+} from '../components';
+import {
   DEFAULT_HEADER_FONT,
   HEADER_COLOR,
   HELP,
@@ -10,31 +18,27 @@ import {
   SECONDARY_HEADER_FONT,
 } from '../config';
 import {
-  AcknowledgeComponentService,
+  DateEditorService,
+  NumberEditorService,
+  PasswordEditorService,
+  StringEditorService,
+} from '../editors';
+import {
   ApplicationManagerService,
   ChartingService,
   ColorsService,
   ComparisonToolsService,
   ComponentExplorerService,
-  ConfirmComponentService,
-  DateEditorService,
   EditorExplorerService,
   EnvironmentService,
-  FooterEditorService,
   GitService,
   KeyboardManagerService,
   KeymapService,
   LayoutManagerService,
-  ListBuilderComponentService,
-  MenuComponentService,
-  NumberEditorService,
-  PasswordEditorService,
   PromptService,
   ScreenService,
   StackService,
-  StringEditorService,
   SyncLoggerService,
-  TableBuilderComponentService,
   TableService,
   TerminalHelpService,
   TextRenderingService,

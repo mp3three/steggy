@@ -1,7 +1,5 @@
 export * from './colors.service';
 export * from './comparison-tools.service';
-export * from './components';
-export * from './editors';
 export * from './explorers';
 export * from './git.service';
 export * from './meta';

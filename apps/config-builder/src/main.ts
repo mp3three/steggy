@@ -11,7 +11,6 @@ import {
 } from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
-  DONE,
   FontAwesomeIcons,
   MainMenuEntry,
   MenuEntry,
@@ -109,7 +108,7 @@ export class ConfigScanner implements iQuickScript {
     }
     const action = await this.promptService.menu({
       hideSearch: true,
-      keyMap: { d: ['Done', 'done'] },
+      keyMap: { d: ['done'] },
       right: entries,
       sort: false,
       value: defaultValue,
@@ -377,7 +376,7 @@ export class ConfigScanner implements iQuickScript {
   private async selectConfig(initial?: ConfigTypeDTO): Promise<void> {
     const mergedConfig = this.config;
     const item = await this.promptService.menu({
-      keyMap: { d: [chalk.bold`Done`, DONE] },
+      keyMap: { d: ['done'] },
       right: this.configDefinition.config.map(item => {
         const prefix =
           this.loadedApplication === item.library
@@ -438,7 +437,7 @@ export class ConfigScanner implements iQuickScript {
     }
     const action = await this.promptService.menu({
       headerMessage,
-      keyMap: { d: ['Done', 'done'] },
+      keyMap: { d: ['done'] },
       right: ToMenuEntry([
         ['Add', 'add'],
         ...((is.empty(current)

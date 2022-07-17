@@ -3,24 +3,26 @@ import { DOWN, is, LABEL, UP, VALUE } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import {
+  ListBuilderOptions,
+  MenuComponentOptions,
+  ToMenuEntry,
+} from '../components';
+import {
   MainMenuEntry,
   PromptMenuItems,
   TableBuilderOptions,
 } from '../contracts';
 import {
-  ListBuilderOptions,
-  MenuComponentOptions,
-  ToMenuEntry,
-} from './components';
-import {
   DateEditorEditorOptions,
   NumberEditorRenderOptions,
   StringEditorRenderOptions,
-} from './editors';
+} from '../editors';
 import { ApplicationManagerService, SyncLoggerService } from './meta';
 
 export type PROMPT_WITH_SHORT = { name: string; short: string };
-export type PromptEntry<T = string> = [string | PROMPT_WITH_SHORT, string | T];
+export type PromptEntry<T = string> =
+  | [string | PROMPT_WITH_SHORT, string | T]
+  | [string];
 const DEFAULT_WIDTH = 50;
 
 @Injectable()
@@ -86,7 +88,7 @@ export class PromptService {
     current,
     label,
     ...options
-  }: DateEditorEditorOptions): Promise<Date> {
+  }: DateEditorEditorOptions = {}): Promise<Date> {
     const result = await this.applicationManager.activateEditor<
       DateEditorEditorOptions,
       string

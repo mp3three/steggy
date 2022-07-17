@@ -4,28 +4,10 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "Home Controller",
+        "name": "ABB CLI",
         "type": "node",
         "request": "attach",
-        "port": 33334
-      },
-      {
-        "name": "Devtools",
-        "type": "node",
-        "request": "attach",
-        "port": 33336
-      },
-      {
-        "name": "Home CLI",
-        "type": "node",
-        "request": "attach",
-        "port": 33337
-      },
-      {
-        "name": "Pico Relay",
-        "type": "node",
-        "request": "attach",
-        "port": 33338
+        "port": 33341
       },
       {
         "name": "Build Pipeline",
@@ -40,17 +22,42 @@
         "port": 33340
       },
       {
-        "name": "ABB CLI",
-        "type": "node",
-        "request": "attach",
-        "port": 33341
-      },
-      {
         "name": "Controller Backup",
         "type": "node",
         "request": "attach",
         "port": 33342
+      },
+      {
+        "name": "Devtools",
+        "type": "node",
+        "request": "attach",
+        "port": 33336
+      },
+      {
+        "name": "Home CLI",
+        "type": "node",
+        "request": "attach",
+        "port": 33337
+      },
+      {
+        "name": "Home Controller",
+        "type": "node",
+        "request": "attach",
+        "port": 33334
+      },
+      {
+        "name": "Pico Relay",
+        "type": "node",
+        "request": "attach",
+        "port": 33338
+      },
+      {
+        "name": "Sampler App",
+        "type": "node",
+        "request": "attach",
+        "port": 33343
       }
+      // 33344 up next
     ]
   },
   "extensions": {
@@ -168,6 +175,7 @@
       "strings": "template",
       "symbols": "mappings",
       "terminal": "batch",
+      "sampler-app": "content",
       "tty": "command",
       "type-writer": "template",
       "validate": "rules",

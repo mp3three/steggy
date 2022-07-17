@@ -1,11 +1,15 @@
 import { EMPTY, INCREMENT, INVERT_VALUE, is, START } from '@steggy/utilities';
 import chalk from 'chalk';
 
-import { TTYKeypressOptions, tKeyMap } from '../../contracts';
-import { Editor, iBuilderEditor } from '../../decorators';
-import { ansiPadEnd, ansiStrip } from '../../includes';
-import { KeyboardManagerService, ScreenService } from '../meta';
-import { KeymapService, TextRenderingService } from '../render';
+import { tKeyMap, TTYKeypressOptions } from '../contracts';
+import { Editor, iBuilderEditor } from '../decorators';
+import { ansiPadEnd, ansiStrip } from '../includes';
+import {
+  KeyboardManagerService,
+  KeymapService,
+  ScreenService,
+  TextRenderingService,
+} from '../services';
 
 export interface NumberEditorRenderOptions {
   current: number;
