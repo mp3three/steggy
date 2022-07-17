@@ -11,21 +11,28 @@ export class AcknowledgeComponentService implements iComponent {
   ) {}
 
   private done: () => void;
+  private isDone = false;
   private message: string;
 
   public configure(config: { message: string }, callback): void {
+    this.isDone = false;
     this.done = callback;
     this.message = config.message;
     this.keyboardService.setKeyMap(this, new Map([[{}, 'complete']]));
   }
 
   public render(): void {
+    if (this.isDone) {
+      return;
+    }
     this.screenService.printLine(
-      this.message ?? chalk.bold`Any key to continue`,
+      this.message ?? chalk.bold`Any key to continue `,
     );
   }
 
-  protected complete(): void {
+  protected complete(): boolean {
+    this.isDone = true;
     this.done();
+    return false;
   }
 }

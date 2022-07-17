@@ -7,7 +7,7 @@ export enum TABLE_CELL_TYPE {
   list = 'list',
 }
 
-export class TableBuilderElement<EXTRA = unknown> {
+export class TableBuilderElement<EXTRA = { options?: string[] }> {
   public extra?: EXTRA;
   public format?: (value: unknown) => string;
   public name: string;
@@ -24,6 +24,7 @@ export class TableBuilderOptions<T extends unknown> {
 export class ColumnInfo {
   public maxWidth: number;
   public name: string;
+  public path: string;
 }
 
 export enum OBJECT_BUILDER_ELEMENT {

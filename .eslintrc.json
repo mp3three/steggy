@@ -239,6 +239,7 @@
               "usr",
               "utf",
               "vm",
+              "vin",
               "vmservice",
               "wasm",
               "wat",

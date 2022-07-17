@@ -34,11 +34,6 @@ const NESTING_LEVELS = [
   chalk.red(' ~ '),
 ];
 
-/**
- * Common utils for inqurirer prompt rendering
- *
- * Broken out into a nest service to allow access to configuration / other services
- */
 @Injectable()
 export class TextRenderingService {
   constructor(@InjectConfig(PAGE_SIZE) private readonly pageSize: number) {}
@@ -52,7 +47,7 @@ export class TextRenderingService {
       ...message.split(`\n`).map(i => ansiStrip(i).length),
     );
     const list = [...base, ...app];
-    const max = this.biggestLabel(list);
+    const max = ansiMaxLength(list.map(([label]) => label));
     return [
       message,
       ...(longestLine < MIN_SIZE
@@ -122,10 +117,6 @@ export class TextRenderingService {
     return out;
   }
 
-  public biggestLabel(entries: MenuEntry[]): number {
-    return Math.max(...entries.map(i => i[LABEL].length));
-  }
-
   public fuzzySort<T extends unknown = string>(
     searchText: string,
     data: MenuEntry<T>[],
@@ -190,6 +181,7 @@ export class TextRenderingService {
     );
   }
 
+  // eslint-disable-next-line radar/cognitive-complexity
   public type(item: unknown, nested = START): string {
     if (is.undefined(item)) {
       return chalk.gray(`undefined`);
@@ -204,6 +196,9 @@ export class TextRenderingService {
       return chalk.magenta(String(item));
     }
     if (is.string(item)) {
+      if (is.empty(item)) {
+        return chalk.gray(`empty string`);
+      }
       return chalk.blue(
         item.slice(START, MAX_STRING_LENGTH) +
           (item.length > MAX_STRING_LENGTH ? chalk.blueBright`...` : ``),
@@ -226,6 +221,8 @@ export class TextRenderingService {
       return chalk.gray(`null`);
     }
     if (is.object(item)) {
+      const maxKey =
+        Math.max(...Object.keys(item).map(i => i.length)) + INCREMENT;
       return (
         (nested ? `\n` : '') +
         Object.keys(item)
@@ -234,7 +231,7 @@ export class TextRenderingService {
             key =>
               chalk`${INDENT.repeat(nested)}{bold ${
                 NESTING_LEVELS[nested]
-              }${TitleCase(key)}:} ${this.type(
+              }${TitleCase(key).padEnd(maxKey)}} ${this.type(
                 item[key],
                 nested + INCREMENT,
               )}`,

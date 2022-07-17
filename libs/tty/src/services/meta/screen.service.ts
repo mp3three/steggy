@@ -103,6 +103,11 @@ export class ScreenService {
    * Intended use case is a dual editor situation. Ex:
    *
    * - Editable table cells where the table remains visible
+   *
+   * ----
+   *
+   * - Implies KeyboardManger#wrap()
+   * - Implies ApplicationManager#wrap()
    */
   public async footerWrap<T>(callback: () => Promise<T>): Promise<T> {
     this.sticky = this.lastContent;

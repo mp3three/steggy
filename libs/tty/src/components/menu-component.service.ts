@@ -58,7 +58,8 @@ export interface MenuComponentOptions<T = unknown> {
   /**
    * Remove the page up / page down keypress options
    *
-   * Doing this is mostly for UI aesthetics, removing a bit of extra help text for smaller menus
+   * Doing this is mostly for UI aesthetics, removing a bit of extra help text for smaller menus.
+   * Implies `hideSearch`
    */
   condensed?: boolean;
   /**
@@ -202,8 +203,12 @@ export class MenuComponentService<VALUE = unknown | string>
     // This shouldn't need casting...
     this.value = this.opt.value as VALUE;
     this.headerPadding = this.opt.headerPadding ?? DEFAULT_HEADER_PADDING;
-    this.rightHeader = this.opt.rightHeader ?? 'Menu';
-    this.leftHeader = this.opt.leftHeader ?? 'Secondary';
+    this.rightHeader = this.opt.rightHeader || 'Menu';
+    this.leftHeader =
+      this.opt.leftHeader ||
+      (!is.empty(this.opt.left) && !is.empty(this.opt.right)
+        ? 'Secondary'
+        : 'Menu');
 
     const defaultValue = GV(this.side('right')[START]?.entry);
     this.value ??= defaultValue;
@@ -754,7 +759,9 @@ export class MenuComponentService<VALUE = unknown | string>
       ...(is.empty(this.opt.left) || is.empty(this.opt.right)
         ? []
         : LEFT_RIGHT),
-      ...(this.opt.hideSearch || this.opt.keyOnly ? [] : SEARCH),
+      ...(this.opt.hideSearch || this.opt.keyOnly || this.opt.condensed
+        ? []
+        : SEARCH),
     ]);
     this.keyboardService.setKeyMap(this, keymap);
   }

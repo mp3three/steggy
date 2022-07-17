@@ -1,0 +1,17 @@
+{
+  "extends": ["../../.eslintrc.json"],
+  "ignorePatterns": ["!**/*"],
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "rules": {
+        // I literally do not care
+        // This rule should take a hint
+        "unicorn/no-abusive-eslint-disable": "off"
+      },
+      "parserOptions": {
+        "project": ["libs/tty/tsconfig.lib.json"]
+      }
+    }
+  ]
+}

@@ -187,10 +187,10 @@ export class PromptService {
     } as NumberEditorRenderOptions);
   }
 
-  public async objectBuilder<T>(options: TableBuilderOptions<T>): Promise<T[]> {
+  public async objectBuilder<T>(options: TableBuilderOptions<T>): Promise<T> {
     const result = await this.applicationManager.activateComponent<
       TableBuilderOptions<T>,
-      T[]
+      T
     >('table', options);
     return result;
   }

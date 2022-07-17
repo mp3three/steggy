@@ -2130,6 +2130,11 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
+"@faker-js/faker@^7.3.0":
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-7.3.0.tgz#a508df35ded585c4e071cb5d9d7c89623c837fae"
+  integrity sha512-1W0PZezq2rxlAssoWemi9gFRD8IQxvf0FPL5Km3TOmGHFG7ib0TbFBJ0yC7D/1NsxunjNTK6WjUXV8ao/mKZ5w==
+
 "@humanwhocodes/config-array@^0.9.2":
   version "0.9.5"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.9.5.tgz#2cbaf9a89460da24b5ca6531b8bbfc23e1df50c7"
@@ -5405,6 +5410,13 @@ caniuse-lite@^1.0.30001332:
   version "1.0.30001336"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001336.tgz#a9eb13edd2613f418ebc632c8d6c9ab9fde7ccc4"
   integrity sha512-/YxSlBmL7iKXTbIJ48IQTnAOBk7XmWsxhBF1PZLOko5Dt9qc4Pl+84lfqG3Tc4EuavurRn1QLoVJGxY2iSycfw==
+
+chalk-template@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/chalk-template/-/chalk-template-0.3.1.tgz#9511cd31ec3c4911448410d49645526c1c7a3a22"
+  integrity sha512-sbWkBbb9Tfo81aTtQrfP9eBSVCTL8biVvZ0tA1rH9xqVrKoV2T9Y6Bp94wB+DRXtSGl/UXsgV83Np5hLhNRXww==
+  dependencies:
+    chalk "^4.1.2"
 
 chalk@4.1.0:
   version "4.1.0"

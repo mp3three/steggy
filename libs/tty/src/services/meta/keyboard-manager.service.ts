@@ -64,13 +64,19 @@ export class KeyboardManagerService implements iStackProvider {
     });
   }
 
-  public wrap<T>(callback: () => Promise<T>): Promise<T> {
-    return new Promise(async done => {
-      const map = this.save();
-      const result = await callback();
-      this.load(map);
-      done(result);
-    });
+  /**
+   * Implies ApplicationManager#wrap()
+   */
+  public async wrap<T>(callback: () => Promise<T>): Promise<T> {
+    return await this.applicationManager.wrap(
+      () =>
+        new Promise(async done => {
+          const map = this.save();
+          const result = await callback();
+          this.load(map);
+          done(result);
+        }),
+    );
   }
 
   protected onApplicationBootstrap(): void {
@@ -85,6 +91,7 @@ export class KeyboardManagerService implements iStackProvider {
     if (is.empty(this.activeKeymaps)) {
       return;
     }
+    const application = this.applicationManager.activeApplication;
     const { key } = descriptor;
     const { ctrl, meta, shift, name, sequence } = key ?? {};
     let mixed = name ?? sequence ?? 'enter';
@@ -124,13 +131,14 @@ export class KeyboardManagerService implements iStackProvider {
         mixed,
         modifiers,
       );
+
       if (result === false) {
         // This logic needs to be improved
         // If any single one of these returns false, then a render is stopped
         render = false;
       }
     });
-    if (render) {
+    if (render && this.applicationManager.activeApplication === application) {
       this.applicationManager.render();
     }
   }

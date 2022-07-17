@@ -34,7 +34,7 @@ export class ApplicationManagerService implements iStackProvider {
     private readonly keyboard: KeyboardManagerService,
   ) {}
 
-  private activeApplication: iComponent;
+  public activeApplication: iComponent;
   private activeEditor: iBuilderEditor;
   private header = '';
 
@@ -43,7 +43,8 @@ export class ApplicationManagerService implements iStackProvider {
     configuration: CONFIG = {} as CONFIG,
   ): Promise<VALUE> {
     this.reset();
-    return await this.keyboard.wrap<VALUE>(async () => {
+    const old = this.activeApplication;
+    const out = await this.keyboard.wrap<VALUE>(async () => {
       const promise = new Promise<VALUE>(done => {
         const component = this.componentExplorer.findServiceByType<
           CONFIG,
@@ -58,8 +59,11 @@ export class ApplicationManagerService implements iStackProvider {
         component.render();
       });
       this.activeEditor = undefined;
-      return await promise;
+      const result = await promise;
+      this.activeApplication = old;
+      return result;
     });
+    return out;
   }
 
   public async activateEditor<CONFIG, VALUE>(
@@ -134,6 +138,15 @@ export class ApplicationManagerService implements iStackProvider {
     this.screenService.printLine(secondary);
     this.header = `${primary}\n${secondary}`;
     return max;
+  }
+
+  public wrap<T>(callback: () => Promise<T>): Promise<T> {
+    return new Promise(async done => {
+      const application = this.activeApplication;
+      const result = await callback();
+      this.activeApplication = application;
+      done(result);
+    });
   }
 
   private reset(): void {

@@ -33,13 +33,21 @@ const KEYMAP: tKeyMap = new Map([
   [{ description: 'delete row', key: ['-', 'delete'] }, 'delete'],
   [{ description: 'edit cell', key: 'enter' }, 'enableEdit'],
 ] as [TTYKeypressOptions, string | DirectCB][]);
+const FORM_KEYMAP: tKeyMap = new Map([
+  // While there is no editor
+  [{ description: 'done', key: 'd' }, 'onEnd'],
+  [{ description: 'cursor up', key: 'up' }, 'onUp'],
+  [{ description: 'cursor down', key: 'down' }, 'onDown'],
+  [{ description: 'edit cell', key: 'enter' }, 'enableEdit'],
+] as [TTYKeypressOptions, string | DirectCB][]);
 
 @Component({ type: 'table' })
-export class TableBuilderComponentService<VALUE = unknown>
-  implements iComponent<TableBuilderOptions<VALUE>, VALUE>
+export class TableBuilderComponentService<
+  VALUE extends object = Record<string, unknown>,
+> implements iComponent<TableBuilderOptions<VALUE>, VALUE>
 {
   constructor(
-    private readonly tableService: TableService,
+    private readonly tableService: TableService<VALUE>,
     private readonly textRendering: TextRenderingService,
     private readonly footerEditor: FooterEditorService,
     private readonly keymapService: KeymapService,
@@ -50,41 +58,45 @@ export class TableBuilderComponentService<VALUE = unknown>
     private readonly promptService: PromptService,
   ) {}
 
-  private done: (type: VALUE[]) => void;
-  private isSelected = false;
+  private complete = false;
+  private done: (type: VALUE | VALUE[]) => void;
   private opt: TableBuilderOptions<VALUE>;
   private rows: VALUE[];
   private selectedCell = START;
   private selectedRow = START;
+  private value: VALUE;
 
   public configure(
     config: TableBuilderOptions<VALUE>,
     done: (type: VALUE[]) => void,
   ): void {
+    this.complete = false;
     this.opt = config;
     this.done = done;
     this.opt.current ??= [];
     this.rows = Array.isArray(this.opt.current)
       ? this.opt.current
       : [this.opt.current];
-    this.keyboardService.setKeyMap(this, KEYMAP);
+    if (config.mode === 'single') {
+      this.value = (config.current as VALUE) ?? ({} as VALUE);
+    }
+    this.keyboardService.setKeyMap(
+      this,
+      this.opt.mode === 'single' ? FORM_KEYMAP : KEYMAP,
+    );
   }
 
   public render(): void {
-    const message = this.textRendering.pad(
-      this.tableService.renderTable(
-        this.opt,
-        this.rows as Record<string, unknown>[],
-        this.selectedRow,
-        this.selectedCell,
-      ),
-    );
-    this.screenService.render(
-      message,
-      this.keymapService.keymapHelp({
-        message,
-      }),
-    );
+    if (this.complete) {
+      this.screenService.render('', '');
+      return;
+    }
+    const mode = this.opt.mode ?? 'multi';
+    if (mode === 'single') {
+      this.renderSingle();
+      return;
+    }
+    this.renderMulti();
   }
 
   private get columns() {
@@ -119,9 +131,10 @@ export class TableBuilderComponentService<VALUE = unknown>
   protected async enableEdit(): Promise<void> {
     await this.screenService.footerWrap(async () => {
       const column = this.opt.elements[
-        this.selectedCell
+        this.opt.mode === 'single' ? this.selectedRow : this.selectedCell
       ] as TableBuilderElement<{ options: string[] }>;
-      const row = this.rows[this.selectedRow];
+      const row =
+        this.opt.mode === 'single' ? this.value : this.rows[this.selectedRow];
       const current = get(is.object(row) ? row : {}, column.path);
       let value: unknown;
       switch (column.type) {
@@ -150,16 +163,27 @@ export class TableBuilderComponentService<VALUE = unknown>
       }
       set(is.object(row) ? row : {}, column.path, value);
     });
+    this.render();
   }
 
   protected onDown(): boolean {
-    if (this.selectedRow === this.rows.length - ARRAY_OFFSET) {
+    if (this.opt.mode !== 'single') {
+      if (this.selectedRow === this.rows.length - ARRAY_OFFSET) {
+        return false;
+      }
+    } else if (this.selectedRow === this.opt.elements.length - ARRAY_OFFSET) {
       return false;
     }
     this.selectedRow++;
   }
 
   protected onEnd(): void {
+    this.complete = true;
+    this.render();
+    if (this.opt.mode === 'single') {
+      this.done(this.value as VALUE);
+      return;
+    }
     this.done(this.rows);
   }
 
@@ -182,5 +206,34 @@ export class TableBuilderComponentService<VALUE = unknown>
       return false;
     }
     this.selectedRow--;
+  }
+
+  private renderMulti(): void {
+    const message = this.textRendering.pad(
+      this.tableService.renderTable(
+        this.opt,
+        this.rows,
+        this.selectedRow,
+        this.selectedCell,
+      ),
+    );
+    this.screenService.render(
+      message,
+      this.keymapService.keymapHelp({
+        message,
+      }),
+    );
+  }
+
+  private renderSingle(): void {
+    const message = this.textRendering.pad(
+      this.tableService.renderForm(this.opt, this.value, this.selectedRow),
+    );
+    this.screenService.render(
+      message,
+      this.keymapService.keymapHelp({
+        message,
+      }),
+    );
   }
 }

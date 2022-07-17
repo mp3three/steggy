@@ -1,11 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  ARRAY_OFFSET,
-  EMPTY,
-  INCREMENT,
-  is,
-  START,
-} from '@steggy/utilities';
+import { ARRAY_OFFSET, EMPTY, INCREMENT, is, START } from '@steggy/utilities';
 import chalk from 'chalk';
 import { get } from 'object-path';
 
@@ -15,12 +9,20 @@ import { EnvironmentService } from '../meta/environment.service';
 import { TextRenderingService } from './text-rendering.service';
 
 const PADDING = 1;
+const DOUBLE_PADDING = 2;
+
 const ROW_MULTIPLIER = 2;
 const HEADER_LINE_COUNT = 4;
 const MIN_CELL_WIDTH = ' undefined '.length;
 
+const NAME_CELL = (i: ColumnInfo, max?: number) =>
+  chalk`${' '.repeat(PADDING)}{bold.blue ${i.name.padEnd(
+    (max ?? i.maxWidth) - PADDING,
+    ' ',
+  )}}`;
+
 @Injectable()
-export class TableService {
+export class TableService<VALUE extends object = Record<string, unknown>> {
   constructor(
     private readonly environment: EnvironmentService,
     private readonly textRender: TextRenderingService,
@@ -30,11 +32,28 @@ export class TableService {
   private columns: ColumnInfo[];
   private selectedCell: number;
   private selectedRow: number;
-  private values: Record<string, unknown>[];
+  private value: VALUE;
+  private values: VALUE[];
+
+  public renderForm(
+    options: TableBuilderOptions<unknown>,
+    row: VALUE,
+    selectedRow: number = START,
+  ): string {
+    this.value = row;
+    this.activeOptions = options;
+    this.selectedRow = selectedRow;
+    this.calcColumns([this.value]);
+    const maxLength = Math.max(
+      ...this.activeOptions.elements.map(({ name }) => name.length),
+    );
+    const header = this.formBody(maxLength);
+    return [...header].join(`\n`);
+  }
 
   public renderTable(
     options: TableBuilderOptions<unknown>,
-    renderRows: Record<string, unknown>[],
+    renderRows: VALUE[],
     selectedRow: number = START,
     selectedCell: number = START,
   ): string {
@@ -42,8 +61,8 @@ export class TableService {
     this.selectedRow = selectedRow;
     this.activeOptions = options;
     this.values = renderRows;
-    this.calcColumns();
-    const header = this.header();
+    this.calcColumns(this.values);
+    const header = this.tableHeader();
     const r = this.rows();
     if (is.empty(r)) {
       const [top, content] = header;
@@ -64,10 +83,10 @@ export class TableService {
       .split(`\n`);
     const footer = this.footer();
     const pre = [...header, ...rows, footer];
-    return this.highlight(pre).join(`\n`);
+    return this.highlightRow(pre).join(`\n`);
   }
 
-  private calcColumns(): void {
+  private calcColumns(values: VALUE[]): void {
     this.columns = this.activeOptions.elements.map(item => {
       return {
         maxWidth: Math.max(
@@ -75,7 +94,7 @@ export class TableService {
           PADDING + item.name.length + PADDING,
           PADDING +
             ansiMaxLength(
-              ...this.values.map(row => {
+              ...values.map(row => {
                 const value = get(row, item.path);
                 if (item.format) {
                   return item.format(value);
@@ -86,6 +105,7 @@ export class TableService {
             PADDING,
         ),
         name: item.name,
+        path: item.path,
       };
     });
   }
@@ -100,39 +120,51 @@ export class TableService {
     ].join('');
   }
 
-  private header(): string[] {
+  private formBody(max: number): string[] {
+    const maxValue =
+      DOUBLE_PADDING +
+      ansiMaxLength(
+        ...this.columns.map(i => this.textRender.type(get(this.value, i.path))),
+      );
+    const maxLabel = ansiMaxLength(this.columns.map(({ name }) => name));
+
+    const columns = this.columns.map((i, index) =>
+      this.renderValue({ i, index, max, maxLabel, maxValue }),
+    );
     return [
       [
         TABLE_PARTS.top_left,
-        this.columns
-          .map(i => TABLE_PARTS.top.repeat(i.maxWidth))
-          .join(TABLE_PARTS.top_mid),
+        TABLE_PARTS.top.repeat(max),
+        TABLE_PARTS.top_mid,
+        TABLE_PARTS.top.repeat(maxValue),
         TABLE_PARTS.top_right,
       ].join(``),
+      columns.join(
+        `\n` +
+          [
+            TABLE_PARTS.left_mid,
+            TABLE_PARTS.mid.repeat(max),
+            TABLE_PARTS.mid_mid,
+            TABLE_PARTS.mid.repeat(maxValue),
+            TABLE_PARTS.right_mid,
+          ].join(``) +
+          `\n`,
+      ),
       [
-        TABLE_PARTS.left,
-        this.columns
-          .map(
-            i =>
-              chalk`${' '.repeat(PADDING)}{bold.blue ${i.name.padEnd(
-                i.maxWidth - PADDING,
-                ' ',
-              )}}`,
-          )
-          .join(TABLE_PARTS.middle),
-        TABLE_PARTS.right,
-      ].join(''),
-      [
-        TABLE_PARTS.left_mid,
-        this.columns
-          .map(i => TABLE_PARTS.mid.repeat(i.maxWidth))
-          .join(TABLE_PARTS.mid_mid),
-        TABLE_PARTS.right_mid,
+        TABLE_PARTS.bottom_left,
+        TABLE_PARTS.top.repeat(max),
+        TABLE_PARTS.bottom_mid,
+        TABLE_PARTS.top.repeat(maxValue),
+        TABLE_PARTS.bottom_right,
       ].join(''),
     ];
   }
 
-  private highlight(lines: string[]): string[] {
+  private highlightChar(char: string): string {
+    return chalk.bold.red(char);
+  }
+
+  private highlightRow(lines: string[]): string[] {
     if (is.empty(this.values)) {
       return;
     }
@@ -162,8 +194,39 @@ export class TableService {
     });
   }
 
-  private highlightChar(char: string): string {
-    return chalk.bold.red(char);
+  private renderValue({
+    i,
+    index,
+    max,
+    maxLabel,
+    maxValue,
+  }: {
+    i: ColumnInfo;
+    index: number;
+    max: number;
+    maxLabel: number;
+    maxValue: number;
+  }): string {
+    const raw = get(this.value, i.path);
+    const v = this.textRender.type(raw);
+    const lines = v.split(`\n`).length;
+    const values = (index === this.selectedRow ? chalk.inverse(v) : v).split(
+      `\n`,
+    );
+    const labels = (NAME_CELL(i, max) + `\n`.repeat(lines - INCREMENT)).split(
+      `\n`,
+    );
+    return labels
+      .map((labelLine, labelIndex) => {
+        return [
+          TABLE_PARTS.left,
+          ansiPadEnd(labelLine, maxLabel + DOUBLE_PADDING),
+          TABLE_PARTS.middle,
+          ansiPadEnd(' ' + values[labelIndex], maxValue),
+          TABLE_PARTS.right,
+        ].join('');
+      })
+      .join(`\n`);
   }
 
   private rows(): string[] {
@@ -195,5 +258,29 @@ export class TableService {
       ].join('');
     });
     return out;
+  }
+
+  private tableHeader(): string[] {
+    return [
+      [
+        TABLE_PARTS.top_left,
+        this.columns
+          .map(i => TABLE_PARTS.top.repeat(i.maxWidth))
+          .join(TABLE_PARTS.top_mid),
+        TABLE_PARTS.top_right,
+      ].join(``),
+      [
+        TABLE_PARTS.left,
+        this.columns.map(i => NAME_CELL(i)).join(TABLE_PARTS.middle),
+        TABLE_PARTS.right,
+      ].join(''),
+      [
+        TABLE_PARTS.left_mid,
+        this.columns
+          .map(i => TABLE_PARTS.mid.repeat(i.maxWidth))
+          .join(TABLE_PARTS.mid_mid),
+        TABLE_PARTS.right_mid,
+      ].join(''),
+    ];
   }
 }
