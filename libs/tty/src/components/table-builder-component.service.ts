@@ -12,6 +12,7 @@ import {
 import { Component, iComponent } from '../decorators';
 import {
   ApplicationManagerService,
+  FormService,
   KeyboardManagerService,
   KeymapService,
   PromptService,
@@ -48,6 +49,7 @@ export class TableBuilderComponentService<
 {
   constructor(
     private readonly tableService: TableService<VALUE>,
+    private readonly formService: FormService<VALUE>,
     private readonly textRendering: TextRenderingService,
     private readonly footerEditor: FooterEditorService,
     private readonly keymapService: KeymapService,
@@ -169,10 +171,12 @@ export class TableBuilderComponentService<
   protected onDown(): boolean {
     if (this.opt.mode !== 'single') {
       if (this.selectedRow === this.rows.length - ARRAY_OFFSET) {
-        return false;
+        this.selectedRow = START;
+        return;
       }
     } else if (this.selectedRow === this.opt.elements.length - ARRAY_OFFSET) {
-      return false;
+      this.selectedRow = START;
+      return;
     }
     this.selectedRow++;
   }
@@ -203,7 +207,10 @@ export class TableBuilderComponentService<
 
   protected onUp(): boolean {
     if (this.selectedRow === START) {
-      return false;
+      this.selectedRow =
+        (this.opt.mode === 'multi' ? this.rows.length : this.columns.length) -
+        ARRAY_OFFSET;
+      return;
     }
     this.selectedRow--;
   }
@@ -227,7 +234,7 @@ export class TableBuilderComponentService<
 
   private renderSingle(): void {
     const message = this.textRendering.pad(
-      this.tableService.renderForm(this.opt, this.value, this.selectedRow),
+      this.formService.renderForm(this.opt, this.value, this.selectedRow),
     );
     this.screenService.render(
       message,

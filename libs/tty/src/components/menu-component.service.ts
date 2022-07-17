@@ -119,10 +119,11 @@ export interface MenuComponentOptions<T = unknown> {
    * Append the help text below menu
    */
   showHelp?: boolean;
-  /**
-   * Automatically sort menu entries alphabetically by label
-   */
-  sort?: boolean;
+  //
+  // /**
+  //  * Automatically sort menu entries alphabetically by label
+  //  */
+  // sort?: boolean;
   /**
    * Make menu entry group types prettier.
    *
@@ -149,7 +150,7 @@ function GV<T = string>(item: PromptEntry<T>): T {
 }
 
 const SEARCH_KEYMAP: tKeyMap = new Map([
-  [{ catchAll: true, noHelp: true }, 'onSearchKeyPress'],
+  [{ catchAll: true, powerUser: true }, 'onSearchKeyPress'],
   [{ description: 'next', key: 'down' }, 'navigateSearch'],
   [{ description: 'previous', key: 'up' }, 'navigateSearch'],
   [{ description: 'bottom', key: ['end', 'pagedown'] }, 'navigateSearch'],
@@ -178,7 +179,6 @@ export class MenuComponentService<VALUE = unknown | string>
   private headerPadding: number;
   private leftHeader: string;
   private mode: 'find' | 'select' = 'select';
-  private numericSelection = '';
   private opt: MenuComponentOptions<VALUE>;
   private rightHeader: string;
   private searchText = '';
@@ -256,9 +256,12 @@ export class MenuComponentService<VALUE = unknown | string>
       this.onEnd();
       return false;
     }
+    const selectedItem = this.side().find(
+      ({ entry }) => GV(entry) === this.value,
+    );
     const result = await callback(
       GV(keyMap[mixed]) as unknown as string,
-      this.getSelected()?.entry,
+      selectedItem?.entry,
     );
     if (is.string(result)) {
       this.callbackOutput = result;
@@ -330,14 +333,12 @@ export class MenuComponentService<VALUE = unknown | string>
     this.value = GV(list[index + INCREMENT].entry);
   }
 
-  protected numberSelect(mixed: string): void {
-    this.numericSelection = mixed;
-    const entry =
-      this.side()[
-        Number(is.empty(this.numericSelection) ? '1' : this.numericSelection) -
-          ARRAY_OFFSET
-      ]?.entry;
-    this.value = is.object(entry) ? GV(entry) : this.value;
+  protected numberSelect(mixed: string): boolean {
+    const list = this.side();
+    const item = list[Number(is.empty(mixed) ? '1' : mixed) - ARRAY_OFFSET];
+    const entry = item?.entry;
+    this.value = entry ? GV(entry) : this.value;
+    return true;
   }
 
   /**
@@ -593,7 +594,9 @@ export class MenuComponentService<VALUE = unknown | string>
       message += `\n \n`;
     }
     message += out.map(i => `  ${i}`).join(`\n`);
-    const selectedItem = this.getSelected();
+    const selectedItem = this.side().find(
+      ({ entry }) => GV(entry) === this.value,
+    );
     if (!is.empty(selectedItem?.helpText)) {
       message += chalk`\n \n {blue.dim ?} ${selectedItem.helpText
         .split(`\n`)
@@ -723,7 +726,7 @@ export class MenuComponentService<VALUE = unknown | string>
 
   private setKeymap(): void {
     const PARTIAL_LIST: tMenuItem[] = [
-      [{ catchAll: true, noHelp: true }, 'activateKeyMap'],
+      [{ catchAll: true, powerUser: true }, 'activateKeyMap'],
       ...(this.opt.keyOnly
         ? []
         : ([
@@ -734,7 +737,7 @@ export class MenuComponentService<VALUE = unknown | string>
               {
                 description: 'select item',
                 key: [...'0123456789'],
-                noHelp: true,
+                powerUser: true,
               },
               'numberSelect',
             ],
@@ -759,18 +762,12 @@ export class MenuComponentService<VALUE = unknown | string>
       ...(is.empty(this.opt.left) || is.empty(this.opt.right)
         ? []
         : LEFT_RIGHT),
-      ...(this.opt.hideSearch || this.opt.keyOnly || this.opt.condensed
-        ? []
-        : SEARCH),
+      ...(this.opt.hideSearch || this.opt.keyOnly ? [] : SEARCH),
     ]);
     this.keyboardService.setKeyMap(this, keymap);
   }
 
-  /**
-   * Retrieve a sorted list of entries
-   *
-   * In find mode, both lists get merged into a single one
-   */
+  // this used to do more
   private side(
     side: 'left' | 'right' = this.selectedType,
     noRecurse = false,
@@ -778,26 +775,6 @@ export class MenuComponentService<VALUE = unknown | string>
     if (this.mode === 'find' && !noRecurse) {
       return [...this.side('right', true), ...this.side('left', true)];
     }
-    // TODO: find way of caching the replacements
-    // Might be an issue in large lists
-    let temp = this.opt[side].map(
-      item =>
-        [item, ansiStrip(item.entry[LABEL]).replace(UNSORTABLE, '')] as [
-          MainMenuEntry,
-          string,
-        ],
-    );
-    if (this.opt.sort !== false) {
-      temp = temp.sort(([a, aLabel], [b, bLabel]) => {
-        if (a.type === b.type) {
-          return aLabel > bLabel ? UP : DOWN;
-        }
-        if (a.type > b.type) {
-          return UP;
-        }
-        return DOWN;
-      });
-    }
-    return temp.map(([item]) => item) as MainMenuEntry<VALUE>[];
+    return this.opt[side] as MainMenuEntry<VALUE>[];
   }
 }

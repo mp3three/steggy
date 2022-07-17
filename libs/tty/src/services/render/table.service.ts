@@ -9,7 +9,6 @@ import { EnvironmentService } from '../meta/environment.service';
 import { TextRenderingService } from './text-rendering.service';
 
 const PADDING = 1;
-const DOUBLE_PADDING = 2;
 
 const ROW_MULTIPLIER = 2;
 const HEADER_LINE_COUNT = 4;
@@ -34,22 +33,6 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
   private selectedRow: number;
   private value: VALUE;
   private values: VALUE[];
-
-  public renderForm(
-    options: TableBuilderOptions<unknown>,
-    row: VALUE,
-    selectedRow: number = START,
-  ): string {
-    this.value = row;
-    this.activeOptions = options;
-    this.selectedRow = selectedRow;
-    this.calcColumns([this.value]);
-    const maxLength = Math.max(
-      ...this.activeOptions.elements.map(({ name }) => name.length),
-    );
-    const header = this.formBody(maxLength);
-    return [...header].join(`\n`);
-  }
 
   public renderTable(
     options: TableBuilderOptions<unknown>,
@@ -120,46 +103,6 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
     ].join('');
   }
 
-  private formBody(max: number): string[] {
-    const maxValue =
-      DOUBLE_PADDING +
-      ansiMaxLength(
-        ...this.columns.map(i => this.textRender.type(get(this.value, i.path))),
-      );
-    const maxLabel = ansiMaxLength(this.columns.map(({ name }) => name));
-
-    const columns = this.columns.map((i, index) =>
-      this.renderValue({ i, index, max, maxLabel, maxValue }),
-    );
-    return [
-      [
-        TABLE_PARTS.top_left,
-        TABLE_PARTS.top.repeat(max),
-        TABLE_PARTS.top_mid,
-        TABLE_PARTS.top.repeat(maxValue),
-        TABLE_PARTS.top_right,
-      ].join(``),
-      columns.join(
-        `\n` +
-          [
-            TABLE_PARTS.left_mid,
-            TABLE_PARTS.mid.repeat(max),
-            TABLE_PARTS.mid_mid,
-            TABLE_PARTS.mid.repeat(maxValue),
-            TABLE_PARTS.right_mid,
-          ].join(``) +
-          `\n`,
-      ),
-      [
-        TABLE_PARTS.bottom_left,
-        TABLE_PARTS.top.repeat(max),
-        TABLE_PARTS.bottom_mid,
-        TABLE_PARTS.top.repeat(maxValue),
-        TABLE_PARTS.bottom_right,
-      ].join(''),
-    ];
-  }
-
   private highlightChar(char: string): string {
     return chalk.bold.red(char);
   }
@@ -192,41 +135,6 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
       }
       return line;
     });
-  }
-
-  private renderValue({
-    i,
-    index,
-    max,
-    maxLabel,
-    maxValue,
-  }: {
-    i: ColumnInfo;
-    index: number;
-    max: number;
-    maxLabel: number;
-    maxValue: number;
-  }): string {
-    const raw = get(this.value, i.path);
-    const v = this.textRender.type(raw);
-    const lines = v.split(`\n`).length;
-    const values = (index === this.selectedRow ? chalk.inverse(v) : v).split(
-      `\n`,
-    );
-    const labels = (NAME_CELL(i, max) + `\n`.repeat(lines - INCREMENT)).split(
-      `\n`,
-    );
-    return labels
-      .map((labelLine, labelIndex) => {
-        return [
-          TABLE_PARTS.left,
-          ansiPadEnd(labelLine, maxLabel + DOUBLE_PADDING),
-          TABLE_PARTS.middle,
-          ansiPadEnd(' ' + values[labelIndex], maxValue),
-          TABLE_PARTS.right,
-        ].join('');
-      })
-      .join(`\n`);
   }
 
   private rows(): string[] {

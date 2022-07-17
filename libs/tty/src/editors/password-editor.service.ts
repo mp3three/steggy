@@ -18,7 +18,7 @@ export interface PasswordEditorRenderOptions {
 }
 
 const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
-  [{ catchAll: true, noHelp: true }, 'onKeyPress'],
+  [{ catchAll: true, powerUser: true }, 'onKeyPress'],
   [{ description: 'done', key: 'enter' }, 'onEnd'],
   [{ key: 'escape' }, 'reset'],
   [{ key: 'f3' }, 'clear'],

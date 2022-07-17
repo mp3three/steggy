@@ -44,12 +44,12 @@ export interface ListBuilderOptions<T = unknown> {
 }
 
 const KEYMAP_FIND: tKeyMap = new Map<TTYKeypressOptions, string>([
-  [{ key: 'backspace', noHelp: true }, 'searchBack'],
+  [{ key: 'backspace', powerUser: true }, 'searchBack'],
   [{ description: 'toggle selected', key: ['`', 'f4'] }, 'toggle'],
   [{ description: 'current', key: 'left' }, 'onLeft'],
   [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
   [{ description: 'available', key: 'right' }, 'onRight'],
-  [{ noHelp: true }, 'searchAppend'],
+  [{ powerUser: true }, 'searchAppend'],
   [
     {
       description: 'navigate',
@@ -73,7 +73,7 @@ const KEYMAP_NORMAL: tKeyMap = new Map([
   [{ key: ['end', 'pagedown'] }, 'bottom'],
   [{ key: 'up' }, 'previous'],
   [{ key: 'down' }, 'next'],
-  [{ key: [...'0123456789'], noHelp: true }, 'numericSelect'],
+  [{ key: [...'0123456789'], powerUser: true }, 'numericSelect'],
 ]);
 
 @Component({ type: 'list' })

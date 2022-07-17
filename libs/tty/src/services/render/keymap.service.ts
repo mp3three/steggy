@@ -59,8 +59,8 @@ export class KeymapService {
 
   private buildLines(map: tKeyMap): keyItem[] {
     return [...map.entries()]
-      .filter(([{ noHelp, active }]) => {
-        if (noHelp) {
+      .filter(([{ powerUser, active }]) => {
+        if (powerUser) {
           return false;
         }
         if (active) {

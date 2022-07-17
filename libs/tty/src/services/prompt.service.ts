@@ -230,7 +230,6 @@ export class PromptService {
       keyMap: { f4: ['Cancel', cancel as T] },
       right: options,
       rightHeader: message,
-      sort: false,
       value: defaultValue,
     })) as T;
     if (result === cancel) {

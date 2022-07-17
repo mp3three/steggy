@@ -108,7 +108,7 @@ export class TextRenderingService {
         chalk`{blue.bold ${left.padStart(
           maxA - ARRAY_OFFSET,
           ' ',
-        )}} {blue.dim |} {blue.bold ${right.padEnd(maxB, ' ')}}`,
+        )}} {blue.dim |}{blue.bold ${right.padEnd(maxB, ' ')}}`,
       );
     }
     if (is.string(search)) {

@@ -706,7 +706,7 @@ export class DateEditorService
 
   private setKeymap() {
     const FUZZY_KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
-      [{ catchAll: true, noHelp: true }, 'onKeyPress'],
+      [{ catchAll: true, powerUser: true }, 'onKeyPress'],
       [{ description: 'done', key: 'enter' }, 'onEnd'],
       [{ description: 'clear', key: 'escape' }, 'reset'],
       ...(this.config.fuzzy === 'user'
@@ -723,11 +723,11 @@ export class DateEditorService
       [{ key: 'escape' }, 'reset'],
       [{ description: 'down', key: 'down' }, 'onDown'],
       [{ description: 'up', key: 'up' }, 'onUp'],
-      [{ catchAll: true, noHelp: true }, 'editType'],
+      [{ catchAll: true, powerUser: true }, 'editType'],
       [{ description: 'cursor left', key: 'left' }, 'onLeft'],
       [{ description: 'cursor right', key: 'right' }, 'onRight'],
       // Other common keys, feels excessive to report them to the user
-      [{ key: [':', '-', 'space'], noHelp: true }, 'onRight'],
+      [{ key: [':', '-', 'space'], powerUser: true }, 'onRight'],
       ...(['datetime', 'range'].includes(this.type) &&
       this.config.fuzzy === 'user'
         ? [
@@ -747,10 +747,10 @@ export class DateEditorService
         : []),
       // "power user features"
       // aka: stuff I'm keeping off the help menu because it's getting cluttered
-      [{ key: 'home', noHelp: true }, 'setHome'],
-      [{ key: 'end', noHelp: true }, 'setEnd'],
-      [{ key: 'pageup', noHelp: true }, 'setMax'],
-      [{ key: 'pagedown', noHelp: true }, 'setMin'],
+      [{ key: 'home', powerUser: true }, 'setHome'],
+      [{ key: 'end', powerUser: true }, 'setEnd'],
+      [{ key: 'pageup', powerUser: true }, 'setMax'],
+      [{ key: 'pagedown', powerUser: true }, 'setMin'],
     ]);
 
     this.keyboardService.setKeyMap(

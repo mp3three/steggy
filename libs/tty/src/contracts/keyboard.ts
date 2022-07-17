@@ -19,5 +19,10 @@ export interface TTYKeypressOptions {
   description?: string;
   key?: string | string[];
   modifiers?: Partial<KeyModifiers>;
-  noHelp?: boolean;
+  /**
+   * Leave it to the user to find this, don't document on UI
+   *
+   * May be useful for items with many keys that map to the same thing (0-9 for example)
+   */
+  powerUser?: boolean;
 }

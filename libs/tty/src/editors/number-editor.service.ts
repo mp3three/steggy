@@ -26,9 +26,10 @@ const PADDING = 4;
 const DEFAULT_PLACEHOLDER = 'enter value';
 const INTERNAL_PADDING = ' ';
 const KEYMAP: tKeyMap = new Map<TTYKeypressOptions, string>([
-  [{ catchAll: true, noHelp: true }, 'onKeyPress'],
+  [{ catchAll: true, powerUser: true }, 'onKeyPress'],
   [{ description: 'done', key: 'enter' }, 'onEnd'],
-  [{ key: 'escape' }, 'reset'],
+  [{ key: 'escape' }, 'clear'],
+  [{ key: 'f3' }, 'reset'],
   [{ key: 'f4' }, 'cancel'],
   [{ key: 'up' }, 'increment'],
   [{ key: 'down' }, 'decrement'],
@@ -79,6 +80,10 @@ export class NumberEditorService
   protected cancel(): void {
     this.reset();
     this.onEnd();
+  }
+
+  protected clear(): void {
+    this.value = '';
   }
 
   protected decrement(): void {

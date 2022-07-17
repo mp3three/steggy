@@ -11,7 +11,7 @@ import {
   TTYDateTypes,
   TTYFuzzyTypes,
 } from '@steggy/tty';
-import { DEFAULT_LIMIT, PEAT, START } from '@steggy/utilities';
+import { DEFAULT_LIMIT, PEAT } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { MenuSampler } from './menu-sampler.service';
@@ -42,7 +42,6 @@ export class PromptSampler {
     rightHeader: '',
     showHeaders: true,
     showHelp: true,
-    sort: true,
   };
 
   public async exec(value?: string): Promise<void> {
@@ -58,12 +57,13 @@ export class PromptSampler {
         d: ['done'],
       },
       right: [
-        // { entry: ['acknowledge'] },
-        // { entry: ['confirm'] },
-        // { entry: ['date'] },
-        // { entry: ['lists'] },
+        { entry: ['acknowledge'] },
+        { entry: ['confirm'] },
+        { entry: ['date'] },
+        { entry: ['lists'] },
         { entry: ['menu'] },
-        // { entry: ['object builder', 'builder'] },
+        { entry: ['object builder', 'builder'] },
+        { entry: ['string'] },
       ],
       value,
     });
@@ -85,6 +85,9 @@ export class PromptSampler {
         return await this.exec(action);
       case 'menu':
         await this.menuSampler.exec();
+        return await this.exec(action);
+      case 'string':
+        await this.string();
         return await this.exec(action);
 
       case 'done':
@@ -180,7 +183,9 @@ export class PromptSampler {
         { entry: ['custom label', 'label'] },
       ],
     });
-    const source = PEAT(LIST_LENGTH).map(i => [`Source ${i}`] as MenuEntry);
+    const source = PEAT(LIST_LENGTH).map(
+      i => [faker.company.companyName(), `${i}`] as MenuEntry,
+    );
     let result: string[];
     switch (action) {
       case 'default':
@@ -189,10 +194,11 @@ export class PromptSampler {
         });
         break;
       case 'selected':
-        const current = source.slice(START, DEFAULT_LIMIT);
         result = await this.prompt.listBuild({
-          current,
-          source: source.slice(DEFAULT_LIMIT),
+          current: PEAT(LIST_LENGTH).map(
+            i => [faker.science.chemicalElement().name, `${i}`] as MenuEntry,
+          ),
+          source,
         });
         break;
       case 'label':
@@ -209,7 +215,9 @@ export class PromptSampler {
     await this.prompt.acknowledge();
   }
 
-  private string(): void {
-    //
+  private async string(): Promise<void> {
+    const result = await this.prompt.string('', '', {});
+    this.screen.printLine(this.text.type(result));
+    await this.prompt.acknowledge();
   }
 }

@@ -10,13 +10,18 @@ import {
   template,
   TextRenderingService,
 } from '@steggy/tty';
-import { DEFAULT_LIMIT, PEAT } from '@steggy/utilities';
+import { DEFAULT_LIMIT, is, PEAT } from '@steggy/utilities';
 import chalk from 'chalk';
 
 type tMenuOptions = MenuComponentOptions & { generateCount: number } & Record<
     'optionsLeft' | 'optionsRight',
     FakerSources
   >;
+const CHUNKY_LIST = 50;
+
+/**
+ * Just a few items to make life interesting
+ */
 enum FakerSources {
   bikes = 'bikes',
   vin = 'vin',
@@ -40,7 +45,6 @@ export class MenuSampler {
     condensed: false,
     generateCount: DEFAULT_LIMIT,
     headerMessage: faker.lorem.lines(DEFAULT_LIMIT),
-    headerPadding: 0,
     hideSearch: false,
     keyOnly: false,
     leftHeader: '',
@@ -49,11 +53,60 @@ export class MenuSampler {
     rightHeader: '',
     showHeaders: true,
     showHelp: true,
-    sort: true,
   };
 
   public async exec(): Promise<void> {
-    this.application.setHeader('Menu creator');
+    this.application.setHeader('Menu Sampler');
+    const action = await this.prompt.menu({
+      right: [
+        {
+          entry: ['async callbacks', 'async'],
+          helpText: [
+            `Run code in the background, while still keeping the menu rendered.`,
+            `Return response messages to console`,
+          ].join(`\n`),
+        },
+        { entry: ['basic'] },
+      ],
+    });
+    switch (action) {
+      case 'basic':
+        await this.basic();
+        return;
+      case 'async':
+        await this.async();
+        return;
+    }
+  }
+
+  private async async(): Promise<void> {
+    const result = await this.prompt.menu({
+      condensed: true,
+      keyMap: {
+        a: [chalk.magenta.inverse('do a little dance'), 'dance'],
+        b: [chalk.magenta.inverse('paint some colors'), 'colors'],
+        d: ['done'],
+      },
+      keyMapCallback(action, [label, value]) {
+        if (!['dance', 'colors'].includes(action)) {
+          return false;
+        }
+        return `${label} clicked (${value})`;
+      },
+      left: PEAT(CHUNKY_LIST).map(i => ({
+        entry: [faker.color.rgb(), `${i}`],
+      })),
+      leftHeader: 'Colors',
+      right: PEAT(CHUNKY_LIST).map(i => ({
+        entry: [faker.music.songName(), `${i}`],
+      })),
+      rightHeader: 'Songs',
+    });
+    this.screen.printLine(this.text.type(result));
+    await this.prompt.acknowledge();
+  }
+
+  private async basic(): Promise<void> {
     this.menuOptions = await this.prompt.objectBuilder<tMenuOptions>({
       current: this.menuOptions,
       elements: [
@@ -61,11 +114,6 @@ export class MenuSampler {
           name: 'Condensed',
           path: 'condensed',
           type: 'boolean',
-        },
-        {
-          name: 'Header Padding',
-          path: 'headerPadding',
-          type: 'number',
         },
         {
           name: 'Hide Search',
@@ -93,53 +141,51 @@ export class MenuSampler {
           type: 'string',
         },
         {
-          name: 'Sort',
-          path: 'sort',
-          type: 'boolean',
-        },
-        {
-          extra: { options: Object.values(FakerSources) },
-          name: chalk.magenta('Options left'),
-          path: 'optionsLeft',
-          type: 'enum',
-        },
-        {
-          extra: { options: Object.values(FakerSources) },
-          // name: 'Options right',
-          name: chalk.magenta('Options right'),
-          path: 'optionsRight',
-          type: 'enum',
-        },
-        {
           name: 'Show Help',
           path: 'showHelp',
-          type: 'string',
-        },
-        {
-          name: 'Generate Options qty',
-          // name: chalk.magenta('Generate Options qty'),
-          path: 'generateCount',
-          type: 'number',
+          type: 'boolean',
         },
         {
           name: 'Show Headers',
           path: 'showHeaders',
           type: 'boolean',
         },
+        {
+          extra: { options: Object.values(FakerSources) },
+          name: chalk.cyan('Options left'),
+          path: 'optionsLeft',
+          type: 'enum',
+        },
+        {
+          extra: { options: Object.values(FakerSources) },
+          name: chalk.cyan('Options right'),
+          path: 'optionsRight',
+          type: 'enum',
+        },
+        {
+          name: chalk.cyan('Generate Options qty'),
+          path: 'generateCount',
+          type: 'number',
+        },
       ],
       mode: 'single',
     });
-    const { optionsLeft, optionsRight, headerMessage, ...options } =
-      this.menuOptions;
+    const {
+      optionsLeft,
+      optionsRight,
+      headerMessage,
+      generateCount,
+      ...options
+    } = this.menuOptions;
     const left: MainMenuEntry[] =
       optionsLeft !== FakerSources.none
-        ? PEAT(DEFAULT_LIMIT).map(i =>
+        ? PEAT(generateCount).map(i =>
             this.generateMenuItem(optionsLeft, `left-${i}`),
           )
         : undefined;
     const right: MainMenuEntry[] =
       optionsRight !== FakerSources.none
-        ? PEAT(DEFAULT_LIMIT).map(i =>
+        ? PEAT(generateCount).map(i =>
             this.generateMenuItem(optionsRight, `right-${i}`),
           )
         : undefined;
@@ -173,8 +219,11 @@ export class MenuSampler {
         label = faker.address.streetAddress();
         break;
       case FakerSources.animal:
-        const keys = Object.keys(faker.animal);
-        label = faker.animal[keys[Math.floor(Math.random() * keys.length)]]();
+        const keys = Object.keys(faker.animal).filter(i =>
+          is.function(faker.animal[i]),
+        );
+        const type = keys[Math.floor(Math.random() * keys.length)];
+        label = faker.animal[type]();
         break;
     }
     const phrases = [
