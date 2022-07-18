@@ -3,7 +3,7 @@
     "name": "mp3three",
     "url": "https://github.com/mp3three/steggy"
   },
-  "version": "22.30.3",
+  "version": "22.30.4",
   "name": "node-red-contrib-steggy",
   "homepage": "https://github.com/mp3three/steggy",
   "node-red": {
