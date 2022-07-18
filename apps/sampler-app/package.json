@@ -6,7 +6,7 @@
   "description": "",
   "main": "main.js",
   "name": "@steggy/sampler-app",
-  "version": "22.30.0",
+  "version": "22.30.2",
   "author": {
     "name": "mp3three",
     "url": "https://github.com/mp3three/steggy"
