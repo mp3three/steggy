@@ -86,7 +86,7 @@ export function QuickScript({
       };
       // "Undocumented" (doesn't appear in any of the self reported config stuff) feature
       // Hopefully nobody needs this exact variable name for use as a switch. That'd be awkward
-      if (!is.undefined(minimist(argv)['config-scanner'])) {
+      if (!is.undefined(minimist(argv)['scan-config'])) {
         BOOTSTRAP_OPTIONS = {
           ...BOOTSTRAP_OPTIONS,
           config: { libs: { boilerplate: { LOG_LEVEL: 'silent' } } },

@@ -115,7 +115,6 @@ export class ABBCli {
       right: [{ entry: ['Search', 'search'] }],
       rightHeader: 'Commands',
       showHeaders: true,
-      sort: false,
       value,
     });
     switch (action) {

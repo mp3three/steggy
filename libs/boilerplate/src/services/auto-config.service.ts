@@ -116,12 +116,16 @@ export class AutoConfigService {
   private cast(data: string, type: string): unknown {
     switch (type) {
       case 'boolean':
+        data ??= '';
         return is.boolean(data)
           ? data
           : ['true', 'y', '1'].includes(data.toLowerCase());
       case 'number':
         return Number(data);
       case 'string[]':
+        if (is.undefined(data)) {
+          return [];
+        }
         if (Array.isArray(data)) {
           return data.map(String);
         }

@@ -15,7 +15,7 @@
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "commands": [
-          { "command": "npx nx build abb-cli --configuration=config-scanner" }
+          { "command": "npx nx build abb-cli --configuration=scan-config" }
         ]
       }
     },
@@ -42,7 +42,7 @@
           "fileReplacements": []
         },
         "scan-config": {
-          "outputPath": "dist/config-scanner/abb-cli",
+          "outputPath": "dist/scan-config/abb-cli",
           "fileReplacements": [
             {
               "replace": "apps/abb-cli/src/environments/environment.ts",
@@ -97,7 +97,7 @@
             "description": "Create standard production build"
           },
           {
-            "command": "mkdir -p dist/configs; node dist/config-scanner/abb-cli/main.js > dist/configs/abb-cli.json",
+            "command": "mkdir -p dist/configs; node dist/scan-config/abb-cli/main.js > dist/configs/abb-cli.json",
             "description": "Scan config, output to dist"
           }
         ]

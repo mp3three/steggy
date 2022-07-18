@@ -16,7 +16,7 @@
       "options": {
         "commands": [
           {
-            "command": "npx nx build controller-backup --configuration=config-scanner"
+            "command": "npx nx build controller-backup --configuration=scan-config"
           }
         ]
       }
@@ -44,7 +44,7 @@
           "fileReplacements": []
         },
         "scan-config": {
-          "outputPath": "dist/config-scanner/controller-backup",
+          "outputPath": "dist/scan-config/controller-backup",
           "fileReplacements": [
             {
               "replace": "apps/controller-backup/src/environments/environment.ts",
@@ -67,7 +67,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga ABB CLI",
+            "command": "npx figlet-cli -f Pagga Controller Backup",
             "description": "Announce it"
           },
           {
@@ -99,7 +99,7 @@
             "description": "Create standard production build"
           },
           {
-            "command": "mkdir -p dist/configs; node dist/config-scanner/controller-backup/main.js > dist/configs/controller-backup.json",
+            "command": "mkdir -p dist/configs; node dist/scan-config/controller-backup/main.js > dist/configs/controller-backup.json",
             "description": "Scan config, output to dist"
           }
         ]

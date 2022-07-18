@@ -16,7 +16,7 @@
       "options": {
         "commands": [
           {
-            "command": "npx nx build log-formatter --configuration=config-scanner"
+            "command": "npx nx build log-formatter --configuration=scan-config"
           }
         ]
       }

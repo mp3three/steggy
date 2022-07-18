@@ -1,8 +1,12 @@
 {
+  "bin": {
+    "sampler-app": "main.js"
+  },
   "license": "MIT",
   "description": "",
   "main": "main.js",
-  "version": "22.29.2",
+  "name": "@steggy/sampler-app",
+  "version": "22.30.0",
   "author": {
     "name": "mp3three",
     "url": "https://github.com/mp3three/steggy"

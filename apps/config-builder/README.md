@@ -37,7 +37,7 @@ Inside of this repository, all configurable apps have pre-assembled yarn command
 
 ### With `@QuickScript`
 
-For applications build off the `@QuickScript` annotation, there is a built-in scanner accessible with the `--config-scanner` flag.
+For applications build off the `@QuickScript` annotation, there is a built-in scanner accessible with the `--scan-config` flag.
 Inside this repo, example apps:
 
 - `build-pipeline`
@@ -47,7 +47,7 @@ Inside this repo, example apps:
 Example manual scan + configuration of the build pipeline script
 
 ```bash
-build-pipeline --config-scanner > ./config.json
+build-pipeline --scan-config > ./config.json
 config-builder --definition-file ./config.json
 ```
 

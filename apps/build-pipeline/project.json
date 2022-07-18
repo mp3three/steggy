@@ -62,7 +62,7 @@
             "description": "Create standard production build"
           },
           {
-            "command": "mkdir -p dist/configs; node dist/apps/build-pipeline/main.js --config-scanner > dist/configs/build-pipeline.json",
+            "command": "mkdir -p dist/configs; node dist/apps/build-pipeline/main.js --scan-config > dist/configs/build-pipeline.json",
             "description": "Scan config, output to dist"
           }
         ]

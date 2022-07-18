@@ -16,7 +16,7 @@
       "options": {
         "commands": [
           {
-            "command": "npx nx build config-builder --configuration=config-scanner"
+            "command": "npx nx build config-builder --configuration=scan-config"
           }
         ]
       }
@@ -57,7 +57,7 @@
             "description": "Create standard production build"
           },
           {
-            "command": "mkdir -p dist/configs; node dist/apps/config-builder/main.js --config-scanner > dist/configs/config-builder.json",
+            "command": "mkdir -p dist/configs; node dist/apps/config-builder/main.js --scan-config > dist/configs/config-builder.json",
             "description": "Scan config, output to dist"
           }
         ]

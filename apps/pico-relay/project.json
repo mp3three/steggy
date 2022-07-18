@@ -58,7 +58,7 @@
             "description": "Create build"
           },
           {
-            "command": "mkdir -p dist/configs; node dist/apps/pico-relay/main.js --config-scanner > dist/configs/pico-relay.json",
+            "command": "mkdir -p dist/configs; node dist/apps/pico-relay/main.js --scan-config > dist/configs/pico-relay.json",
             "description": "Output results"
           }
         ]

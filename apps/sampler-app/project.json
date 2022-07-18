@@ -42,12 +42,24 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx nx build sampler-app --configuration=production",
-            "description": "Create build"
+            "command": "npx figlet-cli -f Pagga Sampler App",
+            "description": "Announce it"
           },
           {
-            "command": "npx terser dist/apps/sampler-app/main.js -c -m --keep-classnames --module > tools/scripts/pipeline.js",
-            "description": "Move to final destination"
+            "command": "npx nx build sampler-app --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "npx terser dist/apps/sampler-app/main.js -c -m --keep-classnames --module > dist/apps/sampler-app/minified.js",
+            "description": "Minify it"
+          },
+          {
+            "command": "echo '#!/usr/bin/env node' > dist/apps/sampler-app/main.js; cat dist/apps/sampler-app/minified.js >> dist/apps/sampler-app/main.js",
+            "description": "Replace output (can't be done in previous step)"
+          },
+          {
+            "command": "npx yarn publish --cwd dist/apps/sampler-app --non-interactive",
+            "description": "Publish it"
           }
         ]
       }
@@ -62,7 +74,7 @@
             "description": "Create standard production build"
           },
           {
-            "command": "mkdir -p dist/configs; node dist/apps/sampler-app/main.js --config-scanner > dist/configs/sampler-app.json",
+            "command": "mkdir -p dist/configs; node dist/apps/sampler-app/main.js --scan-config > dist/configs/sampler-app.json",
             "description": "Scan config, output to dist"
           }
         ]

@@ -110,7 +110,6 @@ export class ConfigScanner implements iQuickScript {
       hideSearch: true,
       keyMap: { d: ['done'] },
       right: entries,
-      sort: false,
       value: defaultValue,
     });
     switch (action) {

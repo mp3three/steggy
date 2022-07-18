@@ -1,4 +1,5 @@
 /* eslint-disable radar/no-duplicate-string */
+import { faker } from '@faker-js/faker';
 import { QuickScript } from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
@@ -11,6 +12,9 @@ import { ConfigSampler, MenuSampler, PromptSampler } from './services';
 
 @QuickScript({
   application: Symbol('sampler-app'),
+  bootstrap: {
+    config: { application: { BOOT_OVERRIDE: faker.hacker.phrase() } },
+  },
   imports: [TTYModule],
   providers: [ConfigSampler, MenuSampler, PromptSampler],
 })

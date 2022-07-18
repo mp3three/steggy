@@ -93,10 +93,10 @@ export class GroupPersistenceService extends BaseMongoService {
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(control: ResultControlDTO = {}): Promise<GroupDTO<GROUP_TYPE>[]> {
     const query = this.merge(control);
-    const out = (await this.modifyQuery(control, this.model.find(query))
+    const out = await this.modifyQuery(control, this.model.find(query))
       .lean()
-      .exec()) as GroupDTO<GROUP_TYPE>[];
-    return out;
+      .exec();
+    return out as GroupDTO<GROUP_TYPE>[];
   }
 
   public async update<
