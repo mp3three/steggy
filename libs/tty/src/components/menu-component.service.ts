@@ -1,20 +1,20 @@
 import { forwardRef, Inject } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
-  DOWN,
   FIRST,
   INCREMENT,
   INVERT_VALUE,
   is,
   LABEL,
   NOT_FOUND,
+  PAIR,
   SINGLE,
   START,
   TitleCase,
-  UP,
   VALUE,
 } from '@steggy/utilities';
 import chalk from 'chalk';
+import dayjs from 'dayjs';
 
 import {
   DirectCB,
@@ -24,7 +24,7 @@ import {
   TTYKeypressOptions,
 } from '../contracts';
 import { Component, iComponent } from '../decorators';
-import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
+import { ansiMaxLength, ansiPadEnd } from '../includes';
 import {
   KeyboardManagerService,
   KeymapService,
@@ -33,7 +33,6 @@ import {
   TextRenderingService,
 } from '../services';
 
-const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 type tMenuItem = [TTYKeypressOptions, string | DirectCB];
 
 export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
@@ -173,6 +172,7 @@ export class MenuComponentService<VALUE = unknown | string>
   ) {}
 
   private callbackOutput = '';
+  private callbackTimestamp = dayjs();
   private complete = false;
   private done: (type: VALUE) => void;
   private final = false;
@@ -265,6 +265,7 @@ export class MenuComponentService<VALUE = unknown | string>
     );
     if (is.string(result)) {
       this.callbackOutput = result;
+      this.callbackTimestamp = dayjs();
       return;
     }
     if (result) {
@@ -347,6 +348,7 @@ export class MenuComponentService<VALUE = unknown | string>
   protected onEnd(): boolean {
     this.final = true;
     this.mode = 'select';
+    this.callbackOutput = '';
     this.done(this.value);
     this.render();
     return false;
@@ -562,7 +564,11 @@ export class MenuComponentService<VALUE = unknown | string>
    */
   private renderSelect(extraContent?: string) {
     let message = '';
-    if (!is.empty(this.callbackOutput)) {
+
+    if (
+      !is.empty(this.callbackOutput) &&
+      this.callbackTimestamp.isAfter(dayjs().subtract(PAIR, 'second'))
+    ) {
       message += this.callbackOutput + `\n\n`;
     }
     if (!is.empty(this.opt.headerMessage)) {

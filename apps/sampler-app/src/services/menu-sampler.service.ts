@@ -3,6 +3,7 @@ import { faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import {
   ApplicationManagerService,
+  ColorsService,
   MainMenuEntry,
   MenuComponentOptions,
   PromptService,
@@ -10,7 +11,14 @@ import {
   template,
   TextRenderingService,
 } from '@steggy/tty';
-import { DEFAULT_LIMIT, is, PEAT } from '@steggy/utilities';
+import {
+  DEFAULT_LIMIT,
+  is,
+  PEAT,
+  SECOND,
+  SINGLE,
+  sleep,
+} from '@steggy/utilities';
 import chalk from 'chalk';
 
 type tMenuOptions = MenuComponentOptions & { generateCount: number } & Record<
@@ -32,10 +40,13 @@ enum FakerSources {
   product = 'product',
 }
 
+type tAsyncExample = { color?: string; song?: string };
+
 @Injectable()
 export class MenuSampler {
   constructor(
     private readonly application: ApplicationManagerService,
+    private readonly colors: ColorsService,
     private readonly prompt: PromptService,
     private readonly screen: ScreenService,
     private readonly text: TextRenderingService,
@@ -80,25 +91,44 @@ export class MenuSampler {
   }
 
   private async async(): Promise<void> {
-    const result = await this.prompt.menu({
+    const result = await this.prompt.menu<tAsyncExample>({
       condensed: true,
+      headerMessage: [
+        chalk` {yellow.bold ?} highlighted items have a {yellow 1} second delay on activation.`,
+        chalk.gray`Messages persist {yellow.dim 2} seconds, then are cleared on next render.`,
+        chalk.gray`Renders require user interaction.`,
+      ].join(`\n`),
       keyMap: {
         a: [chalk.magenta.inverse('do a little dance'), 'dance'],
         b: [chalk.magenta.inverse('paint some colors'), 'colors'],
         d: ['done'],
       },
-      keyMapCallback(action, [label, value]) {
+      keyMapCallback: async (
+        action,
+        [label, value]: [string, tAsyncExample],
+      ) => {
         if (!['dance', 'colors'].includes(action)) {
           return false;
         }
-        return `${label} clicked (${value})`;
+        await sleep(SECOND);
+        if (action === 'dance') {
+          return is.empty(value.song)
+            ? chalk.red(`you are too sober to dance to colors`)
+            : chalk`Dancing to {magenta ${label}}! {gray Value: ${value.song}}`;
+        }
+
+        return is.empty(value.color)
+          ? chalk.cyan(`🤖 Silly human, songs aren't colors`)
+          : chalk.bgHex(label)[
+              this.colors.isBright(label.slice(SINGLE)) ? 'black' : 'white'
+            ]`${label} is a ${faker.word.adjective()} color`;
       },
       left: PEAT(CHUNKY_LIST).map(i => ({
-        entry: [faker.color.rgb(), `${i}`],
+        entry: [faker.color.rgb(), { color: `${i}` }],
       })),
       leftHeader: 'Colors',
       right: PEAT(CHUNKY_LIST).map(i => ({
-        entry: [faker.music.songName(), `${i}`],
+        entry: [faker.music.songName(), { song: `${i}` }],
       })),
       rightHeader: 'Songs',
     });

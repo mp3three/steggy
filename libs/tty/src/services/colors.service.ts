@@ -1,6 +1,7 @@
 /* This file is full of ported code */
 /* eslint-disable @typescript-eslint/no-magic-numbers, unicorn/no-nested-ternary */
 import { Injectable } from '@nestjs/common';
+import { HALF } from '@steggy/utilities';
 
 import { PromptService } from './prompt.service';
 
@@ -14,9 +15,10 @@ const clamp = (input: number, min: number, max: number) => {
 };
 const OFF = 0;
 const HEX_SIZE = 2;
+// https://en.wikipedia.org/wiki/Rec._709#Luma_coefficients
 const R_LUMINANCE = 0.2126;
 const G_LUMINANCE = 0.7152;
-const B_LUMINANCE = 0.722;
+const B_LUMINANCE = 0.0722;
 
 @Injectable()
 export class ColorsService {
@@ -36,7 +38,7 @@ export class ColorsService {
   }
 
   public hexToRGB(hex = '000000'): RGB {
-    const split = hex.match(new RegExp('.{1,2}', 'g'));
+    const split = hex.match(new RegExp('[0-9A-Fa-f]{1,2}', 'g'));
     return {
       b: Number.parseInt(split[2], 16),
       g: Number.parseInt(split[1], 16),
@@ -45,8 +47,13 @@ export class ColorsService {
   }
 
   public isBright(color: string): boolean {
-    const { r, g, b } = this.hexToRGB(color);
-    return r * R_LUMINANCE + g * G_LUMINANCE + b * B_LUMINANCE < 255 / 2;
+    let { r, g, b } = this.hexToRGB(color);
+    r *= R_LUMINANCE;
+    b *= B_LUMINANCE;
+    g *= G_LUMINANCE;
+    const target = 255 * HALF;
+    const total = r + g + b;
+    return total > target;
   }
 
   /**

@@ -3,31 +3,53 @@ import { QuickScript } from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
   PromptService,
-  ScreenService,
-  SyncLoggerService,
-  TextRenderingService,
   TTYModule,
 } from '@steggy/tty';
+import chalk from 'chalk';
 
-import { MenuSampler, PromptSampler } from './services';
+import { ConfigSampler, MenuSampler, PromptSampler } from './services';
 
 @QuickScript({
   application: Symbol('sampler-app'),
   imports: [TTYModule],
-  providers: [MenuSampler, PromptSampler],
+  providers: [ConfigSampler, MenuSampler, PromptSampler],
 })
 export class SamplerApp {
   constructor(
     private readonly application: ApplicationManagerService,
     private readonly prompt: PromptService,
-    private readonly screen: ScreenService,
-    private readonly text: TextRenderingService,
     private readonly promptSampler: PromptSampler,
-    private readonly logger: SyncLoggerService,
+    private readonly configSampler: ConfigSampler,
   ) {}
 
-  public async exec(): Promise<void> {
-    await this.promptSampler.exec();
-    await this.prompt.acknowledge('All done');
+  public async exec(value: string): Promise<void> {
+    this.application.setHeader('Sampler App');
+    const action = await this.prompt.menu({
+      condensed: true,
+      hideSearch: true,
+      keyMap: { d: ['done'] },
+      right: [
+        {
+          entry: ['Configuration', 'config'],
+          helpText: chalk`Demo of {green.dim @steggy} Injected configurations`,
+        },
+        {
+          entry: ['Prompts', 'prompts'],
+          helpText: chalk`Non-comprehensive demo of the interactions provided by {green.dim @steggy/tty}`,
+        },
+      ],
+      value,
+    });
+    switch (action) {
+      case 'done':
+        return;
+      case 'prompts':
+        await this.promptSampler.exec();
+        break;
+      case 'config':
+        await this.configSampler.exec();
+        break;
+    }
+    return await this.exec(action);
   }
 }

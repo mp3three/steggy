@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import {
   ApplicationManagerService,
-  MenuComponentOptions,
+  DateEditorEditorOptions,
   MenuEntry,
   PromptService,
   ScreenService,
@@ -11,14 +11,12 @@ import {
   TTYDateTypes,
   TTYFuzzyTypes,
 } from '@steggy/tty';
-import { DEFAULT_LIMIT, PEAT } from '@steggy/utilities';
+import { PEAT } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { MenuSampler } from './menu-sampler.service';
 
 const LIST_LENGTH = 10;
-type tMenuOptions = MenuComponentOptions &
-  Record<'optionsLeft' | 'optionsRight', boolean>;
 
 @Injectable()
 export class PromptSampler {
@@ -30,46 +28,59 @@ export class PromptSampler {
     private readonly text: TextRenderingService,
   ) {}
 
-  private menuOptions: tMenuOptions = {
-    condensed: false,
-    headerMessage: faker.lorem.lines(DEFAULT_LIMIT),
-    headerPadding: 0,
-    hideSearch: false,
-    keyOnly: false,
-    leftHeader: 'Bikes',
-    optionsLeft: true,
-    optionsRight: true,
-    rightHeader: '',
-    showHeaders: true,
-    showHelp: true,
-  };
-
   public async exec(value?: string): Promise<void> {
     this.application.setHeader('TTY Sampler');
 
     const action = await this.prompt.menu({
       condensed: true,
       headerMessage: [
-        chalk` {yellow.bold ?} High level interactions provided by {bold PromptService}`,
+        chalk` {yellow.bold ?} Below is a selection of the interactions provided by {bold PromptService}.`,
+        chalk` This service uses pre-built widgets to gather information from the user.`,
       ].join(`\n`),
       keyMap: {
         a: ['all'],
         d: ['done'],
       },
       right: [
-        { entry: ['acknowledge'] },
-        { entry: ['confirm'] },
-        { entry: ['date'] },
-        { entry: ['lists'] },
-        { entry: ['menu'] },
-        { entry: ['object builder', 'builder'] },
-        { entry: ['string'] },
+        {
+          entry: ['acknowledge'],
+          helpText: 'A basic request for interaction before continuing',
+        },
+        { entry: ['boolean'], helpText: 'true / false' },
+        { entry: ['confirm'], helpText: 'boolean, but different' },
+        {
+          entry: ['date'],
+          helpText: chalk`Has support for {bold chrono-node} text parsing.\nDate modes: ${[
+            'date',
+            'time',
+            'datetime',
+            'range',
+          ]
+            .map(i => chalk.cyan(i))
+            .join(', ')}`,
+        },
+        {
+          entry: ['lists'],
+          helpText: chalk`Pick many items out of a source list.`,
+        },
+        {
+          entry: ['menu'],
+          helpText: chalk`General workhorse component. Highly configurable`,
+        },
+        {
+          entry: ['object builder', 'builder'],
+          helpText: chalk`{yellow User configurable demo WIP}.\nView it in action with {cyan date} & {cyan menu} prompts`,
+        },
+        { entry: ['string'], helpText: 'Request text from the user' },
       ],
       value,
     });
     switch (action) {
       case 'acknowledge':
         await this.acknowledge();
+        return await this.exec(action);
+      case 'boolean':
+        await this.boolean();
         return await this.exec(action);
       case 'confirm':
         await this.confirm();
@@ -81,7 +92,7 @@ export class PromptSampler {
         await this.lists();
         return await this.exec(action);
       case 'builder':
-        await this.objectBuilder();
+        // await this.objectBuilder();
         return await this.exec(action);
       case 'menu':
         await this.menuSampler.exec();
@@ -89,7 +100,6 @@ export class PromptSampler {
       case 'string':
         await this.string();
         return await this.exec(action);
-
       case 'done':
         return;
     }
@@ -112,6 +122,15 @@ export class PromptSampler {
         await this.prompt.acknowledge();
         return;
     }
+  }
+
+  private async boolean(): Promise<void> {
+    const result = await this.prompt.boolean(
+      'Pineapple is acceptable on pizza?',
+    );
+    this.screen.print(this.text.type(result));
+    this.screen.printLine(result ? '' : `, it really is tho`);
+    await this.prompt.acknowledge();
   }
 
   private async confirm(): Promise<void> {
@@ -142,34 +161,34 @@ export class PromptSampler {
   }
 
   private async date(): Promise<void> {
-    const action = await this.prompt.menu({
-      condensed: true,
-      right: [
-        { entry: ['default'] },
-        { entry: ['custom fuzzy', 'fuzzy'] },
-        { entry: ['custom type', 'type'] },
+    const options = await this.prompt.objectBuilder<DateEditorEditorOptions>({
+      current: {
+        fuzzy: 'user',
+        label: 'Enter date',
+        type: 'datetime',
+      },
+      elements: [
+        {
+          extra: { options: Object.values(TTYFuzzyTypes) },
+          name: 'Fuzzy',
+          path: 'fuzzy',
+          type: 'enum',
+        },
+        {
+          name: 'Label',
+          path: 'label',
+          type: 'string',
+        },
+        {
+          extra: { options: Object.values(TTYDateTypes) },
+          name: 'Date Type',
+          path: 'type',
+          type: 'enum',
+        },
       ],
+      mode: 'single',
     });
-    let result: Date;
-    switch (action) {
-      case 'default':
-        result = await this.prompt.date({});
-        break;
-      case 'fuzzy':
-        const fuzzy = await this.prompt.pickOne<TTYFuzzyTypes>(
-          'Fuzzy search',
-          Object.values(TTYFuzzyTypes).map(i => ({ entry: [i] })),
-        );
-        result = await this.prompt.date({ fuzzy });
-        break;
-      case 'type':
-        const type = await this.prompt.pickOne<TTYDateTypes>(
-          'Prompt type',
-          Object.values(TTYDateTypes).map(i => ({ entry: [i] })),
-        );
-        result = await this.prompt.date({ type });
-        break;
-    }
+    const result = await this.prompt.date(options);
     this.screen.printLine(this.text.type(result));
     await this.prompt.acknowledge();
   }
@@ -216,7 +235,9 @@ export class PromptSampler {
   }
 
   private async string(): Promise<void> {
-    const result = await this.prompt.string('', '', {});
+    const result = await this.prompt.string('Requesting some text', undefined, {
+      placeholder: 'placeholder text',
+    });
     this.screen.printLine(this.text.type(result));
     await this.prompt.acknowledge();
   }

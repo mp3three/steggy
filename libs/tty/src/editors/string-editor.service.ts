@@ -14,10 +14,10 @@ import {
 export interface StringEditorRenderOptions {
   current: string;
   label?: string;
-  maxLength?: number;
-  minLength?: number;
+  // maxLength?: number;
+  // minLength?: number;
   placeholder?: string;
-  validate?: (value: string) => true | string;
+  // validate?: (value: string) => true | string;
   width?: number;
 }
 
