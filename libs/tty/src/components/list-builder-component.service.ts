@@ -12,11 +12,10 @@ import {
   sleep,
   START,
   UP,
-  VALUE,
 } from '@steggy/utilities';
 import chalk from 'chalk';
 
-import { MenuEntry, tKeyMap, TTYKeypressOptions } from '../contracts';
+import { GV, MenuEntry, tKeyMap, TTYKeypressOptions } from '../contracts';
 import { Component, iComponent } from '../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../includes';
 import {
@@ -27,15 +26,6 @@ import {
 } from '../services';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
-
-function GV<T = string>(item: MenuEntry<T>): T {
-  if (is.empty(item)) {
-    return undefined;
-  }
-  return item.length === SINGLE
-    ? (item[LABEL] as unknown as T)
-    : (item[VALUE] as T);
-}
 
 export interface ListBuilderOptions<T = unknown> {
   current?: MenuEntry<T | string>[];

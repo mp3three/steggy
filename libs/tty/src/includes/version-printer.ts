@@ -1,10 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import { ACTIVE_APPLICATION, WorkspaceService } from '@steggy/boilerplate';
-import { show } from 'cli-cursor';
 import { dump } from 'js-yaml';
 import { argv, exit } from 'process';
 
 import { ScreenService } from '../services';
+import { ansiEscapes } from './ansi';
 
 /**
  * Attach to preInit
@@ -21,7 +21,8 @@ export function VersionPrinter(app: INestApplication): void {
         ['Application Version']: versions[application.description],
       }),
     );
-    show();
+    // eslint-disable-next-line no-console
+    console.log(ansiEscapes.cursorShow);
     exit();
   }
 }

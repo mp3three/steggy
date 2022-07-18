@@ -1,47 +1,8 @@
-import { INCREMENT, INVERT_VALUE, is, START } from '@steggy/utilities';
+import { is } from '@steggy/utilities';
 import { Select } from 'antd';
 import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import { useEffect, useState } from 'react';
-const TEMP_TEMPLATE_SIZE = 3;
-
-function highlight(result) {
-  const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
-  const close = '}'.repeat(TEMP_TEMPLATE_SIZE);
-  let highlighted = '';
-  let matchesIndex = 0;
-  let opened = false;
-  const { target, indexes } = result;
-  for (let i = START; i < target.length; i++) {
-    const char = target[i];
-    if (indexes[matchesIndex] === i) {
-      matchesIndex++;
-      if (!opened) {
-        opened = true;
-        highlighted += open;
-      }
-      if (matchesIndex === indexes.length) {
-        highlighted += char + close + target.slice(i + INCREMENT);
-        break;
-      }
-      highlighted += char;
-      continue;
-    }
-    if (opened) {
-      opened = false;
-      highlighted += close;
-    }
-    highlighted += char;
-  }
-  return highlighted.replace(
-    new RegExp(`${open}(.*?)${close}`, 'g'),
-    i =>
-      `<span style="color:#F66">${i.slice(
-        TEMP_TEMPLATE_SIZE,
-        TEMP_TEMPLATE_SIZE * INVERT_VALUE,
-      )}</span>`,
-  );
-}
 
 export function FuzzySelect(props: {
   data: { text: string; value: string }[];
@@ -82,13 +43,9 @@ export function FuzzySelect(props: {
       key: 'text',
     });
     const data = fuzzyResult.map(result => {
-      const { target } = result;
-      const item = available.find(option => {
-        return is.string(option) ? option === target : option.value === target;
-      });
       return {
-        text: highlight(result),
-        value: item.value,
+        text: fuzzy.highlight(result, '<span style="color:#F66">', '</span>'),
+        value: result.obj.value,
       };
     });
     setData(data);

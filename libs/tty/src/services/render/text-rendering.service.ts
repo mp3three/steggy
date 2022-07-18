@@ -4,22 +4,19 @@ import {
   ARRAY_OFFSET,
   DOWN,
   INCREMENT,
-  INVERT_VALUE,
   is,
   LABEL,
   START,
   TitleCase,
   UP,
-  VALUE,
 } from '@steggy/utilities';
 import chalk from 'chalk';
 import fuzzy from 'fuzzysort';
 
 import { PAGE_SIZE } from '../../config';
-import { MenuEntry } from '../../contracts';
+import { GV, MenuEntry } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../../includes';
 
-const TEMP_TEMPLATE_SIZE = 3;
 const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim('|');
 const BUFFER_SIZE = 3;
@@ -33,6 +30,7 @@ const NESTING_LEVELS = [
   chalk.yellow(' > '),
   chalk.red(' ~ '),
 ];
+const [OPEN, CLOSE] = chalk.bgBlueBright.black('_').split('_');
 
 @Injectable()
 export class TextRenderingService {
@@ -69,7 +67,7 @@ export class TextRenderingService {
             max,
             ' ',
           ).replaceAll(',', chalk.whiteBright`, `)}}  {gray ${
-            i[VALUE]
+            GV(i)
             // Leave space at end for rendering reasons
           } }`;
         }),
@@ -126,15 +124,14 @@ export class TextRenderingService {
     }
     const entries = data.map(i => ({
       label: i[LABEL],
-      value: i[VALUE],
+      value: GV(i),
     }));
     const fuzzyResult = fuzzy.go(searchText, entries, { key: 'label' });
     const highlighted = fuzzyResult.map(result => {
-      const { target } = result;
-      const item = data.find(option => {
-        return is.string(option) ? option === target : option[LABEL] === target;
-      });
-      return [this.highlight(result), item[VALUE]] as MenuEntry<T>;
+      return [
+        fuzzy.highlight(result, OPEN, CLOSE),
+        result.obj.value,
+      ] as MenuEntry<T>;
     });
     return highlighted;
   }
@@ -168,7 +165,7 @@ export class TextRenderingService {
     if (entries.length <= this.pageSize) {
       return entries;
     }
-    const index = entries.findIndex(i => i[VALUE] === value);
+    const index = entries.findIndex(i => GV(i) === value);
     if (index <= BUFFER_SIZE) {
       return entries.slice(START, this.pageSize);
     }
@@ -240,43 +237,5 @@ export class TextRenderingService {
       );
     }
     return chalk.gray(JSON.stringify(item));
-  }
-
-  private highlight(result) {
-    const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
-    const close = '}'.repeat(TEMP_TEMPLATE_SIZE);
-    let highlighted = '';
-    let matchesIndex = 0;
-    let opened = false;
-    const { target, indexes } = result;
-    for (let i = START; i < target.length; i++) {
-      const char = target[i];
-      if (indexes[matchesIndex] === i) {
-        matchesIndex++;
-        if (!opened) {
-          opened = true;
-          highlighted += open;
-        }
-        if (matchesIndex === indexes.length) {
-          highlighted += char + close + target.slice(i + INCREMENT);
-          break;
-        }
-        highlighted += char;
-        continue;
-      }
-      if (opened) {
-        opened = false;
-        highlighted += close;
-      }
-      highlighted += char;
-    }
-    return highlighted.replace(
-      new RegExp(`${open}(.*?)${close}`, 'g'),
-      i =>
-        chalk.bgBlueBright.black`${i.slice(
-          TEMP_TEMPLATE_SIZE,
-          TEMP_TEMPLATE_SIZE * INVERT_VALUE,
-        )}`,
-    );
   }
 }

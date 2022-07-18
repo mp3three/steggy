@@ -18,6 +18,7 @@ import dayjs from 'dayjs';
 
 import {
   DirectCB,
+  GV,
   MainMenuEntry,
   MenuEntry,
   tKeyMap,
@@ -137,16 +138,6 @@ export interface MenuComponentOptions<T = unknown> {
 
 const DEFAULT_HEADER_PADDING = 4;
 const EMPTY_TEXT = ' ';
-
-// oof
-function GV<T = string>(item: PromptEntry<T>): T {
-  if (is.empty(item)) {
-    return undefined;
-  }
-  return item.length === SINGLE
-    ? (item[LABEL] as unknown as T)
-    : (item[VALUE] as T);
-}
 
 const SEARCH_KEYMAP: tKeyMap = new Map([
   [{ catchAll: true, powerUser: true }, 'onSearchKeyPress'],

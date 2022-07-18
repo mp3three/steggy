@@ -30,7 +30,7 @@ export function ExecuteCodeCommand(props: {
           <Input
             placeholder="execute"
             prefix="VM:"
-            defaultValue={props.command.command.logContext}
+            defaultValue={props.command?.command?.logContext}
             onBlur={({ target }) =>
               props.onUpdate({ logContext: target.value })
             }

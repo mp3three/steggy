@@ -1,13 +1,5 @@
 import { HassStateDTO } from '@steggy/home-assistant-shared';
-import {
-  DOWN,
-  INCREMENT,
-  INVERT_VALUE,
-  is,
-  START,
-  TitleCase,
-  UP,
-} from '@steggy/utilities';
+import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
 import {
   Button,
   Card,
@@ -29,46 +21,6 @@ import { FD_ICONS, MenuItem, sendRequest } from '../../types';
 import { EntityInspect } from './EntityInspect';
 
 type showTypes = 'default' | 'all';
-
-const TEMP_TEMPLATE_SIZE = 3;
-
-function highlight(result) {
-  const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
-  const close = '}'.repeat(TEMP_TEMPLATE_SIZE);
-  let highlighted = '';
-  let matchesIndex = 0;
-  let opened = false;
-  const { target, indexes } = result;
-  for (let i = START; i < target.length; i++) {
-    const char = target[i];
-    if (indexes[matchesIndex] === i) {
-      matchesIndex++;
-      if (!opened) {
-        opened = true;
-        highlighted += open;
-      }
-      if (matchesIndex === indexes.length) {
-        highlighted += char + close + target.slice(i + INCREMENT);
-        break;
-      }
-      highlighted += char;
-      continue;
-    }
-    if (opened) {
-      opened = false;
-      highlighted += close;
-    }
-    highlighted += char;
-  }
-  return highlighted.replace(
-    new RegExp(`${open}(.*?)${close}`, 'g'),
-    i =>
-      `<span style="color:#F66">${i.slice(
-        TEMP_TEMPLATE_SIZE,
-        TEMP_TEMPLATE_SIZE * INVERT_VALUE,
-      )}</span>`,
-  );
-}
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function EntityPage() {
@@ -95,15 +47,12 @@ export function EntityPage() {
     const fuzzyResult = fuzzy.go(searchText, available, {
       key: 'text',
     });
-    const search = fuzzyResult.map(result => {
-      const { target } = result;
-      const value = available.find(option => option.text === target);
-      return {
-        text: highlight(result),
-        value: value.text,
-      };
-    });
-    setSearch(search);
+    setSearch(
+      fuzzyResult.map(result => ({
+        text: fuzzy.highlight(result, '<span style="color:#F66">', '</span>'),
+        value: result.obj.text,
+      })),
+    );
     setSearchText(searchText);
   }
 

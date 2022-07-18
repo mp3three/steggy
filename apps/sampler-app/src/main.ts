@@ -30,7 +30,7 @@ export class SamplerApp {
     this.application.setHeader('Sampler App');
     const action = await this.prompt.menu({
       condensed: true,
-      hideSearch: true,
+      // hideSearch: true,
       keyMap: { d: ['done'] },
       right: [
         {

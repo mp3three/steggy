@@ -1,12 +1,5 @@
 import { PersonDTO } from '@steggy/controller-shared';
-import {
-  DOWN,
-  INCREMENT,
-  INVERT_VALUE,
-  is,
-  START,
-  UP,
-} from '@steggy/utilities';
+import { DOWN, is, UP } from '@steggy/utilities';
 import {
   Button,
   Divider,
@@ -23,46 +16,6 @@ import parse from 'html-react-parser';
 import { useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
-
-const TEMP_TEMPLATE_SIZE = 3;
-
-function highlight(result) {
-  const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
-  const close = '}'.repeat(TEMP_TEMPLATE_SIZE);
-  let highlighted = '';
-  let matchesIndex = 0;
-  let opened = false;
-  const { target, indexes } = result;
-  for (let i = START; i < target.length; i++) {
-    const char = target[i];
-    if (indexes[matchesIndex] === i) {
-      matchesIndex++;
-      if (!opened) {
-        opened = true;
-        highlighted += open;
-      }
-      if (matchesIndex === indexes.length) {
-        highlighted += char + close + target.slice(i + INCREMENT);
-        break;
-      }
-      highlighted += char;
-      continue;
-    }
-    if (opened) {
-      opened = false;
-      highlighted += close;
-    }
-    highlighted += char;
-  }
-  return highlighted.replace(
-    new RegExp(`${open}(.*?)${close}`, 'g'),
-    i =>
-      `<span style="color:#F66">${i.slice(
-        TEMP_TEMPLATE_SIZE,
-        TEMP_TEMPLATE_SIZE * INVERT_VALUE,
-      )}</span>`,
-  );
-}
 
 type tIdList = (PersonDTO & { highlighted?: string })[];
 
@@ -91,7 +44,11 @@ export function PersonModalPicker(props: {
       });
       return {
         ...item,
-        highlighted: highlight(result),
+        highlighted: fuzzy.highlight(
+          result,
+          '<span style="color:#F66">',
+          '</span>',
+        ),
       };
     });
     return highlighted;
