@@ -34,24 +34,25 @@ export function GroupModalPicker(props: {
     if (is.empty(searchText)) {
       return available;
     }
-    const fuzzyResult = fuzzy.go(searchText, available, {
-      key: 'friendlyName',
-    });
-    const highlighted = fuzzyResult.map(result => {
-      const { obj } = result;
-      const item = available.find(option => {
-        return is.string(option) ? option === obj._id : option._id === obj._id;
+    return fuzzy
+      .go(searchText, available, {
+        key: 'friendlyName',
+      })
+      .map(result => {
+        const { obj } = result;
+        return {
+          ...available.find(option => {
+            return is.string(option)
+              ? option === obj._id
+              : option._id === obj._id;
+          }),
+          highlighted: fuzzy.highlight(
+            result,
+            '<span style="color:#F66">',
+            '</span>',
+          ),
+        };
       });
-      return {
-        ...item,
-        highlighted: fuzzy.highlight(
-          result,
-          '<span style="color:#F66">',
-          '</span>',
-        ),
-      };
-    });
-    return highlighted;
   }
 
   function getList() {

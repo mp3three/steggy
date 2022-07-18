@@ -34,12 +34,12 @@ export class SamplerApp {
       keyMap: { d: ['done'] },
       right: [
         {
-          entry: ['Configuration', 'config'],
-          helpText: chalk`Demo of {green.dim @steggy} Injected configurations`,
-        },
-        {
           entry: ['Prompts', 'prompts'],
           helpText: chalk`Non-comprehensive demo of the interactions provided by {green.dim @steggy/tty}`,
+        },
+        {
+          entry: ['Configuration', 'config'],
+          helpText: chalk`Demo of {green.dim @steggy} Injected configurations`,
         },
       ],
       value,

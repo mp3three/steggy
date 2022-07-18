@@ -18,6 +18,7 @@ import {
   SECOND,
   SINGLE,
   sleep,
+  TitleCase,
 } from '@steggy/utilities';
 import chalk from 'chalk';
 
@@ -41,6 +42,7 @@ enum FakerSources {
 }
 
 type tAsyncExample = { color?: string; song?: string };
+const DEFAULT_GENERATE = 50;
 
 @Injectable()
 export class MenuSampler {
@@ -54,7 +56,7 @@ export class MenuSampler {
 
   private menuOptions: tMenuOptions = {
     condensed: false,
-    generateCount: DEFAULT_LIMIT,
+    generateCount: DEFAULT_GENERATE,
     headerMessage: faker.lorem.lines(DEFAULT_LIMIT),
     hideSearch: false,
     keyOnly: false,
@@ -70,6 +72,7 @@ export class MenuSampler {
     this.application.setHeader('Menu Sampler');
     const action = await this.prompt.menu({
       right: [
+        { entry: ['basic'] },
         {
           entry: ['async callbacks', 'async'],
           helpText: [
@@ -77,7 +80,6 @@ export class MenuSampler {
             `Return response messages to console`,
           ].join(`\n`),
         },
-        { entry: ['basic'] },
       ],
     });
     switch (action) {
@@ -230,9 +232,13 @@ export class MenuSampler {
     await this.prompt.acknowledge();
   }
 
-  private generateMenuItem(type: FakerSources, value: unknown): MainMenuEntry {
+  private generateMenuItem(
+    labelType: FakerSources,
+    value: unknown,
+  ): MainMenuEntry {
     let label: string;
-    switch (type) {
+    let type: string = labelType;
+    switch (labelType) {
       case FakerSources.bikes:
         label = faker.vehicle.bicycle();
         break;
@@ -249,11 +255,13 @@ export class MenuSampler {
         label = faker.address.streetAddress();
         break;
       case FakerSources.animal:
-        const keys = Object.keys(faker.animal).filter(i =>
-          is.function(faker.animal[i]),
+        const keys = Object.keys(faker.animal).filter(
+          i => is.function(faker.animal[i]) && !['type'].includes(i),
         );
-        const type = keys[Math.floor(Math.random() * keys.length)];
-        label = faker.animal[type]();
+        // faker.animal.t
+        const animalType = keys[Math.floor(Math.random() * keys.length)];
+        label = faker.animal[animalType]();
+        type = animalType;
         break;
     }
     const phrases = [
@@ -266,6 +274,7 @@ export class MenuSampler {
     return {
       entry: [label, value],
       helpText: phrases[Math.floor(Math.random() * phrases.length)],
+      type: TitleCase(type),
     };
   }
 }

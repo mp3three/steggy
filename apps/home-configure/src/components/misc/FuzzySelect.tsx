@@ -34,12 +34,9 @@ export function FuzzySelect(props: {
 
   function updateSearch(searchText: string): void {
     setSearchText(searchText);
-    if (is.empty(searchText)) {
-      setData(props.data);
-      return;
-    }
     const available = props.data;
     const fuzzyResult = fuzzy.go(searchText, available, {
+      all: true,
       key: 'text',
     });
     const data = fuzzyResult.map(result => {

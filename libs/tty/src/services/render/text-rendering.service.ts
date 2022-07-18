@@ -9,12 +9,13 @@ import {
   START,
   TitleCase,
   UP,
+  VALUE,
 } from '@steggy/utilities';
 import chalk from 'chalk';
 import fuzzy from 'fuzzysort';
 
 import { PAGE_SIZE } from '../../config';
-import { GV, MenuEntry } from '../../contracts';
+import { GV, MainMenuEntry, MenuEntry } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../../includes';
 
 const MAX_SEARCH_SIZE = 50;
@@ -115,6 +116,68 @@ export class TextRenderingService {
     return out;
   }
 
+  // eslint-disable-next-line radar/cognitive-complexity
+  public fuzzyMenuSort<T extends unknown = string>(
+    searchText: string,
+    data: MainMenuEntry<T>[],
+  ): MainMenuEntry<T>[] {
+    if (is.empty(searchText)) {
+      return data;
+    }
+    const formatted = data.map(i => ({
+      help: i.helpText,
+      label: i.entry[LABEL],
+      type: i.type,
+      value: i,
+    }));
+
+    /* eslint-disable @typescript-eslint/no-magic-numbers */
+    const results = fuzzy.go(searchText, formatted, {
+      keys: ['label', 'help', 'type'],
+      scoreFn(item) {
+        return Math.max(
+          // ? indexes match keys
+          // Matching type is important
+          // Next is label
+          // Finally help
+          item[2] ? item[2].score - 0 : -1000,
+          item[0] ? item[0].score - 250 : -1000,
+          item[1] ? item[1].score - 500 : -1000,
+        );
+      },
+    });
+
+    return results.map(result => {
+      const label = fuzzy.highlight(
+        is.object(result[0]) ? result[0] : fuzzy.single(result.obj.label, ''),
+        OPEN,
+        CLOSE,
+      );
+      const help = fuzzy.highlight(
+        is.object(result[1]) ? result[1] : fuzzy.single(result.obj.help, ''),
+        OPEN,
+        CLOSE,
+      );
+      const type = fuzzy.highlight(
+        is.object(result[2]) ? result[2] : fuzzy.single(result.obj.type, ''),
+        OPEN,
+        CLOSE,
+      );
+      /* eslint-enable @typescript-eslint/no-magic-numbers */
+      const out = {
+        // ! CORRECT USAGE OF `[VALUE]` HERE
+        // Don't replace
+        entry: [
+          label || result.obj.value.entry[LABEL],
+          result.obj.value.entry[VALUE],
+        ] as MenuEntry<T>,
+        helpText: help || result.obj.value.helpText,
+        type: type || result.obj.value.type,
+      };
+      return out;
+    });
+  }
+
   public fuzzySort<T extends unknown = string>(
     searchText: string,
     data: MenuEntry<T>[],
@@ -122,18 +185,19 @@ export class TextRenderingService {
     if (is.empty(searchText)) {
       return data;
     }
-    const entries = data.map(i => ({
+    const formatted = data.map(i => ({
       label: i[LABEL],
       value: GV(i),
     }));
-    const fuzzyResult = fuzzy.go(searchText, entries, { key: 'label' });
-    const highlighted = fuzzyResult.map(result => {
-      return [
-        fuzzy.highlight(result, OPEN, CLOSE),
-        result.obj.value,
-      ] as MenuEntry<T>;
-    });
-    return highlighted;
+    return fuzzy
+      .go(searchText, formatted, { all: true, key: 'label' })
+      .map(
+        result =>
+          [
+            fuzzy.highlight(result, OPEN, CLOSE),
+            result.obj.value,
+          ] as MenuEntry<T>,
+      );
   }
 
   public pad(message: string, amount = MIN_SIZE): string {

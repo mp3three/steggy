@@ -1,6 +1,7 @@
 import { forwardRef, Inject } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
+  DOWN,
   FIRST,
   INCREMENT,
   INVERT_VALUE,
@@ -11,7 +12,7 @@ import {
   SINGLE,
   START,
   TitleCase,
-  VALUE,
+  UP,
 } from '@steggy/utilities';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
@@ -25,7 +26,7 @@ import {
   TTYKeypressOptions,
 } from '../contracts';
 import { Component, iComponent } from '../decorators';
-import { ansiMaxLength, ansiPadEnd } from '../includes';
+import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
 import {
   KeyboardManagerService,
   KeymapService,
@@ -119,11 +120,11 @@ export interface MenuComponentOptions<T = unknown> {
    * Append the help text below menu
    */
   showHelp?: boolean;
-  //
-  // /**
-  //  * Automatically sort menu entries alphabetically by label
-  //  */
-  // sort?: boolean;
+
+  /**
+   * Automatically sort menu entries alphabetically by label
+   */
+  sort?: boolean;
   /**
    * Make menu entry group types prettier.
    *
@@ -137,7 +138,6 @@ export interface MenuComponentOptions<T = unknown> {
 }
 
 const DEFAULT_HEADER_PADDING = 4;
-const EMPTY_TEXT = ' ';
 
 const SEARCH_KEYMAP: tKeyMap = new Map([
   [{ catchAll: true, powerUser: true }, 'onSearchKeyPress'],
@@ -174,6 +174,7 @@ export class MenuComponentService<VALUE = unknown | string>
   private rightHeader: string;
   private searchText = '';
   private selectedType: 'left' | 'right' = 'right';
+  private sort: boolean;
   private value: VALUE;
 
   public configure(
@@ -200,6 +201,10 @@ export class MenuComponentService<VALUE = unknown | string>
       (!is.empty(this.opt.left) && !is.empty(this.opt.right)
         ? 'Secondary'
         : 'Menu');
+    this.sort =
+      this.opt.sort ??
+      (this.opt.left.some(({ type }) => !is.empty(type)) ||
+        this.opt.right.some(({ type }) => !is.empty(type)));
 
     const defaultValue = GV(this.side('right')[START]?.entry);
     this.value ??= defaultValue;
@@ -476,18 +481,8 @@ export class MenuComponentService<VALUE = unknown | string>
     data: MainMenuEntry<VALUE>[],
     updateValue = false,
   ): MainMenuEntry<VALUE>[] {
-    const highlighted = this.textRender
-      .fuzzySort(
-        this.searchText,
-        data.map(({ entry }) => entry) as MenuEntry<VALUE>[],
-      )
-      .map(i => {
-        const item = data.find(({ entry }) => GV(entry) === GV(i));
-        return {
-          ...item,
-          entry: i,
-        };
-      });
+    const highlighted = this.textRender.fuzzyMenuSort(this.searchText, data);
+
     if (updateValue) {
       this.value = is.empty(highlighted)
         ? undefined
@@ -536,11 +531,13 @@ export class MenuComponentService<VALUE = unknown | string>
    * Rendering for search mode
    */
   private renderFind(updateValue = false): void {
+    const rendered = this.renderSide(undefined, false, updateValue);
     let message = [
       ...this.textRender.searchBox(this.searchText),
-      ...this.renderSide(undefined, false, updateValue),
+      ...rendered.map(({ entry }) => entry[LABEL]),
     ].join(`\n`);
-    const selectedItem = this.getSelected();
+    const selectedItem = rendered.find(i => GV(i.entry) === this.value);
+
     if (!is.empty(selectedItem?.helpText)) {
       message += chalk`\n \n {blue.dim ?} ${selectedItem.helpText
         .split(`\n`)
@@ -581,10 +578,10 @@ export class MenuComponentService<VALUE = unknown | string>
     }
     const out = !is.empty(this.opt.left)
       ? this.textRender.assemble(
-          this.renderSide('left'),
-          this.renderSide('right'),
+          this.renderSide('left').map(({ entry }) => entry[LABEL]),
+          this.renderSide('right').map(({ entry }) => entry[LABEL]),
         )
-      : this.renderSide('right');
+      : this.renderSide('right').map(({ entry }) => entry[LABEL]);
     if (this.opt.showHeaders) {
       out[FIRST] = `\n  ${out[FIRST]}\n `;
     } else {
@@ -630,8 +627,9 @@ export class MenuComponentService<VALUE = unknown | string>
     side: 'left' | 'right' = this.selectedType,
     header = this.opt.showHeaders,
     updateValue = false,
-  ): string[] {
-    const out: string[] = [''];
+  ): MainMenuEntry[] {
+    // TODO: Track down offset issue that forces this entry to be required
+    const out: MainMenuEntry[] = [{ entry: [''] }];
     let menu = this.side(side);
     if (this.mode === 'find' && !is.empty(this.searchText)) {
       menu = this.filterMenu(menu, updateValue);
@@ -652,9 +650,11 @@ export class MenuComponentService<VALUE = unknown | string>
         ),
       ) + ARRAY_OFFSET;
     if (is.empty(menu) && !this.opt.keyOnly) {
-      out.push(
-        chalk.bold` {yellowBright.inverse  No ${this.opt.item} to select from }`,
-      );
+      out.push({
+        entry: [
+          chalk.bold` {yellowBright.inverse  No ${this.opt.item} to select from }`,
+        ],
+      });
     }
     menu.forEach(item => {
       let prefix = ansiPadEnd(item.type, maxType);
@@ -665,7 +665,7 @@ export class MenuComponentService<VALUE = unknown | string>
         prefix = chalk(''.padEnd(maxType, ' '));
       } else {
         if (last !== '' && this.mode !== 'find') {
-          out.push(EMPTY_TEXT);
+          out.push({ entry: [' '] });
         }
         last = prefix;
         prefix = chalk(prefix);
@@ -679,26 +679,33 @@ export class MenuComponentService<VALUE = unknown | string>
         maxLabel,
       );
       if (this.selectedType === side) {
-        out.push(
-          chalk` {magenta.bold ${prefix}} {${
-            inverse ? 'bgCyanBright.black' : 'white'
-          }  ${padded}}`,
-        );
+        out.push({
+          ...item,
+          entry: [
+            chalk` {magenta.bold ${prefix}} {${
+              inverse ? 'bgCyanBright.black' : 'white'
+            }  ${padded}}`,
+            GV(item.entry),
+          ],
+        });
         return;
       }
-      out.push(chalk` {gray ${prefix}  {gray ${padded}}}`);
+      out.push({
+        ...item,
+        entry: [chalk` {gray ${prefix}  {gray ${padded}}}`, GV(item.entry)],
+      });
     });
-    const max = ansiMaxLength(...out);
+    const max = ansiMaxLength(...out.map(({ entry }) => entry[LABEL]));
     if (header) {
       if (side === 'left') {
-        out[FIRST] = chalk.bold.blue.dim(
+        out[FIRST].entry[LABEL] = chalk.bold.blue.dim(
           `${this.leftHeader}${''.padEnd(this.headerPadding, ' ')}`.padStart(
             max,
             ' ',
           ),
         );
       } else {
-        out[FIRST] = chalk.bold.blue.dim(
+        out[FIRST].entry[LABEL] = chalk.bold.blue.dim(
           `${''.padEnd(this.headerPadding, ' ')}${this.rightHeader}`.padEnd(
             max,
             ' ',
@@ -772,6 +779,29 @@ export class MenuComponentService<VALUE = unknown | string>
     if (this.mode === 'find' && !noRecurse) {
       return [...this.side('right', true), ...this.side('left', true)];
     }
-    return this.opt[side] as MainMenuEntry<VALUE>[];
+    // TODO: find way of caching the replacements
+    // Might be an issue in large lists
+    let temp = this.opt[side].map(
+      item =>
+        [
+          item,
+          ansiStrip(item.entry[LABEL]).replace(
+            new RegExp('[^A-Za-z0-9]', 'g'),
+            '',
+          ),
+        ] as [MainMenuEntry, string],
+    );
+    if (this.sort) {
+      temp = temp.sort(([a, aLabel], [b, bLabel]) => {
+        if (a.type === b.type) {
+          return aLabel > bLabel ? UP : DOWN;
+        }
+        if (a.type > b.type) {
+          return UP;
+        }
+        return DOWN;
+      });
+    }
+    return temp.map(([item]) => item) as MainMenuEntry<VALUE>[];
   }
 }
