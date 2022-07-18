@@ -34,6 +34,7 @@ export class ServiceListEntityTarget {
 }
 
 export class ServiceListServiceTarget {
+  public device?: { integration?: string };
   public entity?: ServiceListEntityTarget;
   public integration?: string;
 }

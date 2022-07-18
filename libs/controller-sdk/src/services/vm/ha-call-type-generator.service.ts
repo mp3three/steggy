@@ -280,6 +280,9 @@ export class HACallTypeGenerator {
     if (target.integration) {
       return undefined;
     }
+    if (target.device) {
+      return undefined;
+    }
     this.logger.error(
       { target },
       `this#createTarget doesn't know what to do with target. Report as bug with this log line`,
