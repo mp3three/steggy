@@ -5,9 +5,10 @@ import {
   CACHE_PROVIDER,
   LIB_BOILERPLATE,
   LOG_LEVEL,
-  REDIS_DEFAULT_TTL,
+  CACHE_TTL,
   REDIS_HOST,
   REDIS_PORT,
+  SCAN_CONFIG,
 } from '../config';
 import { LOGGER_PROVIDERS } from '../decorators/injectors';
 import { CONFIG_PROVIDERS } from '../decorators/injectors/inject-config.decorator';
@@ -17,6 +18,7 @@ import {
   AutoConfigService,
   AutoLogService,
   CacheProviderService,
+  ConfigScanner,
   EventsExplorerService,
   FetchService,
   JSONFilterService,
@@ -41,7 +43,7 @@ import {
       enum: ['info', 'warn', 'debug'],
       type: 'string',
     },
-    [REDIS_DEFAULT_TTL]: {
+    [CACHE_TTL]: {
       default: 86_400,
       description: 'Configuration property for redis connection',
       type: 'number',
@@ -55,6 +57,11 @@ import {
       default: 6379,
       description: 'Configuration property for redis connection',
       type: 'number',
+    },
+    [SCAN_CONFIG]: {
+      default: false,
+      description: 'Find all application configurations and output as json',
+      type: 'boolean',
     },
   },
   exports: [
@@ -71,6 +78,7 @@ import {
     AutoConfigService,
     AutoLogService,
     CacheProviderService,
+    ConfigScanner,
     EventsExplorerService,
     FetchService,
     JSONFilterService,

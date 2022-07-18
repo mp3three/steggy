@@ -11,7 +11,6 @@ import {
 } from '../components';
 import {
   DEFAULT_HEADER_FONT,
-  HEADER_COLOR,
   HELP,
   LIB_TTY,
   PAGE_SIZE,
@@ -52,12 +51,6 @@ import {
       description: 'Figlet font',
       type: 'string',
     },
-    [HEADER_COLOR]: {
-      default: 'bgBlue.black',
-      description:
-        'Color for primary header text + dividing line. Color must make sense to chalk',
-      type: 'string',
-    },
     [HELP]: {
       default: false,
       description:
@@ -65,8 +58,8 @@ import {
       type: 'boolean',
     },
     [PAGE_SIZE]: {
-      default: 20,
-      description: 'Maximum number of items displayed in pickMany prompts',
+      default: 50,
+      description: 'Item quantity in menus / lists',
       type: 'number',
     },
     [SECONDARY_HEADER_FONT]: {

@@ -29,10 +29,11 @@ import {
   TitleCase,
 } from '@steggy/utilities';
 import chalk from 'chalk';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { encode } from 'ini';
 import { dump } from 'js-yaml';
 import { get, set } from 'object-path';
+import { dirname } from 'path';
 import { exit } from 'process';
 
 const STRING_ARRAY_LIMIT = 50;
@@ -498,6 +499,8 @@ export class ConfigScanner implements iQuickScript {
       default:
         contents = encode(environment);
     }
+    const path = dirname(target);
+    mkdirSync(path, { recursive: true });
     writeFileSync(target, contents);
   }
 

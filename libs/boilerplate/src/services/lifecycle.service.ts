@@ -40,8 +40,10 @@ export class LifecycleService {
     });
     await eachSeries(instances, async instance => {
       if (instance.rewire) {
-        await instance.rewire(app);
+        await instance.rewire(app, options);
       }
+    });
+    await eachSeries(instances, async instance => {
       if (instance.onPostInit) {
         await instance.onPreInit(app, server, options);
       }

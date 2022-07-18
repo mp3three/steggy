@@ -1,11 +1,10 @@
 import { Controller, Injectable, Provider } from '@nestjs/common';
 import { DEFAULT_LIMIT, is } from '@steggy/utilities';
 import { ClassConstructor } from 'class-transformer';
-import minimist from 'minimist';
-import { argv, exit } from 'process';
+import { exit } from 'process';
 
 import { iSteggyProvider } from '../contracts';
-import { Bootstrap, BootstrapOptions, ScanConfig } from '../includes';
+import { Bootstrap, BootstrapOptions } from '../includes';
 import {
   ApplicationModule,
   ApplicationModuleMetadata,
@@ -66,7 +65,7 @@ export function QuickScript({
     // Bootstrap that module, and call the `exec()` method on the target class to officially "start" the app
     //
     setTimeout(() => {
-      let BOOTSTRAP_OPTIONS: BootstrapOptions = {
+      Bootstrap(CREATE_BOOT_MODULE(options), {
         nestNoopLogger: true,
         postInit: [
           app =>
@@ -83,29 +82,7 @@ export function QuickScript({
         ],
         prettyLog: true,
         ...bootstrap,
-      };
-      // "Undocumented" (doesn't appear in any of the self reported config stuff) feature
-      // Hopefully nobody needs this exact variable name for use as a switch. That'd be awkward
-      if (!is.undefined(minimist(argv)['scan-config'])) {
-        BOOTSTRAP_OPTIONS = {
-          ...BOOTSTRAP_OPTIONS,
-          config: { libs: { boilerplate: { LOG_LEVEL: 'silent' } } },
-          nestNoopLogger: true,
-          preInit: [
-            app => {
-              // eslint-disable-next-line no-console
-              console.log(
-                JSON.stringify(ScanConfig(app, BOOTSTRAP_OPTIONS.config)),
-              );
-              // Don't do `app.close()`, what it is meant to clean up in this context doesn't exist
-              //
-              // Doing a close here just causes extra text to be sent to console, breaking the json
-              exit();
-            },
-          ],
-        };
-      }
-      Bootstrap(CREATE_BOOT_MODULE(options), BOOTSTRAP_OPTIONS);
+      });
     }, WAIT_BOOTSTRAP);
     options.providers.push(target as unknown as Provider);
     if (is.string(controller)) {

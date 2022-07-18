@@ -4,11 +4,7 @@ import { is } from '@steggy/utilities';
 import chalk from 'chalk';
 import figlet, { Fonts } from 'figlet';
 
-import {
-  DEFAULT_HEADER_FONT,
-  HEADER_COLOR,
-  SECONDARY_HEADER_FONT,
-} from '../../config';
+import { DEFAULT_HEADER_FONT, SECONDARY_HEADER_FONT } from '../../config';
 import { ApplicationStackProvider, iStackProvider } from '../../contracts';
 import { iBuilderEditor, iComponent } from '../../decorators';
 import { ansiMaxLength } from '../../includes';
@@ -23,7 +19,6 @@ const LINE_PADDING = 2;
 @ApplicationStackProvider()
 export class ApplicationManagerService implements iStackProvider {
   constructor(
-    @InjectConfig(HEADER_COLOR) private readonly color: string,
     @InjectConfig(DEFAULT_HEADER_FONT) private readonly primaryFont: Fonts,
     @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
     private readonly editorExplorer: EditorExplorerService,

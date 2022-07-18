@@ -3,7 +3,7 @@ import RedisStore from 'cache-manager-redis-store';
 
 import {
   CACHE_PROVIDER,
-  REDIS_DEFAULT_TTL,
+  CACHE_TTL,
   REDIS_HOST,
   REDIS_PORT,
 } from '../../config';
@@ -18,7 +18,7 @@ export class CacheProviderService {
     @InjectConfig(CACHE_PROVIDER) private readonly cacheProvider: string,
     @InjectConfig(REDIS_HOST) private readonly host: string,
     @InjectConfig(REDIS_PORT) private readonly port: number,
-    @InjectConfig(REDIS_DEFAULT_TTL) private readonly defaultTtl: number,
+    @InjectConfig(CACHE_TTL) private readonly defaultTtl: number,
   ) {}
 
   public getConfig(): CacheModuleOptions {
