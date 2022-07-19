@@ -84,11 +84,11 @@ export class PromptService {
     });
   }
 
-  public async date({
+  public async date<T extends Date | [Date, Date] = Date>({
     current,
     label,
     ...options
-  }: DateEditorEditorOptions = {}): Promise<Date> {
+  }: DateEditorEditorOptions = {}): Promise<T> {
     const result = await this.applicationManager.activateEditor<
       DateEditorEditorOptions,
       string
@@ -97,7 +97,10 @@ export class PromptService {
       label,
       ...options,
     });
-    return new Date(result);
+    if (Array.isArray(result)) {
+      return result.map(i => new Date(i)) as T;
+    }
+    return new Date(result) as T;
   }
 
   public async dateRange({
