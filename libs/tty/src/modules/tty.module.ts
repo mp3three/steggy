@@ -58,7 +58,7 @@ import {
       type: 'boolean',
     },
     [PAGE_SIZE]: {
-      default: 50,
+      default: 20,
       description: 'Item quantity in menus / lists',
       type: 'number',
     },

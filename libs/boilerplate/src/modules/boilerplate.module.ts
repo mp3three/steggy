@@ -4,6 +4,7 @@ import { DiscoveryModule } from '@nestjs/core';
 import {
   CACHE_PROVIDER,
   CACHE_TTL,
+  CONFIG,
   LIB_BOILERPLATE,
   LOG_LEVEL,
   REDIS_HOST,
@@ -42,6 +43,14 @@ import {
       default: 86_400,
       description: 'Configuration property for redis connection',
       type: 'number',
+    },
+    [CONFIG]: {
+      description: [
+        'Consumable as CLI switch only',
+        'If provided, all other file based configurations will be ignored',
+        'Environment variables + CLI switches will operate normally',
+      ].join('. '),
+      type: 'string',
     },
     [LOG_LEVEL]: {
       default: 'info',
@@ -137,10 +146,7 @@ export class BoilerplateModule {
     };
   }
 
-  constructor(
-    private readonly discovery: LogExplorerService,
-    private readonly logger: AutoLogService,
-  ) {}
+  constructor(private readonly discovery: LogExplorerService) {}
 
   protected configure(): void {
     this.discovery.load();

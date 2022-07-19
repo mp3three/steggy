@@ -162,10 +162,11 @@ export class AutoConfigService {
       this.configFiles = [];
       return;
     }
-    const [fileConfig, files] = this.workspace.loadMergedConfig([
-      ...this.workspace.configFilePaths(this.appName),
-      ...(this.switches['config'] ? [resolve(this.switches['config'])] : []),
-    ]);
+    const [fileConfig, files] = this.workspace.loadMergedConfig(
+      this.switches['config']
+        ? [resolve(this.switches['config'])]
+        : this.workspace.configFilePaths(this.appName),
+    );
     this.configFiles = files;
     fileConfig.forEach(config => deepExtend(this.config, config));
     this.loadFromEnv();
