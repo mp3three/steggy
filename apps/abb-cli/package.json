@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "main.js",
   "displayName": "ABB CLI",
-  "version": "22.30.6",
+  "version": "22.30.7",
   "homepage": "https://github.com/mp3three/steggy",
   "engines": {
     "node": ">=16.0.0"
