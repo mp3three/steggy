@@ -12,18 +12,13 @@ import {
   WEBSOCKET_URL,
 } from '../config';
 import {
-  CameraDomainService,
   ClimateDomainService,
-  CoverDomainService,
   FanDomainService,
   HomeAssistantCoreService,
-  HumidifierDomain,
-  iCloudDomainService,
   LightDomainService,
   LockDomainService,
   MediaPlayerDomainService,
   NotifyDomainService,
-  RemoteDomainService,
   SwitchDomainService,
 } from '../domains';
 import {
@@ -37,19 +32,13 @@ import {
 
 const services: Provider[] = [
   ...[
-    CameraDomainService,
     ClimateDomainService,
-    CoverDomainService,
     FanDomainService,
     HomeAssistantCoreService,
-    HumidifierDomain,
-    iCloudDomainService,
     LightDomainService,
     LockDomainService,
     MediaPlayerDomainService,
     NotifyDomainService,
-    RemoteDomainService,
-    RemoteDomainService,
     SwitchDomainService,
   ],
   ...[

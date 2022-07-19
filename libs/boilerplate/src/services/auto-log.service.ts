@@ -100,7 +100,7 @@ export class AutoLogService implements iLogger {
   }
 
   constructor(
-    @Inject(INQUIRER) private inquirerer: unknown,
+    @Inject(INQUIRER) private parent: unknown,
     @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
   ) {}
 
@@ -215,6 +215,6 @@ export class AutoLogService implements iLogger {
     if (this.contextId) {
       return mappedContexts.get(this.contextId);
     }
-    return this.inquirerer?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT;
+    return this.parent?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT;
   }
 }
