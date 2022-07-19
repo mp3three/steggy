@@ -80,9 +80,9 @@ export class DateEditorService
   implements iBuilderEditor<DateEditorEditorOptions>
 {
   constructor(
-    private readonly keyboardService: KeyboardManagerService,
+    private readonly keyboard: KeyboardManagerService,
     private readonly keymap: KeymapService,
-    private readonly screenService: ScreenService,
+    private readonly screen: ScreenService,
     private readonly textRendering: TextRenderingService,
   ) {}
 
@@ -478,7 +478,7 @@ export class DateEditorService
       );
     }
     const message = this.textRendering.pad(out.join(`\n`));
-    this.screenService.render(
+    this.screen.render(
       message,
       (!is.empty(this.error) ? chalk`\n{red.bold ! }${this.error}\n` : '') +
         this.keymap.keymapHelp({
@@ -510,7 +510,7 @@ export class DateEditorService
           message += this.value.toDate().toLocaleString();
       }
     }
-    this.screenService.render(message);
+    this.screen.render(message);
   }
 
   /**
@@ -615,7 +615,7 @@ export class DateEditorService
             )
           : this.endSecond.padEnd(2, ' ');
     }
-    this.screenService.render(
+    this.screen.render(
       message,
       (!is.empty(this.error) ? chalk`\n{red.bold ! }${this.error}\n` : '') +
         this.keymap.keymapHelp({
@@ -674,7 +674,7 @@ export class DateEditorService
             )
           : this.second.padEnd(2, ' ');
     }
-    this.screenService.render(
+    this.screen.render(
       message,
       (!is.empty(this.error) ? chalk`\n{red.bold ! }${this.error}\n` : '') +
         this.keymap.keymapHelp({
@@ -753,10 +753,7 @@ export class DateEditorService
       [{ key: 'pagedown', powerUser: true }, 'setMin'],
     ]);
 
-    this.keyboardService.setKeyMap(
-      this,
-      this.fuzzy ? FUZZY_KEYMAP : NORMAL_KEYMAP,
-    );
+    this.keyboard.setKeyMap(this, this.fuzzy ? FUZZY_KEYMAP : NORMAL_KEYMAP);
   }
 
   private updateMonth(): void {

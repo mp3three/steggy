@@ -25,6 +25,7 @@ import { eachSeries, is } from '@steggy/utilities';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
 import express, { Express } from 'express';
+import { exit } from 'process';
 
 export interface BootstrapOptions extends Pick<ModuleMetadata, 'imports'> {
   /**
@@ -87,7 +88,7 @@ export interface BootstrapOptions extends Pick<ModuleMetadata, 'imports'> {
 export async function Bootstrap(
   module: ClassConstructor<unknown>,
   bootOptions: BootstrapOptions,
-): Promise<void> {
+): Promise<void | never> {
   bootOptions.globals ??= [];
   // Environment files can append extra modules
   const current = Reflect.getMetadata('imports', module) ?? [];
@@ -102,7 +103,7 @@ export async function Bootstrap(
     console.log(
       `Bootstrap requires modules be annotated with @ApplicationModule`,
     );
-    return;
+    exit();
   }
   if (bootOptions.skipConfigLoad) {
     bootOptions.globals.push({

@@ -17,7 +17,7 @@ import { MongoConnectDTO } from '../contracts';
 @Injectable()
 export class ConnectService {
   constructor(
-    private readonly fetchService: FetchService,
+    private readonly fetch: FetchService,
     @InjectConfig(MONGO_CA) private readonly CA: string,
     @InjectConfig(MONGO_CERT) private readonly CERT: string,
     @InjectConfig(MONGO_CRL) private readonly CRL: string,
@@ -72,7 +72,7 @@ export class ConnectService {
 
   private async resolveUrl(url: string): Promise<string> {
     if (url.slice(0, 4) === 'http') {
-      return await this.fetchService.fetch({
+      return await this.fetch.fetch({
         rawUrl: true,
         url,
       });

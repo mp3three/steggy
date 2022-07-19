@@ -12,8 +12,8 @@ import { AuthStack } from '@steggy/server';
 @AuthStack()
 export class DeviceController {
   constructor(
-    private readonly socketService: HASocketAPIService,
-    private readonly deviceService: DeviceService,
+    private readonly socket: HASocketAPIService,
+    private readonly device: DeviceService,
   ) {}
 
   @Get(`/inspect/:device`)
@@ -24,7 +24,7 @@ export class DeviceController {
   public async findRelated(
     @Param('device') id: string,
   ): Promise<RelatedDescriptionDTO> {
-    return await this.deviceService.findRelated(id);
+    return await this.device.findRelated(id);
   }
 
   @Get(`/list`)
@@ -33,6 +33,6 @@ export class DeviceController {
   })
   @ApiResponse({ type: [DeviceListItemDTO] })
   public async listDevices(): Promise<DeviceListItemDTO[]> {
-    return await this.socketService.listDevices();
+    return await this.socket.listDevices();
   }
 }

@@ -20,7 +20,7 @@ export class TerminalHelpService {
     @Inject(ACTIVE_APPLICATION)
     private readonly application: symbol,
     private readonly applicationManager: ApplicationManagerService,
-    private readonly screenService: ScreenService,
+    private readonly screen: ScreenService,
     @InjectConfig(HELP) private readonly showHelp: boolean,
   ) {}
 
@@ -29,7 +29,7 @@ export class TerminalHelpService {
     configuration: Record<string, ConfigItem>,
     LONGEST: number,
   ) {
-    this.screenService.printLine(
+    this.screen.printLine(
       chalk`Provided by {magenta.bold ${TitleCase(project)}}`,
     );
     Object.entries(configuration)
@@ -55,11 +55,11 @@ export class TerminalHelpService {
             return;
             this.otherSwitch(property, config);
         }
-        this.screenService.down();
+        this.screen.down();
       });
   }
 
-  protected rewire(): void {
+  protected rewire(): void | never {
     if (!this.showHelp) {
       return;
     }
@@ -73,7 +73,7 @@ export class TerminalHelpService {
         ...Object.entries(configuration).map(([property]) => property),
       ),
     );
-    this.screenService.down();
+    this.screen.down();
     const LONGEST =
       Math.max(...ALL_SWITCHES.map(line => line.length)) + INCREMENT;
     this.printProject(
@@ -98,9 +98,7 @@ export class TerminalHelpService {
         ? ''
         : chalk`, {gray default}: {bold.green ${config.default}}`
     }{gray ]} `;
-    this.screenService.printLine(
-      this.formatDescription(prefix, config.description),
-    );
+    this.screen.printLine(this.formatDescription(prefix, config.description));
   }
 
   private formatDescription(prefix: string, description: string) {
@@ -124,9 +122,7 @@ export class TerminalHelpService {
         ? ''
         : chalk`, {gray default}: {bold.yellow ${config.default}}`
     }{gray ]} `;
-    this.screenService.printLine(
-      this.formatDescription(prefix, config.description),
-    );
+    this.screen.printLine(this.formatDescription(prefix, config.description));
   }
 
   private otherSwitch(property: string, config: ConfigItem) {
@@ -139,9 +135,7 @@ export class TerminalHelpService {
             config.default,
           )}}`
     }{gray ]} `;
-    this.screenService.printLine(
-      this.formatDescription(prefix, config.description),
-    );
+    this.screen.printLine(this.formatDescription(prefix, config.description));
   }
 
   private stringSwitch(
@@ -161,8 +155,6 @@ export class TerminalHelpService {
             .map(item => chalk.blue(item))
             .join(chalk`{yellow.dim  | }`)}`
     }{gray ]} `;
-    this.screenService.printLine(
-      this.formatDescription(prefix, config.description),
-    );
+    this.screen.printLine(this.formatDescription(prefix, config.description));
   }
 }

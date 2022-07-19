@@ -93,7 +93,7 @@ export class PicoRelay {
     private readonly mappings: Record<string, string>,
     @InjectConfig(HOMEASSISTANT_TOKEN) private readonly token: string,
     @InjectConfig(HOMEASSISTANT_URL) private readonly url: string,
-    private readonly fetchService: FetchService,
+    private readonly fetch: FetchService,
   ) {}
 
   @OnEvent(LUTRON_EVENT)
@@ -131,7 +131,7 @@ export class PicoRelay {
       return;
     }
     this.logger.info(`[${entity_id}] sending state {${state}}`);
-    await this.fetchService.fetch({
+    await this.fetch.fetch({
       baseUrl: this.url,
       bearer: this.token,
       body: { attributes: { translated }, state },

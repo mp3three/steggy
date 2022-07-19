@@ -17,8 +17,8 @@ import {
 @ApiTags('admin')
 export class AdminController {
   constructor(
-    private readonly fetchService: HomeAssistantFetchAPIService,
-    private readonly callService: HACallService,
+    private readonly fetch: HomeAssistantFetchAPIService,
+    private readonly call: HACallService,
     private readonly logger: AutoLogService,
   ) {}
 
@@ -28,7 +28,7 @@ export class AdminController {
     description: `Send a restart command to home assistant`,
   })
   public async checkConfig(): Promise<unknown> {
-    return await this.fetchService.checkConfig();
+    return await this.fetch.checkConfig();
   }
 
   @Delete('/server/logs')
@@ -37,7 +37,7 @@ export class AdminController {
     description: `Clear recent logs`,
   })
   public async clearLogs(): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.callService.call('clear', {}, 'system_log');
+    await this.call.call('clear', {}, 'system_log');
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -46,7 +46,7 @@ export class AdminController {
     description: `Home assistant logs`,
   })
   public async getLogs(): Promise<HomeAssistantServerLogItem[]> {
-    const out = await this.fetchService.getLogs();
+    const out = await this.fetch.getLogs();
     return out;
   }
 
@@ -57,7 +57,7 @@ export class AdminController {
   })
   public async hassReboot(): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     this.logger.warn(`Rebooting Home Assistant`);
-    await this.callService.call(`restart`, {}, 'homeassistant');
+    await this.call.call(`restart`, {}, 'homeassistant');
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -68,7 +68,7 @@ export class AdminController {
   })
   public async hassStop(): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     this.logger.warn(`Stopping Home Assistant`);
-    await this.callService.call(`stop`, {}, 'homeassistant');
+    await this.call.call(`stop`, {}, 'homeassistant');
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -77,7 +77,7 @@ export class AdminController {
     description: `Raw home assistant logs`,
   })
   public async rawLogs(): Promise<string> {
-    return await this.fetchService.getRawLogs();
+    return await this.fetch.getRawLogs();
   }
 
   @Post('/reload/:domain')
@@ -107,7 +107,7 @@ export class AdminController {
     @Param('domain') domain: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     this.logger.warn(`Reloading domain {${domain}}`);
-    await this.callService.call(`reload`, {}, domain);
+    await this.call.call(`reload`, {}, domain);
     return GENERIC_SUCCESS_RESPONSE;
   }
 }

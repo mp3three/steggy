@@ -120,7 +120,7 @@ export function RoutineActivateInternalEvent(props: {
   activateProperties: InternalEventActivateDTO;
   onUpdate: (activate: Partial<InternalEventActivateDTO>) => void;
 }) {
-  const details = types.get(props.activateProperties.event);
+  const details = types.get(props.activateProperties?.event);
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
       <Form.Item label="Event Stream">
@@ -166,7 +166,7 @@ export function RoutineActivateInternalEvent(props: {
                   </Typography>
                 </Space>
               }
-              extraTypes={types.get(props.activateProperties.event)?.types}
+              extraTypes={types.get(props.activateProperties?.event)?.types}
               code={props.activateProperties?.validate}
               onUpdate={validate => props.onUpdate({ validate })}
             />
@@ -181,7 +181,7 @@ export function RoutineActivateInternalEvent(props: {
             <Input
               placeholder="execute"
               prefix="VM:"
-              defaultValue={props.activateProperties.logContext}
+              defaultValue={props.activateProperties?.logContext}
               onBlur={({ target }) =>
                 props.onUpdate({ logContext: target.value })
               }

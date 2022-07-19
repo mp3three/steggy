@@ -1,5 +1,4 @@
 import { Injectable, Scope } from '@nestjs/common';
-import { AutoLogService, InjectLogger } from '@steggy/boilerplate';
 import { HASSIO_WS_COMMAND, HassStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 
@@ -7,11 +6,7 @@ import { HASocketAPIService } from './ha-socket-api.service';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class HACallService {
-  constructor(
-    private readonly socketService: HASocketAPIService,
-    @InjectLogger()
-    private readonly logger: AutoLogService,
-  ) {}
+  constructor(private readonly socket: HASocketAPIService) {}
 
   public domain: string;
 
@@ -42,7 +37,7 @@ export class HACallService {
     //   service_data,
     //   type: HASSIO_WS_COMMAND.call_service,
     // });
-    return await this.socketService.sendMessage<T>(
+    return await this.socket.sendMessage<T>(
       {
         domain,
         service,
@@ -68,7 +63,7 @@ export class HACallService {
     topic: string,
     payload: Record<string, unknown>,
   ): Promise<T> {
-    return await this.socketService.sendMessage<T>({
+    return await this.socket.sendMessage<T>({
       domain: 'mqtt',
       service: 'publish',
       service_data: {
@@ -101,7 +96,7 @@ export class HACallService {
   }
 
   public async updateEntity(entityId: string | string[]): Promise<string> {
-    return await this.socketService.sendMessage({
+    return await this.socket.sendMessage({
       domain: 'homeassistant',
       service: 'update_entity',
       service_data: {

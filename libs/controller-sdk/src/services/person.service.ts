@@ -44,14 +44,14 @@ export class PersonService {
     private readonly personPersistence: PersonPersistenceService,
     private readonly entityManager: EntityManagerService,
     @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
+    private readonly group: GroupService,
     @Inject(forwardRef(() => RoutineService))
-    private readonly routineService: RoutineService,
+    private readonly routine: RoutineService,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
+    private readonly room: RoomService,
     @Inject(forwardRef(() => MetadataService))
-    private readonly metadataService: MetadataService,
-    private readonly saveStateService: SaveStateService,
+    private readonly metadata: MetadataService,
+    private readonly saveState: SaveStateService,
     private readonly eventEmitter: EventEmitter,
   ) {}
 
@@ -73,7 +73,7 @@ export class PersonService {
     this.logger.info(
       `[${person.friendlyName}] activate {${state.friendlyName}}`,
     );
-    await this.saveStateService.activateState(state, waitForChange);
+    await this.saveState.activateState(state, waitForChange);
   }
 
   public async addEntity(
@@ -138,7 +138,7 @@ export class PersonService {
     if (!person) {
       throw new NotFoundException();
     }
-    const attachGroup = await this.groupService.load(group);
+    const attachGroup = await this.group.load(group);
     if (!group) {
       const id = is.string(group) ? group : group._id;
       this.logger.error(
@@ -161,7 +161,7 @@ export class PersonService {
     if (!person) {
       throw new NotFoundException();
     }
-    const attachRoom = await this.roomService.load(room);
+    const attachRoom = await this.room.load(room);
     if (!room) {
       const id = is.string(room) ? room : room._id;
       this.logger.error(
@@ -224,7 +224,7 @@ export class PersonService {
       // I guess it's deleted?
       return true;
     }
-    const routines = await this.routineService.list({
+    const routines = await this.routine.list({
       filters: new Set([{ field: 'command.command.room', value: person._id }]),
     });
     if (!is.empty(routines)) {
@@ -235,7 +235,7 @@ export class PersonService {
     await each(
       routines,
       async routine =>
-        await this.routineService.update(routine._id, {
+        await this.routine.update(routine._id, {
           command: routine.command.filter(
             (command: RoutineCommandDTO<RoutineCommandRoomStateDTO>) =>
               !(command.type === 'room_state' && command.command.room === id),
@@ -339,7 +339,7 @@ export class PersonService {
     }
     person.save_states ??= [];
     person.save_states = person.save_states.filter(save => save.id !== state);
-    const routines = await this.routineService.list({
+    const routines = await this.routine.list({
       filters: new Set([{ field: 'command.command.room', value: person._id }]),
     });
     if (!is.empty(routines)) {
@@ -350,7 +350,7 @@ export class PersonService {
     await each(
       routines,
       async routine =>
-        await this.routineService.update(routine._id, {
+        await this.routine.update(routine._id, {
           command: routine.command.filter(
             (command: RoutineCommandDTO<RoutineCommandRoomStateDTO>) =>
               !(
@@ -409,7 +409,7 @@ export class PersonService {
           });
           return;
         case 'room_metadata':
-          const rooms = await this.roomService.list({
+          const rooms = await this.room.list({
             filters: new Set([{ field: 'metadata.id', value: pin.target }]),
           });
           if (is.empty(rooms)) {
@@ -470,7 +470,7 @@ export class PersonService {
           });
           return;
         case 'group':
-          const group = await this.groupService.load(pin.target);
+          const group = await this.group.load(pin.target);
           if (!group) {
             this.logger.error(`Cannot find group {${pin.target}}`);
             return;
@@ -482,7 +482,7 @@ export class PersonService {
           });
           return;
         case 'group_state':
-          const [foundGroup] = await this.groupService.list({
+          const [foundGroup] = await this.group.list({
             filters: new Set([{ field: SAVESTATE_ID, value: pin.target }]),
           });
           if (!foundGroup) {
@@ -500,7 +500,7 @@ export class PersonService {
           });
           return;
         case 'room':
-          const room = await this.roomService.load(pin.target);
+          const room = await this.room.load(pin.target);
           if (!room) {
             this.logger.error(`Cannot find room {${pin.target}}`);
             return;
@@ -512,7 +512,7 @@ export class PersonService {
           });
           return;
         case 'room_state':
-          const [foundRoom] = await this.roomService.list({
+          const [foundRoom] = await this.room.list({
             filters: new Set([{ field: SAVESTATE_ID, value: pin.target }]),
           });
           if (!foundRoom) {
@@ -530,12 +530,10 @@ export class PersonService {
           });
           return;
         case 'routine':
-          const routine = await this.routineService.get(pin.target);
+          const routine = await this.routine.get(pin.target);
           out.push({
             description: routine.description,
-            extraContext: this.routineService.superFriendlyNameParts(
-              pin.target,
-            ),
+            extraContext: this.routine.superFriendlyNameParts(pin.target),
             friendlyName: [routine.friendlyName],
             id: pin.target,
             type: pin.type,
@@ -620,7 +618,7 @@ export class PersonService {
       return person;
     }
     if (!is.undefined(update.value)) {
-      update.value = this.metadataService.resolveValue(
+      update.value = this.metadata.resolveValue(
         person.metadata.find(item => [item.id, item.name].includes(idOrName)),
         update.value,
       );

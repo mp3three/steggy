@@ -96,7 +96,7 @@ export class MainCLIService {
     this.last = await this.cacheService.get(CACHE_KEY);
   }
 
-  protected onPreInit(app: INestApplication): void {
+  protected onPreInit(app: INestApplication): void | never {
     if (!this.configScanner) {
       return;
     }

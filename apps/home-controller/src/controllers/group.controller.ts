@@ -33,13 +33,13 @@ import { is } from '@steggy/utilities';
 @ApiTags('group')
 @AuthStack()
 export class GroupController {
-  constructor(private readonly groupService: GroupService) {}
+  constructor(private readonly group: GroupService) {}
 
   @Post(`/state/:state`)
   public async _activateState(
     @Param('state') state: string,
   ): Promise<GroupDTO> {
-    const [group] = await this.groupService.list({
+    const [group] = await this.group.list({
       filters: new Set([{ field: 'save_states.id', value: state }]),
     });
     if (is.undefined(group)) {
@@ -59,12 +59,12 @@ export class GroupController {
     @Param('command') command: string,
     @Body() extra: Record<string, unknown>,
   ): Promise<GroupDTO> {
-    await this.groupService.activateCommand({
+    await this.group.activateCommand({
       command,
       extra,
       group,
     });
-    return await this.groupService.getWithStates(group);
+    return await this.group.getWithStates(group);
   }
 
   @Post(`/:group/state/:state`)
@@ -76,8 +76,8 @@ export class GroupController {
     @Param('group') group: string,
     @Param('state') state: string,
   ): Promise<GroupDTO> {
-    await this.groupService.activateState({ group, state });
-    return await this.groupService.getWithStates(group);
+    await this.group.activateState({ group, state });
+    return await this.group.getWithStates(group);
   }
 
   @Post(`/:group/reference`)
@@ -87,15 +87,15 @@ export class GroupController {
     @Body()
     body: { references: string[]; type: `${GROUP_REFERENCE_TYPES}` },
   ): Promise<GroupDTO> {
-    const target = await this.groupService.getWithStates(group);
+    const target = await this.group.getWithStates(group);
     target.references ??= [];
-    await this.groupService.update(group, {
+    await this.group.update(group, {
       references: [
         ...target.references,
         ...body.references.map(target => ({ target, type: body.type })),
       ],
     });
-    return await this.groupService.getWithStates(group);
+    return await this.group.getWithStates(group);
   }
 
   @Post(`/:group/state`)
@@ -108,8 +108,8 @@ export class GroupController {
     @Body() state: GroupSaveStateDTO,
   ): Promise<GroupDTO> {
     state.states ??= [];
-    await this.groupService.addState(group, state);
-    return await this.groupService.getWithStates(group);
+    await this.group.addState(group, state);
+    return await this.group.getWithStates(group);
   }
 
   @Post('/:group/capture')
@@ -127,8 +127,8 @@ export class GroupController {
     @Param('group') group: string,
     @Body() { friendlyName }: { friendlyName: string },
   ): Promise<GroupDTO> {
-    await this.groupService.captureState(group, friendlyName);
-    return await this.groupService.getWithStates(group);
+    await this.group.captureState(group, friendlyName);
+    return await this.group.getWithStates(group);
   }
 
   @Post(`/:group/clone`)
@@ -140,7 +140,7 @@ export class GroupController {
     @Param('group') group: string,
     @Body() cloneInfo: CloneGroupDTO = {},
   ): Promise<GroupDTO> {
-    return await this.groupService.clone(group, cloneInfo);
+    return await this.group.clone(group, cloneInfo);
   }
 
   @Post('/')
@@ -150,8 +150,8 @@ export class GroupController {
     description: `Create a new group`,
   })
   public async createGroup(@Body() group: GroupDTO): Promise<GroupDTO> {
-    group = await this.groupService.create(BaseSchemaDTO.cleanup(group));
-    return await this.groupService.getWithStates(group);
+    group = await this.group.create(BaseSchemaDTO.cleanup(group));
+    return await this.group.getWithStates(group);
   }
 
   @Delete(`/:group`)
@@ -162,7 +162,7 @@ export class GroupController {
   public async deleteGroup(
     @Param('group') group: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.groupService.delete(group);
+    await this.group.delete(group);
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -174,8 +174,8 @@ export class GroupController {
     @Param('group') group: string,
     @Param('reference') reference: string,
   ): Promise<GroupDTO> {
-    await this.groupService.deleteReference(group, reference);
-    return await this.groupService.getWithStates(group);
+    await this.group.deleteReference(group, reference);
+    return await this.group.getWithStates(group);
   }
 
   @Delete(`/:group/state/:state`)
@@ -187,8 +187,8 @@ export class GroupController {
     @Param('group') group: string,
     @Param('state') state: string,
   ): Promise<GroupDTO> {
-    await this.groupService.deleteState(group, state);
-    return await this.groupService.getWithStates(group);
+    await this.group.deleteState(group, state);
+    return await this.group.getWithStates(group);
   }
 
   @Get('/:group')
@@ -197,7 +197,7 @@ export class GroupController {
     description: `Retrieve group info by id`,
   })
   public async describe(@Param('group') group: string): Promise<GroupDTO> {
-    return await this.groupService.getWithStates(group);
+    return await this.group.getWithStates(group);
   }
 
   @Put(`/:group/expand`)
@@ -210,8 +210,8 @@ export class GroupController {
     @Param('group') group: string,
     @Body() state: ROOM_ENTITY_EXTRAS,
   ): Promise<GroupDTO> {
-    await this.groupService.expandState(group, state);
-    return await this.groupService.getWithStates(group);
+    await this.group.expandState(group, state);
+    return await this.group.getWithStates(group);
   }
 
   @Get('/:group/export')
@@ -232,7 +232,7 @@ export class GroupController {
   public async listGroups(
     @Locals() { control }: ResponseLocals,
   ): Promise<GroupDTO[]> {
-    return await this.groupService.list(control);
+    return await this.group.list(control);
   }
 
   @Delete(`/:group/truncate`)
@@ -243,8 +243,8 @@ export class GroupController {
   public async truncateStates(
     @Param('group') group: string,
   ): Promise<GroupDTO> {
-    await this.groupService.truncate(group);
-    return await this.groupService.getWithStates(group);
+    await this.group.truncate(group);
+    return await this.group.getWithStates(group);
   }
 
   @Put('/:group')
@@ -257,8 +257,8 @@ export class GroupController {
     @Param('group') id: string,
     @Body() body: Partial<GroupDTO>,
   ): Promise<GroupDTO> {
-    await this.groupService.update(id, BaseSchemaDTO.cleanup(body));
-    return await this.groupService.getWithStates(id);
+    await this.group.update(id, BaseSchemaDTO.cleanup(body));
+    return await this.group.getWithStates(id);
   }
 
   @Put(`/:group/state/:state`)
@@ -272,7 +272,7 @@ export class GroupController {
     @Param('state') state: string,
     @Body() body: GroupSaveStateDTO,
   ): Promise<GroupDTO> {
-    await this.groupService.updateState(group, state, body);
-    return await this.groupService.getWithStates(group);
+    await this.group.updateState(group, state, body);
+    return await this.group.getWithStates(group);
   }
 }

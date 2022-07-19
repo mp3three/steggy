@@ -52,7 +52,7 @@ const RUN_CACHE = (routine: RoutineDTO) => `${INSTANCE_ID}_${routine._id}`;
 export class RoutineService {
   constructor(
     @InjectCache()
-    private readonly cacheService: CacheManagerService,
+    private readonly cache: CacheManagerService,
     private readonly routinePersistence: RoutinePersistenceService,
     @Inject(forwardRef(() => RoutineEnabledService))
     private readonly routineEnabled: RoutineEnabledService,
@@ -126,7 +126,7 @@ export class RoutineService {
           return;
         }
         if (sync && routine.repeat === 'interrupt') {
-          const currentId = await this.cacheService.get(RUN_CACHE(routine));
+          const currentId = await this.cache.get(RUN_CACHE(routine));
           if (currentId !== runId) {
             aborted = true;
             this.logger.debug(
@@ -422,10 +422,10 @@ export class RoutineService {
       return runId;
     }
     const id = RUN_CACHE(routine);
-    const currentlyRunning = await this.cacheService.get<string>(id);
+    const currentlyRunning = await this.cache.get<string>(id);
     if (routine.repeat === 'block') {
       if (is.empty(currentlyRunning)) {
-        await this.cacheService.set(id, runId);
+        await this.cache.set(id, runId);
         return runId;
       }
       return undefined;
@@ -435,17 +435,17 @@ export class RoutineService {
       if (currentlyRunning) {
         return new Promise(done => {
           list.push(async () => {
-            await this.cacheService.set(id, runId);
+            await this.cache.set(id, runId);
             done(runId);
           });
           this.runQueue.set(routine._id, list);
         });
       }
-      await this.cacheService.set(id, runId);
+      await this.cache.set(id, runId);
       return runId;
     }
     if (routine.repeat === 'interrupt') {
-      await this.cacheService.set(id, runId);
+      await this.cache.set(id, runId);
       return runId;
     }
     if (is.empty(routine.repeat) || routine.repeat === 'normal') {

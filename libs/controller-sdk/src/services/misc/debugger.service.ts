@@ -35,21 +35,21 @@ export class DebuggerService {
   constructor(
     private readonly logger: AutoLogService,
     @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
+    private readonly group: GroupService,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
+    private readonly room: RoomService,
     private readonly entityManager: EntityManagerService,
     @Inject(forwardRef(() => RoutineService))
-    private readonly routineService: RoutineService,
+    private readonly routine: RoutineService,
     @Inject(forwardRef(() => PersonService))
-    private readonly personService: PersonService,
+    private readonly person: PersonService,
   ) {}
 
   /**
    * Verify all declared entities actually exist
    */
   public async findGroups(): Promise<GroupDTO[]> {
-    const groups = await this.groupService.list();
+    const groups = await this.group.list();
     const entities = this.entityManager.listEntities();
     return groups.filter(group => {
       group.entities ??= [];
@@ -69,9 +69,9 @@ export class DebuggerService {
    * Verify groups have not been deleted, and all entities exist
    */
   public async findRooms(): Promise<RoomDTO[]> {
-    const rooms = await this.roomService.list();
+    const rooms = await this.room.list();
     const entities = this.entityManager.listEntities();
-    const list = await this.groupService.list({ select: [] });
+    const list = await this.group.list({ select: [] });
     const groups = new Set(list.map(({ _id }) => _id));
     return rooms.filter(room => {
       room.entities ??= [];
@@ -99,10 +99,10 @@ export class DebuggerService {
   }
 
   public async findRoutines(): Promise<RoutineDTO[]> {
-    const routineList = await this.routineService.list();
-    const roomList = await this.roomService.list({ select: [] });
-    const personList = await this.personService.list({ select: [] });
-    const groupList = await this.groupService.list({ select: [] });
+    const routineList = await this.routine.list();
+    const roomList = await this.room.list({ select: [] });
+    const personList = await this.person.list({ select: [] });
+    const groupList = await this.group.list({ select: [] });
     const entities = this.entityManager.listEntities();
     const groups = new Set(groupList.map(({ _id }) => _id));
     const routines = new Set(routineList.map(({ _id }) => _id));

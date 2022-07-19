@@ -16,7 +16,7 @@ import {
 export class ExecuteCodeCommandService
   implements iRoutineCommand<RoutineCodeCommandDTO>
 {
-  constructor(private readonly vmService: VMService) {}
+  constructor(private readonly vm: VMService) {}
 
   public async activate({
     command,
@@ -26,7 +26,7 @@ export class ExecuteCodeCommandService
     waitForChange: boolean;
   }): Promise<boolean> {
     let stop = false;
-    await this.vmService.command(
+    await this.vm.command(
       command.command.code,
       {
         stop_processing: () => (stop = true),

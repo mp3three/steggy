@@ -16,7 +16,7 @@ import {
 export class GroupStateChangeCommandService
   implements iRoutineCommand<RoutineCommandGroupStateDTO>
 {
-  constructor(private readonly groupService: GroupService) {}
+  constructor(private readonly group: GroupService) {}
 
   public async activate({
     command,
@@ -25,6 +25,6 @@ export class GroupStateChangeCommandService
     command: RoutineCommandDTO<RoutineCommandGroupStateDTO>;
     waitForChange: boolean;
   }): Promise<void> {
-    await this.groupService.activateState(command.command, waitForChange);
+    await this.group.activateState(command.command, waitForChange);
   }
 }

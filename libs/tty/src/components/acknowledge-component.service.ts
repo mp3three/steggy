@@ -6,8 +6,8 @@ import { KeyboardManagerService, ScreenService } from '../services';
 @Component({ type: 'acknowledge' })
 export class AcknowledgeComponentService implements iComponent {
   constructor(
-    private readonly screenService: ScreenService,
-    private readonly keyboardService: KeyboardManagerService,
+    private readonly screen: ScreenService,
+    private readonly keyboard: KeyboardManagerService,
   ) {}
 
   private done: () => void;
@@ -18,16 +18,14 @@ export class AcknowledgeComponentService implements iComponent {
     this.isDone = false;
     this.done = callback;
     this.message = config.message;
-    this.keyboardService.setKeyMap(this, new Map([[{}, 'complete']]));
+    this.keyboard.setKeyMap(this, new Map([[{}, 'complete']]));
   }
 
   public render(): void {
     if (this.isDone) {
       return;
     }
-    this.screenService.printLine(
-      this.message ?? chalk.bold`Any key to continue `,
-    );
+    this.screen.printLine(this.message ?? chalk.bold`Any key to continue `);
   }
 
   protected complete(): boolean {

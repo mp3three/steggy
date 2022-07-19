@@ -30,9 +30,8 @@ import {
     {
       inject: [MQTTClientInstanceService],
       provide: MQTT_CLIENT_INSTANCE,
-      useFactory: (instanceService: MQTTClientInstanceService) => {
-        return instanceService.createConnection();
-      },
+      useFactory: (instance: MQTTClientInstanceService) =>
+        instance.createConnection(),
     },
     MQTTExplorerService,
     MqttService,

@@ -31,7 +31,7 @@ export class VMService {
     private readonly cache: CacheManagerService,
     private readonly breakoutApi: BreakoutAPIService,
     private readonly callProxy: HACallTypeGenerator,
-    private readonly codeService: CodeService,
+    private readonly code: CodeService,
   ) {}
 
   private app: INestApplication;
@@ -154,7 +154,7 @@ export class VMService {
     const start = Date.now();
     // VM appears to return value provided by the final instruction to execute
     code = [
-      await this.codeService.code(type),
+      await this.code.code(type),
       'const __wrapper = async function() {',
       code,
       '};',

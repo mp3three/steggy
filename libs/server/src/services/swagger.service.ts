@@ -16,7 +16,7 @@ export class SwaggerService {
     @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
     private readonly logger: AutoLogService,
     @InjectConfig(SWAGGER_PATH) private readonly swaggerPath: string,
-    private readonly workspaceService: WorkspaceService,
+    private readonly workspace: WorkspaceService,
   ) {}
 
   protected onApplicationBootstrap(): void {
@@ -30,8 +30,8 @@ export class SwaggerService {
     if (!this.swaggerPath) {
       return;
     }
-    this.workspaceService.initMetadata();
-    const data = this.workspaceService.PACKAGES.get(
+    this.workspace.initMetadata();
+    const data = this.workspace.PACKAGES.get(
       this.activeApplication.description,
     );
     const { displayName, description, version } = data ?? {};

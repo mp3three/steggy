@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService, InjectConfig, OnEvent } from '@steggy/boilerplate';
-import {
-  LIB_CONTROLLER_SDK,
-  RoutineService,
-  SAFE_MODE,
-} from '@steggy/controller-sdk';
+import { LIB_CONTROLLER_SDK, SAFE_MODE } from '@steggy/controller-sdk';
 import {
   HASocketAPIService,
   NotifyDomainService,
@@ -21,9 +17,8 @@ export class ApplicationService {
     @InjectConfig(SAFE_MODE, LIB_CONTROLLER_SDK)
     private readonly safeMode: boolean,
     private readonly logger: AutoLogService,
-    private readonly notifyService: NotifyDomainService,
+    private readonly notify: NotifyDomainService,
     private readonly socketApi: HASocketAPIService,
-    private readonly routineService: RoutineService,
   ) {}
   private connectionReady = false;
 
@@ -47,7 +42,7 @@ export class ApplicationService {
       return;
     }
     // This should NOT be happening regularly
-    await this.notifyService.notify(
+    await this.notify.notify(
       `Connection reset at ${new Date().toLocaleString()}`,
       { title: `Temporarily lost connection with Home Assistant` },
     );

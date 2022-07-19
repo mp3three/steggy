@@ -16,7 +16,7 @@ import { each } from '@steggy/utilities';
 export class RestoreCommandService {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly groupService: GroupService,
+    private readonly group: GroupService,
     @InjectCache() private readonly cache: CacheManagerService,
   ) {}
 
@@ -31,8 +31,8 @@ export class RestoreCommandService {
       return;
     }
     await each(Object.entries(cache.states), async ([id, item]) => {
-      const group = await this.groupService.getWithStates(id);
-      const type = this.groupService.getBaseGroup(group.type);
+      const group = await this.group.getWithStates(id);
+      const type = this.group.getBaseGroup(group.type);
       await type.setState(group.entities, item);
     });
     this.logger.debug(`Restored cache state ${command.key}`);

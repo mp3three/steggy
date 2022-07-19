@@ -27,7 +27,7 @@ export class HomeAssistantFetchAPIService {
     private readonly bearer: string,
     private readonly fetchService: FetchService,
     @InjectCache()
-    private readonly cacheService: CacheManagerService,
+    private readonly cache: CacheManagerService,
   ) {}
 
   /**
@@ -114,14 +114,14 @@ export class HomeAssistantFetchAPIService {
   }
 
   public async listServices(): Promise<ServiceListItemDTO[]> {
-    const cached = await this.cacheService.get<ServiceListItemDTO[]>(CACHE_KEY);
+    const cached = await this.cache.get<ServiceListItemDTO[]>(CACHE_KEY);
     if (cached) {
       return cached;
     }
     const result = await this.fetch<ServiceListItemDTO[]>({
       url: `/api/services`,
     });
-    await this.cacheService.set(CACHE_KEY, result);
+    await this.cache.set(CACHE_KEY, result);
     return result;
   }
 }

@@ -29,7 +29,7 @@ export class InternalEventChangeService
   constructor(
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
-    private readonly vmService: VMService,
+    private readonly vm: VMService,
   ) {}
 
   private WATCHERS = new Set<tWatchType>();
@@ -60,7 +60,7 @@ export class InternalEventChangeService
   ): void {
     const process = async (data: Record<string, unknown>) => {
       if (!is.empty(activate.validate)) {
-        const result = await this.vmService.fetch(
+        const result = await this.vm.fetch(
           activate.validate,
           data,
           activate.logContext,

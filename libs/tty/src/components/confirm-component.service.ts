@@ -4,8 +4,8 @@ import { KeyboardManagerService, ScreenService } from '../services';
 @Component({ type: 'confirm' })
 export class ConfirmComponentService implements iComponent {
   constructor(
-    private readonly screenService: ScreenService,
-    private readonly keyboardService: KeyboardManagerService,
+    private readonly screen: ScreenService,
+    private readonly keyboard: KeyboardManagerService,
   ) {}
 
   private complete = false;
@@ -24,7 +24,7 @@ export class ConfirmComponentService implements iComponent {
     this.done = callback;
     this.message = config.message;
     this.initialState = config.defaultValue;
-    this.keyboardService.setKeyMap(
+    this.keyboard.setKeyMap(
       this,
       new Map([
         [{ key: 'y' }, 'accept'],
@@ -38,7 +38,7 @@ export class ConfirmComponentService implements iComponent {
     if (this.complete) {
       return;
     }
-    this.screenService.render(
+    this.screen.render(
       `${this.message} (${this.initialState ? 'Y/n' : 'y/N'})`,
     );
   }

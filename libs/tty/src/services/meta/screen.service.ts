@@ -30,9 +30,9 @@ output.pipe(stdout);
 @Injectable()
 export class ScreenService {
   constructor(
-    private readonly environmentService: EnvironmentService,
+    private readonly environment: EnvironmentService,
     @Inject(forwardRef(() => KeyboardManagerService))
-    private readonly keyboardService: KeyboardManagerService,
+    private readonly keyboard: KeyboardManagerService,
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
   ) {}
@@ -111,7 +111,7 @@ export class ScreenService {
    */
   public async footerWrap<T>(callback: () => Promise<T>): Promise<T> {
     this.sticky = this.lastContent;
-    return await this.keyboardService.wrap(async () => {
+    return await this.keyboard.wrap(async () => {
       this.render();
       const result = await callback();
       this.printLine(
@@ -187,7 +187,7 @@ export class ScreenService {
       return;
     }
 
-    const { width: maxWidth } = await this.environmentService.getDimensions();
+    const { width: maxWidth } = await this.environment.getDimensions();
     content = this.breakLines(content, maxWidth);
 
     // Intended for supplemental content

@@ -38,13 +38,13 @@ export class StopProcessingCommandService
 {
   constructor(
     private readonly entityManager: EntityManagerService,
-    private readonly fetchService: FetchService,
-    private readonly filterService: JSONFilterService,
+    private readonly fetch: FetchService,
+    private readonly filter: JSONFilterService,
     private readonly logger: AutoLogService,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
-    private readonly socketService: HASocketAPIService,
-    private readonly chronoService: ChronoService,
+    private readonly room: RoomService,
+    private readonly socket: HASocketAPIService,
+    private readonly chrono: ChronoService,
   ) {}
 
   public async activate({
@@ -102,14 +102,14 @@ export class StopProcessingCommandService
   ): boolean {
     const entity = this.entityManager.getEntity(comparison.entity_id);
     const attribute = get(entity, comparison.attribute);
-    return this.filterService.match(
+    return this.filter.match(
       { attribute },
       { field: 'attribute', ...comparison },
     );
   }
 
   public dateComparison(comparison: RoutineRelativeDateComparisonDTO): boolean {
-    const [start, end] = this.chronoService.parse<boolean>(
+    const [start, end] = this.chrono.parse<boolean>(
       comparison.expression,
       false,
     );
@@ -143,7 +143,7 @@ export class StopProcessingCommandService
   public async roomMetadata(
     comparison: MetadataComparisonDTO,
   ): Promise<boolean> {
-    const room = await this.roomService.getWithStates(comparison.room);
+    const room = await this.room.getWithStates(comparison.room);
     if (!room) {
       this.logger.error({ comparison }, `Could not find room`);
       return false;
@@ -152,10 +152,7 @@ export class StopProcessingCommandService
       ({ name }) => name === comparison.property,
     );
     const value = property?.value;
-    return this.filterService.match(
-      { value },
-      { field: 'value', ...comparison },
-    );
+    return this.filter.match({ value }, { field: 'value', ...comparison });
   }
 
   public stateComparison(comparison: RoutineStateComparisonDTO): boolean {
@@ -166,7 +163,7 @@ export class StopProcessingCommandService
       );
       return false;
     }
-    return this.filterService.match(
+    return this.filter.match(
       { state: entity.state },
       { field: 'state', ...comparison },
     );
@@ -175,11 +172,8 @@ export class StopProcessingCommandService
   public async templateComparison(
     comparison: RoutineTemplateComparisonDTO,
   ): Promise<boolean> {
-    const value = await this.socketService.renderTemplate(comparison.template);
-    return this.filterService.match(
-      { value },
-      { field: 'value', ...comparison },
-    );
+    const value = await this.socket.renderTemplate(comparison.template);
+    return this.filter.match({ value }, { field: 'value', ...comparison });
   }
 
   public async webhookCompare({
@@ -189,7 +183,7 @@ export class StopProcessingCommandService
     ...comparison
   }: RoutineWebhookComparisonDTO): Promise<boolean> {
     try {
-      const result = await this.fetchService.fetch<Response>({
+      const result = await this.fetch.fetch<Response>({
         headers: Object.fromEntries(
           webhook.headers.map(({ header, value }) => [header, value]),
         ),
@@ -200,10 +194,7 @@ export class StopProcessingCommandService
       const text = await result.text();
       const value =
         handleAs === 'text' ? text : get(JSON.parse(text), property);
-      return this.filterService.match(
-        { value },
-        { field: 'value', ...comparison },
-      );
+      return this.filter.match({ value }, { field: 'value', ...comparison });
     } catch (error) {
       this.logger.error({ error });
       return false;

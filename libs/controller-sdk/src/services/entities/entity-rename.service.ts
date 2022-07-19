@@ -29,13 +29,13 @@ export class EntityRenameService {
   constructor(
     private readonly logger: AutoLogService,
     @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
+    private readonly group: GroupService,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
+    private readonly room: RoomService,
     @Inject(forwardRef(() => RoutineService))
-    private readonly routineService: RoutineService,
+    private readonly routine: RoutineService,
     @Inject(forwardRef(() => PersonService))
-    private readonly personService: PersonService,
+    private readonly person: PersonService,
     private readonly entityManager: EntityManagerService,
   ) {}
 
@@ -63,7 +63,7 @@ export class EntityRenameService {
   }
 
   private async renameInGroups(from: string, to: string): Promise<void> {
-    const list = await this.groupService.list({
+    const list = await this.group.list({
       filters: new Set([
         {
           field: 'entities',
@@ -79,7 +79,7 @@ export class EntityRenameService {
       group.entities ??= [];
       group.save_states ??= [];
       // update group
-      await this.groupService.update(group._id, {
+      await this.group.update(group._id, {
         // modifying entity lists
         entities: group.entities.map(i => (i === from ? to : i)),
         // and searching out entities inside save states
@@ -97,7 +97,7 @@ export class EntityRenameService {
   }
 
   private async renameInPeople(from: string, to: string): Promise<void> {
-    const list = await this.personService.list({
+    const list = await this.person.list({
       filters: new Set([
         {
           field: 'entities',
@@ -110,7 +110,7 @@ export class EntityRenameService {
       this.logger.debug(
         `(person) [${person.friendlyName}] rename entity {${from}} => {${to}} `,
       );
-      await this.personService.update(
+      await this.person.update(
         {
           // update entity references
           entities: person.entities.map(i =>
@@ -132,7 +132,7 @@ export class EntityRenameService {
     });
   }
   private async renameInRooms(from: string, to: string): Promise<void> {
-    const list = await this.roomService.list({
+    const list = await this.room.list({
       filters: new Set([
         {
           field: 'entities',
@@ -145,7 +145,7 @@ export class EntityRenameService {
       this.logger.debug(
         `(room) [${room.friendlyName}] rename entity {${from}} => {${to}} `,
       );
-      await this.roomService.update(
+      await this.room.update(
         {
           // update entity references
           entities: room.entities.map(i =>
@@ -178,7 +178,7 @@ export class EntityRenameService {
   }
 
   private async renameInRoutines_activateAttribute(from, to): Promise<void> {
-    const list = await this.routineService.list({
+    const list = await this.routine.list({
       filters: new Set([
         {
           field: 'activate.type',
@@ -210,12 +210,12 @@ export class EntityRenameService {
           return activate;
         },
       );
-      await this.routineService.update(routine._id, routine);
+      await this.routine.update(routine._id, routine);
     });
   }
 
   private async renameInRoutines_activateSequence(from, to): Promise<void> {
-    const list = await this.routineService.list({
+    const list = await this.routine.list({
       filters: new Set([
         {
           field: 'activate.type',
@@ -246,12 +246,12 @@ export class EntityRenameService {
           return activate;
         },
       );
-      await this.routineService.update(routine._id, routine);
+      await this.routine.update(routine._id, routine);
     });
   }
 
   private async renameInRoutines_commandCallService(from, to): Promise<void> {
-    const list = await this.routineService.list({
+    const list = await this.routine.list({
       filters: new Set([
         {
           field: 'command.type',
@@ -282,7 +282,7 @@ export class EntityRenameService {
           return command;
         },
       );
-      await this.routineService.update(routine._id, routine);
+      await this.routine.update(routine._id, routine);
     });
   }
 
@@ -290,7 +290,7 @@ export class EntityRenameService {
     from,
     to,
   ): Promise<void> {
-    const list = await this.routineService.list({
+    const list = await this.routine.list({
       filters: new Set([
         {
           field: 'command.type',
@@ -329,12 +329,12 @@ export class EntityRenameService {
         );
         return command;
       });
-      await this.routineService.update(routine._id, routine);
+      await this.routine.update(routine._id, routine);
     });
   }
 
   private async renameInRoutines_enable(from, to): Promise<void> {
-    const list = await this.routineService.list({
+    const list = await this.routine.list({
       filters: new Set([
         {
           field: 'enable.comparisons.comparison.entity_id',
@@ -361,7 +361,7 @@ export class EntityRenameService {
           return compare;
         },
       );
-      await this.routineService.update(routine._id, routine);
+      await this.routine.update(routine._id, routine);
     });
   }
 }

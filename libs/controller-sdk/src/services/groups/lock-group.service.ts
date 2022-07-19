@@ -25,7 +25,7 @@ import { BaseGroupService } from './base-group.service';
 export class LockGroupService extends BaseGroupService {
   constructor(
     protected readonly logger: AutoLogService,
-    private readonly lockService: LockDomainService,
+    private readonly lockDomain: LockDomainService,
     private readonly entityManager: EntityManagerService,
     protected readonly groupPersistence: GroupPersistenceService,
   ) {
@@ -78,7 +78,7 @@ export class LockGroupService extends BaseGroupService {
           `Invalid lock group entity: ${lock}`,
         );
       }
-      await this.lockService.lock(lock, waitForChange);
+      await this.lockDomain.lock(lock, waitForChange);
     });
   }
 
@@ -97,10 +97,10 @@ export class LockGroupService extends BaseGroupService {
       }) as [string, GeneralSaveStateDTO][],
       async ([id, state]) => {
         if (state.state === LOCK_STATES.locked) {
-          await this.lockService.lock(id, waitForChange);
+          await this.lockDomain.lock(id, waitForChange);
           return;
         }
-        await this.lockService.unlock(id, waitForChange);
+        await this.lockDomain.unlock(id, waitForChange);
       },
     );
   }
@@ -138,7 +138,7 @@ export class LockGroupService extends BaseGroupService {
           `Invalid lock group entity: ${lock}`,
         );
       }
-      await this.lockService.unlock(lock, waitForChange);
+      await this.lockDomain.unlock(lock, waitForChange);
     });
   }
 

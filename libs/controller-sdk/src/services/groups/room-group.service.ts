@@ -24,8 +24,8 @@ export class RoomGroupService extends BaseGroupService {
   constructor(
     protected readonly logger: AutoLogService,
     @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
-    private readonly roomService: RoomService,
+    private readonly group: GroupService,
+    private readonly room: RoomService,
     protected readonly groupPersistence: GroupPersistenceService,
   ) {
     super();
@@ -46,7 +46,7 @@ export class RoomGroupService extends BaseGroupService {
     stateId: string,
     waitForChange?: boolean,
   ): Promise<void> {
-    const item = await this.groupService.getWithStates(group);
+    const item = await this.group.getWithStates(group);
     if (!item) {
       this.logger.error({ group }, `Cannot find group`);
       return;
@@ -59,7 +59,7 @@ export class RoomGroupService extends BaseGroupService {
       return;
     }
     await each(state.states, async state => {
-      await this.roomService.activateState(
+      await this.room.activateState(
         { room: state.ref, state: state.state },
         waitForChange,
       );

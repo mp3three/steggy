@@ -1,5 +1,6 @@
 export const LOG_LEVEL = 'LOG_LEVEL';
 export const SCAN_CONFIG = 'SCAN_CONFIG';
+export const VERSION = 'VERSION';
 export const CACHE_PROVIDER = 'CACHE_PROVIDER';
 export const REDIS_HOST = 'REDIS_HOST';
 export const REDIS_PORT = 'REDIS_PORT';

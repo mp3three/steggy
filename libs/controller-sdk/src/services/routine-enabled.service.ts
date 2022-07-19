@@ -79,9 +79,9 @@ export class RoutineEnabledService {
     @InjectConfig(SAFE_MODE)
     private readonly safeMode: boolean,
     @Inject(forwardRef(() => RoutineService))
-    private readonly routineService: RoutineService,
+    private readonly routine: RoutineService,
     @Inject(forwardRef(() => StopProcessingCommandService))
-    private readonly stopProcessingService: StopProcessingCommandService,
+    private readonly stopProcessing: StopProcessingCommandService,
     private readonly logger: AutoLogService,
     private readonly moduleScanner: ModuleScannerService,
     private readonly routinePersistence: RoutinePersistenceService,
@@ -135,8 +135,8 @@ export class RoutineEnabledService {
    * Forcing string ids to be passed to manually refresh the routine info.
    */
   public async onUpdate(id: string): Promise<void> {
-    const routine = await this.routineService.get(id);
-    const name = this.routineService.superFriendlyName(id);
+    const routine = await this.routine.get(id);
+    const name = this.routine.superFriendlyName(id);
     const state = await this.isActive(routine);
     let updated = false;
     if (this.ACTIVE_ROUTINES.has(routine._id) && !state) {
@@ -364,7 +364,7 @@ export class RoutineEnabledService {
     if (type === 'disable') {
       return false;
     }
-    const testState = await this.stopProcessingService.activate({
+    const testState = await this.stopProcessing.activate({
       command: {
         command: enable,
       } as RoutineCommandDTO<RoutineCommandStopProcessingDTO>,
@@ -382,7 +382,7 @@ export class RoutineEnabledService {
     this.ACTIVE_ROUTINES.add(routine._id);
     if (is.empty(routine.command)) {
       this.logger.debug(
-        `${this.routineService.superFriendlyName(
+        `${this.routine.superFriendlyName(
           routine._id,
         )} false start {(no commands)}`,
       );
@@ -390,17 +390,15 @@ export class RoutineEnabledService {
     }
     if (is.empty(routine.activate)) {
       this.logger.debug(
-        `${this.routineService.superFriendlyName(
+        `${this.routine.superFriendlyName(
           routine._id,
         )} false start {(no activate)}`,
       );
       return;
     }
-    this.logger.info(
-      `${this.routineService.superFriendlyName(routine._id)} start`,
-    );
+    this.logger.info(`${this.routine.superFriendlyName(routine._id)} start`);
     if (!this.safeMode) {
-      this.routineService.mount(routine);
+      this.routine.mount(routine);
     }
   }
 
@@ -415,7 +413,7 @@ export class RoutineEnabledService {
       return;
     }
     this.logger.info(`${routine.friendlyName} stop`);
-    this.routineService.unmount(routine);
+    this.routine.unmount(routine);
     this.ACTIVE_ROUTINES.delete(routine._id);
   }
 

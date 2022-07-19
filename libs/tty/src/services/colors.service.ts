@@ -22,18 +22,18 @@ const B_LUMINANCE = 0.0722;
 
 @Injectable()
 export class ColorsService {
-  constructor(private readonly promptService: PromptService) {}
+  constructor(private readonly prompt: PromptService) {}
 
   public async buildHex(current: string): Promise<string> {
-    return await this.promptService.string(`Hex Color`, current);
+    return await this.prompt.string(`Hex Color`, current);
   }
 
   public async buildRGB(
     { r, g, b }: RGB = { b: OFF, g: OFF, r: OFF },
   ): Promise<RGB> {
-    r = await this.promptService.number('Red', r);
-    g = await this.promptService.number('Green', g);
-    b = await this.promptService.number('Blue', b);
+    r = await this.prompt.number('Red', r);
+    g = await this.prompt.number('Green', g);
+    b = await this.prompt.number('Blue', b);
     return { b, g, r };
   }
 

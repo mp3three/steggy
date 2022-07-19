@@ -15,15 +15,15 @@ import { AutoLogService } from '../auto-log.service';
 export class ScheduleExplorerService {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly discoveryService: DiscoveryService,
+    private readonly discovery: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
   ) {}
 
   protected onApplicationBootstrap(): void {
     const instanceWrappers: InstanceWrapper[] = [
-      ...this.discoveryService.getControllers(),
-      ...this.discoveryService.getProviders(),
+      ...this.discovery.getControllers(),
+      ...this.discovery.getProviders(),
     ];
     instanceWrappers.forEach((wrapper: InstanceWrapper) => {
       const { instance } = wrapper;

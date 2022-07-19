@@ -43,12 +43,12 @@ export class TypeGeneratorService {
   constructor(
     private readonly logger: AutoLogService,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
+    private readonly room: RoomService,
     @Inject(forwardRef(() => PersonService))
-    private readonly personService: PersonService,
-    private readonly secretsService: SecretsService,
+    private readonly person: PersonService,
+    private readonly secrets: SecretsService,
     private readonly entityManager: EntityManagerService,
-    private readonly callService: HACallTypeGenerator,
+    private readonly call: HACallTypeGenerator,
   ) {}
 
   public async assemble(): Promise<string> {
@@ -58,7 +58,7 @@ export class TypeGeneratorService {
       `declare const logger: iLogger;`,
       await this.buildTypesFromMetadata(),
       this.buildTypesFromSecrets(),
-      await this.callService.buildTypes(),
+      await this.call.buildTypes(),
     ].join(`\n`);
   }
 
@@ -94,8 +94,8 @@ export class TypeGeneratorService {
    */
   private async buildTypesFromMetadata(): Promise<string> {
     const exportTypes: string[] = [];
-    const people = await this.personService.list({});
-    const rooms = await this.roomService.list({});
+    const people = await this.person.list({});
+    const rooms = await this.room.list({});
     (
       [...people.map(i => ['Person', i]), ...rooms.map(i => ['Room', i])] as [
         string,
@@ -139,7 +139,7 @@ export class TypeGeneratorService {
    * There isn't a way to provide comments on individual data properties, so top level is it
    */
   private buildTypesFromSecrets(): string {
-    const { secrets } = this.secretsService.buildMetadata();
+    const { secrets } = this.secrets.buildMetadata();
     const tsdoc = `/**\n${[
       `## Secrets`,
       ``,

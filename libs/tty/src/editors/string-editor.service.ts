@@ -38,9 +38,9 @@ export class StringEditorService
   implements iBuilderEditor<StringEditorRenderOptions>
 {
   constructor(
-    private readonly keyboardService: KeyboardManagerService,
+    private readonly keyboard: KeyboardManagerService,
     private readonly keymap: KeymapService,
-    private readonly screenService: ScreenService,
+    private readonly screen: ScreenService,
     private readonly textRendering: TextRenderingService,
   ) {}
 
@@ -57,12 +57,12 @@ export class StringEditorService
     this.complete = false;
     this.value = this.config.current ?? '';
     this.done = done;
-    this.keyboardService.setKeyMap(this, KEYMAP);
+    this.keyboard.setKeyMap(this, KEYMAP);
   }
 
   public render(): void {
     if (this.complete) {
-      this.screenService.render(
+      this.screen.render(
         chalk`{green ? } {bold ${this.config.label}} {gray ${this.value}}`,
       );
       return;
@@ -143,7 +143,7 @@ export class StringEditorService
       ),
     );
     const message = this.textRendering.pad(out.join(`\n`));
-    this.screenService.render(
+    this.screen.render(
       message,
       this.keymap.keymapHelp({
         message,

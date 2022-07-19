@@ -18,7 +18,7 @@ import { ScreenService } from './screen.service';
 @ApplicationStackProvider()
 export class KeyboardManagerService implements iStackProvider {
   constructor(
-    private readonly screenService: ScreenService,
+    private readonly screen: ScreenService,
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
   ) {}
@@ -57,7 +57,7 @@ export class KeyboardManagerService implements iStackProvider {
     this.activeKeymaps.set(target, map);
     map.forEach(key => {
       if (is.string(key) && !is.function(target[key])) {
-        this.screenService.printLine(
+        this.screen.printLine(
           chalk.yellow.inverse` MISSING CALLBACK {bold ${key}} `,
         );
       }
@@ -80,7 +80,7 @@ export class KeyboardManagerService implements iStackProvider {
   }
 
   protected onApplicationBootstrap(): void {
-    const rl = this.screenService.rl;
+    const rl = this.screen.rl;
     fromEvent(rl.input, 'keypress', (value, key = {}) => ({ key, value }))
       .pipe(takeUntil(fromEvent(rl, 'close')))
       .forEach(descriptor => this.keyPressHandler(descriptor));

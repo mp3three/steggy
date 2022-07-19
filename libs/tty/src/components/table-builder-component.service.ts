@@ -11,7 +11,6 @@ import {
 } from '../contracts';
 import { Component, iComponent } from '../decorators';
 import {
-  ApplicationManagerService,
   FormService,
   KeyboardManagerService,
   KeymapService,
@@ -20,7 +19,6 @@ import {
   TableService,
   TextRenderingService,
 } from '../services';
-import { FooterEditorService } from './footer-editor.service';
 import { ToMenuEntry } from './menu-component.service';
 
 const KEYMAP: tKeyMap = new Map([
@@ -48,16 +46,14 @@ export class TableBuilderComponentService<
 > implements iComponent<TableBuilderOptions<VALUE>, VALUE>
 {
   constructor(
-    private readonly tableService: TableService<VALUE>,
-    private readonly formService: FormService<VALUE>,
-    private readonly textRendering: TextRenderingService,
-    private readonly footerEditor: FooterEditorService,
-    private readonly keymapService: KeymapService,
-    private readonly applicationManager: ApplicationManagerService,
-    private readonly screenService: ScreenService,
-    private readonly keyboardService: KeyboardManagerService,
+    private readonly table: TableService<VALUE>,
+    private readonly form: FormService<VALUE>,
+    private readonly text: TextRenderingService,
+    private readonly keymap: KeymapService,
+    private readonly screen: ScreenService,
+    private readonly keyboard: KeyboardManagerService,
     @Inject(forwardRef(() => PromptService))
-    private readonly promptService: PromptService,
+    private readonly prompt: PromptService,
   ) {}
 
   private complete = false;
@@ -82,7 +78,7 @@ export class TableBuilderComponentService<
     if (config.mode === 'single') {
       this.value = (config.current as VALUE) ?? ({} as VALUE);
     }
-    this.keyboardService.setKeyMap(
+    this.keyboard.setKeyMap(
       this,
       this.opt.mode === 'single' ? FORM_KEYMAP : KEYMAP,
     );
@@ -90,7 +86,7 @@ export class TableBuilderComponentService<
 
   public render(): void {
     if (this.complete) {
-      this.screenService.render('', '');
+      this.screen.render('', '');
       return;
     }
     const mode = this.opt.mode ?? 'multi';
@@ -113,10 +109,8 @@ export class TableBuilderComponentService<
   }
 
   protected async delete(): Promise<boolean> {
-    const result = await this.screenService.footerWrap(async () => {
-      return await this.promptService.confirm(
-        'Are you sure you want to delete this?',
-      );
+    const result = await this.screen.footerWrap(async () => {
+      return await this.prompt.confirm('Are you sure you want to delete this?');
     });
     if (!result) {
       this.render();
@@ -131,7 +125,7 @@ export class TableBuilderComponentService<
   }
 
   protected async enableEdit(): Promise<void> {
-    await this.screenService.footerWrap(async () => {
+    await this.screen.footerWrap(async () => {
       const column = this.opt.elements[
         this.opt.mode === 'single' ? this.selectedRow : this.selectedCell
       ] as TableBuilderElement<{ options: string[] }>;
@@ -141,22 +135,22 @@ export class TableBuilderComponentService<
       let value: unknown;
       switch (column.type) {
         case 'date':
-          value = await this.promptService.date({
+          value = await this.prompt.date({
             current,
             label: column.name,
           });
           break;
         case 'number':
-          value = await this.promptService.number(column.name, current);
+          value = await this.prompt.number(column.name, current);
           break;
         case 'boolean':
-          value = await this.promptService.boolean(column.name, current);
+          value = await this.prompt.boolean(column.name, current);
           break;
         case 'string':
-          value = await this.promptService.string(column.name, current);
+          value = await this.prompt.string(column.name, current);
           break;
         case 'enum':
-          value = await this.promptService.pickOne(
+          value = await this.prompt.pickOne(
             column.name,
             ToMenuEntry(column.extra.options.map(i => [i, i])),
             current,
@@ -216,29 +210,29 @@ export class TableBuilderComponentService<
   }
 
   private renderMulti(): void {
-    const message = this.textRendering.pad(
-      this.tableService.renderTable(
+    const message = this.text.pad(
+      this.table.renderTable(
         this.opt,
         this.rows,
         this.selectedRow,
         this.selectedCell,
       ),
     );
-    this.screenService.render(
+    this.screen.render(
       message,
-      this.keymapService.keymapHelp({
+      this.keymap.keymapHelp({
         message,
       }),
     );
   }
 
   private renderSingle(): void {
-    const message = this.textRendering.pad(
-      this.formService.renderForm(this.opt, this.value, this.selectedRow),
+    const message = this.text.pad(
+      this.form.renderForm(this.opt, this.value, this.selectedRow),
     );
-    this.screenService.render(
+    this.screen.render(
       message,
-      this.keymapService.keymapHelp({
+      this.keymap.keymapHelp({
         message,
       }),
     );

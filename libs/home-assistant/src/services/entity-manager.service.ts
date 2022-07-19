@@ -29,7 +29,7 @@ export class EntityManagerService {
   constructor(
     @InjectConfig(RETRY_INTERVAL) private readonly retry: number,
     private readonly logger: AutoLogService,
-    private readonly socketService: HASocketAPIService,
+    private readonly socket: HASocketAPIService,
     private readonly eventEmitter: EventEmitter,
   ) {}
   public readonly ENTITIES = new Map<string, HassStateDTO>();
@@ -52,7 +52,7 @@ export class EntityManagerService {
   public async fromRegistry<
     CAPABILITIES extends CapabilityList = Record<string, unknown>,
   >(entity_id: string): Promise<EntityRegistryItemDTO<CAPABILITIES>> {
-    const out = await this.socketService.sendMessage<
+    const out = await this.socket.sendMessage<
       EntityRegistryItemDTO<CAPABILITIES>
     >({
       entity_id,
@@ -128,7 +128,7 @@ export class EntityManagerService {
     // Names of properties DO NOT align with normal type definitions
     //
     // TODO:: This function needs validation that it isn't subject to race conditions
-    await this.socketService.updateEntity(entityId, {
+    await this.socket.updateEntity(entityId, {
       name: friendly_name,
       new_entity_id: entityId,
     });
@@ -140,7 +140,7 @@ export class EntityManagerService {
     newEntityId: string,
   ): Promise<unknown> {
     this.ENTITIES.delete(entityId);
-    return await this.socketService.updateEntity(entityId, {
+    return await this.socket.updateEntity(entityId, {
       new_entity_id: newEntityId,
     });
   }
@@ -193,7 +193,7 @@ export class EntityManagerService {
   protected async socketReady(): Promise<void> {
     const run = await Promise.race([
       async () => {
-        const entities = await this.socketService.getAllEntities();
+        const entities = await this.socket.getAllEntities();
         return !is.empty(entities);
       },
       async () => {

@@ -35,7 +35,7 @@ export class AttributeChangeActivateService
 {
   constructor(
     @InjectCache()
-    private readonly cacheService: CacheManagerService,
+    private readonly cache: CacheManagerService,
     private readonly logger: AutoLogService,
     private readonly entityManager: EntityManagerService,
     private readonly jsonFilter: JSONFilterService,
@@ -119,8 +119,8 @@ export class AttributeChangeActivateService
     if (!latch) {
       return false;
     }
-    const isLatched = await this.cacheService.get<boolean>(LATCH_KEY(id));
-    await this.cacheService.set(LATCH_KEY(id), currentState);
+    const isLatched = await this.cache.get<boolean>(LATCH_KEY(id));
+    await this.cache.set(LATCH_KEY(id), currentState);
     return currentState && isLatched;
   }
 
@@ -137,13 +137,12 @@ export class AttributeChangeActivateService
     }
     const key = DEBOUNCE_KEY(id);
     const now = Date.now();
-    const lastActivate =
-      (await this.cacheService.get<number>(key)) || NO_ACTIVATIONS;
+    const lastActivate = (await this.cache.get<number>(key)) || NO_ACTIVATIONS;
     if (lastActivate + debounce > now) {
       this.logger.debug(`${this.description(item)} debounce`);
       return false;
     }
-    await this.cacheService.set(key, now);
+    await this.cache.set(key, now);
     return true;
   }
 

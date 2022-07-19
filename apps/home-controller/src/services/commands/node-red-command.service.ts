@@ -23,10 +23,10 @@ export class NodeRedCommand
 {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly fetchService: FetchService,
+    private readonly fetch: FetchService,
     @InjectConfig(NODE_RED_URL) private readonly nodeRed: string,
   ) {
-    this.fetchService.BASE_URL = this.nodeRed;
+    this.fetch.BASE_URL = this.nodeRed;
   }
 
   public async activate({
@@ -38,7 +38,7 @@ export class NodeRedCommand
       throw new InternalServerErrorException(`NodeRed not configured`);
     }
     this.logger.debug(`Attempting to activate node [${command.command.name}]`);
-    const result = await this.fetchService.fetch<{ success: boolean }>({
+    const result = await this.fetch.fetch<{ success: boolean }>({
       method: 'post',
       url: `/steggy/routine-command/${command.command.name}`,
     });
@@ -49,7 +49,7 @@ export class NodeRedCommand
     if (is.empty(this.nodeRed)) {
       throw new InternalServerErrorException(`NodeRed not configured`);
     }
-    const { list } = await this.fetchService.fetch<{
+    const { list } = await this.fetch.fetch<{
       list: Record<'id' | 'name', string>[];
     }>({
       url: `/steggy/routine-command`,

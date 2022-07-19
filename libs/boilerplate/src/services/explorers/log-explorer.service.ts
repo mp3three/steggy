@@ -21,7 +21,7 @@ const SKIP_PROVIDERS = new Set(['ModuleRef', '', 'useFactory']);
 @Injectable()
 export class LogExplorerService {
   constructor(
-    private readonly discoveryService: DiscoveryService,
+    private readonly discovery: DiscoveryService,
     /**
      * Only injected here to make sure that config scanning can find it right
      *
@@ -32,8 +32,8 @@ export class LogExplorerService {
 
   public load(): void {
     const providers = [
-      ...this.discoveryService.getControllers(),
-      ...this.discoveryService.getProviders(),
+      ...this.discovery.getControllers(),
+      ...this.discovery.getProviders(),
     ].filter(({ instance }) => !!instance);
     providers.forEach(wrapper => {
       const { instance, host } = wrapper;

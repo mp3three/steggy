@@ -31,14 +31,14 @@ export class WebhookService
 {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly fetchService: FetchService,
+    private readonly fetch: FetchService,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
+    private readonly room: RoomService,
     @Inject(forwardRef(() => PersonService))
-    private readonly personService: PersonService,
+    private readonly person: PersonService,
     private readonly eventEmitter: EventEmitter,
-    private readonly vmService: VMService,
-    private readonly secretsService: SecretsService,
+    private readonly vm: VMService,
+    private readonly secrets: SecretsService,
   ) {}
 
   public async activate({
@@ -56,16 +56,16 @@ export class WebhookService
     }
     // * Send request
     this.logger.debug({ command }, `Sending webhook`);
-    let result = await this.fetchService.fetch<string>({
+    let result = await this.fetch.fetch<string>({
       headers: Object.fromEntries(
         extra.headers.map(({ header, value }) => [
           header,
-          this.secretsService.tokenReplace(value),
+          this.secrets.tokenReplace(value),
         ]),
       ),
       method: extra.method,
       process: 'text',
-      url: this.secretsService.tokenReplace(url),
+      url: this.secrets.tokenReplace(url),
     });
     const parse = extra.parse ?? 'none';
     if (assignTo === 'none') {
@@ -84,7 +84,7 @@ export class WebhookService
     // * Process
     if (assignTo === 'eval') {
       let stop = false;
-      await this.vmService.command(command.command.code, {
+      await this.vm.command(command.command.code, {
         // ? should be possible to access the raw response headers?
         response: result,
         stop_processing: () => (stop = true),
@@ -94,8 +94,8 @@ export class WebhookService
     // * Assign information to a person / room metadata
     const target =
       assignType === 'person'
-        ? await this.personService.load(assignTo)
-        : await this.roomService.load(assignTo);
+        ? await this.person.load(assignTo)
+        : await this.room.load(assignTo);
     if (!target) {
       this.logger.error(`Could not load {${assignType}} {${assignTo}}`);
       return false;
@@ -112,8 +112,8 @@ export class WebhookService
     // Make sure the value is what we think it should be
     const value = this.getValue(result, metadata);
     await (assignType === 'person'
-      ? this.personService.update({ metadata: target.metadata }, assignTo)
-      : this.roomService.update({ metadata: target.metadata }, assignTo));
+      ? this.person.update({ metadata: target.metadata }, assignTo)
+      : this.room.update({ metadata: target.metadata }, assignTo));
     this.logger.debug(`${target.friendlyName}#${assignProperty} = ${target}`);
 
     // Announce the change

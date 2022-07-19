@@ -35,8 +35,8 @@ type PACKAGE = { version: string };
 export class BuildPipelineService {
   constructor(
     private readonly logger: SyncLoggerService,
-    private readonly promptService: PromptService,
-    private readonly screenService: ScreenService,
+    private readonly prompt: PromptService,
+    private readonly screen: ScreenService,
     @InjectConfig('RUN_AFTER', {
       description:
         'Target script to execute after the pipeline finishes. Kick off deployment scripts or whatever is needed',
@@ -85,7 +85,7 @@ export class BuildPipelineService {
       if (!is.empty(this.runAfter)) {
         // It's expected that prettyified content is being sent through
         // Without env var, all formatting gets removed
-        await this.screenService.pipe(
+        await this.screen.pipe(
           execa(this.runAfter, affected.apps, {
             env: { FORCE_COLOR: 'true' },
           }),
@@ -99,27 +99,27 @@ export class BuildPipelineService {
 
   private async build(affected: AffectedList): Promise<string[]> {
     if (!this.nonInteractive) {
-      this.screenService.down(2);
+      this.screen.down(2);
     }
-    this.screenService.printLine(chalk.bold.cyan`APPS`);
+    this.screen.printLine(chalk.bold.cyan`APPS`);
     affected.apps.forEach(line => {
       const file = join('apps', line, PACKAGE_FILE);
       if (!existsSync(file)) {
-        this.screenService.printLine(chalk` {yellow - } ${line}`);
+        this.screen.printLine(chalk` {yellow - } ${line}`);
         return;
       }
       const { version } = JSON.parse(readFileSync(file, 'utf8')) as PACKAGE;
-      this.screenService.printLine(
+      this.screen.printLine(
         chalk` {yellow - } ${version ? chalk` {gray ${version}} ` : ''}${line}`,
       );
     });
     if (!this.nonInteractive) {
-      this.screenService.down();
-      this.screenService.printLine(chalk`Select applications to rebuild`);
+      this.screen.down();
+      this.screen.printLine(chalk`Select applications to rebuild`);
     }
     return this.nonInteractive
       ? affected.apps
-      : await this.promptService.listBuild({
+      : await this.prompt.listBuild({
           current: affected.apps
             .filter(app => this.hasPublish(app))
             .map(i => [TitleCase(i), i]),
@@ -151,11 +151,11 @@ export class BuildPipelineService {
     });
     await eachSeries(apps, async app => {
       this.logger.info(`[${app}] publishing`);
-      await this.screenService.pipe(execa(`npx`, [`nx`, `publish`, app]));
+      await this.screen.pipe(execa(`npx`, [`nx`, `publish`, app]));
     });
   }
 
-  private async bumpLibraries() {
+  private async bumpLibraries(): Promise<string | never> {
     const root = await this.bumpRoot();
     const { projects } = this.WORKSPACE;
     const libraries = Object.entries(projects)
@@ -173,7 +173,7 @@ export class BuildPipelineService {
     await eachSeries(libraries, async library => {
       this.logger.info(`[${library}] publishing`);
       try {
-        await this.screenService.pipe(execa(`npx`, [`nx`, `publish`, library]));
+        await this.screen.pipe(execa(`npx`, [`nx`, `publish`, library]));
       } catch (error) {
         this.logger.error(error.stderr);
         exit();

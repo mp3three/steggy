@@ -3,12 +3,13 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import {
   CACHE_PROVIDER,
+  CACHE_TTL,
   LIB_BOILERPLATE,
   LOG_LEVEL,
-  CACHE_TTL,
   REDIS_HOST,
   REDIS_PORT,
   SCAN_CONFIG,
+  VERSION,
 } from '../config';
 import { LOGGER_PROVIDERS } from '../decorators/injectors';
 import { CONFIG_PROVIDERS } from '../decorators/injectors/inject-config.decorator';
@@ -37,16 +38,16 @@ import {
       enum: ['redis', 'memory'],
       type: 'string',
     },
+    [CACHE_TTL]: {
+      default: 86_400,
+      description: 'Configuration property for redis connection',
+      type: 'number',
+    },
     [LOG_LEVEL]: {
       default: 'info',
       description: 'Minimum log level to process',
       enum: ['info', 'warn', 'debug'],
       type: 'string',
-    },
-    [CACHE_TTL]: {
-      default: 86_400,
-      description: 'Configuration property for redis connection',
-      type: 'number',
     },
     [REDIS_HOST]: {
       default: 'localhost',
@@ -61,6 +62,11 @@ import {
     [SCAN_CONFIG]: {
       default: false,
       description: 'Find all application configurations and output as json',
+      type: 'boolean',
+    },
+    [VERSION]: {
+      default: false,
+      description: 'Print the application version, then exit',
       type: 'boolean',
     },
   },
@@ -132,11 +138,11 @@ export class BoilerplateModule {
   }
 
   constructor(
-    private readonly discoveryService: LogExplorerService,
+    private readonly discovery: LogExplorerService,
     private readonly logger: AutoLogService,
   ) {}
 
   protected configure(): void {
-    this.discoveryService.load();
+    this.discovery.load();
   }
 }

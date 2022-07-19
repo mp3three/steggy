@@ -158,7 +158,7 @@ export class MenuComponentService<VALUE = unknown | string>
     private readonly keymap: KeymapService,
     @Inject(forwardRef(() => TextRenderingService))
     private readonly textRender: TextRenderingService,
-    private readonly keyboardService: KeyboardManagerService,
+    private readonly keyboard: KeyboardManagerService,
     private readonly screen: ScreenService,
   ) {}
 
@@ -454,7 +454,7 @@ export class MenuComponentService<VALUE = unknown | string>
       this.setKeymap();
     } else {
       this.searchText = '';
-      this.keyboardService.setKeyMap(this, SEARCH_KEYMAP);
+      this.keyboard.setKeyMap(this, SEARCH_KEYMAP);
     }
   }
 
@@ -768,7 +768,7 @@ export class MenuComponentService<VALUE = unknown | string>
         : LEFT_RIGHT),
       ...(this.opt.hideSearch || this.opt.keyOnly ? [] : SEARCH),
     ]);
-    this.keyboardService.setKeyMap(this, keymap);
+    this.keyboard.setKeyMap(this, keymap);
   }
 
   // this used to do more

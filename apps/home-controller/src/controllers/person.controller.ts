@@ -40,16 +40,16 @@ import { each, eachSeries, is } from '@steggy/utilities';
 @ApiTags('person')
 export class PersonController {
   constructor(
-    private readonly roomService: RoomService,
-    private readonly groupService: GroupService,
-    private readonly personService: PersonService,
+    private readonly room: RoomService,
+    private readonly group: GroupService,
+    private readonly person: PersonService,
   ) {}
 
   @Post(`/state/:state`)
   public async _activateState(
     @Param('state') state: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    const [person] = await this.personService.list({
+    const [person] = await this.person.list({
       filters: new Set([{ field: 'save_states.id', value: state }]),
     });
     if (is.undefined(person)) {
@@ -67,7 +67,7 @@ export class PersonController {
     @Param('person') person: string,
     @Param('state') state: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.personService.activateState({ person, state });
+    await this.person.activateState({ person, state });
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -82,8 +82,8 @@ export class PersonController {
     @Body() entity: RoomEntityDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.addEntity(person, entity);
-    return await this.personService.getWithStates(person, true, control);
+    await this.person.addEntity(person, entity);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Post(`/:person/metadata`)
@@ -91,8 +91,8 @@ export class PersonController {
     @Param('person') person: string | PersonDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.addMetadata(person);
-    return await this.personService.getWithStates(person, true, control);
+    await this.person.addMetadata(person);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Post(`/:person/state`)
@@ -106,8 +106,8 @@ export class PersonController {
     @Body() state: RoomStateDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.addState(person, state);
-    return await this.personService.getWithStates(person, true, control);
+    await this.person.addState(person, state);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Post(`/:person/group`)
@@ -121,9 +121,9 @@ export class PersonController {
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
     await eachSeries(groups, async id => {
-      await this.personService.attachGroup(person, id);
+      await this.person.attachGroup(person, id);
     });
-    return await this.personService.getWithStates(person, true, control);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Post(`/:person/room`)
@@ -137,9 +137,9 @@ export class PersonController {
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
     await eachSeries(rooms, async id => {
-      await this.personService.attachRoom(person, id);
+      await this.person.attachRoom(person, id);
     });
-    return await this.personService.getWithStates(person, true, control);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Post(`/:person/clone`)
@@ -151,7 +151,7 @@ export class PersonController {
     @Param('person') person: string,
     @Body() options: CloneRoomDTO = {},
   ): Promise<PersonDTO> {
-    return await this.personService.clone(person, options);
+    return await this.person.clone(person, options);
   }
 
   @Post(`/`)
@@ -161,7 +161,7 @@ export class PersonController {
     description: `Add a new person`,
   })
   public async create(@Body() data: PersonDTO): Promise<PersonDTO> {
-    return await this.personService.create(BaseSchemaDTO.cleanup(data));
+    return await this.person.create(BaseSchemaDTO.cleanup(data));
   }
 
   @Delete(`/:person`)
@@ -171,7 +171,7 @@ export class PersonController {
   public async delete(
     @Param('person') person: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.personService.delete(person);
+    await this.person.delete(person);
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -185,8 +185,8 @@ export class PersonController {
     @Param('entity') entity: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.deleteEntity(person, entity);
-    return await this.personService.getWithStates(person, true, control);
+    await this.person.deleteEntity(person, entity);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Delete(`/:person/group/:group`)
@@ -199,8 +199,8 @@ export class PersonController {
     @Param('group') group: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.deleteGroup(person, group);
-    return await this.personService.getWithStates(person, true, control);
+    await this.person.deleteGroup(person, group);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Delete(`/:person/metadata/:metadata`)
@@ -213,8 +213,8 @@ export class PersonController {
     @Param('metadata') metadata: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.deleteMetadata(person, metadata);
-    return await this.personService.getWithStates(person, true, control);
+    await this.person.deleteMetadata(person, metadata);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Delete(`/:person/person/:person`)
@@ -227,8 +227,8 @@ export class PersonController {
     @Param('room') room: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.deleteRoom(person, room);
-    return await this.personService.getWithStates(person, true, control);
+    await this.person.deleteRoom(person, room);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Delete(`/:person/state/:state`)
@@ -241,8 +241,8 @@ export class PersonController {
     @Param('state') state: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.deleteState(person, state);
-    return await this.personService.getWithStates(person, true, control);
+    await this.person.deleteState(person, state);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Get('/:person')
@@ -254,7 +254,7 @@ export class PersonController {
     @Param('person') person: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    return await this.personService.getWithStates(person, true, control);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Get('/:person/group-save-states')
@@ -265,11 +265,11 @@ export class PersonController {
   public async groupSaveStates(
     @Param('person') person: string,
   ): Promise<GroupDTO[]> {
-    const personInfo = await this.personService.getWithStates(person);
+    const personInfo = await this.person.getWithStates(person);
     const out: GroupDTO[] = [];
     await each(personInfo.groups, async item => {
       out.push(
-        await this.groupService.getWithStates(item, {
+        await this.group.getWithStates(item, {
           select: [
             'friendlyName',
             'type',
@@ -291,7 +291,7 @@ export class PersonController {
     @Param('person')
     person: string,
   ): Promise<InflatedPinDTO[]> {
-    return await this.personService.inflatePins(person);
+    return await this.person.inflatePins(person);
   }
 
   @Post(`/:person/pin/:type/:target`)
@@ -304,7 +304,7 @@ export class PersonController {
     @Param('target')
     target: string,
   ): Promise<PersonDTO> {
-    return await this.personService.itemPin(person, type, target);
+    return await this.person.itemPin(person, type, target);
   }
 
   @Delete(`/:person/pin/:type/:target`)
@@ -317,7 +317,7 @@ export class PersonController {
     @Param('target')
     target: string,
   ): Promise<PersonDTO> {
-    return await this.personService.itemUnpin(person, type, target);
+    return await this.person.itemUnpin(person, type, target);
   }
 
   @Get('/')
@@ -328,7 +328,7 @@ export class PersonController {
   public async list(
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO[]> {
-    return await this.personService.list(control);
+    return await this.person.list(control);
   }
 
   @Get('/:person/room-save-states')
@@ -339,11 +339,11 @@ export class PersonController {
   public async roomSaveStates(
     @Param('person') room: string,
   ): Promise<RoomDTO[]> {
-    const roomInfo = await this.personService.getWithStates(room);
+    const roomInfo = await this.person.getWithStates(room);
     const out: RoomDTO[] = [];
     await each(roomInfo.rooms, async item => {
       out.push(
-        await this.roomService.getWithStates(item, false, {
+        await this.room.getWithStates(item, false, {
           select: [
             'friendlyName',
             'type',
@@ -367,8 +367,8 @@ export class PersonController {
     @Body() data: Partial<PersonDTO>,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.update(BaseSchemaDTO.cleanup(data), person);
-    return await this.personService.getWithStates(person, true, control);
+    await this.person.update(BaseSchemaDTO.cleanup(data), person);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Put(`/:person/metadata/:metadata`)
@@ -383,8 +383,8 @@ export class PersonController {
     @Body() data: RoomMetadataDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.updateMetadata(person, metadata, data);
-    return await this.personService.getWithStates(person, true, control);
+    await this.person.updateMetadata(person, metadata, data);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Put(`/:person/metadata-name/:metadata`)
@@ -399,10 +399,10 @@ export class PersonController {
     @Body() data: RoomMetadataDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    const person = await this.personService.getWithStates(personId);
+    const person = await this.person.getWithStates(personId);
     const meta = person.metadata.find(({ name }) => name === metadata);
-    await this.personService.updateMetadata(person, meta.id, data);
-    return await this.personService.getWithStates(person, true, control);
+    await this.person.updateMetadata(person, meta.id, data);
+    return await this.person.getWithStates(person, true, control);
   }
 
   @Put(`/:person/state/:state`)
@@ -417,7 +417,7 @@ export class PersonController {
     @Body() data: RoomStateDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.updateState(person, state, data);
-    return await this.personService.getWithStates(person, true, control);
+    await this.person.updateState(person, state, data);
+    return await this.person.getWithStates(person, true, control);
   }
 }

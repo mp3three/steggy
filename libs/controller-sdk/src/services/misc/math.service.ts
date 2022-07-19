@@ -9,13 +9,13 @@ import { DataAggregatorService } from '../vm';
 export class MathService {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly dataService: DataAggregatorService,
+    private readonly data: DataAggregatorService,
   ) {}
 
   public async exec(expression: string): Promise<number> {
     this.logger.debug({ expression }, `Math evaluation`);
     const node = parse(expression);
-    const data = await this.dataService.load('number');
+    const data = await this.data.load('number');
     return node.evaluate(data);
   }
 }

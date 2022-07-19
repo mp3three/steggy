@@ -16,7 +16,7 @@ import { AutoLogService } from '../auto-log.service';
 @Injectable()
 export class EventsExplorerService {
   constructor(
-    private readonly discoveryService: DiscoveryService,
+    private readonly discovery: DiscoveryService,
     private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
     private readonly metadataScanner: MetadataScanner,
@@ -30,8 +30,8 @@ export class EventsExplorerService {
   }
 
   public loadEventListeners(): void {
-    const providers = this.discoveryService.getProviders();
-    const controllers = this.discoveryService.getControllers();
+    const providers = this.discovery.getProviders();
+    const controllers = this.discovery.getControllers();
     [...providers, ...controllers]
       .filter(wrapper => wrapper.isDependencyTreeStatic())
       .filter(wrapper => wrapper.instance)

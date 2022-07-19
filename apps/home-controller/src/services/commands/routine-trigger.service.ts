@@ -28,7 +28,7 @@ export class RoutineTriggerService
   constructor(
     private readonly logger: AutoLogService,
     @Inject(forwardRef(() => RoutineService))
-    private readonly routineService: RoutineService,
+    private readonly routine: RoutineService,
   ) {}
 
   public async activate({
@@ -48,12 +48,12 @@ export class RoutineTriggerService
       this.logger.error({ command, routine });
       throw new InternalServerErrorException(`Empty routine trigger target`);
     }
-    const target = await this.routineService.get(command.routine);
+    const target = await this.routine.get(command.routine);
     if (!target) {
       throw new NotFoundException(`Could not find routine`);
     }
     this.logger.debug(`Routine trigger {${target.friendlyName}}`);
-    await this.routineService.activateRoutine(
+    await this.routine.activateRoutine(
       target,
       {
         force: command.force,
@@ -68,7 +68,7 @@ export class RoutineTriggerService
     { _id, friendlyName }: RoutineDTO,
     waitForChange: boolean,
   ): Promise<void> {
-    const children = await this.routineService.list({
+    const children = await this.routine.list({
       filters: new Set([{ field: 'parent', value: _id }]),
     });
     if (is.empty(children)) {
@@ -77,7 +77,7 @@ export class RoutineTriggerService
     }
     const trigger = async routine => {
       this.logger.debug(`Routine trigger {${routine.friendlyName}}`);
-      await this.routineService.activateRoutine(
+      await this.routine.activateRoutine(
         routine,
         {
           force: force,
