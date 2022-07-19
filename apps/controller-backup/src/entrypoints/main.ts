@@ -164,7 +164,7 @@ export class ControllerBackup {
   /**
    * If this isn't a restore, then assume it's a backup request.
    */
-  protected async onPreInit(): Promise<void> {
+  protected async onPreInit(): Promise<void | never> {
     if (!is.empty(this.restore)) {
       return;
     }

@@ -37,14 +37,14 @@ export class SetMetadataService
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
+    private readonly room: RoomService,
     @Inject(forwardRef(() => PersonService))
-    private readonly personService: PersonService,
-    private readonly chronoService: ChronoService,
-    private readonly socketService: HASocketAPIService,
+    private readonly person: PersonService,
+    private readonly chrono: ChronoService,
+    private readonly socket: HASocketAPIService,
     @Inject(forwardRef(() => VMService))
-    private readonly vmService: VMService,
-    private readonly mathService: MathService,
+    private readonly vm: VMService,
+    private readonly math: MathService,
   ) {}
 
   public async activate({
@@ -56,8 +56,8 @@ export class SetMetadataService
   }): Promise<void> {
     const room =
       command.command.type === 'person'
-        ? await this.personService.getWithStates(command.command.room)
-        : await this.roomService.getWithStates(command.command.room);
+        ? await this.person.getWithStates(command.command.room)
+        : await this.room.getWithStates(command.command.room);
     room.metadata ??= [];
     const entry = room.metadata.find(
       ({ name }) => name === command.command.name,
@@ -70,8 +70,8 @@ export class SetMetadataService
     }
     entry.value = await this.getValue(command.command, room, entry, runId);
     await (command.command.type === 'person'
-      ? this.personService.update({ metadata: room.metadata }, room._id)
-      : this.roomService.update({ metadata: room.metadata }, room._id));
+      ? this.person.update({ metadata: room.metadata }, room._id)
+      : this.room.update({ metadata: room.metadata }, room._id));
     this.logger.debug(`${room.friendlyName}#${entry.name} = ${entry.value}`);
     this.eventEmitter.emit(
       command.command.type === 'person'
@@ -123,7 +123,7 @@ export class SetMetadataService
         return EMPTY;
       }
       try {
-        return await this.mathService.exec(setValue);
+        return await this.math.exec(setValue);
       } catch (error) {
         this.logger.error({ error });
         return EMPTY;
@@ -164,7 +164,7 @@ export class SetMetadataService
     }
     const type = command.valueType ?? 'simple';
     if (type === 'template') {
-      return await this.socketService.renderTemplate(command.value);
+      return await this.socket.renderTemplate(command.value);
     }
     return command.value;
   }
@@ -176,7 +176,7 @@ export class SetMetadataService
     runId: string,
   ): Promise<string | number | boolean> {
     if (command.valueType === 'eval') {
-      return await this.vmService.fetch((command.value as string) || '', {
+      return await this.vm.fetch((command.value as string) || '', {
         runId,
       });
     }
@@ -194,7 +194,7 @@ export class SetMetadataService
       return this.getEnumValue(command, metadata);
     }
     if (metadata.type === 'date') {
-      const [start] = this.chronoService.parse(String(command.value));
+      const [start] = this.chrono.parse(String(command.value));
       return (start as Date).toISOString();
     }
     if (metadata.type === 'number') {

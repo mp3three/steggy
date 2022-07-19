@@ -62,7 +62,7 @@ import { v4 as uuid } from 'uuid';
   RoutineCommandGroupStateDTO,
 )
 export class RoutineController {
-  constructor(private readonly routineService: RoutineService) {}
+  constructor(private readonly routine: RoutineService) {}
 
   @Get('/tags')
   @ApiResponse({
@@ -78,7 +78,7 @@ export class RoutineController {
   })
   public async routineTags(): Promise<{ tags: string[] }> {
     return {
-      tags: await this.routineService.allTags(),
+      tags: await this.routine.allTags(),
     };
   }
 
@@ -87,12 +87,12 @@ export class RoutineController {
     if (is.empty(body.import)) {
       return await this.create({ friendlyName: body.friendlyName });
     }
-    return await this.routineService.import(body.import, body.friendlyName);
+    return await this.routine.import(body.import, body.friendlyName);
   }
 
   @Get('/:routine/export')
   public async export(@Param('routine') id: string): Promise<{ text: string }> {
-    const routine = await this.routineService.get(id);
+    const routine = await this.routine.get(id);
     if (!routine) {
       throw new NotFoundException();
     }
@@ -108,9 +108,7 @@ export class RoutineController {
     @Param('routine') routine: string,
     @Body() options: RoutineActivateOptionsDTO,
   ): typeof GENERIC_SUCCESS_RESPONSE {
-    nextTick(
-      async () => await this.routineService.activateRoutine(routine, options),
-    );
+    nextTick(async () => await this.routine.activateRoutine(routine, options));
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -124,7 +122,7 @@ export class RoutineController {
     @Param('routine') id: string,
     @Body() activate: RoutineActivateDTO,
   ): Promise<RoutineDTO> {
-    const routine = await this.routineService.get(id);
+    const routine = await this.routine.get(id);
     activate.id = uuid();
     routine.activate.push(activate);
     return await this.update(id, routine);
@@ -140,7 +138,7 @@ export class RoutineController {
     @Param('routine') id: string,
     @Body() command: RoutineCommandDTO,
   ): Promise<RoutineDTO> {
-    const routine = await this.routineService.get(id);
+    const routine = await this.routine.get(id);
     command.id = uuid();
     routine.command.push(command);
     return await this.update(id, routine);
@@ -157,7 +155,7 @@ export class RoutineController {
     @Body()
     options: CloneRoutineDTO,
   ): Promise<RoutineDTO> {
-    return await this.routineService.clone(routine, options);
+    return await this.routine.clone(routine, options);
   }
 
   @Post(`/`)
@@ -167,7 +165,7 @@ export class RoutineController {
     description: `Create new routine`,
   })
   public async create(@Body() body: RoutineDTO): Promise<RoutineDTO> {
-    return await this.routineService.create(body);
+    return await this.routine.create(body);
   }
 
   @Delete(`/:routine`)
@@ -178,7 +176,7 @@ export class RoutineController {
   public async delete(
     @Param('routine') routine: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.routineService.delete(routine);
+    await this.routine.delete(routine);
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -191,7 +189,7 @@ export class RoutineController {
     @Param('routine') id: string,
     @Param('activate') activateId: string,
   ): Promise<RoutineDTO> {
-    const routine = await this.routineService.get(id);
+    const routine = await this.routine.get(id);
     routine.activate = routine.activate.filter(item => item.id !== activateId);
     return await this.update(id, routine);
   }
@@ -205,7 +203,7 @@ export class RoutineController {
     @Param('routine') id: string,
     @Param('command') commandId: string,
   ): Promise<RoutineDTO> {
-    const routine = await this.routineService.get(id);
+    const routine = await this.routine.get(id);
     routine.command = routine.command.filter(item => item.id !== commandId);
     return await this.update(id, routine);
   }
@@ -218,7 +216,7 @@ export class RoutineController {
   public async findById(
     @Param('routine') routine: string,
   ): Promise<RoutineDTO> {
-    return await this.routineService.get(routine);
+    return await this.routine.get(routine);
   }
 
   @Get(`/`)
@@ -229,7 +227,7 @@ export class RoutineController {
   public async list(
     @Locals() { control }: ResponseLocals,
   ): Promise<RoutineDTO[]> {
-    return await this.routineService.list(control);
+    return await this.routine.list(control);
   }
 
   @Post('/:routine/command/:command')
@@ -237,7 +235,7 @@ export class RoutineController {
     @Param('routine') routine: string,
     @Param('command') command: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.routineService.activateCommand(command, routine);
+    await this.routine.activateCommand(command, routine);
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -251,7 +249,7 @@ export class RoutineController {
     @Param('routine') routine: string,
     @Body() body: RoutineDTO,
   ): Promise<RoutineDTO> {
-    return await this.routineService.update(routine, body);
+    return await this.routine.update(routine, body);
   }
 
   @Put('/:routine/activate/:activate')
@@ -265,7 +263,7 @@ export class RoutineController {
     @Param('activate') activateId: string,
     @Body() activate: RoutineActivateDTO,
   ): Promise<RoutineDTO> {
-    const routine = await this.routineService.get(id);
+    const routine = await this.routine.get(id);
     routine.activate = routine.activate.map(item => {
       if (item.id !== activateId) {
         return item;
@@ -290,7 +288,7 @@ export class RoutineController {
     @Param('command') commandId: string,
     @Body() command: RoutineCommandDTO,
   ): Promise<RoutineDTO> {
-    const routine = await this.routineService.get(id);
+    const routine = await this.routine.get(id);
     const index = routine.command.findIndex(({ id }) => id === commandId);
     if (index === NOT_FOUND) {
       throw new NotFoundException();

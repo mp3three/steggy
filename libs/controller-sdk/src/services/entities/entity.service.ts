@@ -17,7 +17,7 @@ export class EntityService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly entityManager: EntityManagerService,
-    private readonly metadataService: MetadataService,
+    private readonly metadata: MetadataService,
     private readonly jsonFilter: JSONFilterService,
   ) {}
 
@@ -38,7 +38,7 @@ export class EntityService {
 
   @OnEvent(ENTITY_METADATA_UPDATED(IGNORE_ENTITY))
   private async loadIgnored(): Promise<void> {
-    const list = await this.metadataService.findWithFlag(IGNORE_ENTITY);
+    const list = await this.metadata.findWithFlag(IGNORE_ENTITY);
     this.IGNORED_ENTITIES = new Set(list);
     this.logger.info(`Ignoring {${list.length}} entities`);
     list.forEach(id => this.logger.debug(` - {${id}}`));

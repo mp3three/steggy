@@ -47,11 +47,11 @@ export class MetadataChangeService
   constructor(
     private readonly logger: AutoLogService,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
-    private readonly personService: PersonService,
+    private readonly room: RoomService,
+    private readonly person: PersonService,
     private readonly jsonFilter: JSONFilterService,
     @InjectCache()
-    private readonly cacheService: CacheManagerService,
+    private readonly cache: CacheManagerService,
   ) {}
 
   private WATCHERS = new Set<tWatchType>();
@@ -82,16 +82,12 @@ export class MetadataChangeService
 
     const room =
       activate.activate.type === 'room'
-        ? await this.roomService.getWithStates(activate.activate.room, false, {
+        ? await this.room.getWithStates(activate.activate.room, false, {
             select: ['friendlyName'],
           })
-        : await this.personService.getWithStates(
-            activate.activate.room,
-            false,
-            {
-              select: ['friendlyName'],
-            },
-          );
+        : await this.person.getWithStates(activate.activate.room, false, {
+            select: ['friendlyName'],
+          });
     this.WATCHERS.add({
       activate,
       callback,
@@ -131,19 +127,19 @@ export class MetadataChangeService
       );
       if (!shouldExecute) {
         if (activate.latch) {
-          await this.cacheService.del(CACHE_KEY(item.id));
+          await this.cache.del(CACHE_KEY(item.id));
         }
         return;
       }
       if (activate.latch) {
-        const exists = await this.cacheService.get(CACHE_KEY(item.id));
+        const exists = await this.cache.get(CACHE_KEY(item.id));
         if (exists === item.id) {
           this.logger.debug(
             `Latched ${watcher.room.friendlyName}#${name} = {${value}}`,
           );
           return;
         }
-        await this.cacheService.set(CACHE_KEY(item.id), item.id);
+        await this.cache.set(CACHE_KEY(item.id), item.id);
       }
       await watcher.callback();
     });

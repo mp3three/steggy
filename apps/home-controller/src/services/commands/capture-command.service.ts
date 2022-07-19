@@ -17,7 +17,7 @@ import { each } from '@steggy/utilities';
 export class CaptureCommandService {
   constructor(
     @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
+    private readonly group: GroupService,
     private readonly logger: AutoLogService,
     @InjectCache() private readonly cache: CacheManagerService,
   ) {}
@@ -30,8 +30,8 @@ export class CaptureCommandService {
     command.group ??= [];
     const states: Record<string, GeneralSaveStateDTO[]> = {};
     await each(command.group, async id => {
-      const group = await this.groupService.getWithStates(id);
-      const type = this.groupService.getBaseGroup(group.type);
+      const group = await this.group.getWithStates(id);
+      const type = this.group.getBaseGroup(group.type);
       states[id] = await type.getState(group);
     });
     await this.cache.set(command.key, {

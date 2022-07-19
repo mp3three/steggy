@@ -1,5 +1,4 @@
-import { Inject, Injectable, NotImplementedException } from '@nestjs/common';
-import { ACTIVE_APPLICATION, WorkspaceService } from '@steggy/boilerplate';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { HassNotificationDTO } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
@@ -24,11 +23,9 @@ import { HomeFetchService } from './home-fetch.service';
 @Injectable()
 export class DebugService {
   constructor(
-    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
-    private readonly fetchService: HomeFetchService,
-    private readonly promptService: PromptService,
-    private readonly screenService: ScreenService,
-    private readonly workspace: WorkspaceService,
+    private readonly fetch: HomeFetchService,
+    private readonly prompt: PromptService,
+    private readonly screen: ScreenService,
     private readonly applicationManager: ApplicationManagerService,
   ) {}
 
@@ -58,7 +55,7 @@ For loop example getting entity values in the weather domain:
 
   public async exec(defaultAction?: string): Promise<void> {
     this.applicationManager.setHeader('Debugger');
-    const action = await this.promptService.menu({
+    const action = await this.prompt.menu({
       hideSearch: true,
       keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
@@ -76,9 +73,9 @@ For loop example getting entity values in the weather domain:
     }
     switch (action) {
       case 'version':
-        const version = await this.fetchService.fetch({ url: `/version` });
-        this.screenService.printLine(`\n\n` + dump(version));
-        await this.promptService.acknowledge();
+        const version = await this.fetch.fetch({ url: `/version` });
+        this.screen.printLine(`\n\n` + dump(version));
+        await this.prompt.acknowledge();
         return await this.exec(action);
       case 'notifications':
         await this.persistentNotifications();
@@ -87,11 +84,11 @@ For loop example getting entity values in the weather domain:
       //   await this.renderTemplate();
       //   return await this.exec(action);
       case 'hassConfig':
-        const result = await this.fetchService.fetch({
+        const result = await this.fetch.fetch({
           url: `/debug/hass-config`,
         });
-        this.screenService.printLine(dump(result));
-        await this.promptService.acknowledge();
+        this.screen.printLine(dump(result));
+        await this.prompt.acknowledge();
         return await this.exec(action);
       case 'lightManagerCache':
         await this.lightManagerCache();
@@ -103,20 +100,20 @@ For loop example getting entity values in the weather domain:
   }
 
   private async lightManagerCache(): Promise<void> {
-    const lights = await this.fetchService.fetch<string[]>({
+    const lights = await this.fetch.fetch<string[]>({
       url: `/debug/active-lights`,
     });
     console.log(lights);
   }
 
   private async persistentNotifications(): Promise<void> {
-    const notifications = await this.fetchService.fetch<HassNotificationDTO[]>({
+    const notifications = await this.fetch.fetch<HassNotificationDTO[]>({
       url: `/debug/notifications`,
     });
     if (is.empty(notifications)) {
       return;
     }
-    const item = await this.promptService.menu<HassNotificationDTO>({
+    const item = await this.prompt.menu<HassNotificationDTO>({
       keyMap: { d: MENU_ITEMS.DONE },
       right: notifications.map(i => ({ entry: [i.title, i] })),
     });
@@ -126,7 +123,7 @@ For loop example getting entity values in the weather domain:
     if (is.string(item)) {
       throw new NotImplementedException();
     }
-    await this.fetchService.fetch({
+    await this.fetch.fetch({
       method: `delete`,
       url: `/debug/notification/${item.notification_id}`,
     });

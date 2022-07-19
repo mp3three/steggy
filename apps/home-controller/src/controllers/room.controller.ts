@@ -33,15 +33,15 @@ import { each, eachSeries, is } from '@steggy/utilities';
 @ApiTags('room')
 export class RoomController {
   constructor(
-    private readonly roomService: RoomService,
-    private readonly groupService: GroupService,
+    private readonly room: RoomService,
+    private readonly group: GroupService,
   ) {}
 
   @Post(`/state/:state`)
   public async _activateState(
     @Param('state') state: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    const [room] = await this.roomService.list({
+    const [room] = await this.room.list({
       filters: new Set([{ field: 'save_states.id', value: state }]),
     });
     if (is.undefined(room)) {
@@ -59,7 +59,7 @@ export class RoomController {
     @Param('room') room: string,
     @Param('state') state: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.roomService.activateState({ room, state });
+    await this.room.activateState({ room, state });
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -74,8 +74,8 @@ export class RoomController {
     @Body() entity: RoomEntityDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    await this.roomService.addEntity(room, entity);
-    return await this.roomService.getWithStates(room, true, control);
+    await this.room.addEntity(room, entity);
+    return await this.room.getWithStates(room, true, control);
   }
 
   @Post(`/:room/metadata`)
@@ -83,8 +83,8 @@ export class RoomController {
     @Param('room') room: string | RoomDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    await this.roomService.addMetadata(room);
-    return await this.roomService.getWithStates(room, true, control);
+    await this.room.addMetadata(room);
+    return await this.room.getWithStates(room, true, control);
   }
 
   @Post(`/:room/state`)
@@ -98,8 +98,8 @@ export class RoomController {
     @Body() state: RoomStateDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    await this.roomService.addState(room, state);
-    return await this.roomService.getWithStates(room, true, control);
+    await this.room.addState(room, state);
+    return await this.room.getWithStates(room, true, control);
   }
 
   @Post(`/:room/group`)
@@ -113,9 +113,9 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await eachSeries(groups, async id => {
-      await this.roomService.attachGroup(room, id);
+      await this.room.attachGroup(room, id);
     });
-    return await this.roomService.getWithStates(room, true, control);
+    return await this.room.getWithStates(room, true, control);
   }
 
   @Post(`/:room/clone`)
@@ -127,7 +127,7 @@ export class RoomController {
     @Param('room') room: string,
     @Body() options: CloneRoomDTO = {},
   ): Promise<RoomDTO> {
-    return await this.roomService.clone(room, options);
+    return await this.room.clone(room, options);
   }
 
   @Post(`/`)
@@ -137,7 +137,7 @@ export class RoomController {
     description: `Add a new room`,
   })
   public async create(@Body() data: RoomDTO): Promise<RoomDTO> {
-    return await this.roomService.create(BaseSchemaDTO.cleanup(data));
+    return await this.room.create(BaseSchemaDTO.cleanup(data));
   }
 
   @Delete(`/:room`)
@@ -147,7 +147,7 @@ export class RoomController {
   public async delete(
     @Param('room') room: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.roomService.delete(room);
+    await this.room.delete(room);
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -161,8 +161,8 @@ export class RoomController {
     @Param('entity') entity: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    await this.roomService.deleteEntity(room, entity);
-    return await this.roomService.getWithStates(room, true, control);
+    await this.room.deleteEntity(room, entity);
+    return await this.room.getWithStates(room, true, control);
   }
 
   @Delete(`/:room/group/:group`)
@@ -175,8 +175,8 @@ export class RoomController {
     @Param('group') group: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    await this.roomService.deleteGroup(room, group);
-    return await this.roomService.getWithStates(room, true, control);
+    await this.room.deleteGroup(room, group);
+    return await this.room.getWithStates(room, true, control);
   }
 
   @Delete(`/:room/metadata/:metadata`)
@@ -189,8 +189,8 @@ export class RoomController {
     @Param('metadata') metadata: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    await this.roomService.deleteMetadata(room, metadata);
-    return await this.roomService.getWithStates(room, true, control);
+    await this.room.deleteMetadata(room, metadata);
+    return await this.room.getWithStates(room, true, control);
   }
 
   @Delete(`/:room/state/:state`)
@@ -203,8 +203,8 @@ export class RoomController {
     @Param('state') state: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    await this.roomService.deleteState(room, state);
-    return await this.roomService.getWithStates(room, true, control);
+    await this.room.deleteState(room, state);
+    return await this.room.getWithStates(room, true, control);
   }
 
   @Get('/:room')
@@ -216,7 +216,7 @@ export class RoomController {
     @Param('room') room: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    return await this.roomService.getWithStates(room, true, control);
+    return await this.room.getWithStates(room, true, control);
   }
 
   @Get('/:room/group-save-states')
@@ -227,11 +227,11 @@ export class RoomController {
   public async groupSaveStates(
     @Param('room') room: string,
   ): Promise<GroupDTO[]> {
-    const roomInfo = await this.roomService.getWithStates(room);
+    const roomInfo = await this.room.getWithStates(room);
     const out: GroupDTO[] = [];
     await each(roomInfo.groups, async item => {
       out.push(
-        await this.groupService.getWithStates(item, {
+        await this.group.getWithStates(item, {
           select: [
             'friendlyName',
             'type',
@@ -250,7 +250,7 @@ export class RoomController {
     description: `List all rooms`,
   })
   public async list(@Locals() { control }: ResponseLocals): Promise<RoomDTO[]> {
-    return await this.roomService.list(control);
+    return await this.room.list(control);
   }
 
   @Put(`/:room`)
@@ -264,8 +264,8 @@ export class RoomController {
     @Body() data: Partial<RoomDTO>,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    await this.roomService.update(BaseSchemaDTO.cleanup(data), room);
-    return await this.roomService.getWithStates(room, true, control);
+    await this.room.update(BaseSchemaDTO.cleanup(data), room);
+    return await this.room.getWithStates(room, true, control);
   }
 
   @Put(`/:room/metadata/:metadata`)
@@ -280,8 +280,8 @@ export class RoomController {
     @Body() data: Partial<RoomMetadataDTO>,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    await this.roomService.updateMetadata(room, metadata, data);
-    return await this.roomService.getWithStates(room, true, control);
+    await this.room.updateMetadata(room, metadata, data);
+    return await this.room.getWithStates(room, true, control);
   }
 
   @Put(`/:room/metadata-name/:metadata`)
@@ -296,10 +296,10 @@ export class RoomController {
     @Body() data: RoomMetadataDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    const room = await this.roomService.getWithStates(roomId);
+    const room = await this.room.getWithStates(roomId);
     const meta = room.metadata.find(({ name }) => name === metadata);
-    await this.roomService.updateMetadata(room, meta.id, data);
-    return await this.roomService.getWithStates(room, true, control);
+    await this.room.updateMetadata(room, meta.id, data);
+    return await this.room.getWithStates(room, true, control);
   }
 
   @Put(`/:room/state/:state`)
@@ -314,7 +314,7 @@ export class RoomController {
     @Body() data: RoomStateDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    await this.roomService.updateState(room, state, data);
-    return await this.roomService.getWithStates(room, true, control);
+    await this.room.updateState(room, state, data);
+    return await this.room.getWithStates(room, true, control);
   }
 }

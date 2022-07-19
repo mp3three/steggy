@@ -46,7 +46,7 @@ export class MQTTExplorerService {
   }
 
   private static topicToRegexp(topic: string) {
-    // compatible with emqtt
+    // compatible with mqtt
     return new RegExp(
       '^' +
         topic
@@ -63,16 +63,16 @@ export class MQTTExplorerService {
   constructor(
     private readonly logger: AutoLogService,
     @InjectMQTT() private readonly client: Client,
-    private readonly discoveryService: DiscoveryService,
+    private readonly discovery: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
-    private readonly mqttService: MqttService,
+    private readonly mqtt: MqttService,
     private readonly eventEmitter: EventEmitter,
   ) {}
 
   public subscribers: MqttSubscriber[] = [];
 
   protected onApplicationBootstrap(): void {
-    const providers: InstanceWrapper[] = this.discoveryService.getProviders();
+    const providers: InstanceWrapper[] = this.discovery.getProviders();
     providers.forEach((wrapper: InstanceWrapper) => {
       const { instance } = wrapper;
       if (!instance) {
@@ -93,7 +93,7 @@ export class MQTTExplorerService {
               this.logger.debug(
                 `${instance.constructor[LOG_CONTEXT]}#${key} subscribe {${topic}}`,
               );
-              this.mqttService.subscribe(
+              this.mqtt.subscribe(
                 topic,
                 async (value, packet) => {
                   await instance[key](value, { packet, topic });

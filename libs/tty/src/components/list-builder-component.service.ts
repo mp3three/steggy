@@ -75,8 +75,8 @@ export class ListBuilderComponentService<VALUE = unknown>
     private readonly keymap: KeymapService,
     @Inject(forwardRef(() => TextRenderingService))
     private readonly textRender: TextRenderingService,
-    private readonly screenService: ScreenService,
-    private readonly keyboardService: KeyboardManagerService,
+    private readonly screen: ScreenService,
+    private readonly keyboard: KeyboardManagerService,
   ) {}
   private complete = false;
   private current: MenuEntry<VALUE | string>[];
@@ -108,7 +108,7 @@ export class ListBuilderComponentService<VALUE = unknown>
       is.empty(this.source) ? GV(this.current[START]) : GV(this.source[START])
     ) as VALUE;
     this.detectSide();
-    this.keyboardService.setKeyMap(this, KEYMAP_NORMAL);
+    this.keyboard.setKeyMap(this, KEYMAP_NORMAL);
   }
 
   public render(updateValue = false): void {
@@ -132,12 +132,12 @@ export class ListBuilderComponentService<VALUE = unknown>
       search,
     });
     if (this.final) {
-      this.screenService.render(chalk.blue('='.repeat(ansiMaxLength(message))));
+      this.screen.render(chalk.blue('='.repeat(ansiMaxLength(message))));
       this.final = false;
       this.complete = true;
       return;
     }
-    this.screenService.render(
+    this.screen.render(
       message.join(`\n`),
       this.keymap.keymapHelp({ message: message.join(`\n`) }),
     );
@@ -360,7 +360,7 @@ export class ListBuilderComponentService<VALUE = unknown>
   protected toggleFind(): void {
     this.mode = this.mode === 'find' ? 'select' : 'find';
     this.searchText = '';
-    this.keyboardService.setKeyMap(
+    this.keyboard.setKeyMap(
       this,
       this.mode === 'find' ? KEYMAP_FIND : KEYMAP_NORMAL,
     );

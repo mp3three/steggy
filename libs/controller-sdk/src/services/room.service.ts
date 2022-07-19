@@ -33,12 +33,12 @@ export class RoomService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly roomPersistence: RoomPersistenceService,
-    private readonly routineService: RoutineService,
+    private readonly routine: RoutineService,
     @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
+    private readonly group: GroupService,
     private readonly entityManager: EntityManagerService,
     private readonly eventEmitter: EventEmitter,
-    private readonly metadataService: MetadataService,
+    private readonly metadata: MetadataService,
     private readonly saveState: SaveStateService,
   ) {}
 
@@ -106,7 +106,7 @@ export class RoomService {
     group: GroupDTO | string,
   ): Promise<RoomDTO> {
     room = await this.load(room);
-    const attachGroup = await this.groupService.load(group);
+    const attachGroup = await this.group.load(group);
     if (!group) {
       const id = is.string(group) ? group : group._id;
       this.logger.error(
@@ -168,7 +168,7 @@ export class RoomService {
   public async delete(item: RoomDTO | string): Promise<boolean> {
     const id = is.string(item) ? item : item._id;
     const room = await this.load(id);
-    const routines = await this.routineService.list({
+    const routines = await this.routine.list({
       filters: new Set([{ field: 'command.command.room', value: room._id }]),
     });
     if (!is.empty(routines)) {
@@ -179,7 +179,7 @@ export class RoomService {
     await each(
       routines,
       async routine =>
-        await this.routineService.update(routine._id, {
+        await this.routine.update(routine._id, {
           command: routine.command.filter(
             (command: RoutineCommandDTO<RoutineCommandRoomStateDTO>) =>
               !(command.type === 'room_state' && command.command.room === id),
@@ -248,7 +248,7 @@ export class RoomService {
     room = await this.load(room);
     room.save_states ??= [];
     room.save_states = room.save_states.filter(save => save.id !== state);
-    const routines = await this.routineService.list({
+    const routines = await this.routine.list({
       filters: new Set([{ field: 'command.command.room', value: room._id }]),
     });
     if (!is.empty(routines)) {
@@ -259,7 +259,7 @@ export class RoomService {
     await each(
       routines,
       async routine =>
-        await this.routineService.update(routine._id, {
+        await this.routine.update(routine._id, {
           command: routine.command.filter(
             (command: RoutineCommandDTO<RoutineCommandRoomStateDTO>) =>
               !(
@@ -347,7 +347,7 @@ export class RoomService {
       return room;
     }
     if (!is.undefined(update.value)) {
-      update.value = this.metadataService.resolveValue(
+      update.value = this.metadata.resolveValue(
         room.metadata.find(item => [item.id, item.name].includes(id)),
         update.value,
       );

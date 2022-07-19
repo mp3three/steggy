@@ -48,14 +48,14 @@ export class LightManagerService {
   constructor(
     private readonly entityManager: EntityManagerService,
     @InjectCache()
-    private readonly cacheService: CacheManagerService,
-    private readonly hassCoreService: HomeAssistantCoreService,
-    private readonly lightService: LightDomainService,
+    private readonly cache: CacheManagerService,
+    private readonly hassCore: HomeAssistantCoreService,
+    private readonly light: LightDomainService,
     @InjectLogger()
     private readonly logger: AutoLogService,
-    private readonly circadianService: CircadianService,
+    private readonly circadian: CircadianService,
     @Inject(forwardRef(() => MetadataService))
-    private readonly metadataService: MetadataService,
+    private readonly metadata: MetadataService,
     @InjectConfig(MIN_BRIGHTNESS) private readonly minBrightness: number,
   ) {}
 
@@ -80,7 +80,7 @@ export class LightManagerService {
       {
         brightness,
         color_mode: ColorModes.color_temp,
-        kelvin: this.circadianService.CURRENT_LIGHT_TEMPERATURE,
+        kelvin: this.circadian.CURRENT_LIGHT_TEMPERATURE,
       },
       waitForChange,
     );
@@ -174,14 +174,14 @@ export class LightManagerService {
       (is.undefined(attributes.rgb_color) &&
         current.attributes.color_mode === ColorModes.color_temp)
     ) {
-      attributes.kelvin = this.circadianService.CURRENT_LIGHT_TEMPERATURE;
+      attributes.kelvin = this.circadian.CURRENT_LIGHT_TEMPERATURE;
       attributes.color_mode = ColorModes.color_temp;
       if (this.FORCE_CIRCADIAN.includes(entity_id)) {
-        const current = await this.cacheService.get(CACHE_KEY(entity_id));
+        const current = await this.cache.get(CACHE_KEY(entity_id));
         if (!current) {
           this.logger.debug(`[FORCE_CIRCADIAN] {${entity_id}}`);
         }
-        await this.cacheService.set(CACHE_KEY(entity_id), true);
+        await this.cache.set(CACHE_KEY(entity_id), true);
       }
     } else {
       delete attributes.kelvin;
@@ -200,7 +200,7 @@ export class LightManagerService {
     });
     delete attributes.color_mode;
     // Send turn on request, wait for completion before finishing
-    await this.lightService.turnOn(entity_id, attributes, waitForChange);
+    await this.light.turnOn(entity_id, attributes, waitForChange);
   }
 
   public async turnOff(
@@ -209,9 +209,9 @@ export class LightManagerService {
   ): Promise<void> {
     await each(
       Array.isArray(entity_id) ? entity_id : [entity_id],
-      async id => await this.cacheService.del(CACHE_KEY(id)),
+      async id => await this.cache.del(CACHE_KEY(id)),
     );
-    return await this.hassCoreService.turnOff(entity_id, waitForChange);
+    return await this.hassCore.turnOff(entity_id, waitForChange);
   }
 
   public async turnOn(
@@ -271,7 +271,7 @@ export class LightManagerService {
       if (entity?.state !== 'on') {
         return;
       }
-      const isActive = (await this.cacheService.get(CACHE_KEY(id))) ?? false;
+      const isActive = (await this.cache.get(CACHE_KEY(id))) ?? false;
       if (isActive) {
         forceActive.push(id);
       }
@@ -287,7 +287,7 @@ export class LightManagerService {
 
   @OnEvent(ENTITY_METADATA_UPDATED(LIGHT_FORCE_CIRCADIAN))
   private async refreshForceList(): Promise<void> {
-    this.FORCE_CIRCADIAN = await this.metadataService.findWithFlag(
+    this.FORCE_CIRCADIAN = await this.metadata.findWithFlag(
       LIGHT_FORCE_CIRCADIAN,
     );
     if (is.empty(this.FORCE_CIRCADIAN)) {

@@ -58,9 +58,9 @@ export class ConfigScanner implements iQuickScript {
       type: 'string',
     })
     private readonly outputFile: string,
-    private readonly workspaceService: WorkspaceService,
-    private readonly screenService: ScreenService,
-    private readonly promptService: PromptService,
+    private readonly workspace: WorkspaceService,
+    private readonly screen: ScreenService,
+    private readonly prompt: PromptService,
     private readonly applicationManager: ApplicationManagerService,
   ) {}
 
@@ -107,7 +107,7 @@ export class ConfigScanner implements iQuickScript {
         helpText: chalk`Write to file {bold.cyan ${this.outputFile}}`,
       });
     }
-    const action = await this.promptService.menu({
+    const action = await this.prompt.menu({
       hideSearch: true,
       keyMap: { d: ['done'] },
       right: entries,
@@ -117,33 +117,33 @@ export class ConfigScanner implements iQuickScript {
       case 'done':
         return;
       case 'print':
-        this.screenService.printLine(this.config);
-        await this.promptService.acknowledge();
+        this.screen.printLine(this.config);
+        await this.prompt.acknowledge();
         return await this.exec(action);
       case 'list-files':
         this.listConfigFiles();
-        this.screenService.down();
-        await this.promptService.acknowledge();
+        this.screen.down();
+        await this.prompt.acknowledge();
         return await this.exec(action);
       case 'edit':
         await this.selectConfig();
         return await this.exec(action);
       case 'environment':
         this.printEnvironment();
-        await this.promptService.acknowledge();
+        await this.prompt.acknowledge();
         return await this.exec(action);
       case 'write-local':
         await this.writeLocal();
-        await this.promptService.acknowledge();
+        await this.prompt.acknowledge();
         return await this.exec(action);
       case 'write-config':
         this.writeConfig();
-        await this.promptService.acknowledge();
+        await this.prompt.acknowledge();
         return await this.exec(action);
     }
   }
 
-  public onModuleInit() {
+  public onModuleInit(): void | never {
     if (is.empty(this.definitionFile)) {
       this.logger.error(`[DEFINITION_FILE] not provided`);
       exit();
@@ -159,10 +159,10 @@ export class ConfigScanner implements iQuickScript {
     );
     let configMap = new Map<string, AbstractConfig>();
     if (!is.empty(this.outputFile)) {
-      this.workspaceService.loadConfigFromFile(configMap, this.outputFile);
+      this.workspace.loadConfigFromFile(configMap, this.outputFile);
     } else {
-      const [configs] = this.workspaceService.loadMergedConfig(
-        this.workspaceService.configFilePaths(this.loadedApplication),
+      const [configs] = this.workspace.loadMergedConfig(
+        this.workspace.configFilePaths(this.loadedApplication),
       );
       configMap = configs;
     }
@@ -229,20 +229,20 @@ export class ConfigScanner implements iQuickScript {
     let result: unknown;
     switch (config.metadata.type) {
       case 'boolean':
-        result = await this.promptService.boolean(
+        result = await this.prompt.boolean(
           config.property,
           current as boolean,
         );
         break;
       case 'number':
-        result = await this.promptService.number(
+        result = await this.prompt.number(
           config.property,
           current as number,
         );
         break;
       case 'record':
         current = is.object(current) ? current : {};
-        result = await this.promptService.objectBuilder({
+        result = await this.prompt.objectBuilder({
           current: Object.entries(current).map(([key, value]) => ({
             key,
             value,
@@ -264,12 +264,12 @@ export class ConfigScanner implements iQuickScript {
       case 'string':
         const { metadata } = config as ConfigTypeDTO<StringConfig>;
         result = Array.isArray(metadata.enum)
-          ? await this.promptService.pickOne(
+          ? await this.prompt.pickOne(
               config.property,
               ToMenuEntry(metadata.enum.map(i => [i, i])),
               current,
             )
-          : await this.promptService.string(config.property, current as string);
+          : await this.prompt.string(config.property, current as string);
         break;
       case 'string[]':
         result = await this.stringArray(
@@ -278,7 +278,7 @@ export class ConfigScanner implements iQuickScript {
         );
         break;
       default:
-        await this.promptService.acknowledge(
+        await this.prompt.acknowledge(
           chalk.red`"${config.metadata.type}" editor not supported`,
         );
     }
@@ -307,29 +307,29 @@ export class ConfigScanner implements iQuickScript {
       this.logger.error(`[APPLICATION] not provided`);
       return;
     }
-    const list = this.workspaceService.configFilePaths(this.loadedApplication);
+    const list = this.workspace.configFilePaths(this.loadedApplication);
     this.applicationManager.setHeader('Config Files');
-    this.screenService.printLine(
+    this.screen.printLine(
       chalk`Potential configuration files for {blue.bold ${this.loadedApplication}}`,
     );
     list.forEach(item =>
-      this.screenService.printLine(
+      this.screen.printLine(
         chalk`  {${existsSync(item) ? 'green' : 'red'} ${item}}`,
       ),
     );
-    this.screenService.printLine(
+    this.screen.printLine(
       `\nAt runtime, final configuration values are resolved using these priorities:`,
     );
-    this.screenService.printLine(
+    this.screen.printLine(
       chalk` {yellow -} values from developer as defaults`,
     );
-    this.screenService.printLine(
+    this.screen.printLine(
       chalk` {yellow -} values from files (loaded in descending order and merged)`,
     );
-    this.screenService.printLine(
+    this.screen.printLine(
       chalk` {yellow -} values from environment variables`,
     );
-    this.screenService.printLine(
+    this.screen.printLine(
       chalk` {yellow -} values from command line switches`,
     );
   }
@@ -360,14 +360,14 @@ export class ConfigScanner implements iQuickScript {
       }
       environment.push(`${config.property}=${value}`);
     });
-    this.screenService.down();
+    this.screen.down();
     if (is.empty(environment)) {
-      this.screenService.printLine(chalk`  {yellow No variables to provide}`);
-      this.screenService.down();
+      this.screen.printLine(chalk`  {yellow No variables to provide}`);
+      this.screen.down();
       return;
     }
-    this.screenService.printLine(environment.join(`\n`));
-    this.screenService.down();
+    this.screen.printLine(environment.join(`\n`));
+    this.screen.down();
   }
 
   /**
@@ -375,7 +375,7 @@ export class ConfigScanner implements iQuickScript {
    */
   private async selectConfig(initial?: ConfigTypeDTO): Promise<void> {
     const mergedConfig = this.config;
-    const item = await this.promptService.menu({
+    const item = await this.prompt.menu({
       keyMap: { d: ['done'] },
       right: this.configDefinition.config.map(item => {
         const prefix =
@@ -435,7 +435,7 @@ export class ConfigScanner implements iQuickScript {
               current.length - STRING_ARRAY_LIMIT
             }} additional`;
     }
-    const action = await this.promptService.menu({
+    const action = await this.prompt.menu({
       headerMessage,
       keyMap: { d: ['done'] },
       right: ToMenuEntry([
@@ -453,7 +453,7 @@ export class ConfigScanner implements iQuickScript {
       return current;
     }
     if (action === 'add') {
-      const value = await this.promptService.string(
+      const value = await this.prompt.string(
         config.property,
         String(config.metadata.default ?? ''),
         { placeholder: config.metadata.description },
@@ -461,7 +461,7 @@ export class ConfigScanner implements iQuickScript {
       return await this.stringArray(config, [...current, value], action);
     }
     if (action === 'remove') {
-      const value = await this.promptService.pickOne(
+      const value = await this.prompt.pickOne(
         'Which item to remove?',
         ToMenuEntry(current.map((i, index) => [i, index])),
       );
@@ -505,10 +505,10 @@ export class ConfigScanner implements iQuickScript {
   }
 
   private async writeLocal(): Promise<void> {
-    const list = this.workspaceService.configFilePaths(this.loadedApplication);
+    const list = this.workspace.configFilePaths(this.loadedApplication);
     const defaultValue =
       this.loadedFiles[FIRST] ?? list.find(path => path.includes('.config'));
-    const target = await this.promptService.menu({
+    const target = await this.prompt.menu({
       right: ToMenuEntry(list.map(item => [item, item])),
       value: defaultValue,
     });

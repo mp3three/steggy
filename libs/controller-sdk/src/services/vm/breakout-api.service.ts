@@ -20,14 +20,14 @@ import { RoutineEnabledService } from '../routine-enabled.service';
 export class BreakoutAPIService implements iVMBreakoutAPI {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly chronoService: ChronoService,
+    private readonly chrono: ChronoService,
     private readonly entityManager: EntityManagerService,
-    private readonly groupService: GroupService,
-    private readonly personService: PersonService,
-    private readonly roomService: RoomService,
+    private readonly group: GroupService,
+    private readonly person: PersonService,
+    private readonly room: RoomService,
     private readonly routineEnabled: RoutineEnabledService,
-    private readonly routineService: RoutineService,
-    private readonly notifyService: NotifyDomainService,
+    private readonly routine: RoutineService,
+    private readonly notify: NotifyDomainService,
   ) {}
 
   /**
@@ -48,7 +48,7 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
     waitForChange?: boolean,
     runId?: string,
   ): Promise<boolean> {
-    return await this.routineService.activateCommand(
+    return await this.routine.activateCommand(
       command,
       routine,
       waitForChange,
@@ -61,7 +61,7 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
     state: string,
     waitForChange = false,
   ): Promise<void> {
-    return await this.groupService.activateState(
+    return await this.group.activateState(
       {
         group,
         state,
@@ -75,7 +75,7 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
     state: string,
     waitForChange = false,
   ): Promise<void> {
-    return await this.personService.activateState(
+    return await this.person.activateState(
       {
         person,
         state,
@@ -89,7 +89,7 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
     state: string,
     waitForChange = false,
   ): Promise<void> {
-    return await this.roomService.activateState(
+    return await this.room.activateState(
       {
         room,
         state,
@@ -107,11 +107,7 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
     options?: RoutineActivateOptionsDTO,
     waitForChange?: boolean,
   ): Promise<void> {
-    return await this.routineService.activateRoutine(
-      routine,
-      options,
-      waitForChange,
-    );
+    return await this.routine.activateRoutine(routine, options, waitForChange);
   }
 
   // that was the point
@@ -125,7 +121,7 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
    */
   public chronoParse(text: string): undefined | [Date] | [Date, Date] {
     const dv = Symbol();
-    const out = this.chronoService.parse(text, dv);
+    const out = this.chrono.parse(text, dv);
     return out[START] == dv ? undefined : (out as [Date] | [Date, Date]);
   }
 
@@ -143,8 +139,8 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
     id: string,
     type: 'enable' | 'disable' | 'disable_rules' | 'enable_rules',
   ): Promise<void> {
-    const routine = await this.routineService.get(id);
-    await this.routineService.update(id, {
+    const routine = await this.routine.get(id);
+    await this.routine.update(id, {
       enable: { ...routine.enable, type },
     });
   }
@@ -155,7 +151,7 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
    * [Routine] > [Child] > [Target Grandchild]
    */
   public routineSuperFriendlyName(id: string): string {
-    return this.routineService.superFriendlyName(id);
+    return this.routine.superFriendlyName(id);
   }
 
   /**
@@ -170,7 +166,7 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
     },
     waitForChange = false,
   ): Promise<void> {
-    await this.notifyService.notify(message, optional, waitForChange);
+    await this.notify.notify(message, optional, waitForChange);
   }
 
   /**
@@ -185,9 +181,9 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
     property: string,
     value: string | number | boolean | Date,
   ): Promise<void> {
-    let person = await this.personService.load(idOrName);
+    let person = await this.person.load(idOrName);
     if (!person) {
-      const people = await this.personService.list({
+      const people = await this.person.list({
         filters: new Set([
           {
             field: 'name',
@@ -201,7 +197,7 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
       }
       person = people[START];
     }
-    await this.personService.updateMetadata(person._id, property, { value });
+    await this.person.updateMetadata(person._id, property, { value });
   }
 
   /**
@@ -216,9 +212,9 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
     property: string,
     value: string | number | boolean | Date,
   ): Promise<void> {
-    let room = await this.roomService.load(idOrName);
+    let room = await this.room.load(idOrName);
     if (!room) {
-      const rooms = await this.roomService.list({
+      const rooms = await this.room.list({
         filters: new Set([
           {
             field: 'name',
@@ -232,6 +228,6 @@ export class BreakoutAPIService implements iVMBreakoutAPI {
       }
       room = rooms[START];
     }
-    await this.roomService.updateMetadata(room._id, property, { value });
+    await this.room.updateMetadata(room._id, property, { value });
   }
 }

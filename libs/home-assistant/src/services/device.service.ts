@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@steggy/boilerplate';
 import {
   DeviceListItemDTO,
   HASSIO_WS_COMMAND,
@@ -7,22 +6,17 @@ import {
 } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 
-import { EntityManagerService } from './entity-manager.service';
 import { HASocketAPIService } from './ha-socket-api.service';
 
 @Injectable()
 export class DeviceService {
-  constructor(
-    private readonly logger: AutoLogService,
-    private readonly socketService: HASocketAPIService,
-    private readonly entityManager: EntityManagerService,
-  ) {}
+  constructor(private readonly socket: HASocketAPIService) {}
 
   public async findRelated(
     device: DeviceListItemDTO | string,
   ): Promise<RelatedDescriptionDTO> {
     device = is.string(device) ? device : device.id;
-    return await this.socketService.sendMessage<RelatedDescriptionDTO>({
+    return await this.socket.sendMessage<RelatedDescriptionDTO>({
       item_id: device,
       item_type: 'device',
       type: HASSIO_WS_COMMAND.search_related,
@@ -30,7 +24,7 @@ export class DeviceService {
   }
 
   public async list(): Promise<DeviceListItemDTO[]> {
-    return await this.socketService.sendMessage({
+    return await this.socket.sendMessage({
       type: HASSIO_WS_COMMAND.device_list,
     });
   }

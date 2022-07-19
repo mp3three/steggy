@@ -30,11 +30,11 @@ export class CallServiceService
 {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly callService: HACallService,
-    private readonly vmService: VMService,
-    private readonly socketService: HASocketAPIService,
-    private readonly chronoService: ChronoService,
-    private readonly mathService: MathService,
+    private readonly call: HACallService,
+    private readonly vm: VMService,
+    private readonly socket: HASocketAPIService,
+    private readonly chrono: ChronoService,
+    private readonly math: MathService,
   ) {}
 
   public async activate({
@@ -65,7 +65,7 @@ export class CallServiceService
     const service_data = { ...filtered, entity_id };
     this.logger.debug({ service_data }, `[${entity_id}] {${service}}`);
 
-    await this.callService.call(
+    await this.call.call(
       service,
       service_data,
       domain || getDomain(entity_id),
@@ -84,11 +84,11 @@ export class CallServiceService
       }
       type ||= 'simple';
       if (type === 'eval') {
-        out[key] = await this.vmService.fetch(value as string);
+        out[key] = await this.vm.fetch(value as string);
         return;
       }
       if (type === 'template') {
-        out[key] = await this.socketService.renderTemplate(value as string);
+        out[key] = await this.socket.renderTemplate(value as string);
         return;
       }
       if (type === 'simple') {
@@ -96,11 +96,11 @@ export class CallServiceService
         return;
       }
       if (type === 'math') {
-        out[key] = await this.mathService.exec(value as string);
+        out[key] = await this.math.exec(value as string);
         return;
       }
       if (type === 'chrono') {
-        const [start] = await this.chronoService.parse(value as string);
+        const [start] = await this.chrono.parse(value as string);
         if (is.date(start)) {
           out[key] = start;
         }

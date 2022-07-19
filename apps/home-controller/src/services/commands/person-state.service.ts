@@ -16,7 +16,7 @@ import {
 export class PersonStateChangeCommandService
   implements iRoutineCommand<RoutineCommandPersonStateDTO>
 {
-  constructor(private readonly personService: PersonService) {}
+  constructor(private readonly person: PersonService) {}
 
   public async activate({
     command,
@@ -25,6 +25,6 @@ export class PersonStateChangeCommandService
     command: RoutineCommandDTO<RoutineCommandPersonStateDTO>;
     waitForChange: boolean;
   }): Promise<void> {
-    await this.personService.activateState(command.command, waitForChange);
+    await this.person.activateState(command.command, waitForChange);
   }
 }

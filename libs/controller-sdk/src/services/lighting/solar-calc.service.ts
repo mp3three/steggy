@@ -13,7 +13,7 @@ const CALC_EXPIRE = HALF * MINUTE;
 @Injectable()
 export class SolarCalcService {
   constructor(
-    private readonly socketService: HASocketAPIService,
+    private readonly socket: HASocketAPIService,
     private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
   ) {}
@@ -54,7 +54,7 @@ export class SolarCalcService {
 
   @OnEvent(HA_SOCKET_READY)
   protected async updateConfig(): Promise<void> {
-    const config = await this.socketService.getConfig();
+    const config = await this.socket.getConfig();
     this.latitude = config.latitude;
     this.longitude = config.longitude;
     this.logger.debug(`Updated location`);

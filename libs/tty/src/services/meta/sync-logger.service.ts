@@ -30,9 +30,9 @@ const SORTED_LEVELS = [
 @Injectable({ scope: Scope.TRANSIENT })
 export class SyncLoggerService {
   constructor(
-    @Inject(INQUIRER) private inquirerer: unknown,
+    @Inject(INQUIRER) private parent: unknown,
     @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
-    private readonly screenService: ScreenService,
+    private readonly screen: ScreenService,
     @InjectConfig(LOG_LEVEL, LIB_BOILERPLATE)
     private readonly level: LogLevels,
   ) {}
@@ -155,7 +155,7 @@ export class SyncLoggerService {
     // if (this.contextId) {
     //   return mappedContexts.get(this.contextId);
     // }
-    return this.inquirerer?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT;
+    return this.parent?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT;
   }
 
   private log(level: LogLevels, ...parameters: Parameters<LoggerFunction>) {
@@ -179,7 +179,7 @@ export class SyncLoggerService {
       is.number((parameters[START] as Record<string, number>).time)
         ? (parameters[START] as Record<string, number>).time
         : undefined;
-    this.screenService.printLine(
+    this.screen.printLine(
       `[${dayjs(timestamp).format(
         'ddd HH:mm:ss.SSS',
       )}]: ${context} ${chalk.cyan(message)} ${data}`,

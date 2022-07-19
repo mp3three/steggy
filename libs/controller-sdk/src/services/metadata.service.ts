@@ -22,7 +22,7 @@ export class MetadataService {
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
     @Inject(forwardRef(() => ChronoService))
-    private readonly chronoService: ChronoService,
+    private readonly chrono: ChronoService,
     private readonly metadataPersistence: MetadataPersistenceService,
   ) {}
 
@@ -108,7 +108,7 @@ export class MetadataService {
           if (isDateString(value)) {
             return new Date(value);
           }
-          const [start] = this.chronoService.parse(value, false);
+          const [start] = this.chrono.parse(value, false);
           if (is.date(start)) {
             return start;
           }

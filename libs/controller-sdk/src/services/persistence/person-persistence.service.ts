@@ -18,7 +18,7 @@ export class PersonPersistenceService extends BaseMongoService {
     private readonly logger: AutoLogService,
     @InjectModel(PersonDTO.name)
     protected readonly model: Model<PersonDTO>,
-    private readonly encryptService: EncryptionService,
+    private readonly encrypt: EncryptionService,
   ) {
     super();
   }

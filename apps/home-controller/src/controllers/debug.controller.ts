@@ -50,17 +50,17 @@ import { NodeRedCommand } from '../services';
 @AuthStack()
 export class DebugController {
   constructor(
-    private readonly callService: HACallService,
-    private readonly chronoService: ChronoService,
+    private readonly call: HACallService,
+    private readonly chrono: ChronoService,
     private readonly dataAggregator: DataAggregatorService,
-    private readonly debugService: DebuggerService,
+    private readonly debug: DebuggerService,
     private readonly haFetch: HomeAssistantFetchAPIService,
     private readonly nodeRed: NodeRedCommand,
     private readonly notification: NotifyDomainService,
-    private readonly recorderService: RecorderService,
+    private readonly recorder: RecorderService,
     private readonly routineEnabled: RoutineEnabledService,
-    private readonly routineService: RoutineService,
-    private readonly socketService: HASocketAPIService,
+    private readonly routine: RoutineService,
+    private readonly socket: HASocketAPIService,
     private readonly solarCalc: SolarCalcService,
     private readonly typeGenerator: TypeGeneratorService,
   ) {}
@@ -75,7 +75,7 @@ export class DebugController {
     @Body() { expression }: { expression: string[] },
   ): string[][] {
     return expression.map(line =>
-      this.chronoService.parse(line).map((date: Date) => date.toISOString()),
+      this.chrono.parse(line).map((date: Date) => date.toISOString()),
     );
   }
 
@@ -87,7 +87,7 @@ export class DebugController {
   public async dismissNotifications(
     @Param('id') id: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.callService.dismissNotification(id);
+    await this.call.dismissNotification(id);
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -99,7 +99,7 @@ export class DebugController {
   @Get('/find-broken')
   @ApiResponse({ type: [DebugReportDTO] })
   public async findBroken(): Promise<DebugReportDTO> {
-    return await this.debugService.sanityCheck();
+    return await this.debug.sanityCheck();
   }
 
   @Get('/data-all')
@@ -145,7 +145,7 @@ export class DebugController {
   })
   @UseInterceptors(JSONFilterInterceptor)
   public async getNotifications(): Promise<HassNotificationDTO[]> {
-    return await this.socketService.getNotifications();
+    return await this.socket.getNotifications();
   }
 
   @Get(`/hass-config`)
@@ -154,21 +154,21 @@ export class DebugController {
     description: `Retrieve home assistant config`,
   })
   public async hassConfig(): Promise<HassConfig> {
-    return await this.socketService.getConfig();
+    return await this.socket.getConfig();
   }
 
   @Get(`/activation-event`)
   @ApiResponse({ type: [ActivationEventSettings] })
   @UseInterceptors(JSONFilterInterceptor)
   public listActivationEvents(): ActivationEventSettings[] {
-    return [...this.routineService.ACTIVATION_EVENTS.values()];
+    return [...this.routine.ACTIVATION_EVENTS.values()];
   }
 
   @Get(`/routine-command`)
   @ApiResponse({ type: [RoutineCommandSettings] })
   @UseInterceptors(JSONFilterInterceptor)
   public listRoutineCommands(): RoutineCommandSettings[] {
-    return [...this.routineService.ROUTINE_COMMAND.values()];
+    return [...this.routine.ROUTINE_COMMAND.values()];
   }
 
   @Get('/home-assistant/services')
@@ -187,7 +187,7 @@ export class DebugController {
   @ApiResponse({ type: [RoutineTriggerEvent] })
   @UseInterceptors(JSONFilterInterceptor)
   public async recentActivations(): Promise<RoutineTriggerEvent[]> {
-    return await this.recorderService.recentRoutines();
+    return await this.recorder.recentRoutines();
   }
 
   @Post('/reload')
@@ -213,7 +213,7 @@ export class DebugController {
   public async renderTemplate(
     @Body() { template }: { template: string },
   ): Promise<string> {
-    return await this.socketService.renderTemplate(template);
+    return await this.socket.renderTemplate(template);
   }
 
   @Post(`/send-notification`)
@@ -230,7 +230,7 @@ export class DebugController {
   public async sendNotification(
     @Body() { template }: { template: string },
   ): Promise<string> {
-    template = await this.socketService.renderTemplate(template);
+    template = await this.socket.renderTemplate(template);
     await this.notification.notify(template);
     return template;
   }

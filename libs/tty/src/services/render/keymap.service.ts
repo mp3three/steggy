@@ -18,7 +18,7 @@ export class KeymapService {
   constructor(
     private readonly textRendering: TextRenderingService,
     @Inject(forwardRef(() => KeyboardManagerService))
-    private readonly keyboardService: KeyboardManagerService,
+    private readonly keyboard: KeyboardManagerService,
     private readonly applicationManager: ApplicationManagerService,
   ) {}
 
@@ -27,7 +27,7 @@ export class KeymapService {
     prefix = new Map(),
     onlyHelp = false,
   }: { message?: string; onlyHelp?: boolean; prefix?: tKeyMap } = {}): string {
-    const map = this.keyboardService.getCombinedKeyMap();
+    const map = this.keyboard.getCombinedKeyMap();
     const a = this.buildLines(prefix);
     const b = this.buildLines(map);
 

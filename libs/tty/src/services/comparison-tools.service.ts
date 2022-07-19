@@ -38,10 +38,10 @@ const FILTER_OPERATIONS_HELP = new Map<FILTER_OPERATIONS, string>([
 
 @Injectable()
 export class ComparisonToolsService {
-  constructor(private readonly promptService: PromptService) {}
+  constructor(private readonly prompt: PromptService) {}
 
   public async pickOperation(): Promise<FILTER_OPERATIONS> {
-    return (await this.promptService.menu<FILTER_OPERATIONS>({
+    return (await this.prompt.menu<FILTER_OPERATIONS>({
       keyMap: {},
       right: [
         {

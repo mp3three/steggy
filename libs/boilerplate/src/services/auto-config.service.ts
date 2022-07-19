@@ -79,7 +79,7 @@ export class AutoConfigService {
     return this.cast(value, config.type) as T;
   }
 
-  public getDefault<T extends unknown = unknown>(path: string): T {
+  public getDefault<T extends unknown = unknown>(path: string): T | never {
     const override = get(this.configDefaults ?? {}, path);
     if (!is.undefined(override)) {
       return override;
@@ -317,7 +317,7 @@ export class AutoConfigService {
     });
   }
 
-  private sanityCheck(): void {
+  private sanityCheck(): void | never {
     const configs = LibraryModule.configs;
     configs.forEach(({ configuration }, project) => {
       configuration ??= {};

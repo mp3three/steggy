@@ -20,17 +20,17 @@ const LOAD_CHUNKS = 100;
 export class RecorderService {
   constructor(
     @InjectCache()
-    private readonly cacheService: CacheManagerService,
+    private readonly cache: CacheManagerService,
     @InjectConfig(RECENT_ROUTINE_TTL) private readonly ttl: number,
   ) {}
 
   public async recentRoutines(): Promise<RoutineTriggerEvent[]> {
-    const list: string[] = await this.cacheService.store.keys(
+    const list: string[] = await this.cache.store.keys(
       `${ROUTINE_KEY_PREFIX}*`,
     );
     const out: RoutineTriggerEvent[] = [];
     await eachLimit(list, LOAD_CHUNKS, async key =>
-      out.push(await this.cacheService.get<RoutineTriggerEvent>(key)),
+      out.push(await this.cache.get<RoutineTriggerEvent>(key)),
     );
     return out;
   }
@@ -39,7 +39,7 @@ export class RecorderService {
   protected async trackRoutineActivation(
     details: RoutineTriggerEvent,
   ): Promise<void> {
-    await this.cacheService.set(ROUTINE_CACHE_KEY(details), details, {
+    await this.cache.set(ROUTINE_CACHE_KEY(details), details, {
       ttl: this.ttl,
     });
     this.recentRoutines();

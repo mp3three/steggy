@@ -25,7 +25,7 @@ export class DeviceTriggerActivateService
 {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly triggerService: TriggerService,
+    private readonly trigger: TriggerService,
   ) {}
 
   private WATCHERS = new Set<tWatchType>();
@@ -52,12 +52,12 @@ export class DeviceTriggerActivateService
     { activate }: RoutineActivateDTO<DeviceTriggerActivateDTO>,
     callback: () => Promise<void>,
   ): Promise<void> {
-    const subscription = await this.triggerService.subscribe(
+    const subscription = await this.trigger.subscribe(
       load(activate.trigger) as Record<string, unknown>,
       () => callback(),
     );
     this.WATCHERS.add({
-      remove: async () => await this.triggerService.unsubscribe(subscription),
+      remove: async () => await this.trigger.unsubscribe(subscription),
       routine: routine._id,
     });
   }

@@ -24,9 +24,9 @@ export class PersonGroupService extends BaseGroupService {
   constructor(
     protected readonly logger: AutoLogService,
     @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
+    private readonly group: GroupService,
     @Inject(forwardRef(() => PersonService))
-    private readonly personService: PersonService,
+    private readonly person: PersonService,
     protected readonly groupPersistence: GroupPersistenceService,
   ) {
     super();
@@ -47,7 +47,7 @@ export class PersonGroupService extends BaseGroupService {
     stateId: string,
     waitForChange?: boolean,
   ): Promise<void> {
-    const item = await this.groupService.getWithStates(group);
+    const item = await this.group.getWithStates(group);
     if (!item) {
       this.logger.error({ group }, `Cannot find group`);
       return;
@@ -60,7 +60,7 @@ export class PersonGroupService extends BaseGroupService {
       return;
     }
     await each(state.states, async state => {
-      await this.personService.activateState(
+      await this.person.activateState(
         { person: state.ref, state: state.state },
         waitForChange,
       );

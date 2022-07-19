@@ -29,7 +29,7 @@ const MAX = 1;
 export class CircadianService {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly solarCalcService: SolarCalcService,
+    private readonly solarCalc: SolarCalcService,
     @InjectConfig(CIRCADIAN_MAX_TEMP)
     private readonly maxTemperature: number,
     @InjectConfig(CIRCADIAN_MIN_TEMP)
@@ -84,7 +84,7 @@ export class CircadianService {
    * The templating service seems to be capable of doing this same work
    */
   private getColorOffset(): number {
-    const calc = this.solarCalcService.SOLAR_CALC;
+    const calc = this.solarCalc.SOLAR_CALC;
     const noon = dayjs(calc.solarNoon);
     const dusk = dayjs(calc.dusk);
     const dawn = dayjs(calc.dawn);

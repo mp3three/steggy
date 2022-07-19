@@ -8,11 +8,11 @@ import { ApiGenericResponse, AuthStack } from '@steggy/server';
 @AuthStack()
 @ApiTags('metadata')
 export class MetadataController {
-  constructor(private readonly metadataService: MetadataService) {}
+  constructor(private readonly metadata: MetadataService) {}
 
   @Post('/')
   @ApiGenericResponse()
   public async create(@Body() metadata: MetadataDTO): Promise<MetadataDTO> {
-    return await this.metadataService.create(metadata);
+    return await this.metadata.create(metadata);
   }
 }

@@ -15,7 +15,7 @@ import { OnceIsEnough } from '../../decorators/once-is-enough.decorator';
  */
 @Injectable()
 export class ModuleScannerService {
-  constructor(private readonly discoveryService: DiscoveryService) {}
+  constructor(private readonly discovery: DiscoveryService) {}
 
   @OnceIsEnough()
   public applicationProviders<T extends unknown = unknown>(): T[] {
@@ -42,8 +42,8 @@ export class ModuleScannerService {
   @OnceIsEnough()
   public getProviders<T extends unknown = unknown>(): T[] {
     return [
-      ...this.discoveryService.getControllers(),
-      ...this.discoveryService.getProviders(),
+      ...this.discovery.getControllers(),
+      ...this.discovery.getProviders(),
     ]
       .filter(wrapper => {
         if (!wrapper.instance) {

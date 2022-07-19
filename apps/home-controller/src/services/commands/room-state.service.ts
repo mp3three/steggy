@@ -16,7 +16,7 @@ import {
 export class RoomStateChangeCommandService
   implements iRoutineCommand<RoutineCommandRoomStateDTO>
 {
-  constructor(private readonly roomService: RoomService) {}
+  constructor(private readonly room: RoomService) {}
 
   public async activate({
     command,
@@ -25,6 +25,6 @@ export class RoomStateChangeCommandService
     command: RoutineCommandDTO<RoutineCommandRoomStateDTO>;
     waitForChange: boolean;
   }): Promise<void> {
-    await this.roomService.activateState(command.command, waitForChange);
+    await this.room.activateState(command.command, waitForChange);
   }
 }

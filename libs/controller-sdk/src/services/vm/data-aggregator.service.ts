@@ -16,10 +16,10 @@ export class DataAggregatorService {
   constructor(
     private readonly logger: AutoLogService,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
+    private readonly room: RoomService,
     @Inject(forwardRef(() => PersonService))
-    private readonly personService: PersonService,
-    private readonly secretsService: SecretsService,
+    private readonly person: PersonService,
+    private readonly secrets: SecretsService,
     private readonly entityManager: EntityManagerService,
   ) {}
 
@@ -63,10 +63,10 @@ export class DataAggregatorService {
   }
 
   private async fromDatabase(): Promise<tNestedObject> {
-    const people = await this.personService.list({
+    const people = await this.person.list({
       select: ['name', 'metadata'],
     });
-    const rooms = await this.roomService.list({ select: ['name', 'metadata'] });
+    const rooms = await this.room.list({ select: ['name', 'metadata'] });
     const out: tNestedObject = {};
     [...people, ...rooms].forEach(({ name, metadata }) => {
       if (is.empty(name) || is.empty(metadata)) {
@@ -86,7 +86,7 @@ export class DataAggregatorService {
   }
 
   private fromSecrets(type: tMetadataType): tNestedObject {
-    const { secrets } = this.secretsService.buildMetadata();
+    const { secrets } = this.secrets.buildMetadata();
     let entries = Object.entries(secrets);
     switch (type) {
       case 'number':

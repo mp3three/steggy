@@ -3,12 +3,7 @@ import chalk from 'chalk';
 
 import { KeyModifiers, tKeyMap, TTYKeypressOptions } from '../contracts';
 import { Editor, iBuilderEditor } from '../decorators';
-import {
-  KeyboardManagerService,
-  KeymapService,
-  ScreenService,
-  TextRenderingService,
-} from '../services';
+import { KeyboardManagerService, ScreenService } from '../services';
 
 export interface PasswordEditorRenderOptions {
   current: string;
@@ -30,10 +25,8 @@ export class PasswordEditorService
   implements iBuilderEditor<PasswordEditorRenderOptions>
 {
   constructor(
-    private readonly keyboardService: KeyboardManagerService,
-    private readonly keymap: KeymapService,
-    private readonly screenService: ScreenService,
-    private readonly textRendering: TextRenderingService,
+    private readonly keyboard: KeyboardManagerService,
+    private readonly screen: ScreenService,
   ) {}
 
   private complete = false;
@@ -49,12 +42,12 @@ export class PasswordEditorService
     this.complete = false;
     this.value = this.config.current ?? '';
     this.done = done;
-    this.keyboardService.setKeyMap(this, KEYMAP);
+    this.keyboard.setKeyMap(this, KEYMAP);
   }
 
   public render(): void {
     if (this.complete) {
-      this.screenService.render(
+      this.screen.render(
         chalk`{green ? } {bold ${this.config.label}} {gray ${this.value}}`,
       );
       return;

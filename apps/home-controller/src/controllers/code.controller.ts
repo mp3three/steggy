@@ -23,10 +23,7 @@ import {
 @AuthStack()
 @ApiTags('code')
 export class CodeController {
-  constructor(
-    private readonly logger: AutoLogService,
-    private readonly codeService: CodeService,
-  ) {}
+  constructor(private readonly code: CodeService) {}
 
   @Get('/tags')
   @ApiResponse({
@@ -42,7 +39,7 @@ export class CodeController {
   })
   public async routineTags(): Promise<{ tags: string[] }> {
     return {
-      tags: await this.codeService.allTags(),
+      tags: await this.code.allTags(),
     };
   }
   @Post(`/`)
@@ -52,7 +49,7 @@ export class CodeController {
     description: `Add some new code`,
   })
   public async create(@Body() data: CodeDTO): Promise<CodeDTO> {
-    return await this.codeService.create(BaseSchemaDTO.cleanup(data));
+    return await this.code.create(BaseSchemaDTO.cleanup(data));
   }
 
   @Delete(`/:code`)
@@ -62,7 +59,7 @@ export class CodeController {
   public async delete(
     @Param('code') code: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.codeService.delete(code);
+    await this.code.delete(code);
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -75,7 +72,7 @@ export class CodeController {
     @Param('code') code: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<CodeDTO> {
-    return await this.codeService.load(code, control);
+    return await this.code.load(code, control);
   }
 
   @Get('/')
@@ -84,7 +81,7 @@ export class CodeController {
     description: `List all code`,
   })
   public async list(@Locals() { control }: ResponseLocals): Promise<CodeDTO[]> {
-    return await this.codeService.list(control);
+    return await this.code.list(control);
   }
 
   @Put(`/:code`)
@@ -98,7 +95,7 @@ export class CodeController {
     @Body() data: Partial<CodeDTO>,
     @Locals() { control }: ResponseLocals,
   ): Promise<CodeDTO> {
-    await this.codeService.update(BaseSchemaDTO.cleanup(data), code);
-    return await this.codeService.load(code, control);
+    await this.code.update(BaseSchemaDTO.cleanup(data), code);
+    return await this.code.load(code, control);
   }
 }

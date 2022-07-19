@@ -24,7 +24,7 @@ export class ApplicationManagerService implements iStackProvider {
     private readonly editorExplorer: EditorExplorerService,
     private readonly componentExplorer: ComponentExplorerService,
     @Inject(forwardRef(() => ScreenService))
-    private readonly screenService: ScreenService,
+    private readonly screen: ScreenService,
     @Inject(forwardRef(() => KeyboardManagerService))
     private readonly keyboard: KeyboardManagerService,
   ) {}
@@ -99,8 +99,8 @@ export class ApplicationManagerService implements iStackProvider {
   }
 
   public setHeader(primary: string, secondary = ''): number {
-    this.screenService.clear();
-    this.screenService.printLine();
+    this.screen.clear();
+    this.screen.printLine();
     let max = 0;
     if (!is.empty(secondary)) {
       primary = figlet.textSync(primary, {
@@ -112,7 +112,7 @@ export class ApplicationManagerService implements iStackProvider {
         .map(i => `  ${i}`)
         .join(`\n`);
       max = ansiMaxLength(text);
-      this.screenService.printLine(`\n` + text);
+      this.screen.printLine(`\n` + text);
     } else {
       secondary = primary;
       primary = '';
@@ -130,7 +130,7 @@ export class ApplicationManagerService implements iStackProvider {
       .map(i => `  ${i}`)
       .join(`\n`);
     max = Math.max(max, ansiMaxLength(secondary));
-    this.screenService.printLine(secondary);
+    this.screen.printLine(secondary);
     this.header = `${primary}\n${secondary}`;
     return max;
   }

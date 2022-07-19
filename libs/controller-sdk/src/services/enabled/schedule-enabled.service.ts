@@ -20,25 +20,22 @@ export class ScheduleEnabledService
 {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly chronoService: ChronoService,
+    private readonly chrono: ChronoService,
     @Inject(forwardRef(() => StopProcessingCommandService))
     private readonly stopProcessing: StopProcessingCommandService,
     private readonly routineEnabled: RoutineEnabledService,
-    private readonly routineService: RoutineService,
+    private readonly routine: RoutineService,
   ) {}
 
   public watch(
     comparison: RoutineRelativeDateComparisonDTO,
     routine: RoutineDTO,
   ): () => void {
-    const [parsed] = this.chronoService.parse<boolean>(
-      comparison.expression,
-      false,
-    );
+    const [parsed] = this.chrono.parse<boolean>(comparison.expression, false);
     if (is.boolean(parsed)) {
       this.logger.error(
         { comparison },
-        `[${this.routineService.superFriendlyName(
+        `[${this.routine.superFriendlyName(
           routine._id,
         )}] Expression failed parsing`,
       );
@@ -56,11 +53,11 @@ export class ScheduleEnabledService
     const result = this.stopProcessing.dateComparison(comparison);
     if (result !== currentState) {
       this.logger.info(
-        `${this.routineService.superFriendlyName(routine._id)} State changed`,
+        `${this.routine.superFriendlyName(routine._id)} State changed`,
       );
       return result;
     }
-    const [startDate, endDate] = this.chronoService.parse<boolean>(
+    const [startDate, endDate] = this.chrono.parse<boolean>(
       comparison.expression,
       false,
     );

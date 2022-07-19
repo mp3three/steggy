@@ -51,8 +51,8 @@ export class GroupService {
     private readonly logger: AutoLogService,
     private readonly switchGroup: SwitchGroupService,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
-    private readonly routineService: RoutineService,
+    private readonly room: RoomService,
+    private readonly routine: RoutineService,
   ) {}
 
   public async activateCommand(
@@ -149,7 +149,7 @@ export class GroupService {
     const group = is.string(item) ? item : item._id;
     const groupObject = await this.load(group);
     this.logger.info(`Removing [${groupObject.friendlyName}]`);
-    const rooms = await this.roomService.list({
+    const rooms = await this.room.list({
       filters: new Set([{ field: 'groups', value: group }]),
     });
     if (!is.empty(rooms)) {
@@ -157,18 +157,15 @@ export class GroupService {
         `[${groupObject.friendlyName}] detaching from {${rooms.length}} rooms`,
       );
     }
-    await each(
-      rooms,
-      async room => await this.roomService.deleteGroup(room, group),
-    );
-    const routines = await this.routineService.list({
+    await each(rooms, async room => await this.room.deleteGroup(room, group));
+    const routines = await this.routine.list({
       filters: new Set([{ field: 'command.command.group', value: group }]),
     });
     await each(routines, async routine => {
       this.logger.debug(
         `Removing group [${groupObject.friendlyName}] from routine [${routine.friendlyName}]`,
       );
-      await this.routineService.update(routine._id, {
+      await this.routine.update(routine._id, {
         command: routine.command.filter(
           (command: RoutineCommandDTO<RoutineCommandGroupStateDTO>) =>
             !(
@@ -211,17 +208,17 @@ export class GroupService {
     const group = await this.load<GROUP_TYPE>(item);
 
     // Remove state from room states
-    const rooms = await this.roomService.list({
+    const rooms = await this.room.list({
       filters: new Set([{ field: 'save_states.states.ref', value: group }]),
     });
     await each(
       rooms,
       // Just detach the states, not the group
-      async room => await this.roomService.deleteGroup(room, group._id, true),
+      async room => await this.room.deleteGroup(room, group._id, true),
     );
 
     // Remove commands setting it
-    const routines = await this.routineService.list({
+    const routines = await this.routine.list({
       filters: new Set([
         { field: 'command.command.group', value: group._id },
         { field: 'command.type', value: 'group_state' },
@@ -231,7 +228,7 @@ export class GroupService {
       this.logger.debug(
         `Removing group [${group.friendlyName}] states from routine [${routine.friendlyName}]`,
       );
-      await this.routineService.update(routine._id, {
+      await this.routine.update(routine._id, {
         command: routine.command.filter(
           (command: RoutineCommandDTO<RoutineCommandGroupStateDTO>) =>
             !(

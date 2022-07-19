@@ -52,8 +52,8 @@ export class EntityController {
     private readonly lightManager: LightManagerService,
     private readonly logger: AutoLogService,
     private readonly entityRename: EntityRenameService,
-    private readonly metadataService: MetadataService,
-    private readonly entityService: EntityService,
+    private readonly metadata: MetadataService,
+    private readonly entity: EntityService,
   ) {}
 
   @Post(`/flags/:id`)
@@ -61,7 +61,7 @@ export class EntityController {
     @Param('id') entityId: string,
     @Body() { flag }: { flag: string },
   ): Promise<string[]> {
-    await this.metadataService.addFlag(entityId, flag);
+    await this.metadata.addFlag(entityId, flag);
     return await this.listFlags(entityId);
   }
 
@@ -131,7 +131,7 @@ export class EntityController {
     description: `List not-ignored entity ids, supports result control.`,
   })
   public listAllEntities(@Locals() { control }: ResponseLocals): string[] {
-    return this.entityService.list(control).map(({ entity_id }) => entity_id);
+    return this.entity.list(control).map(({ entity_id }) => entity_id);
   }
 
   @Get('/list-all')
@@ -147,7 +147,7 @@ export class EntityController {
 
   @Get('/flags/:entityId')
   public async listFlags(@Param('entityId') entity: string): Promise<string[]> {
-    const metadata = await this.metadataService.getMetadata(entity);
+    const metadata = await this.metadata.getMetadata(entity);
     return metadata?.data.flags ?? [];
   }
 
@@ -174,7 +174,7 @@ export class EntityController {
     @Param('id') entityId: string,
     @Param('flag') flag: string,
   ): Promise<string[]> {
-    await this.metadataService.removeFlag(entityId, flag);
+    await this.metadata.removeFlag(entityId, flag);
     return await this.listFlags(entityId);
   }
 

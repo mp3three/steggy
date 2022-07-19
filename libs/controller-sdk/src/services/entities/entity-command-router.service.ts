@@ -29,12 +29,12 @@ import { LightManagerService } from '../lighting';
 export class EntityCommandRouterService {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly lightService: LightManagerService,
-    private readonly switchService: SwitchDomainService,
-    private readonly mediaService: MediaPlayerDomainService,
-    private readonly fanService: FanDomainService,
-    private readonly lockService: LockDomainService,
-    private readonly climateService: ClimateDomainService,
+    private readonly light: LightManagerService,
+    private readonly switchDomain: SwitchDomainService,
+    private readonly media: MediaPlayerDomainService,
+    private readonly fan: FanDomainService,
+    private readonly lock: LockDomainService,
+    private readonly climate: ClimateDomainService,
   ) {}
 
   public async fromState(
@@ -110,31 +110,23 @@ export class EntityCommandRouterService {
   ): Promise<void> {
     switch (command) {
       case 'turnOff':
-        return await this.climateService.turnOff(id, waitForChange);
+        return await this.climate.turnOff(id, waitForChange);
       case 'turnOn':
-        return await this.climateService.turnOn(id, waitForChange);
+        return await this.climate.turnOn(id, waitForChange);
       case 'setFanMode':
-        await this.climateService.setFanMode(id, body.fan_mode, waitForChange);
+        await this.climate.setFanMode(id, body.fan_mode, waitForChange);
         return;
       case 'setHvacMode':
-        await this.climateService.setHvacMode(
-          id,
-          body.hvac_mode,
-          waitForChange,
-        );
+        await this.climate.setHvacMode(id, body.hvac_mode, waitForChange);
         return;
       case 'setPresetMode':
-        await this.climateService.setPresetMode(
-          id,
-          body.preset_mode,
-          waitForChange,
-        );
+        await this.climate.setPresetMode(id, body.preset_mode, waitForChange);
         return;
       case 'setTemperature':
-        await this.climateService.setTemperature(id, body, waitForChange);
+        await this.climate.setTemperature(id, body, waitForChange);
         return;
       case 'setHumidity':
-        await this.climateService.setHumidity(
+        await this.climate.setHumidity(
           id,
           body.current_humidity,
           waitForChange,
@@ -142,11 +134,7 @@ export class EntityCommandRouterService {
         return;
       case 'setSwingMode':
         // 💃
-        await this.climateService.setSwingMode(
-          id,
-          body.swing_mode,
-          waitForChange,
-        );
+        await this.climate.setSwingMode(id, body.swing_mode, waitForChange);
         return;
     }
   }
@@ -161,30 +149,26 @@ export class EntityCommandRouterService {
     switch (command) {
       case 'turnOff':
       case 'off':
-        return await this.fanService.turnOff(id, waitForChange);
+        return await this.fan.turnOff(id, waitForChange);
       case 'turnOn':
       case 'on':
         if (!percentage) {
-          return await this.fanService.turnOn(id, waitForChange);
+          return await this.fan.turnOn(id, waitForChange);
         }
       // fall through
       case 'setSpeed':
       case 'setFanSpeed':
         if (is.number(percentage)) {
-          return await this.fanService.setPercentage(
-            id,
-            percentage,
-            waitForChange,
-          );
+          return await this.fan.setPercentage(id, percentage, waitForChange);
         }
         if (is.string(speed)) {
-          return await this.fanService.setSpeed(id, speed, waitForChange);
+          return await this.fan.setSpeed(id, speed, waitForChange);
         }
         return;
       case 'fanSpeedUp':
-        return await this.fanService.fanSpeedUp(id, waitForChange);
+        return await this.fan.fanSpeedUp(id, waitForChange);
       case 'fanSpeedDown':
-        return await this.fanService.fanSpeedDown(id, waitForChange);
+        return await this.fan.fanSpeedDown(id, waitForChange);
     }
     throw new BadRequestException(command);
   }
@@ -197,17 +181,17 @@ export class EntityCommandRouterService {
   ) {
     switch (command) {
       case 'circadianLight':
-        return await this.lightService.circadianLight(id);
+        return await this.light.circadianLight(id);
       case 'dimDown':
-        return await this.lightService.dimDown({}, [id]);
+        return await this.light.dimDown({}, [id]);
       case 'dimUp':
-        return await this.lightService.dimUp({}, [id]);
+        return await this.light.dimUp({}, [id]);
       case 'turnOff':
       case 'off':
-        return await this.lightService.turnOff(id, waitForChange);
+        return await this.light.turnOff(id, waitForChange);
       case 'turnOn':
       case 'on':
-        return await this.lightService.turnOn(id, { extra }, waitForChange);
+        return await this.light.turnOn(id, { extra }, waitForChange);
     }
     throw new BadRequestException(command);
   }
@@ -216,10 +200,10 @@ export class EntityCommandRouterService {
     switch (command) {
       case 'lock':
       case 'locked':
-        return await this.lockService.lock(id, waitForChange);
+        return await this.lock.lock(id, waitForChange);
       case 'unlock':
       case 'unlocked':
-        return await this.lockService.unlock(id, waitForChange);
+        return await this.lock.unlock(id, waitForChange);
     }
     throw new BadRequestException(command);
   }
@@ -232,20 +216,20 @@ export class EntityCommandRouterService {
     switch (command) {
       case 'turnOff':
       case 'off':
-        return await this.mediaService.turnOff(id, waitForChange);
+        return await this.media.turnOff(id, waitForChange);
       case 'turnOn':
       case 'on':
-        return await this.mediaService.turnOn(id, waitForChange);
+        return await this.media.turnOn(id, waitForChange);
       case 'playPause':
-        return await this.mediaService.playPause(id, waitForChange);
+        return await this.media.playPause(id, waitForChange);
       case 'mute':
-        return await this.mediaService.mute(id, waitForChange);
+        return await this.media.mute(id, waitForChange);
       case 'volumeUp':
-        return await this.mediaService.volumeUp(id, waitForChange);
+        return await this.media.volumeUp(id, waitForChange);
       case 'volumeDown':
-        return await this.mediaService.volumeDown(id, waitForChange);
+        return await this.media.volumeDown(id, waitForChange);
       case 'toggle':
-        return await this.mediaService.toggle(id, waitForChange);
+        return await this.media.toggle(id, waitForChange);
     }
     throw new BadRequestException(command);
   }
@@ -257,13 +241,13 @@ export class EntityCommandRouterService {
   ): Promise<void> {
     switch (command) {
       case 'toggle':
-        return await this.switchService.toggle(id, waitForChange);
+        return await this.switchDomain.toggle(id, waitForChange);
       case 'turnOn':
       case 'on':
-        return await this.switchService.turnOn(id, waitForChange);
+        return await this.switchDomain.turnOn(id, waitForChange);
       case 'turnOff':
       case 'off':
-        return await this.switchService.turnOff(id, waitForChange);
+        return await this.switchDomain.turnOff(id, waitForChange);
     }
     throw new BadRequestException(command);
   }

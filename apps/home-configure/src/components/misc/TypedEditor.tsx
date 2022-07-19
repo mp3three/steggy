@@ -66,7 +66,6 @@ export function TypedEditor(props: {
       setCustomCode(result);
     }
     loadCustomCode();
-    console.log(exclude, props.type);
   }, [exclude, props.type]);
 
   function sendUpdate(update: string): void {

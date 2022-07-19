@@ -10,10 +10,10 @@ import { RoomService } from './room.service';
 export class SaveStateService {
   constructor(
     @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
+    private readonly group: GroupService,
     private readonly commandRouter: EntityCommandRouterService,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
+    private readonly room: RoomService,
   ) {}
 
   public async activateState(
@@ -36,7 +36,7 @@ export class SaveStateService {
         if (state.type !== 'group') {
           return;
         }
-        await this.groupService.activateState(
+        await this.group.activateState(
           { group: state.ref, state: state.state },
           waitForChange,
         );
@@ -45,7 +45,7 @@ export class SaveStateService {
         if (state.type !== 'room') {
           return;
         }
-        await this.roomService.activateState(
+        await this.room.activateState(
           { room: state.ref, state: state.state },
           waitForChange,
         );

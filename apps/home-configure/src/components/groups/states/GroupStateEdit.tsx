@@ -384,7 +384,6 @@ export function GroupStateEdit(props: {
         set.color_mode = 'hs' as ColorModes;
         break;
     }
-    console.log(set);
     cards.forEach(i =>
       (i as LightEntityCard)?.setState(set as GeneralSaveStateDTO),
     );

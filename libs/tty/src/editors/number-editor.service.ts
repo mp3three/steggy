@@ -40,9 +40,9 @@ export class NumberEditorService
   implements iBuilderEditor<NumberEditorRenderOptions>
 {
   constructor(
-    private readonly keyboardService: KeyboardManagerService,
+    private readonly keyboard: KeyboardManagerService,
     private readonly keymap: KeymapService,
-    private readonly screenService: ScreenService,
+    private readonly screen: ScreenService,
     private readonly textRendering: TextRenderingService,
   ) {}
 
@@ -59,12 +59,12 @@ export class NumberEditorService
     this.complete = false;
     this.reset();
     this.done = done;
-    this.keyboardService.setKeyMap(this, KEYMAP);
+    this.keyboard.setKeyMap(this, KEYMAP);
   }
 
   public render(): void {
     if (this.complete) {
-      this.screenService.render(
+      this.screen.render(
         chalk`{green ? } {bold ${this.config.label}} {gray ${Number(
           this.value,
         ).toLocaleString()}}`,
@@ -149,7 +149,7 @@ export class NumberEditorService
       ),
     );
     const message = this.textRendering.pad(out.join(`\n`));
-    this.screenService.render(
+    this.screen.render(
       message,
       this.keymap.keymapHelp({
         message,

@@ -11,7 +11,7 @@ export class LightFlashCommandService {
     private readonly logger: AutoLogService,
     private readonly flashAnimation: FlashAnimationService,
     @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
+    private readonly group: GroupService,
   ) {}
 
   public async activate(
@@ -49,7 +49,7 @@ export class LightFlashCommandService {
 
     waitForChange = false,
   ): Promise<void> {
-    const group = await this.groupService.getWithStates(ref);
+    const group = await this.group.getWithStates(ref);
     this.logger.debug(`Flash entity ${group.friendlyName}`);
     await each(group.entities, async entity => {
       await this.flashAnimation.flash(
