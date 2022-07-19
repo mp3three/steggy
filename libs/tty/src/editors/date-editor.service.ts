@@ -240,6 +240,11 @@ export class DateEditorService
     }
     if (this.fuzzy) {
       const [result] = parse(this.chronoText);
+      if (!result) {
+        this.error = chalk.red`Invalid expression`;
+        this.render();
+        return false;
+      }
       if (result.end) {
         this.error = chalk.red`Expression cannot result in a date range`;
         this.render();

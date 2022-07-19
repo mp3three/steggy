@@ -257,7 +257,6 @@
       "tmp": true,
       "**/yarn-error.log": true,
       "**/.pino-prettyrc": true,
-      "**/.prettierrc": true,
       "**/.browserslistrc": true,
       "**/.yarnclean": true,
       "LICENSE": true,
