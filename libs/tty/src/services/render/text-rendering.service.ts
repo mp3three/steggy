@@ -145,6 +145,13 @@ export class TextRenderingService {
           item[1] ? item[1].score - 500 : -1000,
         );
       },
+      // There is some sort of black magic involved with picking this threshold
+      // So far, between -600 & -800 seems to produce acceptable results
+      //
+      // May require better dialing in the future.
+      // Definitely a magic number
+      //
+      threshold: -700,
     });
 
     return results.map(result => {

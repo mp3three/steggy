@@ -11,15 +11,7 @@ import {
   template,
   TextRenderingService,
 } from '@steggy/tty';
-import {
-  DEFAULT_LIMIT,
-  is,
-  PEAT,
-  SECOND,
-  SINGLE,
-  sleep,
-  TitleCase,
-} from '@steggy/utilities';
+import { is, PEAT, SECOND, SINGLE, sleep, TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
 
 type tMenuOptions = MenuComponentOptions & { generateCount: number } & Record<
@@ -57,7 +49,7 @@ export class MenuSampler {
   private menuOptions: tMenuOptions = {
     condensed: false,
     generateCount: DEFAULT_GENERATE,
-    headerMessage: faker.lorem.lines(DEFAULT_LIMIT),
+    headerMessage: faker.company.catchPhrase(),
     hideSearch: false,
     keyOnly: false,
     leftHeader: '',
