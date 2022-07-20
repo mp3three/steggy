@@ -10,10 +10,23 @@ import chalk from 'chalk';
 
 import { ConfigSampler, MenuSampler, PromptSampler } from './services';
 
+// @QuickScript is derived from @Module from NestJS
+// imports, providers, controllers all work as expected
+//
+// After bootstrapping, it will automatically run `exec` on the annotated class
+//
 @QuickScript({
   application: Symbol('sampler-app'),
   bootstrap: {
-    config: { application: { BOOT_OVERRIDE: faker.hacker.phrase() } },
+    // A configuration passed into bootstrap will be merged into the primary app config.
+    // Values provided here take priority over those provided at the config definition.
+    //
+    // Disagree with a default value a library uses? A build configuration have different requirements?
+    // Perfect spot to override the way things work.
+    // All user provided values take priority over this value.
+    config: {
+      application: { APPLICATION_OVERRIDE: faker.hacker.phrase() },
+    },
   },
   imports: [TTYModule],
   providers: [ConfigSampler, MenuSampler, PromptSampler],
@@ -26,11 +39,11 @@ export class SamplerApp {
     private readonly configSampler: ConfigSampler,
   ) {}
 
-  public async exec(value: string): Promise<void> {
+  public async exec(value?: string): Promise<void> {
     this.application.setHeader('Sampler App');
     const action = await this.prompt.menu({
       condensed: true,
-      // hideSearch: true,
+      hideSearch: true,
       keyMap: { d: ['done'] },
       right: [
         {

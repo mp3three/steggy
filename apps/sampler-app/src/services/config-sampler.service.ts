@@ -11,6 +11,8 @@ import chalk from 'chalk';
 import { exit } from 'process';
 
 const LINE = 75;
+const DEFAULTED_CONFIG = faker.internet.exampleEmail();
+const APPLICATION_OVERRIDE = 'Definitely not saying anything weird here';
 
 @Injectable()
 export class ConfigSampler {
@@ -54,14 +56,14 @@ export class ConfigSampler {
       type: 'internal',
     })
     private readonly configInternal: unknown,
-    @InjectConfig('BOOT_OVERRIDE', {
-      default: 'Definitely not saying anything weird here',
+    @InjectConfig('APPLICATION_OVERRIDE', {
+      default: APPLICATION_OVERRIDE,
       description: 'A configuration item with an application level override',
       type: 'string',
     })
     private readonly bootOverride: string,
     @InjectConfig('DEFAULTED_CONFIG', {
-      default: faker.internet.exampleEmail(),
+      default: DEFAULTED_CONFIG,
       description: 'A configuration with a default value',
       type: 'string',
     })
@@ -70,25 +72,37 @@ export class ConfigSampler {
 
   public async exec(): Promise<void> {
     this.application.setHeader('Config Sampler');
+    this.screen.printLine(
+      [
+        ``,
+        chalk`{bold Injected configurations}`,
+        ``,
+        chalk`{gray configuration level defaults:}`,
+        chalk.gray` {yellow - } {bold DEFAULTED_CONFIG} = {cyan.dim ${DEFAULTED_CONFIG}}`,
+        chalk.gray` {yellow - } {bold APPLICATION_OVERRIDE} = {cyan.dim ${APPLICATION_OVERRIDE}}`,
+        ``,
+      ].join(`\n`),
+    );
     // eslint-disable-next-line no-console
     console.log({
-      boolean: this.configBoolean,
-      bootOverride: this.bootOverride,
-      configStringArray: this.configStringArray,
-      defaultedConfig: this.defaultedConfig,
-      earlyAbort: this.earlyAbort,
-      internal: this.configInternal,
-      number: this.configNumber,
-      record: this.configRecord,
-      string: this.configString,
+      APPLICATION_OVERRIDE: this.bootOverride,
+      BOOLEAN_CONFIG: this.configBoolean,
+      DEFAULTED_CONFIG: this.defaultedConfig,
+      EARLY_ABORT: this.earlyAbort,
+      INTERNAL_CONFIG: this.configInternal,
+      NUMBER_CONFIG: this.configNumber,
+      RECORD_CONFIG: this.configRecord,
+      STRING_ARRAY_CONFIG: this.configStringArray,
+      STRING_CONFIG: this.configString,
     });
+    this.screen.printLine();
     this.screen.printLine(
       [
         chalk``,
         chalk.blue.dim('='.repeat(LINE)),
         chalk``,
-        chalk` {green.dim @steggy/boilerplate} is capable of scanning applications, and `,
-        `    producing a report of all available configuration items a script can accept.`,
+        chalk` {green.dim @steggy/boilerplate} is capable of scanning applications, and producing`,
+        `    a report of all available configuration items a script can accept.`,
         chalk`    {bold Configurations will be consumed from} {gray (in order of priority)}{bold :}`,
         chalk`     {yellow.bold - }{cyan command line switches}`,
         chalk`     {yellow.bold - }{cyan environment variables}`,
@@ -104,7 +118,7 @@ export class ConfigSampler {
         chalk` {green.dim @steggy/config-builder} can accept this report, and guide users`,
         `    in creating valid environment variables / file based configurations. `,
         chalk``,
-        chalk` {bgGreen.black sampler-app --scan-config > config.json; config-builder --definition_file ./config.json}`,
+        chalk`{bgCyan.black sampler-app --scan-config > config.json; config-builder --definition_file ./config.json}`,
         chalk``,
         chalk``,
       ].join(`\n`),
