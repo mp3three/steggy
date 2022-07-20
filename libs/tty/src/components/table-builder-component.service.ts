@@ -72,6 +72,8 @@ export class TableBuilderComponentService<
     this.opt = config;
     this.done = done;
     this.opt.current ??= [];
+    this.selectedRow = START;
+    this.selectedCell = START;
     this.rows = Array.isArray(this.opt.current)
       ? this.opt.current
       : [this.opt.current];
