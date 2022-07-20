@@ -69,7 +69,7 @@ export class PromptSampler {
         },
         {
           entry: ['object builder', 'builder'],
-          helpText: chalk`{yellow User configurable demo WIP}.\nView it in action with {cyan date} & {cyan menu} prompts`,
+          helpText: chalk`{yellow User configurable demo WIP}.\nGenerate simple objects`,
         },
         { entry: ['string'], helpText: 'Request text from the user' },
       ],
@@ -92,7 +92,7 @@ export class PromptSampler {
         await this.lists();
         return await this.exec(action);
       case 'builder':
-        // await this.objectBuilder();
+        await this.objectBuilder();
         return await this.exec(action);
       case 'menu':
         await this.menuSampler.exec();
@@ -230,7 +230,15 @@ export class PromptSampler {
   }
 
   private async objectBuilder(): Promise<void> {
-    // this.screen.printLine(this.text.type(result));
+    this.application.setHeader('Object builder');
+    this.screen.printLine(`An example of the object builder in table mode.`);
+    const result = await this.prompt.objectBuilder({
+      elements: [
+        { name: 'Key', path: 'key', type: 'string' },
+        { name: 'Value', path: 'value', type: 'string' },
+      ],
+    });
+    this.screen.printLine(this.text.type(result));
     await this.prompt.acknowledge();
   }
 

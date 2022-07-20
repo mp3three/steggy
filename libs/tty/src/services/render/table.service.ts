@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ARRAY_OFFSET, EMPTY, INCREMENT, is, START } from '@steggy/utilities';
+import { ARRAY_OFFSET, is, START } from '@steggy/utilities';
 import chalk from 'chalk';
 import { get } from 'object-path';
 
@@ -10,8 +10,6 @@ import { TextRenderingService } from './text-rendering.service';
 
 const PADDING = 1;
 
-const ROW_MULTIPLIER = 2;
-const HEADER_LINE_COUNT = 4;
 const MIN_CELL_WIDTH = ' undefined '.length;
 
 const NAME_CELL = (i: ColumnInfo, max?: number) =>
@@ -31,7 +29,6 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
   private columns: ColumnInfo[];
   private selectedCell: number;
   private selectedRow: number;
-  private value: VALUE;
   private values: VALUE[];
 
   public renderTable(
@@ -51,22 +48,16 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
       const [top, content] = header;
       return [top, content, this.footer()].join(`\n`);
     }
-    const rows = r
-      .join(
-        `\n` +
-          [
-            TABLE_PARTS.left_mid,
-            this.columns
-              .map(i => TABLE_PARTS.bottom.repeat(i.maxWidth))
-              .join(TABLE_PARTS.mid_mid),
-            TABLE_PARTS.right_mid,
-          ].join('') +
-          `\n`,
-      )
-      .split(`\n`);
-    const footer = this.footer();
-    const pre = [...header, ...rows, footer];
-    return this.highlightRow(pre).join(`\n`);
+    const middle_bar = [
+      TABLE_PARTS.left_mid,
+      this.columns
+        .map(i => TABLE_PARTS.bottom.repeat(i.maxWidth))
+        .join(TABLE_PARTS.mid_mid),
+      TABLE_PARTS.right_mid,
+    ].join('');
+    return [...header, r.join(`\n` + middle_bar + `\n`), this.footer()].join(
+      `\n`,
+    );
   }
 
   private calcColumns(values: VALUE[]): void {
@@ -79,10 +70,9 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
             ansiMaxLength(
               ...values.map(row => {
                 const value = get(row, item.path);
-                if (item.format) {
-                  return item.format(value);
-                }
-                return String(value);
+                return item.format
+                  ? item.format(value)
+                  : this.textRender.type(value);
               }),
             ) +
             PADDING,
@@ -103,69 +93,29 @@ export class TableService<VALUE extends object = Record<string, unknown>> {
     ].join('');
   }
 
-  private highlightChar(char: string): string {
-    return chalk.bold.red(char);
-  }
-
-  private highlightRow(lines: string[]): string[] {
-    if (is.empty(this.values)) {
-      return;
-    }
-    const bottom = HEADER_LINE_COUNT + this.selectedRow * ROW_MULTIPLIER;
-    const middle = bottom - ARRAY_OFFSET;
-    const top = middle - ARRAY_OFFSET;
-    const list = this.columns
-      .slice(START, this.selectedCell)
-      .map(({ maxWidth }) => maxWidth);
-    const start = is.empty(list)
-      ? EMPTY
-      : list.reduce((a, b) => a + b) + this.selectedCell;
-    const end =
-      start + this.columns[this.selectedCell].maxWidth + PADDING + PADDING;
-    return lines.map((line, index) => {
-      if (![middle, top, bottom].includes(index)) {
-        return line;
-      }
-      if ([top, bottom].includes(index)) {
-        return (
-          line.slice(START, start) +
-          this.highlightChar(line.slice(start, end)) +
-          line.slice(end)
-        );
-      }
-      return line;
-    });
-  }
-
   private rows(): string[] {
-    const out = this.values.map((i, rowIndex) => {
+    return this.values.map((i, rowIndex) => {
       return [
-        rowIndex === this.selectedRow && this.selectedCell === START
-          ? this.highlightChar(TABLE_PARTS.left)
-          : TABLE_PARTS.left,
+        TABLE_PARTS.left,
         ...this.activeOptions.elements.map((element, colIndex) => {
           const value = get(i, element.path);
+          const types = element.format
+            ? element.format(value)
+            : this.textRender.type(value);
           const content =
             ' '.repeat(PADDING) +
-            this.textRender.type(
-              element.format ? element.format(value) : value,
-            );
+            (this.selectedRow === rowIndex && this.selectedCell === colIndex
+              ? chalk.inverse(types)
+              : types);
           const cell = ansiPadEnd(content, this.columns[colIndex].maxWidth);
           const append =
             colIndex === this.columns.length - ARRAY_OFFSET
               ? TABLE_PARTS.right
               : TABLE_PARTS.middle;
-          return (
-            cell +
-            (rowIndex === this.selectedRow &&
-            [colIndex, colIndex + INCREMENT].includes(this.selectedCell)
-              ? this.highlightChar(append)
-              : append)
-          );
+          return cell + append;
         }),
       ].join('');
     });
-    return out;
   }
 
   private tableHeader(): string[] {
