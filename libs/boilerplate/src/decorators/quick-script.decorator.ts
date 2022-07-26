@@ -1,4 +1,4 @@
-import { Controller, Injectable, Provider } from '@nestjs/common';
+import { Controller, Injectable, Provider, Type } from '@nestjs/common';
 import { DEFAULT_LIMIT, is } from '@steggy/utilities';
 import { ClassConstructor } from 'class-transformer';
 import { exit } from 'process';
@@ -52,6 +52,7 @@ export function QuickScript({
   // Add in the MainCLI module to enable TTY functionality
   options.imports ??= [];
   options.providers ??= [];
+  options.controllers ??= [];
   options.application ??= Symbol('steggy-quick-script');
 
   // Corrective measures for loading metadata
@@ -59,7 +60,7 @@ export function QuickScript({
   LibraryModule.configs.set(options.application.description, {
     configuration: options.configuration ?? {},
   });
-  return function (target) {
+  return function (target: Type) {
     // ? When TS is applying the @QuickScript annotation to the target class
     // Set up a fake application module that uses it as the only provider
     // Bootstrap that module, and call the `exec()` method on the target class to officially "start" the app
@@ -85,7 +86,8 @@ export function QuickScript({
       });
     }, WAIT_BOOTSTRAP);
     options.providers.push(target as unknown as Provider);
-    if (is.string(controller)) {
+    if (bootstrap.http && is.string(controller)) {
+      options.controllers.push(target);
       return Controller(controller)(target);
     }
     return Injectable()(target);
