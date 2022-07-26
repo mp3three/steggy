@@ -3,7 +3,7 @@
   "license": "MIT",
   "displayName": "Home Controller",
   "description": "[Visit the wiki](https://github.com/mp3three/steggy/wiki) for more information",
-  "version": "22.31.0",
+  "version": "22.31.1",
   "engines": {
     "node": ">=16.0.0"
   }

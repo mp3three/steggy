@@ -6,7 +6,7 @@
   "name": "@steggy/home-assistant",
   "displayName": "Home Assistant",
   "license": "MIT",
-  "version": "22.31.0",
+  "version": "22.31.1",
   "homepage": "https://github.com/mp3three/steggy",
   "repository": {
     "type": "git",
