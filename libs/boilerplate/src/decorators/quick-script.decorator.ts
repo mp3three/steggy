@@ -86,7 +86,7 @@ export function QuickScript({
       });
     }, WAIT_BOOTSTRAP);
     options.providers.push(target as unknown as Provider);
-    if (bootstrap.http && is.string(controller)) {
+    if (bootstrap?.http && is.string(controller)) {
       options.controllers.push(target);
       return Controller(controller)(target);
     }
